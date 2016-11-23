@@ -14,6 +14,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 import com.sayler.gina.R;
+import com.sayler.gina.mvp.dummy.model.Dummy;
+import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
 import java.util.List;
 
@@ -22,8 +24,8 @@ import java.util.List;
  *
  * @author sayler
  */
-public class DaysAdapter extends BaseRecyclerViewAdapter<String> implements SectionTitleProvider {
-  public DaysAdapter(Context context, List<String> items) {
+public class DaysAdapter extends BaseRecyclerViewAdapter<Dummy> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysViewHolder> {
+  public DaysAdapter(Context context, List<Dummy> items) {
     super(context, items);
   }
 
@@ -38,21 +40,38 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<String> implements Sect
     if (holder instanceof DaysViewHolder) {
       DaysViewHolder viewHolder = (DaysViewHolder) holder;
 
-      viewHolder.title.setText(items.get(position));
+      viewHolder.title.setText(items.get(position).title);
     }
   }
 
   @Override
   public String getSectionTitle(int position) {
-    return items.get(position);
+    return items.get(position).date;
   }
 
-  public static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<String> {
+  @Override
+  public long getHeaderId(int position) {
+    return position / 10;
+  }
+
+  @Override
+  public DaysViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+    View view = inflater.inflate(R.layout.it_header, parent, false);
+    return new DaysViewHolder(view, DaysAdapter.this);
+  }
+
+  @Override
+  public void onBindHeaderViewHolder(DaysViewHolder holder, int position) {
+    DaysViewHolder viewHolder = holder;
+    viewHolder.title.setText(String.valueOf(items.get(position).date));
+  }
+
+  public static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Dummy> {
 
     @Bind(R.id.title)
     public TextView title;
 
-    public DaysViewHolder(final View view, final BaseRecyclerViewAdapter<String> baseRecyclerViewAdapter) {
+    public DaysViewHolder(final View view, final BaseRecyclerViewAdapter<Dummy> baseRecyclerViewAdapter) {
       super(view, baseRecyclerViewAdapter);
       ButterKnife.bind(this, view);
     }

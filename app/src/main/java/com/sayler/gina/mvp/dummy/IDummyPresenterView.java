@@ -6,6 +6,7 @@
 package com.sayler.gina.mvp.dummy;
 
 import com.sayler.gina.mvp.IPresenterView;
+import com.sayler.gina.mvp.dummy.model.Dummy;
 
 import java.util.List;
 
@@ -15,5 +16,5 @@ import java.util.List;
 public interface IDummyPresenterView extends IPresenterView {
   void onServerError();
 
-  void onDownloaded(List<String> i);
+  void onDownloaded(List<Dummy> i);
 }

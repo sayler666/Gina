@@ -4,6 +4,7 @@ import android.content.Context;
 import com.sayler.gina.mvp.Presenter;
 import com.sayler.gina.mvp.dummy.interactor.DummyInteractor;
 import com.sayler.gina.mvp.dummy.interactor.InteractorCallback;
+import com.sayler.gina.mvp.dummy.model.Dummy;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
     dummyInteractor.downloadData(new InteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<String> data = dummyInteractor.getData();
+        List<Dummy> data = dummyInteractor.getData();
         handleComponentsInfo(data);
       }
 
@@ -40,7 +41,7 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
 
   /* ------------------------------------------------------ HANDLERS ------------------------------------------------ */
 
-  private void handleComponentsInfo(List<String> s) {
+  private void handleComponentsInfo(List<Dummy> s) {
     if (presenterView != null) {
       presenterView.onDownloaded(s);
     }
