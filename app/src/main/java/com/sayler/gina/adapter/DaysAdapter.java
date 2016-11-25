@@ -14,18 +14,16 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 import com.sayler.gina.R;
-import com.sayler.gina.model.Dummy;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
+import entity.Day;
 
 import java.util.List;
 
 /**
- * TODO Add class description...
- *
  * @author sayler
  */
-public class DaysAdapter extends BaseRecyclerViewAdapter<Dummy> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysViewHolder> {
-  public DaysAdapter(Context context, List<Dummy> items) {
+public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysViewHolder> {
+  public DaysAdapter(Context context, List<Day> items) {
     super(context, items);
   }
 
@@ -40,18 +38,23 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Dummy> implements Secti
     if (holder instanceof DaysViewHolder) {
       DaysViewHolder viewHolder = (DaysViewHolder) holder;
 
-      viewHolder.title.setText(items.get(position).title);
+      String content = items.get(position).getContent();
+      if (content.length() > 150) {
+        content = content.substring(0, 150) + " (...)";
+      }
+
+      viewHolder.title.setText(content);
     }
   }
 
   @Override
   public String getSectionTitle(int position) {
-    return items.get(position).date;
+    return items.get(position).getDate().substring(0, 7);
   }
 
   @Override
   public long getHeaderId(int position) {
-    return position / 10;
+    return Math.abs(items.get(position).getDate().substring(0, 7).hashCode());
   }
 
   @Override
@@ -62,16 +65,15 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Dummy> implements Secti
 
   @Override
   public void onBindHeaderViewHolder(DaysViewHolder holder, int position) {
-    DaysViewHolder viewHolder = holder;
-    viewHolder.title.setText(String.valueOf(items.get(position).date));
+    holder.title.setText(items.get(position).getDate().substring(0, 7));
   }
 
-  public static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Dummy> {
+  static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {
 
     @Bind(R.id.title)
     public TextView title;
 
-    public DaysViewHolder(final View view, final BaseRecyclerViewAdapter<Dummy> baseRecyclerViewAdapter) {
+    DaysViewHolder(final View view, final BaseRecyclerViewAdapter<Day> baseRecyclerViewAdapter) {
       super(view, baseRecyclerViewAdapter);
       ButterKnife.bind(this, view);
     }

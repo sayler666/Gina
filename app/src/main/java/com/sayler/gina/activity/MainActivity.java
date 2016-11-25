@@ -1,5 +1,6 @@
 package com.sayler.gina.activity;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,18 +11,19 @@ import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
-import com.sayler.gina.presenter.dummy.DummyPresenter;
-import com.sayler.gina.presenter.dummy.IDummyPresenterView;
-import com.sayler.gina.model.Dummy;
+import com.sayler.gina.permission.PermissionUtils;
+import com.sayler.gina.presenter.dummy.DaysPresenter;
+import com.sayler.gina.presenter.dummy.DaysPresenterView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
+import entity.Day;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements IDummyPresenterView {
+public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
 
   @Inject
-  DummyPresenter dummyPresenter;
+  DaysPresenter daysPresenter;
 
   @Bind(R.id.recyclerView)
   RecyclerView recyclerView;
@@ -42,7 +44,12 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
 
     setupViews();
 
-    load();
+    if (!PermissionUtils.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+      PermissionUtils.askForPermission(this, this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    } else {
+      load();
+    }
+
   }
 
   private void setupViews() {
@@ -51,19 +58,19 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
   }
 
   private void bindPresenters() {
-    dummyPresenter.onBindView(this);
+    daysPresenter.onBindView(this);
   }
 
   private void load() {
-    dummyPresenter.download();
+    daysPresenter.download();
   }
 
   @Override
-  public void onDownloaded(List<Dummy> data) {
+  public void onDownloaded(List<Day> data) {
     createRecyclerView(data);
   }
 
-  private void createRecyclerView(List<Dummy> strings) {
+  private void createRecyclerView(List<Day> strings) {
     DaysAdapter daysAdapter = new DaysAdapter(this, strings);
     recyclerView.setAdapter(daysAdapter);
     StickyRecyclerHeadersDecoration decor = new StickyRecyclerHeadersDecoration(daysAdapter);
@@ -91,7 +98,17 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
 
   @Override
   protected void onDestroy() {
-    dummyPresenter.onUnBindView();
+    daysPresenter.onUnBindView();
     super.onDestroy();
+  }
+
+  @Override
+  public void onPermissionGranted(String permission) {
+    load();
+  }
+
+  @Override
+  public void onPermissionRejected(String permission) {
+
   }
 }

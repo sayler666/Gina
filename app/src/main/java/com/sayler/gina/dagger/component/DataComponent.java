@@ -1,6 +1,7 @@
 package com.sayler.gina.dagger.component;
 
 import com.sayler.gina.activity.MainActivity;
+import com.sayler.gina.dagger.module.DataModule;
 import com.sayler.gina.dagger.module.ServicesModule;
 import dagger.Component;
 
@@ -9,7 +10,8 @@ import javax.inject.Singleton;
 @Singleton
 @Component(
     modules = {
-        ServicesModule.class
+        ServicesModule.class,
+        DataModule.class
     },
     dependencies = {
         ApplicationComponent.class

@@ -6,15 +6,15 @@
 package com.sayler.gina.presenter.dummy;
 
 import com.sayler.gina.presenter.IPresenterView;
-import com.sayler.gina.model.Dummy;
+import entity.Day;
 
 import java.util.List;
 
 /**
  * @author lchromy
  */
-public interface IDummyPresenterView extends IPresenterView {
+public interface DaysPresenterView extends IPresenterView {
   void onServerError();
 
-  void onDownloaded(List<Dummy> i);
+  void onDownloaded(List<Day> i);
 }

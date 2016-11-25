@@ -1,33 +1,32 @@
 package com.sayler.gina.presenter.dummy;
 
 import android.content.Context;
-import com.sayler.gina.interactor.dummy.DummyInteractor;
+import android.util.Log;
+import com.sayler.gina.interactor.dummy.DaysInteractor;
+import com.sayler.gina.interactor.dummy.DaysInteractorCallback;
 import com.sayler.gina.presenter.Presenter;
-import com.sayler.gina.interactor.dummy.DummyInteractorCallback;
-import com.sayler.gina.model.Dummy;
+import entity.Day;
 
 import java.util.List;
 
-public class DummyPresenter extends Presenter<IDummyPresenterView> {
+public class DaysPresenter extends Presenter<DaysPresenterView> {
 
-  public static final String TAG = "DummyPresenter";
+  private static final String TAG = "DummyPresenter";
 
-  private Context context;
-  private DummyInteractor dummyInteractor;
+  private DaysInteractor daysInteractor;
 
-  public DummyPresenter(final Context context, final DummyInteractor dummyInteractor) {
-    this.context = context;
-    this.dummyInteractor = dummyInteractor;
+  public DaysPresenter(final Context context, final DaysInteractor daysInteractor) {
+    this.daysInteractor = daysInteractor;
   }
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
   public void download() {
 
-    dummyInteractor.downloadData(new DummyInteractorCallback() {
+    daysInteractor.downloadData(new DaysInteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<Dummy> data = dummyInteractor.getData();
+        List<Day> data = daysInteractor.getData();
         handleComponentsInfo(data);
       }
 
@@ -41,7 +40,7 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
 
   /* ------------------------------------------------------ HANDLERS ------------------------------------------------ */
 
-  private void handleComponentsInfo(List<Dummy> s) {
+  private void handleComponentsInfo(List<Day> s) {
     if (presenterView != null) {
       presenterView.onDownloaded(s);
     }
@@ -51,11 +50,12 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
     if (presenterView != null) {
       presenterView.onServerError();
     }
+    Log.e(TAG, throwable.getMessage(), throwable);
   }
 
   @Override
   public void onUnBindView() {
     super.onUnBindView();
-    dummyInteractor.freeResources();
+    daysInteractor.freeResources();
   }
 }

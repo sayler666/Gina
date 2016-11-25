@@ -5,7 +5,7 @@
  */
 package com.sayler.gina.interactor.dummy;
 
-public interface DummyInteractorCallback {
+public interface DaysInteractorCallback {
   void onDownloadData();
   void onDownloadDataError(Throwable throwable);
 }

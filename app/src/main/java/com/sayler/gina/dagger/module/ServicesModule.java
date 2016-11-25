@@ -6,9 +6,10 @@
 package com.sayler.gina.dagger.module;
 
 import android.content.Context;
-import com.sayler.gina.interactor.dummy.DummyInteractor;
-import com.sayler.gina.presenter.dummy.DummyPresenter;
-import com.sayler.gina.interactor.dummy.DummyInteractorDb;
+import com.sayler.domain.dao.DaysDataProvider;
+import com.sayler.gina.interactor.dummy.DaysInteractor;
+import com.sayler.gina.interactor.dummy.DaysInteractorDb;
+import com.sayler.gina.presenter.dummy.DaysPresenter;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import com.sayler.gina.rx.RxAndroidTransformer;
 import dagger.Module;
@@ -22,12 +23,12 @@ public class ServicesModule {
   }
 
   @Provides
-  public DummyInteractor provideDummyInteractor(IRxAndroidTransformer iRxAndroidTransformer) {
-    return new DummyInteractorDb(iRxAndroidTransformer);
+  public DaysInteractor provideDummyInteractor(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider) {
+    return new DaysInteractorDb(iRxAndroidTransformer, daysDataProvider);
   }
 
   @Provides
-  public DummyPresenter provideDummyPresenter(Context context, DummyInteractor DummyInteractor) {
-    return new DummyPresenter(context, DummyInteractor);
+  public DaysPresenter provideDummyPresenter(Context context, DaysInteractor DaysInteractor) {
+    return new DaysPresenter(context, DaysInteractor);
   }
 }
