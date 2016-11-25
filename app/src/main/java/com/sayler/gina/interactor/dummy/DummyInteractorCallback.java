@@ -3,9 +3,9 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.mvp.dummy.interactor;
+package com.sayler.gina.interactor.dummy;
 
-public interface InteractorCallback {
+public interface DummyInteractorCallback {
   void onDownloadData();
   void onDownloadDataError(Throwable throwable);
 }

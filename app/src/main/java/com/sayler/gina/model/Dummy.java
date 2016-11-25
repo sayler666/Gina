@@ -1,4 +1,4 @@
-package com.sayler.gina.mvp.dummy.model;
+package com.sayler.gina.model;
 
 /**
  * Created by miquido on 23/11/16.

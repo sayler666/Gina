@@ -6,9 +6,9 @@
 package com.sayler.gina.dagger.module;
 
 import android.content.Context;
-import com.sayler.gina.mvp.dummy.DummyPresenter;
-import com.sayler.gina.mvp.dummy.interactor.DummyInteractor;
-import com.sayler.gina.mvp.dummy.interactor.DummyInteractorDb;
+import com.sayler.gina.interactor.dummy.DummyInteractor;
+import com.sayler.gina.presenter.dummy.DummyPresenter;
+import com.sayler.gina.interactor.dummy.DummyInteractorDb;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import com.sayler.gina.rx.RxAndroidTransformer;
 import dagger.Module;
@@ -27,7 +27,7 @@ public class ServicesModule {
   }
 
   @Provides
-  public DummyPresenter provideDummyPresenter(Context context, DummyInteractor dummyInteractor) {
-    return new DummyPresenter(context, dummyInteractor);
+  public DummyPresenter provideDummyPresenter(Context context, DummyInteractor DummyInteractor) {
+    return new DummyPresenter(context, DummyInteractor);
   }
 }

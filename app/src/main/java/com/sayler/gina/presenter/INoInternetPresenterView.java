@@ -1,4 +1,4 @@
-package com.sayler.gina.mvp;
+package com.sayler.gina.presenter;
 
 public interface INoInternetPresenterView {
   void onNoInternet();

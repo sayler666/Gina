@@ -14,7 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 import com.sayler.gina.R;
-import com.sayler.gina.mvp.dummy.model.Dummy;
+import com.sayler.gina.model.Dummy;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
 import java.util.List;

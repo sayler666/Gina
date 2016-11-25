@@ -1,10 +1,10 @@
-package com.sayler.gina.mvp.dummy;
+package com.sayler.gina.presenter.dummy;
 
 import android.content.Context;
-import com.sayler.gina.mvp.Presenter;
-import com.sayler.gina.mvp.dummy.interactor.DummyInteractor;
-import com.sayler.gina.mvp.dummy.interactor.InteractorCallback;
-import com.sayler.gina.mvp.dummy.model.Dummy;
+import com.sayler.gina.interactor.dummy.DummyInteractor;
+import com.sayler.gina.presenter.Presenter;
+import com.sayler.gina.interactor.dummy.DummyInteractorCallback;
+import com.sayler.gina.model.Dummy;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
 
   public void download() {
 
-    dummyInteractor.downloadData(new InteractorCallback() {
+    dummyInteractor.downloadData(new DummyInteractorCallback() {
       @Override
       public void onDownloadData() {
         List<Dummy> data = dummyInteractor.getData();
@@ -53,4 +53,9 @@ public class DummyPresenter extends Presenter<IDummyPresenterView> {
     }
   }
 
+  @Override
+  public void onUnBindView() {
+    super.onUnBindView();
+    dummyInteractor.freeResources();
+  }
 }

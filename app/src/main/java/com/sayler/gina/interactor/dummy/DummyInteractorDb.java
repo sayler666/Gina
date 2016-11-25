@@ -3,19 +3,20 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.mvp.dummy.interactor;
+package com.sayler.gina.interactor.dummy;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
-import com.sayler.gina.mvp.dummy.model.Dummy;
+import com.sayler.gina.interactor.BaseInteractor;
+import com.sayler.gina.model.Dummy;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import rx.Subscription;
 
 import java.util.List;
 
-public class DummyInteractorDb implements DummyInteractor {
+public class DummyInteractorDb extends BaseInteractor implements DummyInteractor {
 
-  private InteractorCallback interactorCallback;
+  private DummyInteractorCallback interactorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private List<Dummy> data;
 
@@ -24,9 +25,14 @@ public class DummyInteractorDb implements DummyInteractor {
   }
 
   @Override
-  public void downloadData(InteractorCallback interactorCallback) {
+  public void downloadData(DummyInteractorCallback interactorCallback) {
     this.interactorCallback = interactorCallback;
     retrieveData();
+  }
+
+  @Override
+  public List<Dummy> getData() {
+    return data;
   }
 
   private void retrieveData() {
@@ -35,6 +41,7 @@ public class DummyInteractorDb implements DummyInteractor {
     Subscription subscription = rx.Observable.just(strings)
         .compose(iRxAndroidTransformer.applySchedulers())
         .subscribe(this::handleComponentsInfo, this::dispatchDefaultPresenterError);
+    needToUnsubscribe(subscription);
   }
 
   private void dispatchDefaultPresenterError(Throwable throwable) {
@@ -48,10 +55,5 @@ public class DummyInteractorDb implements DummyInteractor {
 
   private void saveData(List<Dummy> s) {
     data = s;
-  }
-
-  @Override
-  public List<Dummy> getData() {
-    return data;
   }
 }

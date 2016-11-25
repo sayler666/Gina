@@ -1,4 +1,4 @@
-package com.sayler.gina.mvp;
+package com.sayler.gina.presenter;
 
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;

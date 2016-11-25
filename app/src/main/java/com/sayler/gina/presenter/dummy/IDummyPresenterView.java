@@ -3,10 +3,10 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.mvp.dummy;
+package com.sayler.gina.presenter.dummy;
 
-import com.sayler.gina.mvp.IPresenterView;
-import com.sayler.gina.mvp.dummy.model.Dummy;
+import com.sayler.gina.presenter.IPresenterView;
+import com.sayler.gina.model.Dummy;
 
 import java.util.List;
 
