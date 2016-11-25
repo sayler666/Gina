@@ -36,7 +36,7 @@ public class DummyInteractorDb extends BaseInteractor implements DummyInteractor
   }
 
   private void retrieveData() {
-    List<Dummy> strings = Stream.range(0, 10000).map(integer -> new Dummy("Dzien: " + integer, String.valueOf(integer))).collect(Collectors.toList());
+    List<Dummy> strings = Stream.range(0, 10000).map(integer -> new Dummy("Dzien: " + integer, String.valueOf(2006 + integer))).collect(Collectors.toList());
 
     Subscription subscription = rx.Observable.just(strings)
         .compose(iRxAndroidTransformer.applySchedulers())

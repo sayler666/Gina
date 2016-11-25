@@ -5,9 +5,13 @@
               android:layout_height="wrap_content">
     <TextView
             android:id="@+id/title"
-            android:background="@color/colorAccent"
+            android:background="@color/colorPrimary"
+            android:paddingLeft="@dimen/p_medium"
+            android:paddingRight="@dimen/p_medium"
+            android:paddingTop="@dimen/p_small"
+            android:paddingBottom="@dimen/p_small"
             android:layout_width="match_parent"
-            android:textColor="@color/colorPrimary"
-            android:layout_height="20dp"
+            android:textColor="@color/white"
+            android:layout_height="wrap_content"
     />
 </LinearLayout>

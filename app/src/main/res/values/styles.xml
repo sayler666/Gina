@@ -8,4 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="bubble_text_appearance" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>

@@ -1,6 +1,7 @@
 package com.sayler.gina.activity;
 
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import butterknife.Bind;
@@ -27,6 +28,7 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
 
   @Bind(R.id.fastscroll)
   FastScroller fastScroller;
+  private LinearLayoutManager layoutManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +46,8 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
   }
 
   private void setupViews() {
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    layoutManager = new LinearLayoutManager(this);
+    recyclerView.setLayoutManager(layoutManager);
   }
 
   private void bindPresenters() {
@@ -65,6 +68,7 @@ public class MainActivity extends BaseActivity implements IDummyPresenterView {
     recyclerView.setAdapter(daysAdapter);
     StickyRecyclerHeadersDecoration decor = new StickyRecyclerHeadersDecoration(daysAdapter);
     recyclerView.addItemDecoration(decor);
+    recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
     fastScroller.setRecyclerView(recyclerView);
 
     daysAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

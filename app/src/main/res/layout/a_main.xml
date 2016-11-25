@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/a_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -17,5 +18,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            app:fastscroll__handleColor="@color/colorAccent"
+            app:fastscroll__bubbleColor="@color/colorPrimaryDark"
+            app:fastscroll__bubbleTextAppearance="@style/bubble_text_appearance"
+    />
 </RelativeLayout>
