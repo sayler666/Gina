@@ -4,14 +4,16 @@ package entity;
  * Created by lchromy on 26.05.15.
  */
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import org.joda.time.DateTime;
 
 @DatabaseTable(tableName = "days")
 public class Day extends BaseEntity {
   public static final String DATE_COL = "date";
-  @DatabaseField(columnName = DATE_COL)
-  private String date;
+  @DatabaseField(columnName = DATE_COL, dataType = DataType.DATE_TIME)
+  private DateTime date;
   public static final String CONTENT_COL = "content";
   @DatabaseField(columnName = CONTENT_COL)
   private String content;
@@ -19,16 +21,16 @@ public class Day extends BaseEntity {
   public Day() {
   }
 
-  public Day(String date, String content) {
+  public Day(DateTime date, String content) {
     this.date = date;
     this.content = content;
   }
 
-  public String getDate() {
+  public DateTime getDate() {
     return date;
   }
 
-  public void setDate(String date) {
+  public void setDate(DateTime date) {
     this.date = date;
   }
 

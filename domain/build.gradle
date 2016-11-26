@@ -32,4 +32,5 @@ dependencies {
   compile 'com.j256.ormlite:ormlite-core:4.47'
   compile 'com.j256.ormlite:ormlite-android:4.47'
   compile 'com.android.support:appcompat-v7:25.0.1'
+  compile 'joda-time:joda-time:2.5'
 }

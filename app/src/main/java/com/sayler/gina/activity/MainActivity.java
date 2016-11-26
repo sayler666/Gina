@@ -2,7 +2,6 @@ package com.sayler.gina.activity;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import butterknife.Bind;
@@ -15,6 +14,7 @@ import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.presenter.dummy.DaysPresenter;
 import com.sayler.gina.presenter.dummy.DaysPresenterView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
 
 import javax.inject.Inject;
@@ -75,7 +75,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     recyclerView.setAdapter(daysAdapter);
     StickyRecyclerHeadersDecoration decor = new StickyRecyclerHeadersDecoration(daysAdapter);
     recyclerView.addItemDecoration(decor);
-    recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
+    recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(this).colorResId(R.color.divider).marginResId(R.dimen.p_medium).build());
     fastScroller.setRecyclerView(recyclerView);
 
     daysAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -84,6 +84,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
          decor.invalidateHeaders();
        }
      });
+
   }
 
   @Override

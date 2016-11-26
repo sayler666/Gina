@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author sayler
  */
-public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysViewHolder> {
+public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysHeaderViewHolder> {
   public DaysAdapter(Context context, List<Day> items) {
     super(context, items);
   }
@@ -38,42 +38,78 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
     if (holder instanceof DaysViewHolder) {
       DaysViewHolder viewHolder = (DaysViewHolder) holder;
 
-      String content = items.get(position).getContent();
-      if (content.length() > 150) {
-        content = content.substring(0, 150) + " (...)";
+      //content
+      String contentShort;
+      String contentFull = items.get(position).getContent();
+      if (contentFull.length() > 150) {
+        contentShort = contentFull.substring(0, 150) + " (...)";
+      } else {
+        contentShort = contentFull;
       }
 
-      viewHolder.title.setText(content);
+      //date
+      String date = items.get(position).getDate().toString("d, EEEE");
+
+      viewHolder.content.setText(contentShort);
+      viewHolder.time.setText(date);
+
+      if (viewHolder.expanded) {
+        viewHolder.expanded = false;
+      }
+
+      viewHolder.time.setOnClickListener(view -> {
+        if (!viewHolder.expanded) {
+          viewHolder.content.setText(contentFull);
+        } else {
+          viewHolder.content.setText(contentShort);
+        }
+        viewHolder.expanded = !viewHolder.expanded;
+      });
     }
   }
 
   @Override
   public String getSectionTitle(int position) {
-    return items.get(position).getDate().substring(0, 7);
+    return items.get(position).getDate().toString("YYYY \nMMMM");
   }
 
   @Override
   public long getHeaderId(int position) {
-    return Math.abs(items.get(position).getDate().substring(0, 7).hashCode());
+    return Math.abs(items.get(position).getDate().toString().substring(0, 7).hashCode());
   }
 
   @Override
-  public DaysViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+  public DaysHeaderViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
     View view = inflater.inflate(R.layout.it_header, parent, false);
-    return new DaysViewHolder(view, DaysAdapter.this);
+    return new DaysHeaderViewHolder(view, DaysAdapter.this);
   }
 
   @Override
-  public void onBindHeaderViewHolder(DaysViewHolder holder, int position) {
-    holder.title.setText(items.get(position).getDate().substring(0, 7));
+  public void onBindHeaderViewHolder(DaysHeaderViewHolder holder, int position) {
+    holder.title.setText(items.get(position).getDate().toString("YYYY MMMM"));
   }
 
   static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {
 
-    @Bind(R.id.title)
-    public TextView title;
+    @Bind(R.id.content)
+    public TextView content;
+    @Bind(R.id.time)
+    public TextView time;
+    public boolean expanded = false;
 
     DaysViewHolder(final View view, final BaseRecyclerViewAdapter<Day> baseRecyclerViewAdapter) {
+      super(view, baseRecyclerViewAdapter);
+      ButterKnife.bind(this, view);
+    }
+
+  }
+
+  static final class DaysHeaderViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {
+
+    @Bind(R.id.content)
+    public TextView title;
+
+    DaysHeaderViewHolder(final View view, final BaseRecyclerViewAdapter<Day> baseRecyclerViewAdapter) {
       super(view, baseRecyclerViewAdapter);
       ButterKnife.bind(this, view);
     }
