@@ -12,6 +12,7 @@ import entity.Day;
 import rx.Subscription;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
@@ -38,7 +39,6 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   }
 
   private void retrieveData() {
-   // List<Dummy> strings = Stream.range(0, 10000).map(integer -> new Dummy("Dzien: " + integer, String.valueOf(2006 + integer))).collect(Collectors.toList());
 
     Subscription subscription = null;
     try {
@@ -56,6 +56,7 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   }
 
   private void handleComponentsInfo(List<Day> s) {
+    Collections.sort(s);
     saveData(s);
     interactorCallback.onDownloadData();
   }

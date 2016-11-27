@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.joda.time.DateTime;
 
 @DatabaseTable(tableName = "days")
-public class Day extends BaseEntity {
+public class Day extends BaseEntity implements Comparable<Day> {
   public static final String DATE_COL = "date";
   @DatabaseField(columnName = DATE_COL, dataType = DataType.DATE_TIME)
   private DateTime date;
@@ -42,4 +42,8 @@ public class Day extends BaseEntity {
     this.content = content;
   }
 
+  @Override
+  public int compareTo(Day day) {
+    return this.getDate().compareTo(day.getDate());
+  }
 }
