@@ -3,7 +3,7 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.interactor.dummy;
+package com.sayler.gina.interactor.days;
 
 import com.sayler.domain.dao.DaysDataProvider;
 import com.sayler.gina.interactor.BaseInteractor;
@@ -22,15 +22,23 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   private DaysDataProvider daysDataProvider;
   private List<Day> data;
 
+  /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
+
   public DaysInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
     this.daysDataProvider = daysDataProvider;
   }
 
   @Override
-  public void downloadData(DaysInteractorCallback interactorCallback) {
+  public void loadAllData(DaysInteractorCallback interactorCallback) {
     this.interactorCallback = interactorCallback;
-    retrieveData();
+    retrieveAllData();
+  }
+
+  @Override
+  public void loadDataById(long id, DaysInteractorCallback interactorCallback) {
+    this.interactorCallback = interactorCallback;
+    retrieveDataById(id);
   }
 
   @Override
@@ -38,30 +46,50 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
     return data;
   }
 
-  private void retrieveData() {
+  /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
+
+  private void retrieveAllData() {
     Subscription subscription = null;
     try {
       subscription = rx.Observable.just(daysDataProvider.getAll())
           .compose(iRxAndroidTransformer.applySchedulers())
-          .subscribe(this::handleComponentsInfo, this::dispatchDefaultPresenterError);
+          .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
     } catch (SQLException e) {
       e.printStackTrace();
     }
     needToUnsubscribe(subscription);
   }
 
+  private void retrieveDataById(long id) {
+    Subscription subscription = null;
+    try {
+      subscription = rx.Observable.just(daysDataProvider.get(id))
+          .compose(iRxAndroidTransformer.applySchedulers())
+          .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    needToUnsubscribe(subscription);
+  }
+
+  private void handleLoadData(Day day) {
+    List<Day> days = Collections.singletonList(day);
+    saveData(days);
+    interactorCallback.onDownloadData();
+  }
+
   private void dispatchDefaultPresenterError(Throwable throwable) {
     interactorCallback.onDownloadDataError(throwable);
   }
 
-  private void handleComponentsInfo(List<Day> s) {
-    Collections.sort(s);
-    saveData(s);
+  private void handleLoadData(List<Day> days) {
+    Collections.sort(days);
+    saveData(days);
     interactorCallback.onDownloadData();
   }
 
-  private void saveData(List<Day> s) {
-    data = s;
+  private void saveData(List<Day> days) {
+    data = days;
   }
 }

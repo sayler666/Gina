@@ -11,4 +11,23 @@
     <style name="bubble_text_appearance" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textColor">@color/white</item>
     </style>
+    <style name="year_month_header">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:paddingLeft">@dimen/p_medium</item>
+        <item name="android:paddingRight">@dimen/p_medium</item>
+        <item name="android:paddingTop">@dimen/p_small</item>
+        <item name="android:paddingBottom">@dimen/p_small</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="day_header">
+        <item name="android:transitionName">time</item>
+        <item name="android:paddingLeft">@dimen/p_medium</item>
+        <item name="android:paddingRight">@dimen/p_medium</item>
+        <item name="android:paddingTop">@dimen/p_medium</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 </resources>

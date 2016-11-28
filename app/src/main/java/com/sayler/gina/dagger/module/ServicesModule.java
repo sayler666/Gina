@@ -7,9 +7,9 @@ package com.sayler.gina.dagger.module;
 
 import android.content.Context;
 import com.sayler.domain.dao.DaysDataProvider;
-import com.sayler.gina.interactor.dummy.DaysInteractor;
-import com.sayler.gina.interactor.dummy.DaysInteractorDb;
-import com.sayler.gina.presenter.dummy.DaysPresenter;
+import com.sayler.gina.interactor.days.DaysInteractor;
+import com.sayler.gina.interactor.days.DaysInteractorDb;
+import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import com.sayler.gina.rx.RxAndroidTransformer;
 import dagger.Module;

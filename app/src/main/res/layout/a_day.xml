@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="MissingPrefix"
+        android:fillViewport="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+                android:id="@+id/year_month"
+                style="@style/year_month_header"/>
+        <TextView
+                android:id="@+id/day"
+                style="@style/day_header"/>
+        <TextView
+                android:id="@+id/content"
+                android:paddingLeft="@dimen/p_medium"
+                android:paddingRight="@dimen/p_medium"
+                android:paddingBottom="@dimen/p_medium"
+                android:paddingTop="@dimen/p_medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/ts_medium"
+                fontPath="fonts/DroidSerif-Regular.ttf"
+        />
+    </LinearLayout>
+</ScrollView>

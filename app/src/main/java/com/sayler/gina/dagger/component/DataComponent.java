@@ -1,5 +1,6 @@
 package com.sayler.gina.dagger.component;
 
+import com.sayler.gina.activity.DayActivity;
 import com.sayler.gina.activity.MainActivity;
 import com.sayler.gina.dagger.module.DataModule;
 import com.sayler.gina.dagger.module.ServicesModule;
@@ -21,6 +22,8 @@ public interface DataComponent {
 
   /* ---- ACTIVITY ---- */
   void inject(MainActivity mainActivity);
+
+  void inject(DayActivity mainActivity);
 
 
   /* ---- FRAGMENT ---- */

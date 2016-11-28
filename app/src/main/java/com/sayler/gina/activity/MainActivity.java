@@ -1,9 +1,13 @@
 package com.sayler.gina.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
@@ -11,8 +15,8 @@ import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
 import com.sayler.gina.permission.PermissionUtils;
-import com.sayler.gina.presenter.dummy.DaysPresenter;
-import com.sayler.gina.presenter.dummy.DaysPresenterView;
+import com.sayler.gina.presenter.days.DaysPresenter;
+import com.sayler.gina.presenter.days.DaysPresenterView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
@@ -30,7 +34,6 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Bind(R.id.fastscroll)
   FastScroller fastScroller;
-  private LinearLayoutManager layoutManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void setupViews() {
-    layoutManager = new LinearLayoutManager(this);
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
     recyclerView.setLayoutManager(layoutManager);
   }
 
@@ -62,7 +65,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void load() {
-    daysPresenter.download();
+    daysPresenter.loadAll();
   }
 
   @Override
@@ -79,21 +82,27 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     fastScroller.setRecyclerView(recyclerView);
 
     daysAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-       @Override
-       public void onChanged() {
-         decor.invalidateHeaders();
-       }
-     });
+      @Override
+      public void onChanged() {
+        decor.invalidateHeaders();
+      }
+    });
 
+    //on item click
+    daysAdapter.setOnItemClickListener((item, view, position) -> {
+      Intent intent = DayActivity.newIntentShowDay(this, item.getId());
+      //shared elements
+      View dayText = view.findViewById(R.id.day);
+      Pair<View, String> pair1 = Pair.create(dayText, dayText.getTransitionName());
+
+      //noinspection unchecked - unable to check
+      ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
+      this.startActivity(intent, options.toBundle());
+    });
   }
 
   @Override
-  public void onNoInternet() {
-    //not used
-  }
-
-  @Override
-  public void onServerError() {
+  public void onError() {
     //not used
   }
 

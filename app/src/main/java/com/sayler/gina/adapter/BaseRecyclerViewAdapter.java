@@ -22,7 +22,6 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
   }
 
 
-
   public void setItems(List<T> items) {
     this.items = items;
     notifyDataSetChanged();
@@ -38,9 +37,9 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
     return items.size();
   }
 
-  private void onItemClicked(final T item, final int position) {
+  private void onItemClicked(final T item, final View view, final int position) {
     if (onItemClickListener != null && isItemClickable(1)) {
-      onItemClickListener.onItemClicked(item, position);
+      onItemClickListener.onItemClicked(item, view, position);
     }
   }
 
@@ -57,7 +56,7 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
   }
 
   public interface OnItemClickListener<T> {
-    void onItemClicked(T item, int position);
+    void onItemClicked(T item, View view, int position);
   }
 
   public static class RecyclerViewHolderWithOnItemClick<S> extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -79,7 +78,7 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
 
     @Override
     public void onClick(final View v) {
-      adapter.onItemClicked(item, position);
+      adapter.onItemClicked(item, v, position);
     }
   }
 }
