@@ -14,6 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 import com.sayler.gina.R;
+import com.sayler.gina.ui.TextUtils;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 import entity.Day;
 
@@ -39,34 +40,31 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
       DaysViewHolder viewHolder = (DaysViewHolder) holder;
 
       //content
-      String contentShort;
       String contentFull = items.get(position).getContent();
-      if (contentFull.length() > 150) {
-        contentShort = contentFull.substring(0, 150) + " (...)";
-      } else {
-        contentShort = contentFull;
-      }
+      String contentShort = TextUtils.truncateTo(contentFull, 150, "...");
 
       //date
       String date = items.get(position).getDate().toString("d, EEEE");
 
-      viewHolder.content.setText(contentShort);
+      viewHolder.contentShort.setText(contentShort);
+      viewHolder.content.setText(contentFull);
       viewHolder.time.setText(date);
 
-      if (viewHolder.expanded) {
-        viewHolder.expanded = false;
-      }
-
+      //expand
+      viewHolder.expanded = false;
       viewHolder.time.setOnClickListener(view -> {
-        if (!viewHolder.expanded) {
-          viewHolder.content.setText(contentFull);
+        if (viewHolder.expanded) {
+          viewHolder.contentShort.setVisibility(View.VISIBLE);
+          viewHolder.content.setVisibility(View.GONE);
         } else {
-          viewHolder.content.setText(contentShort);
+          viewHolder.contentShort.setVisibility(View.GONE);
+          viewHolder.content.setVisibility(View.VISIBLE);
         }
         viewHolder.expanded = !viewHolder.expanded;
       });
     }
   }
+
 
   @Override
   public String getSectionTitle(int position) {
@@ -93,6 +91,8 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
 
     @Bind(R.id.content)
     public TextView content;
+    @Bind(R.id.contentShort)
+    public TextView contentShort;
     @Bind(R.id.time)
     public TextView time;
     public boolean expanded = false;
