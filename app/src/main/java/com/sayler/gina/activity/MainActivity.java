@@ -3,6 +3,7 @@ package com.sayler.gina.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +23,7 @@ import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
@@ -34,6 +36,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Bind(R.id.fastscroll)
   FastScroller fastScroller;
+  private DaysAdapter daysAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,35 +50,25 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
     setupViews();
 
+    askFormPermissionAndLoadData();
+
+  }
+
+  private void askFormPermissionAndLoadData() {
     if (!PermissionUtils.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       PermissionUtils.askForPermission(this, this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     } else {
       load();
     }
-
   }
 
   private void setupViews() {
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
     recyclerView.setLayoutManager(layoutManager);
-  }
-
-  private void bindPresenters() {
-    daysPresenter.onBindView(this);
-  }
-
-  private void load() {
-    daysPresenter.loadAll();
-  }
-
-  @Override
-  public void onDownloaded(List<Day> data) {
-    createRecyclerView(data);
-  }
-
-  private void createRecyclerView(List<Day> strings) {
-    DaysAdapter daysAdapter = new DaysAdapter(this, strings);
+    daysAdapter = new DaysAdapter(this, Collections.emptyList());
     recyclerView.setAdapter(daysAdapter);
+
+    //sticky header
     StickyRecyclerHeadersDecoration decor = new StickyRecyclerHeadersDecoration(daysAdapter);
     recyclerView.addItemDecoration(decor);
     recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(this).colorResId(R.color.divider).marginResId(R.dimen.p_medium).build());
@@ -101,15 +94,27 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     });
   }
 
-  @Override
-  public void onError() {
-    //not used
+  private void bindPresenters() {
+    daysPresenter.onBindView(this);
+  }
+
+  private void load() {
+    daysPresenter.loadAll();
   }
 
   @Override
-  protected void onDestroy() {
-    daysPresenter.onUnBindView();
-    super.onDestroy();
+  public void onDownloaded(List<Day> data) {
+    createRecyclerView(data);
+  }
+
+  private void createRecyclerView(List<Day> items) {
+    daysAdapter.setItems(items);
+    daysAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void onError() {
+    //TODO
   }
 
   @Override
@@ -119,6 +124,18 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Override
   public void onPermissionRejected(String permission) {
+    //TODO
+  }
 
+  @Override
+  protected void onDestroy() {
+    daysPresenter.onUnBindView();
+    super.onDestroy();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    PermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 }

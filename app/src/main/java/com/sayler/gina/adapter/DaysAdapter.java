@@ -46,7 +46,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
       viewHolder.setItem(day, position);
       //content
       String contentFull = day.getContent();
-      String contentShort = TextUtils.truncateTo(contentFull, 150, "...");
+      String contentShort = TextUtils.truncateTo(contentFull, 200, "...");
 
       //date
       String date = day.getDate().toString(Constatns.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK);

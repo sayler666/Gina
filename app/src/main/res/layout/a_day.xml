@@ -1,32 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:ignore="MissingPrefix"
-        android:fillViewport="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-    <LinearLayout
-            android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        tools:ignore="MissingPrefix">
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <TextView
+
+            <TextView
                 android:id="@+id/year_month"
-                style="@style/year_month_header"/>
-        <TextView
+                style="@style/year_month_header" />
+
+            <TextView
                 android:id="@+id/day"
-                style="@style/day_header"/>
-        <TextView
+                style="@style/day_header"
+                android:layout_below="@+id/year_month" />
+
+            <TextView
                 android:id="@+id/content"
-                android:paddingLeft="@dimen/p_medium"
-                android:paddingRight="@dimen/p_medium"
-                android:paddingBottom="@dimen/p_medium"
-                android:paddingTop="@dimen/p_medium"
+                fontPath="fonts/DroidSerif-Regular.ttf"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/ts_medium"
-                fontPath="fonts/DroidSerif-Regular.ttf"
-        />
-    </LinearLayout>
-</ScrollView>
+                android:layout_below="@+id/day"
+                android:paddingBottom="@dimen/p_bottom_fab"
+                android:paddingLeft="@dimen/p_medium"
+                android:paddingRight="@dimen/p_medium"
+                android:paddingTop="@dimen/p_medium"
+                android:textSize="@dimen/ts_medium" />
+        </RelativeLayout>
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        style="@style/fab"
+        android:src="@drawable/ic_mode_edit_white_24px" />
+</RelativeLayout>

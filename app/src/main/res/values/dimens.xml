@@ -9,4 +9,5 @@
     <dimen name="ts_medium">16sp</dimen>
     <dimen name="ts_normal">14sp</dimen>
     <dimen name="ts_small">12sp</dimen>
+    <dimen name="p_bottom_fab">75dp</dimen>
 </resources>
