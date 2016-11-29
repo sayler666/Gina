@@ -91,5 +91,6 @@ dependencies {
   compile 'com.timehop.stickyheadersrecyclerview:library:[0.4.3]@aar'
   compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
   compile 'uk.co.chrisjenx:calligraphy:2.2.0'
+  compile 'com.wdullaer:materialdatetimepicker:3.0.0'
   compile project(path: ':domain')
 }
