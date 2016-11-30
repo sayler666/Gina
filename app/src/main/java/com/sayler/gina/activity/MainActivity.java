@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
@@ -92,6 +93,11 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
       ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
       this.startActivity(intent, options.toBundle());
     });
+  }
+
+  @OnClick(R.id.fab_add_day)
+  public void onFabAddDayClick() {
+    startActivity(DayEditActivity.newIntentNewDay(this));
   }
 
   private void bindPresenters() {

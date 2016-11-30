@@ -1,12 +1,15 @@
 package com.sayler.gina.presenter;
 
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
+import com.annimon.stream.Stream;
+import com.sayler.gina.interactor.CommonInteractor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Presenter<T> {
   protected T presenterView;
 
-  protected CompositeSubscription subscriptionsToUnsubscribe = new CompositeSubscription();
+  protected List<CommonInteractor> interactorList = new ArrayList<>();
 
   public void onBindView(T iPresenterView) {
     presenterView = iPresenterView;
@@ -22,18 +25,14 @@ public abstract class Presenter<T> {
 
   private void freeResources() {
     presenterView = null;
-    subscriptionsToUnsubscribe.clear();
+    cleanupInteractors();
   }
 
-  protected final void unsubscribe(Subscription subscription) {
-    subscriptionsToUnsubscribe.remove(subscription);
+  protected final void cleanupInteractors() {
+    Stream.of(interactorList).forEach(CommonInteractor::freeResources);
   }
 
-  protected final void unsubscribeAll() {
-    subscriptionsToUnsubscribe.clear();
-  }
-
-  protected final void needToUnsubscribe(Subscription subscription) {
-    subscriptionsToUnsubscribe.add(subscription);
+  protected final void needToFree(CommonInteractor commonInteractor) {
+    interactorList.add(commonInteractor);
   }
 }

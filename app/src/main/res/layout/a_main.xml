@@ -26,7 +26,7 @@
         app:fastscroll__handleColor="@color/colorAccent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_add_day"
         style="@style/fab"
         android:src="@drawable/ic_add_white_24px" />
 </RelativeLayout>

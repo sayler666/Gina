@@ -19,6 +19,7 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public DaysPresenter(final Context context, final DaysInteractor daysInteractor) {
     this.daysInteractor = daysInteractor;
+    needToFree(this.daysInteractor);
   }
 
   public void loadAll() {
@@ -70,9 +71,4 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
     Log.e(TAG, throwable.getMessage(), throwable);
   }
 
-  @Override
-  public void onUnBindView() {
-    super.onUnBindView();
-    daysInteractor.freeResources();
-  }
 }
