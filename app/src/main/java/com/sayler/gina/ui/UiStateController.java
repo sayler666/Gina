@@ -123,7 +123,6 @@ public class UiStateController {
     makeViewAppear(errorUiView);
     makeViewsDisappear(loadingUiView, emptyUiView, contentUiView);
 
-
     currentUiState = UI_STATE_ERROR;
   }
 

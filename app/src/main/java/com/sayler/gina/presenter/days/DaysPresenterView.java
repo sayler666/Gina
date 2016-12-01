@@ -14,7 +14,7 @@ import java.util.List;
  * @author lchromy
  */
 public interface DaysPresenterView extends CommonPresenterView {
-  void onError();
+  void onError(String error);
 
   void onDownloaded(List<Day> dayList);
 

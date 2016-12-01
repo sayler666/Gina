@@ -1,9 +1,7 @@
 package com.sayler.gina.presenter.days;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
-import com.sayler.domain.dao.DBHelper;
 import com.sayler.gina.interactor.days.DaysInteractor;
 import com.sayler.gina.interactor.days.DaysInteractorCallback;
 import com.sayler.gina.presenter.Presenter;

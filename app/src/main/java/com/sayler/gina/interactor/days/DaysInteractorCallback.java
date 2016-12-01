@@ -7,6 +7,8 @@ package com.sayler.gina.interactor.days;
 
 public interface DaysInteractorCallback {
   void onDownloadData();
+
   void onDownloadDataError(Throwable throwable);
+
   void onNoDatabase();
 }

@@ -164,7 +164,6 @@ public final class PermissionUtils {
       return permissions;
     }
 
-
     void returnResult() {
       if (callback != null && permissions != null) {
         callback.onPermissionsResult(permissions);

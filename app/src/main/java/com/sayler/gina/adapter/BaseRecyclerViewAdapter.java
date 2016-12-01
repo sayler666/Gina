@@ -7,7 +7,6 @@ import android.view.View;
 
 import java.util.List;
 
-
 public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
   protected OnItemClickListener<T> onItemClickListener;
@@ -20,7 +19,6 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
     this.items = items;
     this.inflater = LayoutInflater.from(context);
   }
-
 
   public void setItems(List<T> items) {
     this.items = items;

@@ -87,7 +87,6 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
     contentText.setText(day.getContent());
   }
 
-
   @OnClick(R.id.fab_edit)
   public void onFabEditClick() {
     startActivity(DayEditActivity.newIntentEditDay(this, dayId));

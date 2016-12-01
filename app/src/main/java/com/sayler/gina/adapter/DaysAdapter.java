@@ -26,7 +26,6 @@ import java.util.List;
  */
 public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysHeaderViewHolder> {
 
-
   public DaysAdapter(Context context, List<Day> items) {
     super(context, items);
   }
@@ -69,7 +68,6 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
       });
     }
   }
-
 
   @Override
   public String getSectionTitle(int position) {

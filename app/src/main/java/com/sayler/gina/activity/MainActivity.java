@@ -3,7 +3,6 @@ package com.sayler.gina.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -33,6 +32,7 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
 
+  private static final int SELECT_DB_RESULT_CODE = 4650;
   @Inject
   DBManager dbManager;
 
@@ -137,7 +137,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     });
   }
 
-  @OnClick(R.id.fab_add_day)
+  @OnClick(R.id.fab)
   public void onFabAddDayClick() {
     startActivity(DayEditActivity.newIntentNewDay(this));
   }
@@ -156,9 +156,22 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     daysAdapter.notifyDataSetChanged();
   }
 
-  @OnClick(R.id.noDataSourceText)
-  public void rebindDB(){
-    dbManager.setDatabasePath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/db.sqlite1");
+  @OnClick(R.id.selectDataSourceButton)
+  public void rebindDB() {
+    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    intent.setType("*/*");
+    startActivityForResult(intent, SELECT_DB_RESULT_CODE);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    selectDbFile(data.getData().getPath());
+  }
+
+  private void selectDbFile(String path) {
+    dbManager.setDatabasePath(path);
     dbManager.rebindProviders();
     load();
   }
