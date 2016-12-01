@@ -42,7 +42,7 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
   public static Intent newIntentShowDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayActivity.class);
-    intent.putExtra(Constatns.DAY_ID, dayId);
+    intent.putExtra(Constatns.EXTRA_DAY_ID, dayId);
     return intent;
   }
 
@@ -64,8 +64,8 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   private void readExtras() {
-    if (getIntent().hasExtra(Constatns.DAY_ID)) {
-      dayId = getIntent().getLongExtra(Constatns.DAY_ID, -1);
+    if (getIntent().hasExtra(Constatns.EXTRA_DAY_ID)) {
+      dayId = getIntent().getLongExtra(Constatns.EXTRA_DAY_ID, -1);
     }
   }
 

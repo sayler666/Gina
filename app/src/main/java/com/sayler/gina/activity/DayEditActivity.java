@@ -34,15 +34,27 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   public TextView yearMonthText;
   @Bind(R.id.content)
   public EditText contentText;
+  private EditMode editMode;
+
+  private enum EditMode {
+    NEW_DAY, EDIT_DAY
+  }
 
   @State
-  public long dayId;
+  public Long dayId = -1L;
   @State
   public Day day;
 
   public static Intent newIntentEditDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayEditActivity.class);
-    intent.putExtra(Constatns.DAY_ID, dayId);
+    intent.putExtra(Constatns.EXTRA_DAY_ID, dayId);
+    intent.putExtra(Constatns.EXTRA_EDIT_MODE, EditMode.EDIT_DAY.ordinal());
+    return intent;
+  }
+
+  public static Intent newIntentNewDay(Context context) {
+    Intent intent = new Intent(context, DayEditActivity.class);
+    intent.putExtra(Constatns.EXTRA_EDIT_MODE, EditMode.NEW_DAY.ordinal());
     return intent;
   }
 
@@ -58,8 +70,6 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
     readExtras();
 
-    setupViews();
-
     load();
   }
 
@@ -74,15 +84,21 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     dpd.show(getFragmentManager(), "Datepickerdialog");
   }
 
-
   private void readExtras() {
-    if (getIntent().hasExtra(Constatns.DAY_ID)) {
-      dayId = getIntent().getLongExtra(Constatns.DAY_ID, -1);
+    if (getIntent().hasExtra(Constatns.EXTRA_EDIT_MODE)) {
+      //get edit mode
+      int editModeOrdinal = getIntent().getExtras().getInt(Constatns.EXTRA_EDIT_MODE);
+      editMode = EditMode.values()[editModeOrdinal];
+
+      switch (editMode) {
+        case NEW_DAY:
+          day = new Day(new DateTime());
+          break;
+        case EDIT_DAY:
+          dayId = getIntent().getLongExtra(Constatns.EXTRA_DAY_ID, -1);
+          break;
+      }
     }
-  }
-
-  private void setupViews() {
-
   }
 
   private void bindPresenters() {
@@ -90,7 +106,14 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void load() {
-    daysPresenter.loadById(dayId);
+    switch (editMode) {
+      case NEW_DAY:
+        showContent();
+        break;
+      case EDIT_DAY:
+        daysPresenter.loadById(dayId);
+        break;
+    }
   }
 
   @Override

@@ -39,6 +39,6 @@
         <item name="android:layout_margin">@dimen/activity_horizontal_margin</item>
         <item name="borderWidth">2dp</item>
         <item name="fabSize">normal</item>
-        <item name="rippleColor">@color/colorAccent</item>
+        <item name="rippleColor">@color/colorAccentDark</item>
     </style>
 </resources>

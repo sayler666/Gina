@@ -137,6 +137,11 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     });
   }
 
+  @OnClick(R.id.fab_add_day)
+  public void onFabAddDayClick() {
+    startActivity(DayEditActivity.newIntentNewDay(this));
+  }
+
   private void bindPresenters() {
     daysPresenter.onBindView(this);
   }

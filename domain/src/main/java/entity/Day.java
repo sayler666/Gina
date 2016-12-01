@@ -23,6 +23,10 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
   public Day() {
   }
 
+  public Day(DateTime date) {
+    this.date = date;
+  }
+
   public Day(DateTime date, String content) {
     this.date = date;
     this.content = content;
@@ -48,7 +52,6 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
   public int compareTo(Day day) {
     return this.getDate().compareTo(day.getDate());
   }
-
 
   @Override
   public int describeContents() {
