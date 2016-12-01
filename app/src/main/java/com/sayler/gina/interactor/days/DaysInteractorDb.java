@@ -101,6 +101,7 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
   private void handleLoadData(List<Day> days) {
     Collections.sort(days);
+    Collections.reverse(days);
     saveData(days);
     interactorCallback.onDownloadData();
   }
