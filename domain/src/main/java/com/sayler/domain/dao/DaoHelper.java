@@ -1,6 +1,6 @@
 /**
  * Created by Lukasz Chromy on 10.01.14.
- *
+ * <p>
  * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
 package com.sayler.domain.dao;
@@ -15,20 +15,20 @@ import java.sql.SQLException;
 /**
  * @author Lukasz Chromy
  */
-public class DaoHelper {
+class DaoHelper {
   private static DBHelper dbHelper = null;
 
   private DaoHelper() {
   }
 
-  public static <T extends OrmLiteSqliteOpenHelper> void setOpenHelper(Context context, Class<T> type) {
-    if (dbHelper == null) {
-      dbHelper = (DBHelper) OpenHelperManager.getHelper(context, type);
+  static <T extends OrmLiteSqliteOpenHelper> void setOpenHelper(Context context, Class<T> type) {
+    if (dbHelper != null) {
+      OpenHelperManager.releaseHelper();
     }
-
+    dbHelper = (DBHelper) OpenHelperManager.getHelper(context, type);
   }
 
-  public static <T> Dao<T, Long> getDao(Class<T> type) throws SQLException {
+  static <T> Dao<T, Long> getDao(Class<T> type) throws SQLException {
     if (dbHelper != null) {
       return dbHelper.getDao(type);
     } else {

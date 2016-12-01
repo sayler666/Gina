@@ -13,6 +13,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import entity.Day;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -26,10 +27,20 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
 
   /**
    * change default db name
+   *
    * @param databasePath
    */
-  public static void setDatabasePath(String databasePath) {
+  static void setDatabasePath(String databasePath) {
     DATABASE_NAME = databasePath;
+  }
+
+  static String getDatabasePath() {
+    return DATABASE_NAME;
+  }
+
+  static boolean checkIfDatabaseFileExists() {
+    File file = new File(getDatabasePath());
+    return file.exists();
   }
 
   public DBHelper(Context context) {
@@ -38,15 +49,14 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
 
   @Override
   public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
-    Log.d(TAG, "Creating database...");
-//    try {
-//      //dropTables(connectionSource);
-//      //createTables(connectionSource);
-//    } catch (SQLException e) {
-//      Log.d(TAG, "Cannot create table", e);
-//    }
+    Log.d(TAG, "Creating database with path:  " + getDatabasePath());
+    try {
+      dropTables(connectionSource);
+      createTables(connectionSource);
+    } catch (SQLException e) {
+      Log.d(TAG, "Cannot create table", e);
+    }
     Log.d(TAG, "Database creation finished.");
-
   }
 
   private void createTables(ConnectionSource connectionSource) throws SQLException {
@@ -60,7 +70,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource, int currentVersion, int newVersion) {
     Log.d(TAG, "Upgrading database from version: " + currentVersion + "  to version: " + newVersion);
-    //onCreate(sqLiteDatabase, connectionSource);
+    onCreate(sqLiteDatabase, connectionSource);
     Log.d(TAG, "Upgrade finished.");
   }
 }

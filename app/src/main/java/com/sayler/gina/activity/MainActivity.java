@@ -3,21 +3,26 @@ package com.sayler.gina.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
+import com.sayler.domain.dao.DBManager;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
 import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
+import com.sayler.gina.ui.UiStateController;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
@@ -29,6 +34,9 @@ import java.util.List;
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
 
   @Inject
+  DBManager dbManager;
+
+  @Inject
   DaysPresenter daysPresenter;
 
   @Bind(R.id.recyclerView)
@@ -36,7 +44,26 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Bind(R.id.fastscroll)
   FastScroller fastScroller;
+
+  @Bind(R.id.content)
+  View content;
+
+  @Bind(R.id.progressBar)
+  View progressBar;
+
+  @Bind(R.id.error)
+  View error;
+
+  @Bind(R.id.noDataSource)
+  View noDataSource;
+
+  @Bind(R.id.noDataSourceText)
+  TextView noDataSourceText;
+
+  @Bind(R.id.errorText)
+  TextView errorText;
   private DaysAdapter daysAdapter;
+  private UiStateController uiStateController;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +90,22 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void setupViews() {
+    setupUiStateController();
+
+    setupRecyclerView();
+  }
+
+  private void setupUiStateController() {
+    uiStateController = new UiStateController.Builder()
+        .withContentUi(content)
+        .withLoadingUi(progressBar)
+        .withErrorUi(error)
+        .withEmptyUi(noDataSource)
+        .build();
+  }
+
+  private void setupRecyclerView() {
+    //recycler view
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
     recyclerView.setLayoutManager(layoutManager);
     daysAdapter = new DaysAdapter(this, Collections.emptyList());
@@ -99,12 +142,8 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void load() {
+    uiStateController.setUiStateLoading();
     daysPresenter.loadAll();
-  }
-
-  @Override
-  public void onDownloaded(List<Day> data) {
-    createRecyclerView(data);
   }
 
   private void createRecyclerView(List<Day> items) {
@@ -112,9 +151,34 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     daysAdapter.notifyDataSetChanged();
   }
 
+  @OnClick(R.id.noDataSourceText)
+  public void rebindDB(){
+    dbManager.setDatabasePath(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/db.sqlite1");
+    dbManager.rebindProviders();
+    load();
+  }
+
   @Override
-  public void onError() {
-    //TODO
+  public void onDownloaded(List<Day> data) {
+    createRecyclerView(data);
+    uiStateController.setUiStateContent();
+  }
+
+  @Override
+  public void onNoDataSource() {
+    uiStateController.setUiStateEmpty();
+  }
+
+  @Override
+  public void onError(String s) {
+    uiStateController.setUiStateError();
+    errorText.setText(s);
+  }
+
+  @Override
+  protected void onDestroy() {
+    daysPresenter.onUnBindView();
+    super.onDestroy();
   }
 
   @Override
@@ -128,14 +192,9 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   @Override
-  protected void onDestroy() {
-    daysPresenter.onUnBindView();
-    super.onDestroy();
-  }
-
-  @Override
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     PermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
+
 }

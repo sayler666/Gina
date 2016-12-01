@@ -94,20 +94,25 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   @Override
+  public void onError(String errorMessage) {
+    //TODO
+  }
+
+  @Override
   public void onDownloaded(List<Day> data) {
     day = data.get(0);
     showContent();
+  }
+
+  @Override
+  public void onNoDataSource() {
+    //TODO
   }
 
   private void showContent() {
     dayText.setText(day.getDate().toString(Constatns.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
     yearMonthText.setText(day.getDate().toString(Constatns.DATE_PATTERN_YEAR_MONTH));
     contentText.setText(day.getContent());
-  }
-
-  @Override
-  public void onError() {
-    //not used
   }
 
   @Override

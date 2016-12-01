@@ -94,14 +94,19 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   @Override
+  public void onError(String errorMessage) {
+    //TODO
+  }
+
+  @Override
   public void onDownloaded(List<Day> data) {
     day = data.get(0);
     showContent();
   }
 
   @Override
-  public void onError() {
-    //not used
+  public void onNoDataSource() {
+    //TODO
   }
 
   @Override

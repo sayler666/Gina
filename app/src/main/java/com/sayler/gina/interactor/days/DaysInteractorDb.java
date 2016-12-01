@@ -5,6 +5,7 @@
  */
 package com.sayler.gina.interactor.days;
 
+import com.sayler.domain.dao.DBManager;
 import com.sayler.domain.dao.DaysDataProvider;
 import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.rx.IRxAndroidTransformer;
@@ -20,25 +21,31 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   private DaysInteractorCallback interactorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
+  private DBManager dbManager;
   private List<Day> data;
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DaysInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider) {
+  public DaysInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
     this.daysDataProvider = daysDataProvider;
+    this.dbManager = dbManager;
   }
 
   @Override
   public void loadAllData(DaysInteractorCallback interactorCallback) {
     this.interactorCallback = interactorCallback;
-    retrieveAllData();
+    if (checkIfDbExist()) {
+      retrieveAllData();
+    }
   }
 
   @Override
   public void loadDataById(long id, DaysInteractorCallback interactorCallback) {
     this.interactorCallback = interactorCallback;
-    retrieveDataById(id);
+    if (checkIfDbExist()) {
+      retrieveDataById(id);
+    }
   }
 
   @Override
@@ -48,29 +55,38 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
+  private boolean checkIfDbExist() {
+    if (!dbManager.ifDatabaseFileExists()) {
+      this.interactorCallback.onNoDatabase();
+      return false;
+    }
+    return true;
+  }
 
   private void retrieveAllData() {
-    Subscription subscription = null;
+    Subscription subscription;
     try {
       subscription = rx.Observable.just(daysDataProvider.getAll())
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
+      needToUnsubscribe(subscription);
     } catch (SQLException e) {
       e.printStackTrace();
+      dispatchDefaultPresenterError(e);
     }
-    needToUnsubscribe(subscription);
   }
 
   private void retrieveDataById(long id) {
-    Subscription subscription = null;
+    Subscription subscription;
     try {
       subscription = rx.Observable.just(daysDataProvider.get(id))
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
+      needToUnsubscribe(subscription);
     } catch (SQLException e) {
       e.printStackTrace();
+      dispatchDefaultPresenterError(e);
     }
-    needToUnsubscribe(subscription);
   }
 
   private void handleLoadData(Day day) {

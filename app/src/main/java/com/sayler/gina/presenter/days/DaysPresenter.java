@@ -1,7 +1,9 @@
 package com.sayler.gina.presenter.days;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
+import com.sayler.domain.dao.DBHelper;
 import com.sayler.gina.interactor.days.DaysInteractor;
 import com.sayler.gina.interactor.days.DaysInteractorCallback;
 import com.sayler.gina.presenter.Presenter;
@@ -34,6 +36,11 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
       public void onDownloadDataError(Throwable throwable) {
         dispatchDefaultPresenterError(throwable);
       }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
     });
 
   }
@@ -51,6 +58,11 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
       public void onDownloadDataError(Throwable throwable) {
         dispatchDefaultPresenterError(throwable);
       }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
     });
 
   }
@@ -63,9 +75,15 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
     }
   }
 
+  private void noDataSource() {
+    if (presenterView != null) {
+      presenterView.onNoDataSource();
+    }
+  }
+
   private void dispatchDefaultPresenterError(Throwable throwable) {
     if (presenterView != null) {
-      presenterView.onError();
+      presenterView.onError(throwable.getMessage());
     }
     Log.e(TAG, throwable.getMessage(), throwable);
   }

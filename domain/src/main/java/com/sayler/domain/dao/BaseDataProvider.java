@@ -22,14 +22,11 @@ import java.util.concurrent.Callable;
 public abstract class BaseDataProvider<T extends BaseEntity> {
 
   private static final String TAG = "BaseDataProvider";
-  private final String databasePat;
   protected Context context;
   protected Dao<T, Long> dao;
   private static final Handler MAIN_THREAD = new Handler(Looper.getMainLooper());
-  private String databasePath;
 
-  public BaseDataProvider(Context context, String databasePat) {
-    this.databasePat = databasePat;
+  public BaseDataProvider(Context context) {
     rebind(context);
   }
 
@@ -41,10 +38,6 @@ public abstract class BaseDataProvider<T extends BaseEntity> {
   public void rebind(Context context) {
     this.context = context;
     dao = setupDao();
-  }
-
-  public String getDatabasePat() {
-    return databasePat;
   }
 
   public Dao<T, Long> getDao() {

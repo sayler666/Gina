@@ -14,7 +14,9 @@ import java.util.List;
  * @author lchromy
  */
 public interface DaysPresenterView extends IPresenterView {
-  void onError();
+  void onError(String errorMessage);
 
-  void onDownloaded(List<Day> i);
+  void onDownloaded(List<Day> dayList);
+
+  void onNoDataSource();
 }

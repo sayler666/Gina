@@ -19,16 +19,13 @@ public class DaysDataProvider extends BaseDataProvider<Day> {
 
   private static final String TAG = DaysDataProvider.class.getSimpleName();
 
-  public DaysDataProvider(Context context, String databasePath) {
-    super(context, databasePath);
+  public DaysDataProvider(Context context) {
+    super(context);
   }
 
   @Override
   protected Dao<Day, Long> setupDao() {
     try {
-      if (getDatabasePat() != null) {
-        DBHelper.setDatabasePath(getDatabasePat());
-      }
       DaoHelper.setOpenHelper(context,
           DBHelper.class);
       return DaoHelper.getDao(Day.class);
