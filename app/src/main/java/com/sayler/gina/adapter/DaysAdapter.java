@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 import com.sayler.gina.R;
 import com.sayler.gina.ui.TextUtils;
-import com.sayler.gina.util.Constatns;
+import com.sayler.gina.util.Constants;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 import entity.Day;
 
@@ -48,7 +48,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
       String contentShort = TextUtils.truncateTo(contentFull, 200, "...");
 
       //date
-      String date = day.getDate().toString(Constatns.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK);
+      String date = day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK);
 
       viewHolder.contentShort.setText(contentShort);
       viewHolder.content.setText(contentFull);
@@ -71,7 +71,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
 
   @Override
   public String getSectionTitle(int position) {
-    return items.get(position).getDate().toString(Constatns.DATE_PATTERN_YEAR_MONTH_2_LINES);
+    return items.get(position).getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH_2_LINES);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
 
   @Override
   public void onBindHeaderViewHolder(DaysHeaderViewHolder holder, int position) {
-    holder.title.setText(items.get(position).getDate().toString(Constatns.DATE_PATTERN_YEAR_MONTH));
+    holder.title.setText(items.get(position).getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
   }
 
   static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {

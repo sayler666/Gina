@@ -18,5 +18,7 @@ public interface DaysPresenterView extends CommonPresenterView {
 
   void onDownloaded(List<Day> dayList);
 
+  void onPut();
+
   void onNoDataSource();
 }

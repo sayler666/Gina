@@ -2,6 +2,7 @@ package com.sayler.gina.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.widget.TextView;
@@ -12,7 +13,8 @@ import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.util.Constatns;
+import com.sayler.gina.util.BroadcastReceiverHelper;
+import com.sayler.gina.util.Constants;
 import entity.Day;
 import icepick.Icepick;
 import icepick.State;
@@ -40,9 +42,11 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   @State
   public Day day;
 
+  private BroadcastReceiverHelper broadcastReceiverHelper;
+
   public static Intent newIntentShowDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayActivity.class);
-    intent.putExtra(Constatns.EXTRA_DAY_ID, dayId);
+    intent.putExtra(Constants.EXTRA_DAY_ID, dayId);
     return intent;
   }
 
@@ -56,6 +60,8 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
     bindPresenters();
 
+    setupBroadcastReceivers();
+
     readExtras();
 
     setupViews();
@@ -63,14 +69,25 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
     load();
   }
 
+  private void setupBroadcastReceivers() {
+    broadcastReceiverHelper = new BroadcastReceiverHelper(this::load);
+    broadcastReceiverHelper.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    broadcastReceiverHelper.callScheduledAction();
+  }
+
   private void readExtras() {
-    if (getIntent().hasExtra(Constatns.EXTRA_DAY_ID)) {
-      dayId = getIntent().getLongExtra(Constatns.EXTRA_DAY_ID, -1);
+    if (getIntent().hasExtra(Constants.EXTRA_DAY_ID)) {
+      dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
     }
   }
 
   private void setupViews() {
-
+    //nothing here for now
   }
 
   private void bindPresenters() {
@@ -82,8 +99,8 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   private void showContent() {
-    dayText.setText(day.getDate().toString(Constatns.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
-    yearMonthText.setText(day.getDate().toString(Constatns.DATE_PATTERN_YEAR_MONTH));
+    dayText.setText(day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
+    yearMonthText.setText(day.getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
     contentText.setText(day.getContent());
   }
 
@@ -93,14 +110,27 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   @Override
-  public void onError(String errorMessage) {
-    //TODO
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == Constants.REQUEST_CODE_EDIT_DAY) {
+      daysPresenter.loadById(dayId);
+    }
   }
 
   @Override
   public void onDownloaded(List<Day> data) {
     day = data.get(0);
     showContent();
+  }
+
+  @Override
+  public void onError(String errorMessage) {
+    //TODO
+  }
+
+  @Override
+  public void onPut() {
+    //not used
   }
 
   @Override

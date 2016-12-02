@@ -15,7 +15,7 @@ public class DataModule {
   @Singleton
   @Provides
   public DBManager provideDbManager(Context context) {
-    //TODO save this path somewhere
+    //TODO put this path somewhere
     String dbPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/db.sqlite";
 
     DBManager dbManager = new DBManager(context);

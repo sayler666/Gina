@@ -12,7 +12,7 @@ import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.util.Constatns;
+import com.sayler.gina.util.Constants;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import entity.Day;
 import icepick.Icepick;
@@ -47,15 +47,20 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   public static Intent newIntentEditDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayEditActivity.class);
-    intent.putExtra(Constatns.EXTRA_DAY_ID, dayId);
-    intent.putExtra(Constatns.EXTRA_EDIT_MODE, EditMode.EDIT_DAY.ordinal());
+    intent.putExtra(Constants.EXTRA_DAY_ID, dayId);
+    intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.EDIT_DAY.ordinal());
     return intent;
   }
 
   public static Intent newIntentNewDay(Context context) {
     Intent intent = new Intent(context, DayEditActivity.class);
-    intent.putExtra(Constatns.EXTRA_EDIT_MODE, EditMode.NEW_DAY.ordinal());
+    intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.NEW_DAY.ordinal());
     return intent;
+  }
+
+  public static void sendEditDayBroadcast(Context context) {
+    Intent intent = new Intent(Constants.BROADCAST_EDIT_DAY);
+    context.sendBroadcast(intent);
   }
 
   @Override
@@ -85,9 +90,9 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void readExtras() {
-    if (getIntent().hasExtra(Constatns.EXTRA_EDIT_MODE)) {
+    if (getIntent().hasExtra(Constants.EXTRA_EDIT_MODE)) {
       //get edit mode
-      int editModeOrdinal = getIntent().getExtras().getInt(Constatns.EXTRA_EDIT_MODE);
+      int editModeOrdinal = getIntent().getExtras().getInt(Constants.EXTRA_EDIT_MODE);
       editMode = EditMode.values()[editModeOrdinal];
 
       switch (editMode) {
@@ -95,7 +100,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
           day = new Day(new DateTime());
           break;
         case EDIT_DAY:
-          dayId = getIntent().getLongExtra(Constatns.EXTRA_DAY_ID, -1);
+          dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
           break;
       }
     }
@@ -116,9 +121,17 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     }
   }
 
+  @OnClick(R.id.fab)
+  public void onFabSaveClick() {
+    day.setContent(contentText.getText().toString());
+    daysPresenter.put(day);
+  }
+
   @Override
-  public void onError(String errorMessage) {
-    //TODO
+  public void onPut() {
+    sendEditDayBroadcast(this);
+
+    finish();
   }
 
   @Override
@@ -132,9 +145,14 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     //TODO
   }
 
+  @Override
+  public void onError(String errorMessage) {
+    //TODO
+  }
+
   private void showContent() {
-    dayText.setText(day.getDate().toString(Constatns.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
-    yearMonthText.setText(day.getDate().toString(Constatns.DATE_PATTERN_YEAR_MONTH));
+    dayText.setText(day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
+    yearMonthText.setText(day.getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
     contentText.setText(day.getContent());
   }
 

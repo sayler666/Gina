@@ -63,36 +63,20 @@ public abstract class BaseDataProvider<T extends BaseEntity> {
   public void postOnMainThread() {
   }
 
-  public void deleteAll() {
-    try {
-      dao.delete(dao.queryForAll());
-    } catch (SQLException e) {
-      Log.e(TAG, e.getMessage(), e);
-    }
+  public void deleteAll() throws SQLException {
+    dao.delete(dao.queryForAll());
   }
 
-  public void delete(long id) {
-    try {
-      dao.delete(dao.queryForId(id));
-    } catch (SQLException e) {
-      Log.e(TAG, e.getMessage(), e);
-    }
+  public void delete(long id) throws SQLException {
+    dao.delete(dao.queryForId(id));
   }
 
-  public void delete(T data) {
-    try {
-      dao.delete(data);
-    } catch (SQLException e) {
-      Log.e(TAG, e.getMessage(), e);
-    }
+  public void delete(T data) throws SQLException {
+    dao.delete(data);
   }
 
-  public void delete(List<T> data) {
-    try {
-      dao.delete(data);
-    } catch (SQLException e) {
-      Log.e(TAG, e.getMessage(), e);
-    }
+  public void delete(List<T> data) throws SQLException {
+    dao.delete(data);
   }
 
   public void saveAll(List<T> results) {
@@ -113,12 +97,8 @@ public abstract class BaseDataProvider<T extends BaseEntity> {
     }
   }
 
-  public void save(T data) {
-    try {
-      dao.createOrUpdate(data);
-    } catch (SQLException e) {
-      Log.e(TAG, e.getMessage(), e);
-    }
+  public void save(T data) throws SQLException {
+    dao.createOrUpdate(data);
   }
 
   public List<T> getAll() throws SQLException {

@@ -2,6 +2,7 @@ package com.sayler.gina.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -22,6 +23,8 @@ import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
 import com.sayler.gina.ui.UiStateController;
+import com.sayler.gina.util.BroadcastReceiverHelper;
+import com.sayler.gina.util.Constants;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
@@ -32,7 +35,6 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
 
-  private static final int SELECT_DB_RESULT_CODE = 4650;
   @Inject
   DBManager dbManager;
 
@@ -64,6 +66,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   TextView errorText;
   private DaysAdapter daysAdapter;
   private UiStateController uiStateController;
+  private BroadcastReceiverHelper broadcastReceiverHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +78,23 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
     bindPresenters();
 
+    setupBroadcastReceivers();
+
     setupViews();
 
     askFormPermissionAndLoadData();
 
+  }
+
+  private void setupBroadcastReceivers() {
+    broadcastReceiverHelper = new BroadcastReceiverHelper(this::load);
+    broadcastReceiverHelper.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    broadcastReceiverHelper.callScheduledAction();
   }
 
   private void askFormPermissionAndLoadData() {
@@ -160,7 +176,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   public void rebindDB() {
     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
     intent.setType("*/*");
-    startActivityForResult(intent, SELECT_DB_RESULT_CODE);
+    startActivityForResult(intent, Constants.REQUEST_CODE_SELECT_DB);
   }
 
   @Override
@@ -197,6 +213,11 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   protected void onDestroy() {
     daysPresenter.onUnBindView();
     super.onDestroy();
+  }
+
+  @Override
+  public void onPut() {
+    //not used
   }
 
   @Override

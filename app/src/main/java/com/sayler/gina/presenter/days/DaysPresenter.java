@@ -2,8 +2,9 @@ package com.sayler.gina.presenter.days;
 
 import android.content.Context;
 import android.util.Log;
+import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
 import com.sayler.gina.interactor.days.DaysInteractor;
-import com.sayler.gina.interactor.days.DaysInteractorCallback;
+import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
 import com.sayler.gina.presenter.Presenter;
 import entity.Day;
 
@@ -24,7 +25,7 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public void loadAll() {
 
-    daysInteractor.loadAllData(new DaysInteractorCallback() {
+    daysInteractor.loadAllData(new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
         List<Day> data = daysInteractor.getData();
@@ -46,7 +47,7 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public void loadById(long id) {
 
-    daysInteractor.loadDataById(id, new DaysInteractorCallback() {
+    daysInteractor.loadDataById(id, new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
         List<Day> data = daysInteractor.getData();
@@ -64,6 +65,33 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
       }
     });
 
+  }
+
+  public void put(Day day) {
+
+    daysInteractor.put(day, new DaysPutInteractorCallback() {
+      @Override
+      public void onDataPut() {
+        handleDataPut();
+      }
+
+      @Override
+      public void onDataPutError(Throwable throwable) {
+        dispatchDefaultPresenterError(throwable);
+      }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
+    });
+
+  }
+
+  private void handleDataPut() {
+    if (presenterView != null) {
+      presenterView.onPut();
+    }
   }
 
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */

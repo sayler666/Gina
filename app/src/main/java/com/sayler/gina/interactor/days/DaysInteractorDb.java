@@ -18,7 +18,8 @@ import java.util.List;
 
 public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
-  private DaysInteractorCallback interactorCallback;
+  private DaysGetInteractorCallback daysGetInteractorCallback;
+  private DaysPutInteractorCallback daysPutInteractorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
   private DBManager dbManager;
@@ -33,18 +34,26 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   }
 
   @Override
-  public void loadAllData(DaysInteractorCallback interactorCallback) {
-    this.interactorCallback = interactorCallback;
-    if (checkIfDbExist()) {
+  public void loadAllData(DaysGetInteractorCallback daysGetInteractorCallback) {
+    this.daysGetInteractorCallback = daysGetInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
       retrieveAllData();
     }
   }
 
   @Override
-  public void loadDataById(long id, DaysInteractorCallback interactorCallback) {
-    this.interactorCallback = interactorCallback;
-    if (checkIfDbExist()) {
+  public void loadDataById(long id, DaysGetInteractorCallback daysGetInteractorCallback) {
+    this.daysGetInteractorCallback = daysGetInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
       retrieveDataById(id);
+    }
+  }
+
+  @Override
+  public void put(Day day, DaysPutInteractorCallback daysPutInteractorCallback) {
+    this.daysPutInteractorCallback = daysPutInteractorCallback;
+    if (checkIfDbExist(daysPutInteractorCallback)) {
+      putDataToDB(day);
     }
   }
 
@@ -55,12 +64,22 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
-  private boolean checkIfDbExist() {
+  private boolean checkIfDbExist(NoDatabaseCallback noDatabaseCallback) {
     if (!dbManager.ifDatabaseFileExists()) {
-      this.interactorCallback.onNoDatabase();
+      noDatabaseCallback.onNoDatabase();
       return false;
     }
     return true;
+  }
+
+  private void putDataToDB(Day day) {
+    try {
+      daysDataProvider.save(day);
+      daysPutInteractorCallback.onDataPut();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      daysPutInteractorCallback.onDataPutError(e);
+    }
   }
 
   private void retrieveAllData() {
@@ -68,11 +87,12 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
     try {
       subscription = rx.Observable.just(daysDataProvider.getAll())
           .compose(iRxAndroidTransformer.applySchedulers())
-          .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
+          .subscribe(this::handleLoadData, throwable ->
+              daysGetInteractorCallback.onDownloadDataError(throwable));
       needToUnsubscribe(subscription);
     } catch (SQLException e) {
       e.printStackTrace();
-      dispatchDefaultPresenterError(e);
+      daysGetInteractorCallback.onDownloadDataError(e);
     }
   }
 
@@ -81,29 +101,26 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
     try {
       subscription = rx.Observable.just(daysDataProvider.get(id))
           .compose(iRxAndroidTransformer.applySchedulers())
-          .subscribe(this::handleLoadData, this::dispatchDefaultPresenterError);
+          .subscribe(this::handleLoadData, throwable ->
+              daysGetInteractorCallback.onDownloadDataError(throwable));
       needToUnsubscribe(subscription);
     } catch (SQLException e) {
       e.printStackTrace();
-      dispatchDefaultPresenterError(e);
+      daysGetInteractorCallback.onDownloadDataError(e);
     }
   }
 
   private void handleLoadData(Day day) {
     List<Day> days = Collections.singletonList(day);
     saveData(days);
-    interactorCallback.onDownloadData();
-  }
-
-  private void dispatchDefaultPresenterError(Throwable throwable) {
-    interactorCallback.onDownloadDataError(throwable);
+    daysGetInteractorCallback.onDownloadData();
   }
 
   private void handleLoadData(List<Day> days) {
     Collections.sort(days);
     Collections.reverse(days);
     saveData(days);
-    interactorCallback.onDownloadData();
+    daysGetInteractorCallback.onDownloadData();
   }
 
   private void saveData(List<Day> days) {
