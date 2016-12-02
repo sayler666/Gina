@@ -20,6 +20,7 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
   private DaysGetInteractorCallback daysGetInteractorCallback;
   private DaysPutInteractorCallback daysPutInteractorCallback;
+  private DaysDeleteInteractorCallback daysDeleteInteractorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
   private DBManager dbManager;
@@ -58,6 +59,14 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
   }
 
   @Override
+  public void delete(Day day, DaysDeleteInteractorCallback daysDeleteInteractorCallback) {
+    this.daysDeleteInteractorCallback = daysDeleteInteractorCallback;
+    if (checkIfDbExist(daysPutInteractorCallback)) {
+      deleteDay(day);
+    }
+  }
+
+  @Override
   public List<Day> getData() {
     return data;
   }
@@ -70,6 +79,16 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
       return false;
     }
     return true;
+  }
+
+  private void deleteDay(Day day) {
+    try {
+      daysDataProvider.delete(day);
+      daysDeleteInteractorCallback.onDataDelete();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      daysDeleteInteractorCallback.onDataDeleteError(e);
+    }
   }
 
   private void putDataToDB(Day day) {

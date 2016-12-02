@@ -21,4 +21,6 @@ public interface DaysPresenterView extends CommonPresenterView {
   void onPut();
 
   void onNoDataSource();
+
+  void onDelete();
 }

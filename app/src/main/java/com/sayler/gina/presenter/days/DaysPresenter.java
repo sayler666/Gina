@@ -2,6 +2,7 @@ package com.sayler.gina.presenter.days;
 
 import android.content.Context;
 import android.util.Log;
+import com.sayler.gina.interactor.days.DaysDeleteInteractorCallback;
 import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
 import com.sayler.gina.interactor.days.DaysInteractor;
 import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
@@ -88,13 +89,40 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   }
 
+  public void delete(Day day) {
+
+    daysInteractor.delete(day, new DaysDeleteInteractorCallback() {
+      @Override
+      public void onDataDelete() {
+        handleDataDelete();
+      }
+
+      @Override
+      public void onDataDeleteError(Throwable throwable) {
+        dispatchDefaultPresenterError(throwable);
+      }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
+    });
+
+  }
+
+  /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
+
+  private void handleDataDelete() {
+    if (presenterView != null) {
+      presenterView.onDelete();
+    }
+  }
+
   private void handleDataPut() {
     if (presenterView != null) {
       presenterView.onPut();
     }
   }
-
-  /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
   private void handleLoadData(List<Day> days) {
     if (presenterView != null) {

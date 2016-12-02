@@ -12,5 +12,7 @@ public interface DaysInteractor extends CommonInteractor {
 
   void put(Day day, DaysPutInteractorCallback interactorCallback);
 
+  void delete(Day day, DaysDeleteInteractorCallback daysDeleteInteractorCallback);
+
   List<Day> getData();
 }

@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   TextView errorText;
   private DaysAdapter daysAdapter;
   private UiStateController uiStateController;
-  private BroadcastReceiverHelper broadcastReceiverHelper;
+  private BroadcastReceiverHelper broadcastReceiverRefresh;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +87,17 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void setupBroadcastReceivers() {
-    broadcastReceiverHelper = new BroadcastReceiverHelper(this::load);
-    broadcastReceiverHelper.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+    broadcastReceiverRefresh = new BroadcastReceiverHelper(this::load);
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(Constants.BROADCAST_EDIT_DAY);
+    intentFilter.addAction(Constants.BROADCAST_DELETE_DAY);
+    broadcastReceiverRefresh.register(this, intentFilter);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    broadcastReceiverHelper.callScheduledAction();
+    broadcastReceiverRefresh.callScheduledAction();
   }
 
   private void askFormPermissionAndLoadData() {
@@ -213,6 +216,11 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   protected void onDestroy() {
     daysPresenter.onUnBindView();
     super.onDestroy();
+  }
+
+  @Override
+  public void onDelete() {
+    //not used
   }
 
   @Override

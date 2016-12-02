@@ -42,7 +42,8 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   @State
   public Day day;
 
-  private BroadcastReceiverHelper broadcastReceiverHelper;
+  private BroadcastReceiverHelper broadcastReceiverEditDay;
+  private BroadcastReceiverHelper broadcastReceiverDeleteDay;
 
   public static Intent newIntentShowDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayActivity.class);
@@ -70,14 +71,18 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   private void setupBroadcastReceivers() {
-    broadcastReceiverHelper = new BroadcastReceiverHelper(this::load);
-    broadcastReceiverHelper.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+    broadcastReceiverEditDay = new BroadcastReceiverHelper(this::load);
+    broadcastReceiverEditDay.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+
+    broadcastReceiverDeleteDay = new BroadcastReceiverHelper(this::finish);
+    broadcastReceiverDeleteDay.register(this, new IntentFilter(Constants.BROADCAST_DELETE_DAY));
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    broadcastReceiverHelper.callScheduledAction();
+    broadcastReceiverEditDay.callScheduledAction();
+    broadcastReceiverDeleteDay.callScheduledAction();
   }
 
   private void readExtras() {
@@ -129,13 +134,18 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   @Override
+  public void onNoDataSource() {
+    //TODO
+  }
+
+  @Override
   public void onPut() {
     //not used
   }
 
   @Override
-  public void onNoDataSource() {
-    //TODO
+  public void onDelete() {
+    //not used
   }
 
   @Override

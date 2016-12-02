@@ -63,6 +63,11 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     context.sendBroadcast(intent);
   }
 
+  public static void sendDeleteDayBroadcast(Context context) {
+    Intent intent = new Intent(Constants.BROADCAST_DELETE_DAY);
+    context.sendBroadcast(intent);
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -121,16 +126,28 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     }
   }
 
-  @OnClick(R.id.fab)
+  @OnClick(R.id.fab_save)
   public void onFabSaveClick() {
+    put();
+  }
+
+  @OnClick(R.id.fab_delete)
+  public void onFabDeleteClick() {
+    delete();
+  }
+
+  private void put() {
     day.setContent(contentText.getText().toString());
     daysPresenter.put(day);
+  }
+
+  private void delete() {
+    daysPresenter.delete(day);
   }
 
   @Override
   public void onPut() {
     sendEditDayBroadcast(this);
-
     finish();
   }
 
@@ -138,6 +155,12 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   public void onDownloaded(List<Day> data) {
     day = data.get(0);
     showContent();
+  }
+
+  @Override
+  public void onDelete() {
+    sendDeleteDayBroadcast(this);
+    finish();
   }
 
   @Override
