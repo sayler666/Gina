@@ -22,16 +22,19 @@ import com.sayler.gina.adapter.DaysAdapter;
 import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
+import com.sayler.gina.ui.RevealHelper;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
+import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
 
@@ -46,6 +49,9 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Bind(R.id.fastscroll)
   FastScroller fastScroller;
+
+  @Bind(R.id.root)
+  View root;
 
   @Bind(R.id.content)
   View content;
@@ -199,6 +205,11 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   public void onDownloaded(List<Day> data) {
     createRecyclerView(data);
     uiStateController.setUiStateContent();
+    Observable
+        .just(1)
+        .delay(100, TimeUnit.MILLISECONDS)
+        .subscribe(integer -> new RevealHelper().reveal(content, root));
+
   }
 
   @Override
