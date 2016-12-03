@@ -2,5 +2,5 @@
 <ripple
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:color="@color/colorPrimaryDark"
+    android:color="@color/colorAccent"
     tools:ignore="NewApi" />
