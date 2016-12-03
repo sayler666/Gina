@@ -137,8 +137,12 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void put() {
-    day.setContent(contentText.getText().toString());
+    updateDayFromEditText();
     daysPresenter.put(day);
+  }
+
+  private void updateDayFromEditText() {
+    day.setContent(contentText.getText().toString());
   }
 
   private void delete() {
@@ -201,6 +205,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
     DateTime dateTime = new DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0);
     day.setDate(dateTime);
+    updateDayFromEditText();
     showContent();
   }
 }

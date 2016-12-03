@@ -26,15 +26,7 @@
 
             <TextView
                 android:id="@+id/content"
-                fontPath="fonts/DroidSerif-Regular.ttf"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/day"
-                android:paddingBottom="@dimen/p_bottom_fab"
-                android:paddingLeft="@dimen/p_medium"
-                android:paddingRight="@dimen/p_medium"
-                android:paddingTop="@dimen/p_medium"
-                android:textSize="@dimen/ts_medium" />
+                style="@style/content" />
         </RelativeLayout>
     </ScrollView>
 

@@ -26,16 +26,7 @@
 
             <EditText
                     android:id="@+id/content"
-                    fontPath="fonts/DroidSerif-Regular.ttf"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/day"
-                    android:layout_marginBottom="@dimen/p_bottom_fab"
-                    android:paddingBottom="@dimen/p_medium"
-                    android:paddingLeft="@dimen/p_medium"
-                    android:paddingRight="@dimen/p_medium"
-                    android:paddingTop="@dimen/p_medium"
-                    android:textSize="@dimen/ts_medium"/>
+                    style="@style/content"/>
         </RelativeLayout>
     </ScrollView>
     <android.support.design.widget.FloatingActionButton
