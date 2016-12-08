@@ -5,7 +5,7 @@ import entity.Day;
 
 import java.util.List;
 
-public interface DaysInteractor extends CommonInteractor {
+public interface DiaryInteractor extends CommonInteractor {
   void loadAllData(DaysGetInteractorCallback interactorCallback);
 
   void loadDataById(long id, DaysGetInteractorCallback interactorCallback);

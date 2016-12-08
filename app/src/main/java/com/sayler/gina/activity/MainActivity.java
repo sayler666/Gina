@@ -20,8 +20,8 @@ import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
 import com.sayler.gina.permission.PermissionUtils;
-import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
+import com.sayler.gina.presenter.days.DiaryPresenter;
 import com.sayler.gina.ui.RevealHelper;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   DBManager dbManager;
 
   @Inject
-  DaysPresenter daysPresenter;
+  DiaryPresenter diaryPresenter;
 
   @Bind(R.id.recyclerView)
   RecyclerView recyclerView;
@@ -168,12 +168,12 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void bindPresenters() {
-    daysPresenter.onBindView(this);
+    diaryPresenter.onBindView(this);
   }
 
   private void load() {
     uiStateController.setUiStateLoading();
-    daysPresenter.loadAll();
+    diaryPresenter.loadAll();
   }
 
   private void createRecyclerView(List<Day> items) {
@@ -225,7 +225,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Override
   protected void onDestroy() {
-    daysPresenter.onUnBindView();
+    diaryPresenter.onUnBindView();
     super.onDestroy();
   }
 

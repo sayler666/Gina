@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
+public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor {
 
   private DaysGetInteractorCallback daysGetInteractorCallback;
   private DaysPutInteractorCallback daysPutInteractorCallback;
@@ -28,7 +28,7 @@ public class DaysInteractorDb extends BaseInteractor implements DaysInteractor {
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DaysInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
+  public DiaryInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
     this.daysDataProvider = daysDataProvider;
     this.dbManager = dbManager;

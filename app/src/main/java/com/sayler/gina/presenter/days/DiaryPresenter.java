@@ -4,32 +4,32 @@ import android.content.Context;
 import android.util.Log;
 import com.sayler.gina.interactor.days.DaysDeleteInteractorCallback;
 import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
-import com.sayler.gina.interactor.days.DaysInteractor;
 import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
+import com.sayler.gina.interactor.days.DiaryInteractor;
 import com.sayler.gina.presenter.Presenter;
 import entity.Day;
 
 import java.util.List;
 
-public class DaysPresenter extends Presenter<DaysPresenterView> {
+public class DiaryPresenter extends Presenter<DaysPresenterView> {
 
   private static final String TAG = "DummyPresenter";
 
-  private DaysInteractor daysInteractor;
+  private DiaryInteractor diaryInteractor;
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DaysPresenter(final Context context, final DaysInteractor daysInteractor) {
-    this.daysInteractor = daysInteractor;
-    needToFree(this.daysInteractor);
+  public DiaryPresenter(final Context context, final DiaryInteractor diaryInteractor) {
+    this.diaryInteractor = diaryInteractor;
+    needToFree(this.diaryInteractor);
   }
 
   public void loadAll() {
 
-    daysInteractor.loadAllData(new DaysGetInteractorCallback() {
+    diaryInteractor.loadAllData(new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<Day> data = daysInteractor.getData();
+        List<Day> data = diaryInteractor.getData();
         handleLoadData(data);
       }
 
@@ -48,10 +48,10 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public void loadById(long id) {
 
-    daysInteractor.loadDataById(id, new DaysGetInteractorCallback() {
+    diaryInteractor.loadDataById(id, new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<Day> data = daysInteractor.getData();
+        List<Day> data = diaryInteractor.getData();
         handleLoadData(data);
       }
 
@@ -70,7 +70,7 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public void put(Day day) {
 
-    daysInteractor.put(day, new DaysPutInteractorCallback() {
+    diaryInteractor.put(day, new DaysPutInteractorCallback() {
       @Override
       public void onDataPut() {
         handleDataPut();
@@ -91,7 +91,7 @@ public class DaysPresenter extends Presenter<DaysPresenterView> {
 
   public void delete(Day day) {
 
-    daysInteractor.delete(day, new DaysDeleteInteractorCallback() {
+    diaryInteractor.delete(day, new DaysDeleteInteractorCallback() {
       @Override
       public void onDataDelete() {
         handleDataDelete();

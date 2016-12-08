@@ -10,8 +10,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
-import com.sayler.gina.presenter.days.DaysPresenter;
 import com.sayler.gina.presenter.days.DaysPresenterView;
+import com.sayler.gina.presenter.days.DiaryPresenter;
 import com.sayler.gina.util.Constants;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import entity.Day;
@@ -26,7 +26,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   private static final String TAG = "DayEditActivity";
   @Inject
-  DaysPresenter daysPresenter;
+  DiaryPresenter diaryPresenter;
 
   @Bind(R.id.day)
   public TextView dayText;
@@ -112,7 +112,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void bindPresenters() {
-    daysPresenter.onBindView(this);
+    diaryPresenter.onBindView(this);
   }
 
   private void load() {
@@ -121,7 +121,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
         showContent();
         break;
       case EDIT_DAY:
-        daysPresenter.loadById(dayId);
+        diaryPresenter.loadById(dayId);
         break;
     }
   }
@@ -138,7 +138,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   private void put() {
     updateDayFromEditText();
-    daysPresenter.put(day);
+    diaryPresenter.put(day);
   }
 
   private void updateDayFromEditText() {
@@ -146,7 +146,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void delete() {
-    daysPresenter.delete(day);
+    diaryPresenter.delete(day);
   }
 
   @Override
@@ -197,7 +197,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   @Override
   protected void onDestroy() {
-    daysPresenter.onUnBindView();
+    diaryPresenter.onUnBindView();
     super.onDestroy();
   }
 

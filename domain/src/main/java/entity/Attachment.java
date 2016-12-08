@@ -16,10 +16,36 @@ public class Attachment extends BaseEntity implements Parcelable {
   public static final String FILE_COL = "file";
   @DatabaseField(columnName = FILE_COL, dataType = DataType.BYTE_ARRAY)
   private byte[] file;
+  public static final String MIME_TYPE_COL = "mime_type";
+  @DatabaseField(columnName = MIME_TYPE_COL)
+  private String mimeType;
   public static final String DAYS_ID_COL = "days_id";
   @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DAYS_ID_COL)
   private Day account;
 
+  public String getMimeType() {
+    return mimeType;
+  }
+
+  public void setMimeType(String mimeType) {
+    this.mimeType = mimeType;
+  }
+
+  public Day getAccount() {
+    return account;
+  }
+
+  public void setAccount(Day account) {
+    this.account = account;
+  }
+
+  public byte[] getFile() {
+    return file;
+  }
+
+  public void setFile(byte[] file) {
+    this.file = file;
+  }
 
   @Override
   public int describeContents() {

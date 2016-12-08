@@ -8,9 +8,9 @@ package com.sayler.gina.dagger.module;
 import android.content.Context;
 import com.sayler.domain.dao.DBManager;
 import com.sayler.domain.dao.DaysDataProvider;
-import com.sayler.gina.interactor.days.DaysInteractor;
-import com.sayler.gina.interactor.days.DaysInteractorDb;
-import com.sayler.gina.presenter.days.DaysPresenter;
+import com.sayler.gina.interactor.days.DiaryInteractor;
+import com.sayler.gina.interactor.days.DiaryInteractorDb;
+import com.sayler.gina.presenter.days.DiaryPresenter;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import com.sayler.gina.rx.RxAndroidTransformer;
 import dagger.Module;
@@ -24,12 +24,12 @@ public class ServicesModule {
   }
 
   @Provides
-  public DaysInteractor provideDaysInteractor(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
-    return new DaysInteractorDb(iRxAndroidTransformer, daysDataProvider, dbManager);
+  public DiaryInteractor provideDaysInteractor(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
+    return new DiaryInteractorDb(iRxAndroidTransformer, daysDataProvider, dbManager);
   }
 
   @Provides
-  public DaysPresenter provideDaysPresenter(Context context, DaysInteractor DaysInteractor) {
-    return new DaysPresenter(context, DaysInteractor);
+  public DiaryPresenter provideDaysPresenter(Context context, DiaryInteractor DiaryInteractor) {
+    return new DiaryPresenter(context, DiaryInteractor);
   }
 }

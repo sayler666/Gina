@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            tools:ignore="MissingPrefix">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="@dimen/p_bottom_fab"
+        tools:ignore="MissingPrefix">
 
         <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <TextView
-                    android:id="@+id/year_month"
-                    style="@style/year_month_header"/>
+                android:id="@+id/year_month"
+                style="@style/year_month_header" />
 
             <TextView
-                    android:id="@+id/day"
-                    style="@style/day_header"
-                    android:layout_below="@+id/year_month"/>
+                android:id="@+id/day"
+                style="@style/day_header"
+                android:layout_below="@+id/year_month" />
 
             <EditText
-                    android:id="@+id/content"
-                    style="@style/content"/>
+                android:id="@+id/content"
+                style="@style/content" />
         </RelativeLayout>
     </ScrollView>
+
     <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_save"
-            style="@style/fab"
-            android:src="@drawable/ic_check_white_24px"/>
+        android:id="@+id/fab_save"
+        style="@style/fab"
+        android:src="@drawable/ic_check_white_24px" />
+
     <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_delete"
-            style="@style/fab"
-            android:layout_alignParentRight="false"
-            android:layout_toLeftOf="@+id/fab_save"
-            android:src="@drawable/ic_delete_white_24px"/>
+        android:id="@+id/fab_delete"
+        style="@style/fab"
+        android:layout_alignParentRight="false"
+        android:layout_toLeftOf="@+id/fab_save"
+        android:src="@drawable/ic_delete_white_24px" />
 </RelativeLayout>
