@@ -11,6 +11,7 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import entity.Attachment;
 import entity.Day;
 
 import java.io.File;
@@ -22,7 +23,7 @@ import java.sql.SQLException;
 public class DBHelper extends OrmLiteSqliteOpenHelper {
 
   private static String TAG = "DBHelper";
-  private static String DATABASE_NAME = "bonjourmadame.db";
+  private static String DATABASE_NAME = "diary.db";
   private static int DATABASE_VERSION = 1;
 
   /**
@@ -61,10 +62,12 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
 
   private void createTables(ConnectionSource connectionSource) throws SQLException {
     TableUtils.createTableIfNotExists(connectionSource, Day.class);
+    TableUtils.createTableIfNotExists(connectionSource, Attachment.class);
   }
 
   private void dropTables(ConnectionSource connectionSource) throws SQLException {
     TableUtils.dropTable(connectionSource, Day.class, true);
+    TableUtils.dropTable(connectionSource, Attachment.class, true);
   }
 
   @Override

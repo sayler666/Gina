@@ -6,8 +6,10 @@ package entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.joda.time.DateTime;
 
@@ -19,6 +21,8 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
   public static final String CONTENT_COL = "content";
   @DatabaseField(columnName = CONTENT_COL)
   private String content;
+  @ForeignCollectionField
+  private ForeignCollection<Attachment> attatchments;
 
   public Day() {
   }
@@ -30,6 +34,10 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
   public Day(DateTime date, String content) {
     this.date = date;
     this.content = content;
+  }
+
+  public ForeignCollection<Attachment> getAttatchments() {
+    return attatchments;
   }
 
   public DateTime getDate() {

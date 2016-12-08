@@ -2,6 +2,7 @@ package com.sayler.gina.dagger.module;
 
 import android.content.Context;
 import android.os.Environment;
+import com.sayler.domain.dao.AttachmentsDataProvider;
 import com.sayler.domain.dao.DBManager;
 import com.sayler.domain.dao.DaysDataProvider;
 import dagger.Module;
@@ -29,6 +30,14 @@ public class DataModule {
     DaysDataProvider daysDataProvider = new DaysDataProvider(context);
     dbManager.add(daysDataProvider);
     return daysDataProvider;
+  }
+
+  @Singleton
+  @Provides
+  public AttachmentsDataProvider provideAttachmentsDataProvider(Context context, DBManager dbManager) {
+    AttachmentsDataProvider attachmentsDataProvider = new AttachmentsDataProvider(context);
+    dbManager.add(attachmentsDataProvider);
+    return attachmentsDataProvider;
   }
 
 }
