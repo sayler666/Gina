@@ -26,6 +26,7 @@ import com.sayler.gina.ui.RevealHelper;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
+import com.sayler.gina.util.FileUtils;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import entity.Day;
@@ -183,9 +184,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @OnClick(R.id.selectDataSourceButton)
   public void rebindDB() {
-    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-    intent.setType("*/*");
-    startActivityForResult(intent, Constants.REQUEST_CODE_SELECT_DB);
+    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
   }
 
   @Override
@@ -246,7 +245,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
   @Override
   public void onPermissionRejected(String permission) {
-    //TODO
+    //TODO error handling
   }
 
   @Override

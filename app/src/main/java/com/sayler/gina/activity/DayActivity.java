@@ -3,33 +3,31 @@ package com.sayler.gina.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.annimon.stream.Stream;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.presenter.days.DaysPresenterView;
 import com.sayler.gina.presenter.days.DiaryPresenter;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
+import com.sayler.gina.util.FileUtils;
 import entity.Attachment;
 import entity.Day;
 import icepick.Icepick;
 import icepick.State;
-import okio.BufferedSink;
-import okio.Okio;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 public class DayActivity extends BaseActivity implements DaysPresenterView {
@@ -125,52 +123,33 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
   private void showAttachments() {
     attachmentsContainer.removeAllViews();
-
-    //TODO make it sexy
-    for (Attachment attachment : day.getAttatchments()) {
-      Button button = new Button(this);
-      button.setText(attachment.getMimeType());
-
-      button.setOnClickListener(view -> {
-        //save file
-        File file = new File(this.getFilesDir() + File.separator + "shared_file");
-        BufferedSink sink = null;
-        try {
-          sink = Okio.buffer(Okio.sink(file));
-          sink.write(attachment.getFile());
-          sink.close();
-
-          Uri fileUri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", file);
-          Intent intent = ShareCompat.IntentBuilder.from(this)
-              .setStream(fileUri)
-              .setType(attachment.getMimeType())
-              .getIntent()
-              .setAction(Intent.ACTION_VIEW)
-              .setDataAndType(fileUri, attachment.getMimeType())
-              .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-          startActivity(intent);
-        } catch (IOException e) {
-          e.printStackTrace();
-          //TODO show error
-        }
-
-      });
-
+    Iterator<Attachment> iterator = day.getAttatchments().iterator();
+    Stream.of(iterator).forEach(attachment -> {
+      Button button = createAttachmentButton(attachment);
       attachmentsContainer.addView(button);
-    }
+    });
+
+  }
+
+  @NonNull
+  private Button createAttachmentButton(Attachment attachment) {
+    Button button = new Button(this);
+    button.setText(attachment.getMimeType());
+
+    button.setOnClickListener(view -> {
+      try {
+        FileUtils.openFileIntent(this, attachment.getFile(), attachment.getMimeType(), getApplicationContext().getPackageName() + ".provider");
+      } catch (IOException e) {
+        e.printStackTrace();
+        //TODO error handling
+      }
+    });
+    return button;
   }
 
   @OnClick(R.id.fab_edit)
   public void onFabEditClick() {
     startActivity(DayEditActivity.newIntentEditDay(this, dayId));
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == Constants.REQUEST_CODE_EDIT_DAY) {
-      diaryPresenter.loadById(dayId);
-    }
   }
 
   @Override
@@ -181,12 +160,12 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
   @Override
   public void onError(String errorMessage) {
-    //TODO
+    //TODO error handling
   }
 
   @Override
   public void onNoDataSource() {
-    //TODO
+    //TODO error handling
   }
 
   @Override

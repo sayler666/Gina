@@ -3,23 +3,31 @@ package com.sayler.gina.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.annimon.stream.Stream;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.presenter.days.DaysPresenterView;
 import com.sayler.gina.presenter.days.DiaryPresenter;
 import com.sayler.gina.util.Constants;
+import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import entity.Attachment;
 import entity.Day;
 import icepick.Icepick;
 import icepick.State;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DayEditActivity extends BaseActivity implements DaysPresenterView, DatePickerDialog.OnDateSetListener {
@@ -28,22 +36,62 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Inject
   DiaryPresenter diaryPresenter;
 
+  @State
+  public Long dayId = -1L;
+  @State
+  public Day day;
+
   @Bind(R.id.day)
   public TextView dayText;
   @Bind(R.id.year_month)
   public TextView yearMonthText;
   @Bind(R.id.content)
   public EditText contentText;
+  @Bind(R.id.attachmentsContainer)
+  public ViewGroup attachmentsContainer;
+
   private EditMode editMode;
+  private AttachmentsManager attachmentsManager;
 
   private enum EditMode {
     NEW_DAY, EDIT_DAY
+
   }
 
-  @State
-  public Long dayId = -1L;
-  @State
-  public Day day;
+  private class AttachmentsManager {
+    private HashMap<Attachment, Button> tmpAttachmentButtonHashMap = new HashMap<>();
+
+    private ViewGroup attachmentsContainer;
+
+    public AttachmentsManager(ViewGroup attachmentsContainer) {
+      this.attachmentsContainer = attachmentsContainer;
+    }
+
+    public void addFile(byte[] bytes, String mimeType) {
+      Attachment newAttachment = new Attachment();
+      newAttachment.setFile(bytes);
+      newAttachment.setMimeType(mimeType);
+
+      Button newButton = new Button(attachmentsContainer.getContext());
+      newButton.setText(mimeType);
+      newButton.setOnClickListener(view -> {
+        //TODO add event to remove attachment
+      });
+
+      attachmentsContainer.addView(newButton);
+      tmpAttachmentButtonHashMap.put(newAttachment, newButton);
+    }
+
+    public List<Attachment> returnAttachments() {
+      List<Attachment> attachments = new ArrayList<>();
+      Stream.of(tmpAttachmentButtonHashMap).forEach(attachmentButtonEntry -> {
+        attachments.add(attachmentButtonEntry.getKey());
+      });
+
+      return attachments;
+    }
+
+  }
 
   public static Intent newIntentEditDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayEditActivity.class);
@@ -76,6 +124,8 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
     GinaApplication.getDataComponentForActivity(this).inject(this);
 
+    attachmentsManager = new AttachmentsManager(attachmentsContainer);
+
     bindPresenters();
 
     readExtras();
@@ -91,7 +141,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
         day.getDate().getMonthOfYear() - 1,
         day.getDate().getDayOfMonth()
     );
-    dpd.show(getFragmentManager(), "Datepickerdialog");
+    dpd.show(getFragmentManager(), DatePickerDialog.class.getCanonicalName());
   }
 
   private void readExtras() {
@@ -118,7 +168,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   private void load() {
     switch (editMode) {
       case NEW_DAY:
-        showContent();
+        showTextContent();
         break;
       case EDIT_DAY:
         diaryPresenter.loadById(dayId);
@@ -136,13 +186,23 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     delete();
   }
 
-  private void put() {
-    updateDayFromEditText();
-    diaryPresenter.put(day);
+  @OnClick(R.id.fab_add_attachment)
+  public void onFabAddAttachmentClick() {
+    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_ATTACHMENT);
   }
 
-  private void updateDayFromEditText() {
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT) {
+      addAttachment(data);
+    }
+  }
+
+  private void put() {
     day.setContent(contentText.getText().toString());
+
+    diaryPresenter.put(day, attachmentsManager.returnAttachments());
   }
 
   private void delete() {
@@ -158,7 +218,8 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Override
   public void onDownloaded(List<Day> data) {
     day = data.get(0);
-    showContent();
+    showTextContent();
+    showAttachments();
   }
 
   @Override
@@ -169,18 +230,36 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   @Override
   public void onNoDataSource() {
-    //TODO
+    //TODO error handling
   }
 
   @Override
   public void onError(String errorMessage) {
-    //TODO
+    //TODO error handling
   }
 
-  private void showContent() {
+  private void showTextContent() {
     dayText.setText(day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
     yearMonthText.setText(day.getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
     contentText.setText(day.getContent());
+  }
+
+  private void showAttachments() {
+    for (Attachment attachment : day.getAttatchments()) {
+      attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
+    }
+  }
+
+  private void addAttachment(Intent data) {
+    try {
+      byte[] fileBytes = FileUtils.readFileFromUri(data.getData(), this);
+      String mimeType = FileUtils.readMimeTypeFromUri(data.getData(), this);
+
+      attachmentsManager.addFile(fileBytes, mimeType);
+    } catch (IOException e) {
+      e.printStackTrace();
+      //TODO error handling
+    }
   }
 
   @Override
@@ -205,7 +284,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
     DateTime dateTime = new DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0);
     day.setDate(dateTime);
-    updateDayFromEditText();
-    showContent();
+    day.setContent(contentText.getText().toString());
+    showTextContent();
   }
 }

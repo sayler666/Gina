@@ -5,10 +5,12 @@
  */
 package com.sayler.gina.interactor.days;
 
+import com.sayler.domain.dao.AttachmentsDataProvider;
 import com.sayler.domain.dao.DBManager;
 import com.sayler.domain.dao.DaysDataProvider;
 import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.rx.IRxAndroidTransformer;
+import entity.Attachment;
 import entity.Day;
 import rx.Subscription;
 
@@ -23,14 +25,16 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
   private DaysDeleteInteractorCallback daysDeleteInteractorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
+  private AttachmentsDataProvider attachmentsDataProvider;
   private DBManager dbManager;
   private List<Day> data;
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DiaryInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, DBManager dbManager) {
+  public DiaryInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, AttachmentsDataProvider attachmentsDataProvider, DBManager dbManager) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
     this.daysDataProvider = daysDataProvider;
+    this.attachmentsDataProvider = attachmentsDataProvider;
     this.dbManager = dbManager;
   }
 
@@ -51,10 +55,10 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
   }
 
   @Override
-  public void put(Day day, DaysPutInteractorCallback daysPutInteractorCallback) {
+  public void put(Day day, List<Attachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
     this.daysPutInteractorCallback = daysPutInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {
-      putDataToDB(day);
+      putDataToDB(day, attachments);
     }
   }
 
@@ -91,9 +95,17 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
     }
   }
 
-  private void putDataToDB(Day day) {
+  private void putDataToDB(Day day, List<Attachment> attachments) {
     try {
       daysDataProvider.save(day);
+      daysDataProvider.refresh(day);
+
+      //add new attachments
+      for (Attachment attachment : attachments) {
+        attachment.setDay(day);
+        attachmentsDataProvider.save(attachment);
+      }
+
       daysPutInteractorCallback.onDataPut();
     } catch (SQLException e) {
       e.printStackTrace();

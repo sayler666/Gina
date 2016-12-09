@@ -21,7 +21,7 @@ public class Attachment extends BaseEntity implements Parcelable {
   private String mimeType;
   public static final String DAYS_ID_COL = "days_id";
   @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DAYS_ID_COL)
-  private Day account;
+  private Day day;
 
   public String getMimeType() {
     return mimeType;
@@ -31,12 +31,12 @@ public class Attachment extends BaseEntity implements Parcelable {
     this.mimeType = mimeType;
   }
 
-  public Day getAccount() {
-    return account;
+  public Day getDay() {
+    return day;
   }
 
-  public void setAccount(Day account) {
-    this.account = account;
+  public void setDay(Day day) {
+    this.day = day;
   }
 
   public byte[] getFile() {
@@ -55,7 +55,7 @@ public class Attachment extends BaseEntity implements Parcelable {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeByteArray(this.file);
-    dest.writeParcelable(this.account, flags);
+    dest.writeParcelable(this.day, flags);
   }
 
   public Attachment() {
@@ -63,7 +63,7 @@ public class Attachment extends BaseEntity implements Parcelable {
 
   protected Attachment(Parcel in) {
     this.file = in.createByteArray();
-    this.account = in.readParcelable(Day.class.getClassLoader());
+    this.day = in.readParcelable(Day.class.getClassLoader());
   }
 
   public static final Creator<Attachment> CREATOR = new Creator<Attachment>() {

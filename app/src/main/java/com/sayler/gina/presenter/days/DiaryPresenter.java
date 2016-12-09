@@ -7,6 +7,7 @@ import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
 import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
 import com.sayler.gina.interactor.days.DiaryInteractor;
 import com.sayler.gina.presenter.Presenter;
+import entity.Attachment;
 import entity.Day;
 
 import java.util.List;
@@ -68,9 +69,9 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
 
   }
 
-  public void put(Day day) {
+  public void put(Day day, List<Attachment> attachments) {
 
-    diaryInteractor.put(day, new DaysPutInteractorCallback() {
+    diaryInteractor.put(day, attachments, new DaysPutInteractorCallback() {
       @Override
       public void onDataPut() {
         handleDataPut();
