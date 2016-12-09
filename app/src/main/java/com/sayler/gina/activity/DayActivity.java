@@ -12,7 +12,6 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.annimon.stream.Stream;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.presenter.days.DaysPresenterView;
@@ -21,13 +20,11 @@ import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import entity.Attachment;
-import entity.Day;
+import entity.IDay;
 import icepick.Icepick;
-import icepick.State;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 public class DayActivity extends BaseActivity implements DaysPresenterView {
@@ -47,10 +44,8 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   @Bind(R.id.attachmentsContainer)
   public ViewGroup attachmentsContainer;
 
-  @State
   public long dayId;
-  @State
-  public Day day;
+  public IDay day;
 
   private BroadcastReceiverHelper broadcastReceiverEditDay;
   private BroadcastReceiverHelper broadcastReceiverDeleteDay;
@@ -123,11 +118,11 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
   private void showAttachments() {
     attachmentsContainer.removeAllViews();
-    Iterator<Attachment> iterator = day.getAttatchments().iterator();
-    Stream.of(iterator).forEach(attachment -> {
-      Button button = createAttachmentButton(attachment);
-      attachmentsContainer.addView(button);
-    });
+//    Iterator<Attachment> iterator = day.getAttatchments().iterator();
+//    Stream.of(iterator).forEach(attachment -> {
+//      Button button = createAttachmentButton(attachment);
+//      attachmentsContainer.addView(button);
+//    });
 
   }
 
@@ -153,7 +148,7 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
   }
 
   @Override
-  public void onDownloaded(List<Day> data) {
+  public void onDownloaded(List<IDay> data) {
     day = data.get(0);
     showContent();
   }

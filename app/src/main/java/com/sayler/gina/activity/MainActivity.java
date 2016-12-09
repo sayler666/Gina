@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -29,7 +27,11 @@ import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
-import entity.Day;
+import entity.IDay;
+import io.realm.Realm;
+import org.joda.time.DateTime;
+import realm.RealmManager;
+import realm.model.DayRealm;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -38,6 +40,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
+
+  @Inject
+  RealmManager realmManager;
 
   @Inject
   DBManager dbManager;
@@ -152,19 +157,26 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
 
     //on item click
     daysAdapter.setOnItemClickListener((item, view, position) -> {
-      Intent intent = DayActivity.newIntentShowDay(this, item.getId());
-      //shared elements
-      View dayText = view.findViewById(R.id.day);
-      Pair<View, String> pair1 = Pair.create(dayText, dayText.getTransitionName());
-
-      //noinspection unchecked - unable to check
-      ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
-      this.startActivity(intent, options.toBundle());
+//      Intent intent = DayActivity.newIntentShowDay(this, item.getId());
+//      //shared elements
+//      View dayText = view.findViewById(R.id.day);
+//      Pair<View, String> pair1 = Pair.create(dayText, dayText.getTransitionName());
+//
+//      //noinspection unchecked - unable to check
+//      ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
+//      this.startActivity(intent, options.toBundle());
     });
   }
 
   @OnClick(R.id.fab)
   public void onFabAddDayClick() {
+    Realm realm = realmManager.getRealm();
+    realm.beginTransaction();
+    DayRealm object = realm.createObject(DayRealm.class);
+    object.setContent("test");
+    object.setDate(new DateTime(System.currentTimeMillis()));
+    realm.commitTransaction();
+
     startActivity(DayEditActivity.newIntentNewDay(this));
   }
 
@@ -177,7 +189,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     diaryPresenter.loadAll();
   }
 
-  private void createRecyclerView(List<Day> items) {
+  private void createRecyclerView(List<IDay> items) {
     daysAdapter.setItems(items);
     daysAdapter.notifyDataSetChanged();
   }
@@ -195,13 +207,12 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void selectDbFile(String path) {
-    dbManager.setDatabasePath(path);
-    dbManager.rebindProviders();
+    realmManager.setRealmFile(path);
     load();
   }
 
   @Override
-  public void onDownloaded(List<Day> data) {
+  public void onDownloaded(List<IDay> data) {
     createRecyclerView(data);
     uiStateController.setUiStateContent();
     Observable

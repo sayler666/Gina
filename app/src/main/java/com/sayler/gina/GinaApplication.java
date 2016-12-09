@@ -11,6 +11,7 @@ import com.sayler.gina.dagger.ComponentBuilder;
 import com.sayler.gina.dagger.component.ApplicationComponent;
 import com.sayler.gina.dagger.component.DataComponent;
 import com.sayler.gina.image.ImageLoaderHelper;
+import io.realm.Realm;
 
 public class GinaApplication extends Application {
 
@@ -20,6 +21,8 @@ public class GinaApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
+
+    Realm.init(this);
 
     createComponents();
 

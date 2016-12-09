@@ -8,7 +8,7 @@ import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
 import com.sayler.gina.interactor.days.DiaryInteractor;
 import com.sayler.gina.presenter.Presenter;
 import entity.Attachment;
-import entity.Day;
+import entity.IDay;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
     diaryInteractor.loadAllData(new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<Day> data = diaryInteractor.getData();
+        List<IDay> data = diaryInteractor.getData();
         handleLoadData(data);
       }
 
@@ -52,7 +52,7 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
     diaryInteractor.loadDataById(id, new DaysGetInteractorCallback() {
       @Override
       public void onDownloadData() {
-        List<Day> data = diaryInteractor.getData();
+        List<IDay> data = diaryInteractor.getData();
         handleLoadData(data);
       }
 
@@ -69,7 +69,7 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
 
   }
 
-  public void put(Day day, List<Attachment> attachments) {
+  public void put(IDay day, List<Attachment> attachments) {
 
     diaryInteractor.put(day, attachments, new DaysPutInteractorCallback() {
       @Override
@@ -90,7 +90,7 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
 
   }
 
-  public void delete(Day day) {
+  public void delete(IDay day) {
 
     diaryInteractor.delete(day, new DaysDeleteInteractorCallback() {
       @Override
@@ -125,7 +125,7 @@ public class DiaryPresenter extends Presenter<DaysPresenterView> {
     }
   }
 
-  private void handleLoadData(List<Day> days) {
+  private void handleLoadData(List<IDay> days) {
     if (presenterView != null) {
       presenterView.onDownloaded(days);
     }

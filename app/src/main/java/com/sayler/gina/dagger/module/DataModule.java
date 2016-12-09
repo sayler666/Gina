@@ -7,11 +7,19 @@ import com.sayler.domain.dao.DBManager;
 import com.sayler.domain.dao.DaysDataProvider;
 import dagger.Module;
 import dagger.Provides;
+import realm.RealmManager;
 
 import javax.inject.Singleton;
 
 @Module
 public class DataModule {
+
+  @Singleton
+  @Provides
+  public RealmManager provideRealmManager() {
+    RealmManager realmManager = new RealmManager();
+    return realmManager;
+  }
 
   @Singleton
   @Provides

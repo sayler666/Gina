@@ -6,7 +6,7 @@
 package com.sayler.gina.presenter.days;
 
 import com.sayler.gina.presenter.CommonPresenterView;
-import entity.Day;
+import entity.IDay;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 public interface DaysPresenterView extends CommonPresenterView {
   void onError(String error);
 
-  void onDownloaded(List<Day> dayList);
+  void onDownloaded(List<IDay> dayList);
 
   void onPut();
 

@@ -17,16 +17,16 @@ import com.sayler.gina.R;
 import com.sayler.gina.ui.TextUtils;
 import com.sayler.gina.util.Constants;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
-import entity.Day;
+import entity.IDay;
 
 import java.util.List;
 
 /**
  * @author sayler
  */
-public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysHeaderViewHolder> {
+public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements SectionTitleProvider, StickyRecyclerHeadersAdapter<DaysAdapter.DaysHeaderViewHolder> {
 
-  public DaysAdapter(Context context, List<Day> items) {
+  public DaysAdapter(Context context, List<IDay> items) {
     super(context, items);
   }
 
@@ -41,7 +41,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
     if (holder instanceof DaysViewHolder) {
       DaysViewHolder viewHolder = (DaysViewHolder) holder;
 
-      Day day = items.get(position);
+      IDay day = items.get(position);
       viewHolder.setItem(day, position);
       //content
       String contentFull = day.getContent();
@@ -90,7 +90,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
     holder.title.setText(items.get(position).getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
   }
 
-  static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {
+  static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<IDay> {
 
     @Bind(R.id.content)
     public TextView content;
@@ -100,19 +100,19 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<Day> implements Section
     public TextView time;
     public boolean expanded = false;
 
-    DaysViewHolder(final View view, final BaseRecyclerViewAdapter<Day> baseRecyclerViewAdapter) {
+    DaysViewHolder(final View view, final BaseRecyclerViewAdapter<IDay> baseRecyclerViewAdapter) {
       super(view, baseRecyclerViewAdapter);
       ButterKnife.bind(this, view);
     }
 
   }
 
-  static final class DaysHeaderViewHolder extends RecyclerViewHolderWithOnItemClick<Day> {
+  static final class DaysHeaderViewHolder extends RecyclerViewHolderWithOnItemClick<IDay> {
 
     @Bind(R.id.content)
     public TextView title;
 
-    DaysHeaderViewHolder(final View view, final BaseRecyclerViewAdapter<Day> baseRecyclerViewAdapter) {
+    DaysHeaderViewHolder(final View view, final BaseRecyclerViewAdapter<IDay> baseRecyclerViewAdapter) {
       super(view, baseRecyclerViewAdapter);
       ButterKnife.bind(this, view);
     }

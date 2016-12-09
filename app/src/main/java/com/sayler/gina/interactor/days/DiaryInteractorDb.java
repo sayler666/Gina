@@ -12,9 +12,11 @@ import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import entity.Attachment;
 import entity.Day;
+import entity.IDay;
 import rx.Subscription;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,24 +57,28 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
   }
 
   @Override
-  public void put(Day day, List<Attachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
+  public void put(IDay day, List<Attachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
     this.daysPutInteractorCallback = daysPutInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {
-      putDataToDB(day, attachments);
+      putDataToDB((Day) day, attachments);
     }
   }
 
   @Override
-  public void delete(Day day, DaysDeleteInteractorCallback daysDeleteInteractorCallback) {
+  public void delete(IDay day, DaysDeleteInteractorCallback daysDeleteInteractorCallback) {
     this.daysDeleteInteractorCallback = daysDeleteInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {
-      deleteDay(day);
+      deleteDay((Day) day);
     }
   }
 
   @Override
-  public List<Day> getData() {
-    return data;
+  public List<IDay> getData() {
+    List<IDay> iDays = new ArrayList<>();
+    for (Day day : data) {
+      iDays.add(day);
+    }
+    return iDays;
   }
 
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */

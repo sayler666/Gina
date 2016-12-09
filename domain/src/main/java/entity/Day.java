@@ -14,7 +14,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.joda.time.DateTime;
 
 @DatabaseTable(tableName = "days")
-public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
+public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay {
   public static final String DATE_COL = "date";
   @DatabaseField(columnName = DATE_COL, dataType = DataType.DATE_TIME)
   private DateTime date;

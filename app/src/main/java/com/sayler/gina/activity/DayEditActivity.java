@@ -19,10 +19,10 @@ import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import entity.Attachment;
-import entity.Day;
+import entity.IDay;
 import icepick.Icepick;
-import icepick.State;
 import org.joda.time.DateTime;
+import realm.model.DayRealm;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -36,10 +36,8 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Inject
   DiaryPresenter diaryPresenter;
 
-  @State
   public Long dayId = -1L;
-  @State
-  public Day day;
+  public IDay day;
 
   @Bind(R.id.day)
   public TextView dayText;
@@ -152,7 +150,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
       switch (editMode) {
         case NEW_DAY:
-          day = new Day(new DateTime());
+          day = new DayRealm(new DateTime().getMillis());
           break;
         case EDIT_DAY:
           dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
@@ -216,7 +214,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   @Override
-  public void onDownloaded(List<Day> data) {
+  public void onDownloaded(List<IDay> data) {
     day = data.get(0);
     showTextContent();
     showAttachments();
@@ -245,9 +243,9 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void showAttachments() {
-    for (Attachment attachment : day.getAttatchments()) {
-      attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
-    }
+//    for (Attachment attachment : day.getAttatchments()) {
+//      attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
+//    }
   }
 
   private void addAttachment(Intent data) {
