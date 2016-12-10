@@ -1,10 +1,10 @@
-package realm.model;
+package com.sayler.gina.domain.realm.model;
 
 /**
  * Created by lchromy on 26.05.15.
  */
 
-import com.sayler.gina.IAttachment;
+import com.sayler.gina.domain.IAttachment;
 import io.realm.RealmModel;
 import io.realm.annotations.RealmClass;
 

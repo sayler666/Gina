@@ -1,9 +1,9 @@
 /**
  * Created by Lukasz Chromy on 10.01.14.
- *
+ * <p>
  * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.domain.ormLite.entity;
+package com.sayler.gina.domain.ormLite.entity;
 
 import com.j256.ormlite.field.DatabaseField;
 

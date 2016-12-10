@@ -5,10 +5,10 @@
  */
 package com.sayler.gina.interactor.days.ormlite;
 
-import com.sayler.domain.ormLite.entity.Attachment;
-import com.sayler.domain.ormLite.entity.Day;
-import com.sayler.gina.IAttachment;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
+import com.sayler.gina.domain.ormLite.entity.Attachment;
+import com.sayler.gina.domain.ormLite.entity.Day;
 import com.sayler.gina.interactor.days.ObjectCreator;
 
 /**

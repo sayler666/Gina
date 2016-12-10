@@ -5,11 +5,11 @@
  */
 package com.sayler.gina.interactor.days.realm;
 
-import com.sayler.gina.IAttachment;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
+import com.sayler.gina.domain.realm.model.AttachmentRealm;
+import com.sayler.gina.domain.realm.model.DayRealm;
 import com.sayler.gina.interactor.days.ObjectCreator;
-import realm.model.AttachmentRealm;
-import realm.model.DayRealm;
 
 /**
  * TODO Add class description...

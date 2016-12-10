@@ -3,7 +3,7 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package realm;
+package com.sayler.gina.domain;
 
 public interface DataManager<T> {
   void setSourceFile(String sourceFilePath);

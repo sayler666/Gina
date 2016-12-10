@@ -1,4 +1,4 @@
-package com.sayler.domain.ormLite.entity;
+package com.sayler.gina.domain.ormLite.entity;
 
 /**
  * Created by lchromy on 26.05.15.
@@ -11,7 +11,7 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IDay;
 import org.joda.time.DateTime;
 
 @DatabaseTable(tableName = "days")

@@ -1,8 +1,8 @@
-package com.sayler.domain.ormLite;
+package com.sayler.gina.domain.ormLite;
 
 import android.content.Context;
 import com.annimon.stream.Stream;
-import realm.DataManager;
+import com.sayler.gina.domain.DataManager;
 
 import java.util.ArrayList;
 import java.util.List;

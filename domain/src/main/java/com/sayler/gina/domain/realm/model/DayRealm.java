@@ -1,11 +1,11 @@
-package realm.model;
+package com.sayler.gina.domain.realm.model;
 
 /**
  * Created by lchromy on 26.05.15.
  */
 
 import android.support.annotation.NonNull;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IDay;
 import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.annotations.PrimaryKey;

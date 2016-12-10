@@ -13,6 +13,4 @@ public class DataModule {
     return new RxAndroidTransformer();
   }
 
-
-
 }

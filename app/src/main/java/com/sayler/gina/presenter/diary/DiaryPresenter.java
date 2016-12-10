@@ -2,8 +2,8 @@ package com.sayler.gina.presenter.diary;
 
 import android.content.Context;
 import android.util.Log;
-import com.sayler.gina.IAttachment;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.interactor.days.DaysDeleteInteractorCallback;
 import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
 import com.sayler.gina.interactor.days.DaysPutInteractorCallback;

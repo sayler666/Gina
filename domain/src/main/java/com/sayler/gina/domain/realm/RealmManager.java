@@ -3,8 +3,9 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package realm;
+package com.sayler.gina.domain.realm;
 
+import com.sayler.gina.domain.DataManager;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import org.apache.commons.io.FilenameUtils;

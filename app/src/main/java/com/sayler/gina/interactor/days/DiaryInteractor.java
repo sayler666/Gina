@@ -1,7 +1,7 @@
 package com.sayler.gina.interactor.days;
 
-import com.sayler.gina.IAttachment;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.interactor.CommonInteractor;
 
 import java.util.List;

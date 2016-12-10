@@ -6,17 +6,17 @@
 package com.sayler.gina.interactor.days.realm;
 
 import com.annimon.stream.Stream;
-import com.sayler.gina.IAttachment;
-import com.sayler.gina.IDay;
+import com.sayler.gina.domain.DataManager;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
+import com.sayler.gina.domain.realm.model.AttachmentRealm;
+import com.sayler.gina.domain.realm.model.DayRealm;
 import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.interactor.days.*;
 import com.sayler.gina.rx.IRxAndroidTransformer;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import realm.DataManager;
-import realm.model.AttachmentRealm;
-import realm.model.DayRealm;
 import rx.Subscription;
 
 import java.util.ArrayList;

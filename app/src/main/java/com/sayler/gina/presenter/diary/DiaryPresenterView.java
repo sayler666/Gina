@@ -5,8 +5,8 @@
  */
 package com.sayler.gina.presenter.diary;
 
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.presenter.CommonPresenterView;
-import com.sayler.gina.IDay;
 
 import java.util.List;
 
