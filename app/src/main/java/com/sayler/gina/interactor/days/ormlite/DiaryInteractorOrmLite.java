@@ -3,16 +3,18 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.interactor.days;
+package com.sayler.gina.interactor.days.ormlite;
 
-import com.sayler.domain.dao.AttachmentsDataProvider;
-import com.sayler.domain.dao.DBManager;
-import com.sayler.domain.dao.DaysDataProvider;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.sayler.domain.ormLite.AttachmentsDataProvider;
+import com.sayler.domain.ormLite.DaysDataProvider;
+import com.sayler.domain.ormLite.entity.Attachment;
+import com.sayler.domain.ormLite.entity.Day;
+import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.BaseInteractor;
+import com.sayler.gina.interactor.days.*;
 import com.sayler.gina.rx.IRxAndroidTransformer;
-import entity.Attachment;
-import entity.Day;
-import entity.IDay;
+import realm.DataManager;
 import rx.Subscription;
 
 import java.sql.SQLException;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor {
+public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInteractor {
 
   private DaysGetInteractorCallback daysGetInteractorCallback;
   private DaysPutInteractorCallback daysPutInteractorCallback;
@@ -28,16 +30,16 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
   private AttachmentsDataProvider attachmentsDataProvider;
-  private DBManager dbManager;
+  private DataManager ormLiteManager;
   private List<Day> data;
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DiaryInteractorDb(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, AttachmentsDataProvider attachmentsDataProvider, DBManager dbManager) {
+  public DiaryInteractorOrmLite(IRxAndroidTransformer iRxAndroidTransformer, DaysDataProvider daysDataProvider, AttachmentsDataProvider attachmentsDataProvider, DataManager ormLiteManager) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
     this.daysDataProvider = daysDataProvider;
     this.attachmentsDataProvider = attachmentsDataProvider;
-    this.dbManager = dbManager;
+    this.ormLiteManager = ormLiteManager;
   }
 
   @Override
@@ -84,7 +86,7 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
   private boolean checkIfDbExist(NoDatabaseCallback noDatabaseCallback) {
-    if (!dbManager.ifDatabaseFileExists()) {
+    if (!ormLiteManager.isOpen()) {
       noDatabaseCallback.onNoDatabase();
       return false;
     }
@@ -106,12 +108,20 @@ public class DiaryInteractorDb extends BaseInteractor implements DiaryInteractor
       daysDataProvider.save(day);
       daysDataProvider.refresh(day);
 
+      //remove old
+      DeleteBuilder<Attachment, Long> deleteBuilder = attachmentsDataProvider.getDao().deleteBuilder();
+      deleteBuilder.where().eq(Attachment.DAYS_ID_COL, day.getId());
+      deleteBuilder.delete();
+
       //add new attachments
       for (Attachment attachment : attachments) {
+        if (attachment.getFile().length > 2000000) {
+          throw new SQLException("Length of file too big. File not saved in database!");
+        }
         attachment.setDay(day);
-        attachmentsDataProvider.save(attachment);
       }
 
+      attachmentsDataProvider.saveAll(attachments);
       daysPutInteractorCallback.onDataPut();
     } catch (SQLException e) {
       e.printStackTrace();

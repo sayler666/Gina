@@ -17,7 +17,7 @@ import com.sayler.gina.R;
 import com.sayler.gina.ui.TextUtils;
 import com.sayler.gina.util.Constants;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
-import entity.IDay;
+import com.sayler.gina.IDay;
 
 import java.util.List;
 

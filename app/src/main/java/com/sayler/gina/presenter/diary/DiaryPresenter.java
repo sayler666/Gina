@@ -1,18 +1,18 @@
-package com.sayler.gina.presenter.days;
+package com.sayler.gina.presenter.diary;
 
 import android.content.Context;
 import android.util.Log;
+import com.sayler.domain.ormLite.entity.Attachment;
+import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.days.DaysDeleteInteractorCallback;
 import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
 import com.sayler.gina.interactor.days.DaysPutInteractorCallback;
 import com.sayler.gina.interactor.days.DiaryInteractor;
 import com.sayler.gina.presenter.Presenter;
-import entity.Attachment;
-import entity.IDay;
 
 import java.util.List;
 
-public class DiaryPresenter extends Presenter<DaysPresenterView> {
+public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   private static final String TAG = "DummyPresenter";
 

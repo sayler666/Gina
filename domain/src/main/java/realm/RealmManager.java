@@ -16,7 +16,7 @@ import java.io.File;
  *
  * @author sayler
  */
-public class RealmManager {
+public class RealmManager implements DataManager<Realm> {
 
   private String realmDirectory;
   private String realmFileName;
@@ -27,19 +27,22 @@ public class RealmManager {
 
   }
 
-  public void setRealmFile(String filePath) {
+  @Override
+  public void setSourceFile(String sourceFilePath) {
     this.realmDirectory =
-        FilenameUtils.getPath(filePath);
+        FilenameUtils.getPath(sourceFilePath);
     this.realmFileName =
-        FilenameUtils.getName(filePath);
+        FilenameUtils.getName(sourceFilePath);
     needNewInstance = true;
   }
 
-  public boolean ifDatabaseFileExists() {
+  @Override
+  public boolean isOpen() {
     return realmDirectory != null;
   }
 
-  public Realm getRealm() {
+  @Override
+  public Realm getDao() {
     if (instance == null || needNewInstance) {
       RealmConfiguration config = new RealmConfiguration.Builder()
           .directory(new File(realmDirectory))
@@ -50,4 +53,5 @@ public class RealmManager {
     }
     return instance;
   }
+
 }

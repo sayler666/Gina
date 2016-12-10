@@ -3,12 +3,12 @@
  * <p>
  * Copyright 2015 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.domain.dao;
+package com.sayler.domain.ormLite;
 
 import android.content.Context;
 import android.util.Log;
 import com.j256.ormlite.dao.Dao;
-import entity.Attachment;
+import com.sayler.domain.ormLite.entity.Attachment;
 
 import java.sql.SQLException;
 

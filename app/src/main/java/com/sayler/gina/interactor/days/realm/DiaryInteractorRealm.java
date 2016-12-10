@@ -3,16 +3,17 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.interactor.days;
+package com.sayler.gina.interactor.days.realm;
 
+import com.sayler.domain.ormLite.entity.Attachment;
+import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.BaseInteractor;
+import com.sayler.gina.interactor.days.*;
 import com.sayler.gina.rx.IRxAndroidTransformer;
-import entity.Attachment;
-import entity.IDay;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import realm.RealmManager;
+import realm.DataManager;
 import realm.model.DayRealm;
 import rx.Subscription;
 
@@ -26,14 +27,14 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   private DaysPutInteractorCallback daysPutInteractorCallback;
   private DaysDeleteInteractorCallback daysDeleteInteractorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
-  private RealmManager realmManager;
+  private DataManager<Realm> dataManager;
   private List<IDay> data = new ArrayList<>();
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DiaryInteractorRealm(IRxAndroidTransformer iRxAndroidTransformer, RealmManager realmManager) {
+  public DiaryInteractorRealm(IRxAndroidTransformer iRxAndroidTransformer, DataManager<Realm> dataManager) {
     this.iRxAndroidTransformer = iRxAndroidTransformer;
-    this.realmManager = realmManager;
+    this.dataManager = dataManager;
   }
 
   @Override
@@ -62,10 +63,10 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
 
   @Override
   public void delete(IDay day, DaysDeleteInteractorCallback daysDeleteInteractorCallback) {
-//    this.daysDeleteInteractorCallback = daysDeleteInteractorCallback;
-//    if (checkIfDbExist(daysPutInteractorCallback)) {
-//      deleteDay(day);
-//    }
+    this.daysDeleteInteractorCallback = daysDeleteInteractorCallback;
+    if (checkIfDbExist(daysPutInteractorCallback)) {
+      deleteDay(day);
+    }
   }
 
   @Override
@@ -76,7 +77,7 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   /* ------------------------------------------------------ PRIVATE ------------------------------------------------ */
 
   private boolean checkIfDbExist(NoDatabaseCallback noDatabaseCallback) {
-    if (!realmManager.ifDatabaseFileExists()) {
+    if (!dataManager.isOpen()) {
       noDatabaseCallback.onNoDatabase();
       return false;
     }
@@ -84,26 +85,32 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   private void deleteDay(IDay day) {
-//    try {
-//      daysDataProvider.delete(day);
-//      daysDeleteInteractorCallback.onDataDelete();
-//    } catch (SQLException e) {
-//      e.printStackTrace();
-//      daysDeleteInteractorCallback.onDataDeleteError(e);
-//    }
+    try {
+      Realm realm = dataManager.getDao();
+      final RealmResults<DayRealm> results = realm.where(DayRealm.class).equalTo("id", day.getId()).findAll();
+      realm.executeTransaction(realm1 -> results.deleteAllFromRealm());
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+      daysDeleteInteractorCallback.onDataDeleteError(e);
+    }
+    daysDeleteInteractorCallback.onDataDelete();
   }
 
   private void putDataToDB(IDay day, List<Attachment> attachments) {
-    Realm realm = realmManager.getRealm();
+    //if empty id, means that we are storing new object in db
+    if (day.getId() == -1) {
+      day.setId(day.getDate().getMillis());
+    }
+    Realm realm = dataManager.getDao();
     realm.beginTransaction();
-    realm.copyToRealm((DayRealm) day);
+    realm.copyToRealmOrUpdate((DayRealm) day);
     realm.commitTransaction();
     daysPutInteractorCallback.onDataPut();
   }
 
   private void retrieveAllData() {
     Subscription subscription;
-    RealmQuery<DayRealm> query = realmManager.getRealm().where(DayRealm.class);
+    RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class);
     subscription = rx.Observable.just(query.findAll())
         .compose(iRxAndroidTransformer.applySchedulers())
         .subscribe(this::handleLoadData, throwable ->
@@ -112,24 +119,18 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   private void retrieveDataById(long id) {
-//    Subscription subscription;
-//      RealmQuery<DayRealm> query = realmManager.getRealm().where(DayRealm.class);
-//      subscription = rx.Observable.just(query.find(id))
-//          .compose(iRxAndroidTransformer.applySchedulers())
-//          .subscribe(this::handleLoadData, throwable ->
-//              daysGetInteractorCallback.onDownloadDataError(throwable));
-//      needToUnsubscribe(subscription);
+    Subscription subscription;
+    RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class).equalTo("id", id);
+    subscription = rx.Observable.just(query.findAll())
+        .compose(iRxAndroidTransformer.applySchedulers())
+        .subscribe(this::handleLoadData, throwable ->
+            daysGetInteractorCallback.onDownloadDataError(throwable));
+    needToUnsubscribe(subscription);
 
-  }
-
-  private void handleLoadData(IDay day) {
-//    List<Day> days = Collections.singletonList(day);
-//    saveData(days);
-//    daysGetInteractorCallback.onDownloadData();
   }
 
   private void handleLoadData(RealmResults<DayRealm> realmResults) {
-    List<DayRealm> days = realmManager.getRealm().copyFromRealm(realmResults);
+    List<DayRealm> days = dataManager.getDao().copyFromRealm(realmResults);
     Collections.sort(days);
     Collections.reverse(days);
     saveData(days);
@@ -137,6 +138,7 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   private void saveData(List<DayRealm> days) {
+    data = new ArrayList<>();
     for (DayRealm day : days) {
       data.add(day);
     }

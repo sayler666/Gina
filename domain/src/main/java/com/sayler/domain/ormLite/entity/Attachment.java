@@ -1,17 +1,20 @@
-package entity;
+package com.sayler.domain.ormLite.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sayler.gina.IAttachment;
+
+import java.util.Arrays;
 
 /**
  * Created by miquido on 08/12/16.
  */
 
 @DatabaseTable(tableName = "attachments")
-public class Attachment extends BaseEntity implements Parcelable {
+public class Attachment extends BaseEntity implements Parcelable, IAttachment {
 
   public static final String FILE_COL = "file";
   @DatabaseField(columnName = FILE_COL, dataType = DataType.BYTE_ARRAY)
@@ -45,6 +48,35 @@ public class Attachment extends BaseEntity implements Parcelable {
 
   public void setFile(byte[] file) {
     this.file = file;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Attachment)) {
+      return false;
+    }
+
+    Attachment that = (Attachment) o;
+
+    if (!Arrays.equals(file, that.file)) {
+      return false;
+    }
+    if (!mimeType.equals(that.mimeType)) {
+      return false;
+    }
+    return day != null ? day.equals(that.day) : that.day == null;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Arrays.hashCode(file);
+    result = 31 * result + mimeType.hashCode();
+    result = 31 * result + (day != null ? day.hashCode() : 0);
+    return result;
   }
 
   @Override

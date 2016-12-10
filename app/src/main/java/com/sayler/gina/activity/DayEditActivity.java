@@ -3,6 +3,7 @@ package com.sayler.gina.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,18 +12,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.annimon.stream.Stream;
+import com.sayler.domain.ormLite.entity.Attachment;
 import com.sayler.gina.GinaApplication;
+import com.sayler.gina.IAttachment;
+import com.sayler.gina.IDay;
 import com.sayler.gina.R;
-import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.presenter.days.DiaryPresenter;
+import com.sayler.gina.interactor.days.DayCreator;
+import com.sayler.gina.presenter.diary.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import entity.Attachment;
-import entity.IDay;
 import icepick.Icepick;
 import org.joda.time.DateTime;
-import realm.model.DayRealm;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -30,11 +32,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DayEditActivity extends BaseActivity implements DaysPresenterView, DatePickerDialog.OnDateSetListener {
+public class DayEditActivity extends BaseActivity implements DiaryPresenterView, DatePickerDialog.OnDateSetListener {
 
   private static final String TAG = "DayEditActivity";
   @Inject
   DiaryPresenter diaryPresenter;
+  @Inject
+  DayCreator dayCreator;
 
   public Long dayId = -1L;
   public IDay day;
@@ -73,8 +77,10 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
       Button newButton = new Button(attachmentsContainer.getContext());
       newButton.setText(mimeType);
       newButton.setOnClickListener(view -> {
-        //TODO add event to remove attachment
-      });
+            tmpAttachmentButtonHashMap.remove(newAttachment);
+            attachmentsContainer.removeView(view);
+          }
+      );
 
       attachmentsContainer.addView(newButton);
       tmpAttachmentButtonHashMap.put(newAttachment, newButton);
@@ -150,7 +156,8 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
       switch (editMode) {
         case NEW_DAY:
-          day = new DayRealm(new DateTime().getMillis());
+          day = dayCreator.createDay();
+          day.setDate(new DateTime());
           break;
         case EDIT_DAY:
           dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
@@ -233,7 +240,11 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   @Override
   public void onError(String errorMessage) {
-    //TODO error handling
+    showError(errorMessage);
+  }
+
+  private void showError(String errorMessage) {
+    Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show();
   }
 
   private void showTextContent() {
@@ -243,9 +254,9 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void showAttachments() {
-//    for (Attachment attachment : day.getAttatchments()) {
-//      attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
-//    }
+    for (IAttachment attachment : day.getAttachments()) {
+      attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
+    }
   }
 
   private void addAttachment(Intent data) {

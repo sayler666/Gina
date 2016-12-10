@@ -3,7 +3,7 @@
  * <p>
  * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.domain.dao;
+package com.sayler.domain.ormLite;
 
 import android.content.Context;
 import com.j256.ormlite.android.apptools.OpenHelperManager;

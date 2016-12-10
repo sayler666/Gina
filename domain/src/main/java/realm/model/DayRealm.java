@@ -5,21 +5,32 @@ package realm.model;
  */
 
 import android.support.annotation.NonNull;
-import entity.IDay;
+import com.sayler.gina.IDay;
+import io.realm.RealmList;
 import io.realm.RealmModel;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 import org.joda.time.DateTime;
 
 @RealmClass
 public class DayRealm implements RealmModel, Comparable<DayRealm>, IDay {
+  @PrimaryKey
+  private long id = -1;
   private long date;
   private String content;
+  private RealmList<AttachmentRealm> realmList;
 
   public DayRealm() {
   }
 
-  public DayRealm(long date) {
-    this.date = date;
+  @Override
+  public long getId() {
+    return id;
+  }
+
+  @Override
+  public void setId(long id) {
+    this.id = id;
   }
 
   @Override
@@ -40,6 +51,11 @@ public class DayRealm implements RealmModel, Comparable<DayRealm>, IDay {
   @Override
   public void setContent(String content) {
     this.content = content;
+  }
+
+  @Override
+  public RealmList<AttachmentRealm> getAttachments() {
+    return realmList;
   }
 
   @Override

@@ -12,22 +12,24 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.annimon.stream.Stream;
 import com.sayler.gina.GinaApplication;
+import com.sayler.gina.IAttachment;
+import com.sayler.gina.IDay;
 import com.sayler.gina.R;
-import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.presenter.days.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
-import entity.Attachment;
-import entity.IDay;
 import icepick.Icepick;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
-public class DayActivity extends BaseActivity implements DaysPresenterView {
+public class DayActivity extends BaseActivity implements DiaryPresenterView {
 
   private static final String TAG = "DayActivity";
   @Inject
@@ -118,16 +120,16 @@ public class DayActivity extends BaseActivity implements DaysPresenterView {
 
   private void showAttachments() {
     attachmentsContainer.removeAllViews();
-//    Iterator<Attachment> iterator = day.getAttatchments().iterator();
-//    Stream.of(iterator).forEach(attachment -> {
-//      Button button = createAttachmentButton(attachment);
-//      attachmentsContainer.addView(button);
-//    });
+    Iterator<? extends IAttachment> iterator = day.getAttachments().iterator();
+    Stream.of(iterator).forEach(attachment -> {
+      Button button = createAttachmentButton(attachment);
+      attachmentsContainer.addView(button);
+    });
 
   }
 
   @NonNull
-  private Button createAttachmentButton(Attachment attachment) {
+  private Button createAttachmentButton(IAttachment attachment) {
     Button button = new Button(this);
     button.setText(attachment.getMimeType());
 

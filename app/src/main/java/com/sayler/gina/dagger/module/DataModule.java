@@ -1,51 +1,18 @@
 package com.sayler.gina.dagger.module;
 
-import android.content.Context;
-import android.os.Environment;
-import com.sayler.domain.dao.AttachmentsDataProvider;
-import com.sayler.domain.dao.DBManager;
-import com.sayler.domain.dao.DaysDataProvider;
+import com.sayler.gina.rx.IRxAndroidTransformer;
+import com.sayler.gina.rx.RxAndroidTransformer;
 import dagger.Module;
 import dagger.Provides;
-import realm.RealmManager;
-
-import javax.inject.Singleton;
 
 @Module
 public class DataModule {
 
-  @Singleton
   @Provides
-  public RealmManager provideRealmManager() {
-    RealmManager realmManager = new RealmManager();
-    return realmManager;
+  public IRxAndroidTransformer provideIRxAndroidTransformer() {
+    return new RxAndroidTransformer();
   }
 
-  @Singleton
-  @Provides
-  public DBManager provideDbManager(Context context) {
-    //TODO put this path somewhere
-    String dbPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/db.sqlite";
 
-    DBManager dbManager = new DBManager(context);
-    dbManager.setDatabasePath(dbPath);
-    return dbManager;
-  }
-
-  @Singleton
-  @Provides
-  public DaysDataProvider provideDaysDataProvider(Context context, DBManager dbManager) {
-    DaysDataProvider daysDataProvider = new DaysDataProvider(context);
-    dbManager.add(daysDataProvider);
-    return daysDataProvider;
-  }
-
-  @Singleton
-  @Provides
-  public AttachmentsDataProvider provideAttachmentsDataProvider(Context context, DBManager dbManager) {
-    AttachmentsDataProvider attachmentsDataProvider = new AttachmentsDataProvider(context);
-    dbManager.add(attachmentsDataProvider);
-    return attachmentsDataProvider;
-  }
 
 }
