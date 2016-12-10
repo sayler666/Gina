@@ -3,20 +3,20 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.presenter.days;
+package com.sayler.gina.presenter.diary;
 
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.presenter.CommonPresenterView;
-import entity.Day;
 
 import java.util.List;
 
 /**
  * @author lchromy
  */
-public interface DaysPresenterView extends CommonPresenterView {
+public interface DiaryPresenterView extends CommonPresenterView {
   void onError(String error);
 
-  void onDownloaded(List<Day> dayList);
+  void onDownloaded(List<IDay> dayList);
 
   void onPut();
 

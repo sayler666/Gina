@@ -3,7 +3,7 @@
  * <p>
  * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.domain.dao;
+package com.sayler.gina.domain.ormLite;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,8 +11,8 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import entity.Attachment;
-import entity.Day;
+import com.sayler.gina.domain.ormLite.entity.Attachment;
+import com.sayler.gina.domain.ormLite.entity.Day;
 
 import java.io.File;
 import java.sql.SQLException;

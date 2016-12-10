@@ -15,13 +15,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
-import com.sayler.domain.dao.DBManager;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
+import com.sayler.gina.domain.DataManager;
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.permission.PermissionUtils;
-import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.presenter.days.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.ui.RevealHelper;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
@@ -29,7 +30,6 @@ import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
-import entity.Day;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -37,10 +37,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends BaseActivity implements DaysPresenterView, PermissionUtils.PermissionCallback {
+public class MainActivity extends BaseActivity implements DiaryPresenterView, PermissionUtils.PermissionCallback {
 
   @Inject
-  DBManager dbManager;
+  DataManager dataManager;
 
   @Inject
   DiaryPresenter diaryPresenter;
@@ -177,7 +177,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
     diaryPresenter.loadAll();
   }
 
-  private void createRecyclerView(List<Day> items) {
+  private void createRecyclerView(List<IDay> items) {
     daysAdapter.setItems(items);
     daysAdapter.notifyDataSetChanged();
   }
@@ -195,13 +195,12 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   }
 
   private void selectDbFile(String path) {
-    dbManager.setDatabasePath(path);
-    dbManager.rebindProviders();
+    dataManager.setSourceFile(path);
     load();
   }
 
   @Override
-  public void onDownloaded(List<Day> data) {
+  public void onDownloaded(List<IDay> data) {
     createRecyclerView(data);
     uiStateController.setUiStateContent();
     Observable
@@ -225,6 +224,7 @@ public class MainActivity extends BaseActivity implements DaysPresenterView, Per
   @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
+    dataManager.close();
     super.onDestroy();
   }
 

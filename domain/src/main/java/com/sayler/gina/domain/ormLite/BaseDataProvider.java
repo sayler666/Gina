@@ -3,14 +3,14 @@
  * <p>
  * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.domain.dao;
+package com.sayler.gina.domain.ormLite;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import com.j256.ormlite.dao.Dao;
-import entity.BaseEntity;
+import com.sayler.gina.domain.ormLite.entity.BaseEntity;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -3,6 +3,7 @@ package com.sayler.gina.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,15 +14,16 @@ import butterknife.OnClick;
 import com.annimon.stream.Stream;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
-import com.sayler.gina.presenter.days.DaysPresenterView;
-import com.sayler.gina.presenter.days.DiaryPresenter;
+import com.sayler.gina.domain.DataManager;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
+import com.sayler.gina.interactor.days.ObjectCreator;
+import com.sayler.gina.presenter.diary.DiaryPresenter;
+import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import entity.Attachment;
-import entity.Day;
 import icepick.Icepick;
-import icepick.State;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -30,16 +32,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DayEditActivity extends BaseActivity implements DaysPresenterView, DatePickerDialog.OnDateSetListener {
+public class DayEditActivity extends BaseActivity implements DiaryPresenterView, DatePickerDialog.OnDateSetListener {
 
   private static final String TAG = "DayEditActivity";
   @Inject
   DiaryPresenter diaryPresenter;
+  @Inject
+  ObjectCreator objectCreator;
+  @Inject
+  DataManager dataManager;
 
-  @State
   public Long dayId = -1L;
-  @State
-  public Day day;
+  public IDay day;
 
   @Bind(R.id.day)
   public TextView dayText;
@@ -59,7 +63,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private class AttachmentsManager {
-    private HashMap<Attachment, Button> tmpAttachmentButtonHashMap = new HashMap<>();
+    private HashMap<IAttachment, Button> tmpAttachmentButtonHashMap = new HashMap<>();
 
     private ViewGroup attachmentsContainer;
 
@@ -68,22 +72,24 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
     }
 
     public void addFile(byte[] bytes, String mimeType) {
-      Attachment newAttachment = new Attachment();
+      IAttachment newAttachment = objectCreator.createAttachment();
       newAttachment.setFile(bytes);
       newAttachment.setMimeType(mimeType);
 
       Button newButton = new Button(attachmentsContainer.getContext());
       newButton.setText(mimeType);
       newButton.setOnClickListener(view -> {
-        //TODO add event to remove attachment
-      });
+            tmpAttachmentButtonHashMap.remove(newAttachment);
+            attachmentsContainer.removeView(view);
+          }
+      );
 
       attachmentsContainer.addView(newButton);
       tmpAttachmentButtonHashMap.put(newAttachment, newButton);
     }
 
-    public List<Attachment> returnAttachments() {
-      List<Attachment> attachments = new ArrayList<>();
+    public List<IAttachment> returnAttachments() {
+      List<IAttachment> attachments = new ArrayList<>();
       Stream.of(tmpAttachmentButtonHashMap).forEach(attachmentButtonEntry -> {
         attachments.add(attachmentButtonEntry.getKey());
       });
@@ -152,7 +158,8 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
       switch (editMode) {
         case NEW_DAY:
-          day = new Day(new DateTime());
+          day = objectCreator.createDay();
+          day.setDate(new DateTime());
           break;
         case EDIT_DAY:
           dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
@@ -212,11 +219,12 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Override
   public void onPut() {
     sendEditDayBroadcast(this);
+    dataManager.close();
     finish();
   }
 
   @Override
-  public void onDownloaded(List<Day> data) {
+  public void onDownloaded(List<IDay> data) {
     day = data.get(0);
     showTextContent();
     showAttachments();
@@ -225,6 +233,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Override
   public void onDelete() {
     sendDeleteDayBroadcast(this);
+    dataManager.close();
     finish();
   }
 
@@ -235,7 +244,11 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
 
   @Override
   public void onError(String errorMessage) {
-    //TODO error handling
+    showError(errorMessage);
+  }
+
+  private void showError(String errorMessage) {
+    Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show();
   }
 
   private void showTextContent() {
@@ -245,7 +258,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   }
 
   private void showAttachments() {
-    for (Attachment attachment : day.getAttatchments()) {
+    for (IAttachment attachment : day.getAttachments()) {
       attachmentsManager.addFile(attachment.getFile(), attachment.getMimeType());
     }
   }
@@ -277,6 +290,7 @@ public class DayEditActivity extends BaseActivity implements DaysPresenterView, 
   @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
+    dataManager.close();
     super.onDestroy();
   }
 

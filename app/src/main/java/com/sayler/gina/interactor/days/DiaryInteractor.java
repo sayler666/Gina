@@ -1,8 +1,8 @@
 package com.sayler.gina.interactor.days;
 
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.interactor.CommonInteractor;
-import entity.Attachment;
-import entity.Day;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ public interface DiaryInteractor extends CommonInteractor {
 
   void loadDataById(long id, DaysGetInteractorCallback interactorCallback);
 
-  void put(Day day, List<Attachment> attachments, DaysPutInteractorCallback interactorCallback);
+  void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback interactorCallback);
 
-  void delete(Day day, DaysDeleteInteractorCallback daysDeleteInteractorCallback);
+  void delete(IDay day, DaysDeleteInteractorCallback daysDeleteInteractorCallback);
 
-  List<Day> getData();
+  List<IDay> getData();
 }

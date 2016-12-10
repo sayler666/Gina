@@ -1,4 +1,4 @@
-package entity;
+package com.sayler.gina.domain.ormLite.entity;
 
 /**
  * Created by lchromy on 26.05.15.
@@ -11,10 +11,11 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sayler.gina.domain.IDay;
 import org.joda.time.DateTime;
 
 @DatabaseTable(tableName = "days")
-public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
+public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay {
   public static final String DATE_COL = "date";
   @DatabaseField(columnName = DATE_COL, dataType = DataType.DATE_TIME)
   private DateTime date;
@@ -22,7 +23,7 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
   @DatabaseField(columnName = CONTENT_COL)
   private String content;
   @ForeignCollectionField
-  private ForeignCollection<Attachment> attatchments;
+  private ForeignCollection<Attachment> attachments;
 
   public Day() {
   }
@@ -36,8 +37,9 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable {
     this.content = content;
   }
 
-  public ForeignCollection<Attachment> getAttatchments() {
-    return attatchments;
+  @Override
+  public ForeignCollection<Attachment> getAttachments() {
+    return attachments;
   }
 
   public DateTime getDate() {
