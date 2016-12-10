@@ -2,7 +2,7 @@ package com.sayler.gina.presenter.diary;
 
 import android.content.Context;
 import android.util.Log;
-import com.sayler.domain.ormLite.entity.Attachment;
+import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.days.DaysDeleteInteractorCallback;
 import com.sayler.gina.interactor.days.DaysGetInteractorCallback;
@@ -69,7 +69,7 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
-  public void put(IDay day, List<Attachment> attachments) {
+  public void put(IDay day, List<IAttachment> attachments) {
 
     diaryInteractor.put(day, attachments, new DaysPutInteractorCallback() {
       @Override

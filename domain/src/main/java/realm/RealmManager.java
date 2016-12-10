@@ -42,8 +42,18 @@ public class RealmManager implements DataManager<Realm> {
   }
 
   @Override
+  public void close() {
+    if (instance != null && !instance.isClosed()) {
+      instance.close();
+    }
+  }
+
+  @Override
   public Realm getDao() {
-    if (instance == null || needNewInstance) {
+    if (instance == null || needNewInstance || instance.isClosed()) {
+      if (instance != null && !instance.isClosed()) {
+        instance.close();
+      }
       RealmConfiguration config = new RealmConfiguration.Builder()
           .directory(new File(realmDirectory))
           .name(realmFileName)

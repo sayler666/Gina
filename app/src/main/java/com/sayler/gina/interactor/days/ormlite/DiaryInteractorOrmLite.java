@@ -5,11 +5,13 @@
  */
 package com.sayler.gina.interactor.days.ormlite;
 
+import com.annimon.stream.Stream;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.sayler.domain.ormLite.AttachmentsDataProvider;
 import com.sayler.domain.ormLite.DaysDataProvider;
 import com.sayler.domain.ormLite.entity.Attachment;
 import com.sayler.domain.ormLite.entity.Day;
+import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.interactor.days.*;
@@ -59,7 +61,7 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
   }
 
   @Override
-  public void put(IDay day, List<Attachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
+  public void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
     this.daysPutInteractorCallback = daysPutInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {
       putDataToDB((Day) day, attachments);
@@ -103,7 +105,7 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     }
   }
 
-  private void putDataToDB(Day day, List<Attachment> attachments) {
+  private void putDataToDB(Day day, List<IAttachment> attachments) {
     try {
       daysDataProvider.save(day);
       daysDataProvider.refresh(day);
@@ -113,15 +115,24 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
       deleteBuilder.where().eq(Attachment.DAYS_ID_COL, day.getId());
       deleteBuilder.delete();
 
-      //add new attachments
-      for (Attachment attachment : attachments) {
+      //set day field in attachment to create relation
+      for (IAttachment attachment : attachments) {
         if (attachment.getFile().length > 2000000) {
           throw new SQLException("Length of file too big. File not saved in database!");
         }
-        attachment.setDay(day);
+        ((Attachment) attachment).setDay(day);
       }
 
-      attachmentsDataProvider.saveAll(attachments);
+      //store attachment in db
+      Stream.of(attachments).map(iAttachment -> ((Attachment) iAttachment)).forEach(iAttachment -> {
+        try {
+          attachmentsDataProvider.save(iAttachment);
+        } catch (SQLException e) {
+          e.printStackTrace();
+          daysPutInteractorCallback.onDataPutError(e);
+        }
+      });
+
       daysPutInteractorCallback.onDataPut();
     } catch (SQLException e) {
       e.printStackTrace();

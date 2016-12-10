@@ -10,5 +10,7 @@ public interface DataManager<T> {
 
   boolean isOpen();
 
+  void close();
+
   T getDao();
 }

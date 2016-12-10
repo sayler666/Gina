@@ -5,7 +5,8 @@
  */
 package com.sayler.gina.interactor.days.realm;
 
-import com.sayler.domain.ormLite.entity.Attachment;
+import com.annimon.stream.Stream;
+import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
 import com.sayler.gina.interactor.BaseInteractor;
 import com.sayler.gina.interactor.days.*;
@@ -14,6 +15,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import realm.DataManager;
+import realm.model.AttachmentRealm;
 import realm.model.DayRealm;
 import rx.Subscription;
 
@@ -54,7 +56,7 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   @Override
-  public void put(IDay day, List<Attachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
+  public void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
     this.daysPutInteractorCallback = daysPutInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {
       putDataToDB(day, attachments);
@@ -96,14 +98,23 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
     daysDeleteInteractorCallback.onDataDelete();
   }
 
-  private void putDataToDB(IDay day, List<Attachment> attachments) {
+  private void putDataToDB(IDay day, List<IAttachment> attachments) {
+    Realm realm = dataManager.getDao();
     //if empty id, means that we are storing new object in db
     if (day.getId() == -1) {
       day.setId(day.getDate().getMillis());
     }
-    Realm realm = dataManager.getDao();
+
     realm.beginTransaction();
-    realm.copyToRealmOrUpdate((DayRealm) day);
+    DayRealm dayRealm = realm.copyToRealmOrUpdate((DayRealm) day);
+    dayRealm.getAttachments().deleteAllFromRealm();
+    realm.commitTransaction();
+
+    realm.beginTransaction();
+    Stream.of(attachments)
+        .map(iAttachment -> realm.copyToRealm(((AttachmentRealm) iAttachment)))
+        .forEach(attachmentRealm ->
+            dayRealm.getAttachments().add(attachmentRealm));
     realm.commitTransaction();
     daysPutInteractorCallback.onDataPut();
   }

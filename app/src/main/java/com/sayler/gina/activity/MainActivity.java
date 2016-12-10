@@ -224,6 +224,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
+    dataManager.close();
     super.onDestroy();
   }
 

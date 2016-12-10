@@ -6,6 +6,11 @@
 package com.sayler.gina;
 
 public interface IAttachment {
+
+  long getId();
+
+  void setId(long id);
+
   String getMimeType();
 
   void setMimeType(String mimeType);

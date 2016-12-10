@@ -5,8 +5,10 @@
  */
 package com.sayler.gina.interactor.days.realm;
 
+import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
-import com.sayler.gina.interactor.days.DayCreator;
+import com.sayler.gina.interactor.days.ObjectCreator;
+import realm.model.AttachmentRealm;
 import realm.model.DayRealm;
 
 /**
@@ -14,8 +16,14 @@ import realm.model.DayRealm;
  *
  * @author sayler
  */
-public class DayCreatorRealm extends DayCreator {
+public class ObjectCreatorRealm extends ObjectCreator {
+  @Override
   public IDay createDay() {
     return new DayRealm();
+  }
+
+  @Override
+  public IAttachment createAttachment() {
+    return new AttachmentRealm();
   }
 }

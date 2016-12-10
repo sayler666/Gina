@@ -23,6 +23,7 @@ import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import icepick.Icepick;
+import realm.DataManager;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -34,6 +35,8 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
   private static final String TAG = "DayActivity";
   @Inject
   DiaryPresenter diaryPresenter;
+  @Inject
+  DataManager dataManager;
 
   @Bind(R.id.content)
   public TextView contentText;
@@ -190,6 +193,7 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
   @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
+    dataManager.close();
     super.onDestroy();
   }
 

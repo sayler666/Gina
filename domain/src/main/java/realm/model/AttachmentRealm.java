@@ -6,12 +6,10 @@ package realm.model;
 
 import com.sayler.gina.IAttachment;
 import io.realm.RealmModel;
-import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 
 @RealmClass
 public class AttachmentRealm implements RealmModel, IAttachment {
-  @PrimaryKey
   private long id = -1;
   private byte[] file;
   private String mimeType;

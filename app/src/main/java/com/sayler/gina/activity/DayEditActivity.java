@@ -12,12 +12,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.annimon.stream.Stream;
-import com.sayler.domain.ormLite.entity.Attachment;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
 import com.sayler.gina.R;
-import com.sayler.gina.interactor.days.DayCreator;
+import com.sayler.gina.interactor.days.ObjectCreator;
 import com.sayler.gina.presenter.diary.DiaryPresenter;
 import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.Constants;
@@ -25,6 +24,7 @@ import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import icepick.Icepick;
 import org.joda.time.DateTime;
+import realm.DataManager;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -38,7 +38,9 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   @Inject
   DiaryPresenter diaryPresenter;
   @Inject
-  DayCreator dayCreator;
+  ObjectCreator objectCreator;
+  @Inject
+  DataManager dataManager;
 
   public Long dayId = -1L;
   public IDay day;
@@ -61,7 +63,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   }
 
   private class AttachmentsManager {
-    private HashMap<Attachment, Button> tmpAttachmentButtonHashMap = new HashMap<>();
+    private HashMap<IAttachment, Button> tmpAttachmentButtonHashMap = new HashMap<>();
 
     private ViewGroup attachmentsContainer;
 
@@ -70,7 +72,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
     }
 
     public void addFile(byte[] bytes, String mimeType) {
-      Attachment newAttachment = new Attachment();
+      IAttachment newAttachment = objectCreator.createAttachment();
       newAttachment.setFile(bytes);
       newAttachment.setMimeType(mimeType);
 
@@ -86,8 +88,8 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
       tmpAttachmentButtonHashMap.put(newAttachment, newButton);
     }
 
-    public List<Attachment> returnAttachments() {
-      List<Attachment> attachments = new ArrayList<>();
+    public List<IAttachment> returnAttachments() {
+      List<IAttachment> attachments = new ArrayList<>();
       Stream.of(tmpAttachmentButtonHashMap).forEach(attachmentButtonEntry -> {
         attachments.add(attachmentButtonEntry.getKey());
       });
@@ -156,7 +158,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
 
       switch (editMode) {
         case NEW_DAY:
-          day = dayCreator.createDay();
+          day = objectCreator.createDay();
           day.setDate(new DateTime());
           break;
         case EDIT_DAY:
@@ -217,6 +219,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   @Override
   public void onPut() {
     sendEditDayBroadcast(this);
+    dataManager.close();
     finish();
   }
 
@@ -230,6 +233,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   @Override
   public void onDelete() {
     sendDeleteDayBroadcast(this);
+    dataManager.close();
     finish();
   }
 
@@ -286,6 +290,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
+    dataManager.close();
     super.onDestroy();
   }
 

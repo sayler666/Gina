@@ -6,8 +6,8 @@ import com.sayler.domain.ormLite.AttachmentsDataProvider;
 import com.sayler.domain.ormLite.DaysDataProvider;
 import com.sayler.domain.ormLite.OrmLiteManager;
 import com.sayler.gina.dagger.module.DataModule;
-import com.sayler.gina.interactor.days.DayCreator;
-import com.sayler.gina.interactor.days.ormlite.DayCreatorOrmLite;
+import com.sayler.gina.interactor.days.ObjectCreator;
+import com.sayler.gina.interactor.days.ormlite.ObjectCreatorOrmLite;
 import com.sayler.gina.interactor.days.DiaryInteractor;
 import com.sayler.gina.interactor.days.ormlite.DiaryInteractorOrmLite;
 import com.sayler.gina.presenter.diary.DiaryPresenter;
@@ -35,8 +35,8 @@ public class DataModuleOrmLite extends DataModule {
 
   @Singleton
   @Provides
-  public DayCreator provideDayCreator() {
-    return new DayCreatorOrmLite();
+  public ObjectCreator provideDayCreator() {
+    return new ObjectCreatorOrmLite();
   }
 
   @Provides

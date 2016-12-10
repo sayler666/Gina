@@ -5,12 +5,14 @@
  */
 package com.sayler.gina.interactor.days;
 
+import com.sayler.gina.IAttachment;
 import com.sayler.gina.IDay;
 
 /**
  *
  * @author sayler
  */
-public abstract class DayCreator {
+public abstract class ObjectCreator {
   public abstract IDay createDay();
+  public abstract IAttachment createAttachment();
 }

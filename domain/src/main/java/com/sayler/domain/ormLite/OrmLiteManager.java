@@ -35,6 +35,11 @@ public class OrmLiteManager implements DataManager<List<BaseDataProvider>> {
   }
 
   @Override
+  public void close() {
+    //no used
+  }
+
+  @Override
   public List<BaseDataProvider> getDao() {
     return baseDataProviderList;
   }
