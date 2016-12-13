@@ -47,6 +47,15 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements Sectio
       String contentFull = day.getContent();
       String contentShort = TextUtils.truncateTo(contentFull, 200, "...");
 
+      //attachments icon
+      int attachmentsCount = day.getAttachments().size();
+      if (attachmentsCount > 0) {
+        viewHolder.attachmentsCount.setText(String.valueOf(attachmentsCount));
+        viewHolder.attachmentsCount.setVisibility(View.VISIBLE);
+      } else {
+        viewHolder.attachmentsCount.setVisibility(View.GONE);
+      }
+
       //date
       String date = day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK);
 
@@ -98,6 +107,8 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements Sectio
     public TextView contentShort;
     @Bind(R.id.day)
     public TextView time;
+    @Bind(R.id.attachmentsCount)
+    public TextView attachmentsCount;
     public boolean expanded = false;
 
     DaysViewHolder(final View view, final BaseRecyclerViewAdapter<IDay> baseRecyclerViewAdapter) {

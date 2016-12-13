@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/selectable_item_background"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/selectable_item_background">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/day"
@@ -13,19 +14,38 @@
 
     <TextView
         android:id="@+id/content"
-        android:paddingLeft="@dimen/p_medium"
-        android:paddingRight="@dimen/p_medium"
-        android:paddingBottom="@dimen/p_medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/contentShort"
         android:paddingLeft="@dimen/p_medium"
         android:paddingRight="@dimen/p_medium"
-        android:paddingBottom="@dimen/p_medium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:visibility="gone" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/p_medium">
+
+        <TextView
+            android:id="@+id/contentShort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/p_medium"
+            android:paddingRight="@dimen/p_medium" />
+
+        <TextView
+            android:id="@+id/attachmentsCount"
+            android:textColor="@color/secondary_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/contentShort"
+            android:drawableLeft="@drawable/ic_attachment_white_18px"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:paddingLeft="@dimen/p_medium"
+            android:paddingRight="@dimen/p_medium"
+            android:drawablePadding="4dp"
+            android:textSize="@dimen/ts_small"
+            tools:text="23" />
+
+    </RelativeLayout>
 </LinearLayout>

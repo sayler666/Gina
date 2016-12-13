@@ -276,18 +276,6 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    Icepick.saveInstanceState(this, outState);
-  }
-
-  @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-    Icepick.restoreInstanceState(this, savedInstanceState);
-  }
-
-  @Override
   protected void onDestroy() {
     diaryPresenter.onUnBindView();
     dataManager.close();
