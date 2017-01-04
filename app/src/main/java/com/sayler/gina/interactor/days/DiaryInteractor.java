@@ -11,6 +11,8 @@ public interface DiaryInteractor extends CommonInteractor {
 
   void loadDataById(long id, DaysGetInteractorCallback interactorCallback);
 
+  void loadDataByTextContent(String searchText, DaysGetInteractorCallback interactorCallback);
+
   void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback interactorCallback);
 
   void delete(IDay day, DaysDeleteInteractorCallback daysDeleteInteractorCallback);

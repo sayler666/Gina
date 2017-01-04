@@ -56,6 +56,11 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   @Override
+  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback interactorCallback) {
+    //TODO implement
+  }
+
+  @Override
   public void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {
     this.daysPutInteractorCallback = daysPutInteractorCallback;
     if (checkIfDbExist(daysPutInteractorCallback)) {

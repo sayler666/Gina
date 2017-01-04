@@ -9,12 +9,16 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
+import com.jakewharton.rxbinding.support.v7.widget.RxSearchView;
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
@@ -23,14 +27,13 @@ import com.sayler.gina.domain.IDay;
 import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.presenter.diary.DiaryPresenter;
 import com.sayler.gina.presenter.diary.DiaryPresenterView;
-import com.sayler.gina.ui.RevealHelper;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
-import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -90,7 +93,27 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     setupViews();
 
     askFormPermissionAndLoadData();
+  }
 
+  public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater menuInflater = getMenuInflater();
+    menuInflater.inflate(R.menu.main_menu, menu);
+
+    SearchView actionView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+    actionView.setOnCloseListener(() -> {
+      load();
+      return false;
+    });
+    RxSearchView.queryTextChanges(actionView)
+        .debounce(1, TimeUnit.SECONDS)
+        .filter(charSequence -> charSequence.length() > 0)
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnNext(charSequence -> {
+          uiStateController.setUiStateLoading();
+        })
+        .subscribe(this::searchForText);
+
+    return super.onCreateOptionsMenu(menu);
   }
 
   private void setupBroadcastReceivers() {
@@ -177,6 +200,10 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     diaryPresenter.loadAll();
   }
 
+  private void searchForText(CharSequence charSequence) {
+    diaryPresenter.loadByTextSearch(String.valueOf(charSequence));
+  }
+
   private void createRecyclerView(List<IDay> items) {
     daysAdapter.setItems(items);
     daysAdapter.notifyDataSetChanged();
@@ -203,11 +230,6 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   public void onDownloaded(List<IDay> data) {
     createRecyclerView(data);
     uiStateController.setUiStateContent();
-    Observable
-        .just(1)
-        .delay(100, TimeUnit.MILLISECONDS)
-        .subscribe(integer -> new RevealHelper().reveal(content, root));
-
   }
 
   @Override

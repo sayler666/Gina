@@ -7,6 +7,8 @@ package com.sayler.gina.interactor.days.ormlite;
 
 import com.annimon.stream.Stream;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.sayler.gina.domain.DataManager;
 import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
@@ -57,6 +59,14 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     this.daysGetInteractorCallback = daysGetInteractorCallback;
     if (checkIfDbExist(daysGetInteractorCallback)) {
       retrieveDataById(id);
+    }
+  }
+
+  @Override
+  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback daysGetInteractorCallback) {
+    this.daysGetInteractorCallback = daysGetInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
+      retrieveDataText(searchText);
     }
   }
 
@@ -158,6 +168,23 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     Subscription subscription;
     try {
       subscription = rx.Observable.just(daysDataProvider.get(id))
+          .compose(iRxAndroidTransformer.applySchedulers())
+          .subscribe(this::handleLoadData, throwable ->
+              daysGetInteractorCallback.onDownloadDataError(throwable));
+      needToUnsubscribe(subscription);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      daysGetInteractorCallback.onDownloadDataError(e);
+    }
+  }
+
+  private void retrieveDataText(String string) {
+    Subscription subscription;
+    try {
+      QueryBuilder<Day, Long> queryBuilder = daysDataProvider.getDao().queryBuilder();
+      PreparedQuery<Day> preparedQuery = queryBuilder.where().like(Day.CONTENT_COL, "%" + string + "%").prepare();
+
+      subscription = rx.Observable.just(daysDataProvider.getDao().query(preparedQuery))
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, throwable ->
               daysGetInteractorCallback.onDownloadDataError(throwable));

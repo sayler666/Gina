@@ -69,6 +69,28 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
+  public void loadByTextSearch(String searchText) {
+
+    diaryInteractor.loadDataByTextContent(searchText, new DaysGetInteractorCallback() {
+      @Override
+      public void onDownloadData() {
+        List<IDay> data = diaryInteractor.getData();
+        handleLoadData(data);
+      }
+
+      @Override
+      public void onDownloadDataError(Throwable throwable) {
+        dispatchDefaultPresenterError(throwable);
+      }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
+    });
+
+  }
+
   public void put(IDay day, List<IAttachment> attachments) {
 
     diaryInteractor.put(day, attachments, new DaysPutInteractorCallback() {
