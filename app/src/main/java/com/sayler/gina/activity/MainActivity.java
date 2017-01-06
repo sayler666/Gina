@@ -3,6 +3,7 @@ package com.sayler.gina.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -79,6 +80,8 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
   @Bind(R.id.toolbar)
   Toolbar toolbar;
+  @Bind(R.id.pageTitle)
+  TextView pageTitle;
   private DaysAdapter daysAdapter;
   private UiStateController uiStateController;
   private BroadcastReceiverHelper broadcastReceiverRefresh;
@@ -112,17 +115,24 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
   private void setupSearchView(Menu menu) {
     MenuItem menuItem = menu.findItem(R.id.action_search);
+
     searchView = (SearchView) menuItem.getActionView();
     searchView.setMaxWidth(Integer.MAX_VALUE);
+    View v = searchView.findViewById(android.support.v7.appcompat.R.id.search_plate);
+    v.setBackgroundColor(Color.TRANSPARENT);
+
     searchView.setOnCloseListener(() -> {
-      hideSearchView();
+      showPageTitle();
+      load();
       return false;
     });
+
     searchView.setOnSearchClickListener(view -> {
-      getSupportActionBar().setTitle(null);
+      pageTitle.setVisibility(View.GONE);
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
     });
+
     RxSearchView.queryTextChanges(searchView)
         .debounce(1, TimeUnit.SECONDS)
         .filter(charSequence -> charSequence.length() > 0)
@@ -133,9 +143,8 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
         .subscribe(this::searchForText);
   }
 
-  private void hideSearchView() {
-    load();
-    getSupportActionBar().setTitle(R.string.app_name);
+  private void showPageTitle() {
+    pageTitle.setVisibility(View.VISIBLE);
     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(false);
   }
@@ -144,11 +153,26 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case android.R.id.home:
-        hideSearchView();
-        searchView.setIconified(true);
+        showPageTitle();
+        clearSearchViewAndHide();
         return true;
       default:
         return super.onOptionsItemSelected(item);
+    }
+  }
+
+  private void clearSearchViewAndHide() {
+    searchView.setQuery("", false);
+    searchView.setIconified(true);
+  }
+
+  @Override
+  public void onBackPressed() {
+    if (!searchView.isIconified()) {
+      showPageTitle();
+      clearSearchViewAndHide();
+    } else {
+      super.onBackPressed();
     }
   }
 
@@ -175,12 +199,17 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   private void setupViews() {
-
-    setSupportActionBar(toolbar);
+    setupToolbar();
 
     setupUiStateController();
 
     setupRecyclerView();
+  }
+
+  private void setupToolbar() {
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setTitle(null);
+    pageTitle.setText(R.string.app_name);
   }
 
   private void setupUiStateController() {

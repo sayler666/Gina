@@ -12,20 +12,18 @@
         <item name="android:colorButtonNormal">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/colorAccentDark</item>
         <item name="toolbarStyle">@style/toolbarStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
     </style>
-    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
-        <item name="android:colorControlActivated">@color/white</item>
-        <item name="android:colorControlNormal">@color/white</item>
-        <!-- Gets rid of the search icon -->
-        <item name="android:searchIcon">@drawable/ic_check_white_24px</item>
-        <!-- Gets rid of the "underline" in the text -->
-        <item name="android:queryBackground">@color/white</item>
-        <!-- Gets rid of the search icon when the SearchView is expanded -->
-        <item name="searchHintIcon">@null</item>
+    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
     </style>
 
     <style name="toolbarStyle" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">@color/colorAccent</item>
+        <item name="searchViewStyle">@style/searchViewStyle</item>
+    </style>
+    <style name="searchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="searchHintIcon">@null</item>
     </style>
 
     <style name="bubble_text_appearance" parent="TextAppearance.AppCompat.Body1">

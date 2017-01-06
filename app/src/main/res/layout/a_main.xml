@@ -9,9 +9,17 @@
             android:minHeight="?attr/actionBarSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             app:contentInsetStartWithNavigation="0dp"
             app:titleTextColor="@android:color/white"
-            style="@style/toolbarStyle">
+            app:theme="@style/toolbarStyle">
+        <TextView
+                android:id="@+id/pageTitle"
+                android:textSize="@dimen/ts_very_big"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/h_toolbar"
+                android:gravity="center_vertical"
+        />
     </android.support.v7.widget.Toolbar>
     <RelativeLayout
             android:id="@+id/content"
