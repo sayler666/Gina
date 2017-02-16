@@ -47,6 +47,7 @@ public class FileUtils {
   public static void selectFileIntent(Activity activity, int requestCode) {
     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
     intent.setType("*/*");
+    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
     activity.startActivityForResult(intent, requestCode);
   }
 
