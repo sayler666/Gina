@@ -18,12 +18,11 @@ import com.sayler.gina.R;
 import com.sayler.gina.domain.DataManager;
 import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
-import com.sayler.gina.presenter.diary.DiaryPresenter;
-import com.sayler.gina.presenter.diary.DiaryPresenterView;
+import com.sayler.gina.domain.presenter.diary.DiaryPresenter;
+import com.sayler.gina.domain.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
-import icepick.Icepick;
 
 import javax.inject.Inject;
 import java.io.IOException;

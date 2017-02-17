@@ -4,7 +4,7 @@ import com.sayler.gina.activity.DayActivity;
 import com.sayler.gina.activity.DayEditActivity;
 import com.sayler.gina.activity.MainActivity;
 import com.sayler.gina.dagger.module.ServicesModule;
-import com.sayler.gina.dagger.module.ormlite.DataModuleOrmLite;
+import com.sayler.ormliteimplementation.DataModuleOrmLite;
 import dagger.Component;
 
 import javax.inject.Singleton;
