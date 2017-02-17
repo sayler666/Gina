@@ -3,27 +3,28 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.interactor.days.realm;
+package com.sayler.ormliteimplementation.creator;
 
 import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
-import com.sayler.gina.domain.realm.model.AttachmentRealm;
-import com.sayler.gina.domain.realm.model.DayRealm;
 import com.sayler.gina.domain.ObjectCreator;
+import com.sayler.ormliteimplementation.entity.Attachment;
+import com.sayler.ormliteimplementation.entity.Day;
 
 /**
  * TODO Add class description...
  *
  * @author sayler
  */
-public class ObjectCreatorRealm extends ObjectCreator {
-  @Override
+public class ObjectCreatorOrmLite extends ObjectCreator {
   public IDay createDay() {
-    return new DayRealm();
+    return new Day();
   }
 
   @Override
   public IAttachment createAttachment() {
-    return new AttachmentRealm();
+    return new Attachment();
   }
+
 }
+
