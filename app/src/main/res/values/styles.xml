@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:textColor">@color/white</item>
         <item name="android:colorBackground">@color/colorPrimary</item>
@@ -12,10 +12,18 @@
         <item name="android:colorButtonNormal">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/colorAccentDark</item>
         <item name="toolbarStyle">@style/toolbarStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+    </style>
+    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
     </style>
 
     <style name="toolbarStyle" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">@color/colorAccent</item>
+        <item name="searchViewStyle">@style/searchViewStyle</item>
+    </style>
+    <style name="searchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="searchHintIcon">@null</item>
     </style>
 
     <style name="bubble_text_appearance" parent="TextAppearance.AppCompat.Body1">

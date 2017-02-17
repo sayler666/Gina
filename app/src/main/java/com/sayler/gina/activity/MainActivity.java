@@ -3,6 +3,7 @@ package com.sayler.gina.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -10,8 +11,10 @@ import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import butterknife.Bind;
@@ -74,9 +77,15 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
   @Bind(R.id.errorText)
   TextView errorText;
+
+  @Bind(R.id.toolbar)
+  Toolbar toolbar;
+  @Bind(R.id.pageTitle)
+  TextView pageTitle;
   private DaysAdapter daysAdapter;
   private UiStateController uiStateController;
   private BroadcastReceiverHelper broadcastReceiverRefresh;
+  private SearchView searchView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +108,32 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     MenuInflater menuInflater = getMenuInflater();
     menuInflater.inflate(R.menu.main_menu, menu);
 
-    SearchView actionView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-    actionView.setOnCloseListener(() -> {
+    setupSearchView(menu);
+
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  private void setupSearchView(Menu menu) {
+    MenuItem menuItem = menu.findItem(R.id.action_search);
+
+    searchView = (SearchView) menuItem.getActionView();
+    searchView.setMaxWidth(Integer.MAX_VALUE);
+    View v = searchView.findViewById(android.support.v7.appcompat.R.id.search_plate);
+    v.setBackgroundColor(Color.TRANSPARENT);
+
+    searchView.setOnCloseListener(() -> {
+      showPageTitle();
       load();
       return false;
     });
-    RxSearchView.queryTextChanges(actionView)
+
+    searchView.setOnSearchClickListener(view -> {
+      pageTitle.setVisibility(View.GONE);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+    });
+
+    RxSearchView.queryTextChanges(searchView)
         .debounce(1, TimeUnit.SECONDS)
         .filter(charSequence -> charSequence.length() > 0)
         .observeOn(AndroidSchedulers.mainThread())
@@ -112,8 +141,39 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
           uiStateController.setUiStateLoading();
         })
         .subscribe(this::searchForText);
+  }
 
-    return super.onCreateOptionsMenu(menu);
+  private void showPageTitle() {
+    pageTitle.setVisibility(View.VISIBLE);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(false);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        showPageTitle();
+        clearSearchViewAndHide();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+  }
+
+  private void clearSearchViewAndHide() {
+    searchView.setQuery("", false);
+    searchView.setIconified(true);
+  }
+
+  @Override
+  public void onBackPressed() {
+    if (!searchView.isIconified()) {
+      showPageTitle();
+      clearSearchViewAndHide();
+    } else {
+      super.onBackPressed();
+    }
   }
 
   private void setupBroadcastReceivers() {
@@ -139,9 +199,17 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   private void setupViews() {
+    setupToolbar();
+
     setupUiStateController();
 
     setupRecyclerView();
+  }
+
+  private void setupToolbar() {
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setTitle(null);
+    pageTitle.setText(R.string.app_name);
   }
 
   private void setupUiStateController() {

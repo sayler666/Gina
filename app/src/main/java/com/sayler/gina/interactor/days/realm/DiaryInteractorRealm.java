@@ -56,8 +56,11 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   @Override
-  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback interactorCallback) {
-    //TODO implement
+  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback daysGetInteractorCallback) {
+    this.daysGetInteractorCallback = daysGetInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
+      retrieveDataText(searchText);
+    }
   }
 
   @Override
@@ -142,7 +145,16 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
         .subscribe(this::handleLoadData, throwable ->
             daysGetInteractorCallback.onDownloadDataError(throwable));
     needToUnsubscribe(subscription);
+  }
 
+  private void retrieveDataText(String searchText) {
+    Subscription subscription;
+    RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class).like("content", "*" + searchText + "*");
+    subscription = rx.Observable.just(query.findAll())
+        .compose(iRxAndroidTransformer.applySchedulers())
+        .subscribe(this::handleLoadData, throwable ->
+            daysGetInteractorCallback.onDownloadDataError(throwable));
+    needToUnsubscribe(subscription);
   }
 
   private void handleLoadData(RealmResults<DayRealm> realmResults) {

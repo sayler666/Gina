@@ -2,6 +2,7 @@ package com.sayler.gina.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.ViewGroup;
@@ -23,7 +24,6 @@ import com.sayler.gina.presenter.diary.DiaryPresenterView;
 import com.sayler.gina.util.Constants;
 import com.sayler.gina.util.FileUtils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import icepick.Icepick;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -202,7 +202,17 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT) {
-      addAttachment(data);
+
+      //multiple files
+      if (data.getClipData() != null) {
+        for (int i = 0; i < data.getClipData().getItemCount(); i++)
+          addAttachment(data.getClipData().getItemAt(i).getUri());
+      }
+      //single file
+      else {
+        addAttachment(data.getData());
+      }
+
     }
   }
 
@@ -263,10 +273,10 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
     }
   }
 
-  private void addAttachment(Intent data) {
+  private void addAttachment(Uri uri) {
     try {
-      byte[] fileBytes = FileUtils.readFileFromUri(data.getData(), this);
-      String mimeType = FileUtils.readMimeTypeFromUri(data.getData(), this);
+      byte[] fileBytes = FileUtils.readFileFromUri(uri, this);
+      String mimeType = FileUtils.readMimeTypeFromUri(uri, this);
 
       attachmentsManager.addFile(fileBytes, mimeType);
     } catch (IOException e) {
