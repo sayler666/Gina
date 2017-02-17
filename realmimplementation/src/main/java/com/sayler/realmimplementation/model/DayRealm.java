@@ -1,4 +1,4 @@
-package com.sayler.gina.domain.realm.model;
+package com.sayler.realmimplementation.model;
 
 /**
  * Created by lchromy on 26.05.15.

@@ -11,7 +11,7 @@ import java.util.List;
  * Created by miquido on 01/12/16.
  */
 
-public class OrmLiteManager implements DataManager<List<BaseDataProvider>> {
+class OrmLiteManager implements DataManager<List<BaseDataProvider>> {
   private List<BaseDataProvider> baseDataProviderList = new ArrayList<>();
   private Context context;
 

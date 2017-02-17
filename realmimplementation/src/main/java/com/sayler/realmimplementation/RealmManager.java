@@ -3,7 +3,7 @@
  * <p>
  * Copyright 2016 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-package com.sayler.gina.domain.realm;
+package com.sayler.realmimplementation;
 
 import com.sayler.gina.domain.DataManager;
 import io.realm.Realm;
@@ -17,7 +17,7 @@ import java.io.File;
  *
  * @author sayler
  */
-public class RealmManager implements DataManager<Realm> {
+class RealmManager implements DataManager<Realm> {
 
   private String realmDirectory;
   private String realmFileName;

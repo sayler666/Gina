@@ -1,6 +1,7 @@
 package com.sayler.gina.domain.interactor;
 
-import com.sayler.gina.domain.*;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
 
 import java.util.List;
 
