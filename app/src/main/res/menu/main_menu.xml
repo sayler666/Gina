@@ -6,5 +6,10 @@
             app:showAsAction="always"
             app:actionLayout="@layout/i_search_view"
             app:actionViewClass="android.support.v7.widget.SearchView"
-            android:title="Search"/>
+            android:title="@string/menu_search_title"/>
+    <item
+            android:id="@+id/file"
+            android:icon="@drawable/ic_folder_black_24px"
+            app:showAsAction="always"
+            android:title="@string/menu_change_source_file_title"/>
 </menu>

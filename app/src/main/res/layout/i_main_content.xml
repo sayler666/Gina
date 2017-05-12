@@ -29,5 +29,5 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         style="@style/fab"
-        android:src="@drawable/ic_add_white_24px" />
+        android:src="@drawable/ic_add_black_24px" />
 </RelativeLayout>

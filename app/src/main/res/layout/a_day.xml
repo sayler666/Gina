@@ -47,5 +47,5 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_edit"
         style="@style/fab"
-        android:src="@drawable/ic_mode_edit_white_24px" />
+        android:src="@drawable/ic_mode_edit_black_24px" />
 </RelativeLayout>

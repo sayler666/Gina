@@ -3,4 +3,6 @@
     <string name="error">Error</string>
     <string name="no_data_source">No data source!</string>
     <string name="select_data_source">Select data source</string>
+    <string name="menu_search_title">Search</string>
+    <string name="menu_change_source_file_title">Change source file</string>
 </resources>

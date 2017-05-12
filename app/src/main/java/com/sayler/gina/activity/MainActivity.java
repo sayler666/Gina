@@ -130,7 +130,6 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     searchView.setOnSearchClickListener(view -> {
       pageTitle.setVisibility(View.GONE);
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
     });
 
     RxSearchView.queryTextChanges(searchView)
@@ -146,7 +145,6 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   private void showPageTitle() {
     pageTitle.setVisibility(View.VISIBLE);
     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-    getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(false);
   }
 
   @Override
@@ -155,6 +153,9 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
       case android.R.id.home:
         showPageTitle();
         clearSearchViewAndHide();
+        return true;
+      case R.id.file:
+        openSourceFileSelectIntent();
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -278,18 +279,22 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   @OnClick(R.id.selectDataSourceButton)
-  public void rebindDB() {
-    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
+  public void onSelectDataSourceButton() {
+    openSourceFileSelectIntent();
   }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    selectDbFile(data.getData().getPath());
+    setNewDbFilePath(data.getData().getPath());
   }
 
-  private void selectDbFile(String path) {
+  private void openSourceFileSelectIntent() {
+    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
+  }
+
+  private void setNewDbFilePath(String path) {
     dataManager.setSourceFile(path);
     load();
   }
