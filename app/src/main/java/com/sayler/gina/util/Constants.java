@@ -18,4 +18,7 @@ public class Constants {
   public static final int REQUEST_CODE_SELECT_DB = 4650;
   public static final String BROADCAST_EDIT_DAY = "BROADCAST_EDIT_DAY";
   public static final String BROADCAST_DELETE_DAY = "BROADCAST_DELETE_DAY";
+
+  public static final String PREFERENCES = "PREFERENCES_KEY";
+  public static final String PREF_SETTINGS_STORE = "PREF_SETTINGS_STORE";
 }
