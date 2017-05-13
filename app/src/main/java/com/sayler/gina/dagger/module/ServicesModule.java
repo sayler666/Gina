@@ -5,9 +5,20 @@
  */
 package com.sayler.gina.dagger.module;
 
+import android.content.Context;
+import com.sayler.gina.store.settings.SPSettingsStoreManager;
+import com.sayler.gina.store.settings.SettingsStoreManager;
 import dagger.Module;
+import dagger.Provides;
+
+import javax.inject.Singleton;
 
 @Module
 public class ServicesModule {
 
+    @Singleton
+    @Provides
+    SettingsStoreManager provideSettingsStoreManager(Context context) {
+      return new SPSettingsStoreManager(context);
+    }
 }

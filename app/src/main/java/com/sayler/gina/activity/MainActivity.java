@@ -20,6 +20,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.jakewharton.rxbinding.support.v7.widget.RxSearchView;
 import com.sayler.gina.GinaApplication;
@@ -27,9 +28,11 @@ import com.sayler.gina.R;
 import com.sayler.gina.adapter.DaysAdapter;
 import com.sayler.gina.domain.DataManager;
 import com.sayler.gina.domain.IDay;
-import com.sayler.gina.permission.PermissionUtils;
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter;
 import com.sayler.gina.domain.presenter.diary.DiaryPresenterView;
+import com.sayler.gina.permission.PermissionUtils;
+import com.sayler.gina.store.settings.SettingsStore;
+import com.sayler.gina.store.settings.SettingsStoreManager;
 import com.sayler.gina.ui.UiStateController;
 import com.sayler.gina.util.BroadcastReceiverHelper;
 import com.sayler.gina.util.Constants;
@@ -50,6 +53,9 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
   @Inject
   DiaryPresenter diaryPresenter;
+
+  @Inject
+  SettingsStoreManager settingsStoreManager;
 
   @Bind(R.id.recyclerView)
   RecyclerView recyclerView;
@@ -86,6 +92,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   private UiStateController uiStateController;
   private BroadcastReceiverHelper broadcastReceiverRefresh;
   private SearchView searchView;
+  private String currentSourceFile;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +108,15 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
     setupViews();
 
-    askFormPermissionAndLoadData();
+    askFormPermission();
+
+    openRememberedSourceFile();
+  }
+
+  private void openRememberedSourceFile() {
+    if (isSourceFileRemembered()) {
+      setNewDbFilePath(getRememberedSourceFile());
+    }
   }
 
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,6 +188,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
       showPageTitle();
       clearSearchViewAndHide();
     } else {
+      finish();
       super.onBackPressed();
     }
   }
@@ -191,11 +207,9 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     broadcastReceiverRefresh.callScheduledAction();
   }
 
-  private void askFormPermissionAndLoadData() {
+  private void askFormPermission() {
     if (!PermissionUtils.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       PermissionUtils.askForPermission(this, this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    } else {
-      load();
     }
   }
 
@@ -210,6 +224,16 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   private void setupToolbar() {
     setSupportActionBar(toolbar);
     getSupportActionBar().setTitle(null);
+
+    setupTitle();
+  }
+
+  private void setupTitle() {
+    if (isSourceFileRemembered()) {
+      pageTitle.setTextColor(Color.WHITE);
+    } else {
+      pageTitle.setTextColor(Color.BLACK);
+    }
     pageTitle.setText(R.string.app_name);
   }
 
@@ -220,6 +244,22 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
         .withErrorUi(error)
         .withEmptyUi(noDataSource)
         .build();
+
+    uiStateController.setUiStateEmpty();
+  }
+
+  private boolean isSourceFileRemembered() {
+    SettingsStore settingsStore = settingsStoreManager.get();
+    return settingsStore != null && settingsStore.getDataSourceFilePath() != null;
+  }
+
+  private String getRememberedSourceFile() {
+    SettingsStore settingsStore = settingsStoreManager.get();
+    if (settingsStore != null) {
+      return settingsStore.getDataSourceFilePath();
+    } else {
+      return null;
+    }
   }
 
   private void setupRecyclerView() {
@@ -260,6 +300,34 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     startActivity(DayEditActivity.newIntentNewDay(this));
   }
 
+  @OnLongClick(R.id.pageTitle)
+  public boolean onToolbarTitleLongPress() {
+    //check if any file opened
+    if (currentSourceFile != null) {
+      toggleRememberSourceFile();
+
+      setupTitle();
+      return true;
+    }
+    return false;
+  }
+
+  private boolean toggleRememberSourceFile() {
+    //toggle saved file
+    SettingsStore settingsStore = settingsStoreManager.get();
+    if (settingsStore == null) {
+      //save current opened file if empty settings store empty
+      settingsStore = new SettingsStore();
+      settingsStore.setDataSourceFilePath(currentSourceFile);
+      settingsStoreManager.save(settingsStore);
+      return true;
+    } else {
+      //clear current opened file if settings store not empty
+      settingsStoreManager.clear();
+      return false;
+    }
+  }
+
   private void bindPresenters() {
     diaryPresenter.onBindView(this);
   }
@@ -294,8 +362,9 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
   }
 
-  private void setNewDbFilePath(String path) {
-    dataManager.setSourceFile(path);
+  private void setNewDbFilePath(String newSourceFile) {
+    currentSourceFile = newSourceFile;
+    dataManager.setSourceFile(newSourceFile);
     load();
   }
 
