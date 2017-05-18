@@ -1,5 +1,6 @@
 package com.sayler.gina.dagger;
 
+
 import com.sayler.gina.GinaApplication;
 import com.sayler.gina.dagger.component.ApplicationComponent;
 import com.sayler.gina.dagger.component.DaggerApplicationComponent;
