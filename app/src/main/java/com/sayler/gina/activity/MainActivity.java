@@ -359,7 +359,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   private void openSourceFileSelectIntent() {
-    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
+    FileUtils.INSTANCE.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
   }
 
   private void setNewDbFilePath(String newSourceFile) {

@@ -43,28 +43,7 @@ public class UiStateController {
       return;
     }
 
-//    if (appearAnimationResId != null) {
-//      final Animation animation = AnimationUtils.loadAnimation(view.getContext(), appearAnimationResId);
-//      animation.setAnimationListener(new Animation.AnimationListener() {
-//        @Override
-//        public void onAnimationStart(Animation animation) {
-//          view.setVisibility(View.VISIBLE);
-//        }
-//
-//        @Override
-//        public void onAnimationEnd(Animation animation) {
-//
-//        }
-//
-//        @Override
-//        public void onAnimationRepeat(Animation animation) {
-//
-//        }
-//      });
-//      view.startAnimation(animation);
-//    } else {
     view.setVisibility(View.VISIBLE);
-//    }
   }
 
   private void makeViewDisappear(@NonNull final View view) {
@@ -72,28 +51,7 @@ public class UiStateController {
       return;
     }
 
-//    if (disappearAnimationResId != null) {
-//      final Animation animation = AnimationUtils.loadAnimation(view.getContext(), disappearAnimationResId);
-//      animation.setAnimationListener(new Animation.AnimationListener() {
-//        @Override
-//        public void onAnimationStart(Animation animation) {
-//
-//        }
-//
-//        @Override
-//        public void onAnimationEnd(Animation animation) {
-//          view.setVisibility(View.GONE);
-//        }
-//
-//        @Override
-//        public void onAnimationRepeat(Animation animation) {
-//
-//        }
-//      });
-//      view.startAnimation(animation);
-//    } else {
     view.setVisibility(View.GONE);
-//    }
   }
 
   private void makeViewsDisappear(@NonNull View... views) {

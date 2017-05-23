@@ -195,7 +195,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
 
   @OnClick(R.id.fab_add_attachment)
   public void onFabAddAttachmentClick() {
-    FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_ATTACHMENT);
+    FileUtils.INSTANCE.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_ATTACHMENT);
   }
 
   @Override
@@ -275,8 +275,8 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
 
   private void addAttachment(Uri uri) {
     try {
-      byte[] fileBytes = FileUtils.readFileFromUri(uri, this);
-      String mimeType = FileUtils.readMimeTypeFromUri(uri, this);
+      byte[] fileBytes = FileUtils.INSTANCE.readFileFromUri(uri, this);
+      String mimeType = FileUtils.INSTANCE.readMimeTypeFromUri(uri, this);
 
       attachmentsManager.addFile(fileBytes, mimeType);
     } catch (IOException e) {
