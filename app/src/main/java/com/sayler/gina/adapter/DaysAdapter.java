@@ -57,7 +57,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements Sectio
       }
 
       //date
-      String date = day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK);
+      String date = day.getDate().toString(Constants.INSTANCE.getDATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK());
 
       viewHolder.contentShort.setText(contentShort);
       viewHolder.content.setText(contentFull);
@@ -80,7 +80,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements Sectio
 
   @Override
   public String getSectionTitle(int position) {
-    return items.get(position).getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH_2_LINES);
+    return items.get(position).getDate().toString(Constants.INSTANCE.getDATE_PATTERN_YEAR_MONTH_2_LINES());
   }
 
   @Override
@@ -96,7 +96,7 @@ public class DaysAdapter extends BaseRecyclerViewAdapter<IDay> implements Sectio
 
   @Override
   public void onBindHeaderViewHolder(DaysHeaderViewHolder holder, int position) {
-    holder.title.setText(items.get(position).getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
+    holder.title.setText(items.get(position).getDate().toString(Constants.INSTANCE.getDATE_PATTERN_YEAR_MONTH()));
   }
 
   static final class DaysViewHolder extends RecyclerViewHolderWithOnItemClick<IDay> {

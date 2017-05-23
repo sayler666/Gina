@@ -101,24 +101,24 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
 
   public static Intent newIntentEditDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayEditActivity.class);
-    intent.putExtra(Constants.EXTRA_DAY_ID, dayId);
-    intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.EDIT_DAY.ordinal());
+    intent.putExtra(Constants.INSTANCE.getEXTRA_DAY_ID(), dayId);
+    intent.putExtra(Constants.INSTANCE.getEXTRA_EDIT_MODE(), EditMode.EDIT_DAY.ordinal());
     return intent;
   }
 
   public static Intent newIntentNewDay(Context context) {
     Intent intent = new Intent(context, DayEditActivity.class);
-    intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.NEW_DAY.ordinal());
+    intent.putExtra(Constants.INSTANCE.getEXTRA_EDIT_MODE(), EditMode.NEW_DAY.ordinal());
     return intent;
   }
 
   public static void sendEditDayBroadcast(Context context) {
-    Intent intent = new Intent(Constants.BROADCAST_EDIT_DAY);
+    Intent intent = new Intent(Constants.INSTANCE.getBROADCAST_EDIT_DAY());
     context.sendBroadcast(intent);
   }
 
   public static void sendDeleteDayBroadcast(Context context) {
-    Intent intent = new Intent(Constants.BROADCAST_DELETE_DAY);
+    Intent intent = new Intent(Constants.INSTANCE.getBROADCAST_DELETE_DAY());
     context.sendBroadcast(intent);
   }
 
@@ -151,9 +151,9 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   }
 
   private void readExtras() {
-    if (getIntent().hasExtra(Constants.EXTRA_EDIT_MODE)) {
+    if (getIntent().hasExtra(Constants.INSTANCE.getEXTRA_EDIT_MODE())) {
       //get edit mode
-      int editModeOrdinal = getIntent().getExtras().getInt(Constants.EXTRA_EDIT_MODE);
+      int editModeOrdinal = getIntent().getExtras().getInt(Constants.INSTANCE.getEXTRA_EDIT_MODE());
       editMode = EditMode.values()[editModeOrdinal];
 
       switch (editMode) {
@@ -162,7 +162,7 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
           day.setDate(new DateTime());
           break;
         case EDIT_DAY:
-          dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
+          dayId = getIntent().getLongExtra(Constants.INSTANCE.getEXTRA_DAY_ID(), -1);
           break;
       }
     }
@@ -195,13 +195,13 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
 
   @OnClick(R.id.fab_add_attachment)
   public void onFabAddAttachmentClick() {
-    FileUtils.INSTANCE.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_ATTACHMENT);
+    FileUtils.INSTANCE.selectFileIntent(this, Constants.INSTANCE.getREQUEST_CODE_SELECT_ATTACHMENT());
   }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT) {
+    if (requestCode == Constants.INSTANCE.getREQUEST_CODE_SELECT_ATTACHMENT()) {
 
       //multiple files
       if (data.getClipData() != null) {
@@ -262,8 +262,8 @@ public class DayEditActivity extends BaseActivity implements DiaryPresenterView,
   }
 
   private void showTextContent() {
-    dayText.setText(day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
-    yearMonthText.setText(day.getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
+    dayText.setText(day.getDate().toString(Constants.INSTANCE.getDATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK()));
+    yearMonthText.setText(day.getDate().toString(Constants.INSTANCE.getDATE_PATTERN_YEAR_MONTH()));
     contentText.setText(day.getContent());
   }
 

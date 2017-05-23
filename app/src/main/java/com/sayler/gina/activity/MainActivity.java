@@ -194,10 +194,13 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   private void setupBroadcastReceivers() {
-    broadcastReceiverRefresh = new BroadcastReceiverHelper(this::load);
+    broadcastReceiverRefresh = new BroadcastReceiverHelper(() -> {
+      load();
+      return null;
+    });
     IntentFilter intentFilter = new IntentFilter();
-    intentFilter.addAction(Constants.BROADCAST_EDIT_DAY);
-    intentFilter.addAction(Constants.BROADCAST_DELETE_DAY);
+    intentFilter.addAction(Constants.INSTANCE.getBROADCAST_EDIT_DAY());
+    intentFilter.addAction(Constants.INSTANCE.getBROADCAST_DELETE_DAY());
     broadcastReceiverRefresh.register(this, intentFilter);
   }
 
@@ -284,14 +287,15 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
 
     //on item click
     daysAdapter.setOnItemClickListener((item, view, position) -> {
-      Intent intent = DayActivity.newIntentShowDay(this, item.getId());
-      //shared elements
-      View dayText = view.findViewById(R.id.day);
-      Pair<View, String> pair1 = Pair.create(dayText, dayText.getTransitionName());
-
-      //noinspection unchecked - unable to check
-      ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
-      this.startActivity(intent, options.toBundle());
+//      Intent intent = DayActivity.newIntentShowDay(this, item.getId());
+//      //shared elements
+//      View dayText = view.findViewById(R.id.day);
+//      Pair<View, String> pair1 = Pair.create(dayText, dayText.getTransitionName());
+//
+//      //noinspection unchecked - unable to check
+//      ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1);
+      Intent intent = new Intent(this, KotlinActivity.class);
+      this.startActivity(intent);
     });
   }
 
@@ -358,7 +362,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
   }
 
   private void openSourceFileSelectIntent() {
-    FileUtils.INSTANCE.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB);
+    FileUtils.INSTANCE.selectFileIntent(this, Constants.INSTANCE.getREQUEST_CODE_SELECT_DB());
   }
 
   private void setNewDbFilePath(String newSourceFile) {

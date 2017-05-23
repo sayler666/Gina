@@ -56,7 +56,7 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
 
   public static Intent newIntentShowDay(Context context, long dayId) {
     Intent intent = new Intent(context, DayActivity.class);
-    intent.putExtra(Constants.EXTRA_DAY_ID, dayId);
+    intent.putExtra(Constants.INSTANCE.getEXTRA_DAY_ID(), dayId);
     return intent;
   }
 
@@ -80,11 +80,17 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
   }
 
   private void setupBroadcastReceivers() {
-    broadcastReceiverEditDay = new BroadcastReceiverHelper(this::load);
-    broadcastReceiverEditDay.register(this, new IntentFilter(Constants.BROADCAST_EDIT_DAY));
+    broadcastReceiverEditDay = new BroadcastReceiverHelper(() -> {
+      load();
+      return null;
+    });
+    broadcastReceiverEditDay.register(this, new IntentFilter(Constants.INSTANCE.getBROADCAST_EDIT_DAY()));
 
-    broadcastReceiverDeleteDay = new BroadcastReceiverHelper(this::finish);
-    broadcastReceiverDeleteDay.register(this, new IntentFilter(Constants.BROADCAST_DELETE_DAY));
+    broadcastReceiverDeleteDay = new BroadcastReceiverHelper(() -> {
+      finish();
+      return null;
+    });
+    broadcastReceiverDeleteDay.register(this, new IntentFilter(Constants.INSTANCE.getBROADCAST_DELETE_DAY()));
   }
 
   @Override
@@ -95,8 +101,8 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
   }
 
   private void readExtras() {
-    if (getIntent().hasExtra(Constants.EXTRA_DAY_ID)) {
-      dayId = getIntent().getLongExtra(Constants.EXTRA_DAY_ID, -1);
+    if (getIntent().hasExtra(Constants.INSTANCE.getEXTRA_DAY_ID())) {
+      dayId = getIntent().getLongExtra(Constants.INSTANCE.getEXTRA_DAY_ID(), -1);
     }
   }
 
@@ -113,8 +119,8 @@ public class DayActivity extends BaseActivity implements DiaryPresenterView {
   }
 
   private void showContent() {
-    dayText.setText(day.getDate().toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK));
-    yearMonthText.setText(day.getDate().toString(Constants.DATE_PATTERN_YEAR_MONTH));
+    dayText.setText(day.getDate().toString(Constants.INSTANCE.getDATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK()));
+    yearMonthText.setText(day.getDate().toString(Constants.INSTANCE.getDATE_PATTERN_YEAR_MONTH()));
     contentText.setText(day.getContent());
 
     showAttachments();
