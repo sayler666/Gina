@@ -317,8 +317,7 @@ public class MainActivity extends BaseActivity implements DiaryPresenterView, Pe
     SettingsStore settingsStore = settingsStoreManager.get();
     if (settingsStore == null) {
       //save current opened file if empty settings store empty
-      settingsStore = new SettingsStore();
-      settingsStore.setDataSourceFilePath(currentSourceFile);
+      settingsStore = new SettingsStore(currentSourceFile);
       settingsStoreManager.save(settingsStore);
       return true;
     } else {
