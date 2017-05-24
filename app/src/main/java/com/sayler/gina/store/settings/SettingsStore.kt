@@ -5,4 +5,4 @@ package com.sayler.gina.store.settings
  *
  *
  */
-data class SettingsStore(var dataSourceFilePath: String?)
+data class SettingsStore(var dataSourceFilePath: String)

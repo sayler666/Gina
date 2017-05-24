@@ -2,7 +2,6 @@ package com.sayler.gina.dagger.component;
 
 import com.sayler.gina.activity.DayActivity;
 import com.sayler.gina.activity.DayEditActivity;
-import com.sayler.gina.activity.KotlinActivity;
 import com.sayler.gina.activity.MainActivity;
 import com.sayler.gina.dagger.module.ServicesModule;
 import com.sayler.ormliteimplementation.DataModuleOrmLite;
@@ -28,9 +27,6 @@ public interface DataComponent {
   void inject(DayActivity mainActivity);
 
   void inject(DayEditActivity mainActivity);
-
-  void inject(KotlinActivity kotlinActivity);
-
 
   /* ---- FRAGMENT ---- */
 

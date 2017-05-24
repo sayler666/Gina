@@ -19,13 +19,13 @@
                 android:layout_height="wrap_content">
 
             <TextView
-                    android:id="@+id/year_month"
+                    android:id="@+id/yearMonthText"
                     style="@style/year_month_header"/>
 
             <TextView
-                    android:id="@+id/day"
+                    android:id="@+id/dayText"
                     style="@style/day_header"
-                    android:layout_below="@+id/year_month"/>
+                    android:layout_below="@+id/yearMonthText"/>
 
             <EditText
                     android:id="@+id/content"
