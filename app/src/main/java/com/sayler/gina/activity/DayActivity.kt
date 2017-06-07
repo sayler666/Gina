@@ -39,7 +39,7 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         setContentView(R.layout.a_day)
 
         ButterKnife.bind(this)
-        GinaApplication.getDataComponentForActivity(this).inject(this)
+        GinaApplication.dataComponentForActivity(this).inject(this)
 
         bindPresenters()
 

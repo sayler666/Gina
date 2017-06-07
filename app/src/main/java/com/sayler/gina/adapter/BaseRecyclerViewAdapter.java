@@ -45,7 +45,7 @@ public abstract class BaseRecyclerViewAdapter<T> extends RecyclerView.Adapter<Re
     return context;
   }
 
-  protected boolean isItemClickable(int position) {
+  private boolean isItemClickable(int position) {
     return true;
   }
 

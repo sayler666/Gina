@@ -63,7 +63,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
         setContentView(R.layout.a_main)
         ButterKnife.bind(this)
 
-        GinaApplication.getDataComponentForActivity(this).inject(this)
+        GinaApplication.dataComponentForActivity(this).inject(this)
 
         bindPresenters()
 

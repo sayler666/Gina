@@ -14,11 +14,11 @@ import dagger.Provides;
 import javax.inject.Singleton;
 
 @Module
-public class ServicesModule {
+class ServicesModule {
 
     @Singleton
     @Provides
-    SettingsStoreManager provideSettingsStoreManager(Context context) {
-      return new SPSettingsStoreManager(context);
+    fun provideSettingsStoreManager(context: Context): SettingsStoreManager {
+        return SPSettingsStoreManager(context)
     }
 }

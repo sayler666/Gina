@@ -77,7 +77,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
         setContentView(R.layout.a_edit_day)
 
         ButterKnife.bind(this)
-        GinaApplication.getDataComponentForActivity(this).inject(this)
+        GinaApplication.dataComponentForActivity(this).inject(this)
 
         attachmentsManager = AttachmentsManager(attachmentsContainer)
 
@@ -113,7 +113,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     private fun load() {
         when (editMode) {
             DayEditActivity.EditMode.NEW_DAY -> showTextContent()
-            DayEditActivity.EditMode.EDIT_DAY -> diaryPresenter.loadById(dayId!!)
+            DayEditActivity.EditMode.EDIT_DAY -> diaryPresenter.loadById(dayId)
         }
     }
 
