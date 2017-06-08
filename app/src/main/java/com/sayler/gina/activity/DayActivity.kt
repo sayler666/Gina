@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.support.v4.view.GravityCompat
 import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -122,6 +123,11 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     @OnClick(R.id.fabEdit)
     fun onFabEditClick() {
         startActivity(DayEditActivity.newIntentEditDay(this, dayId))
+    }
+
+    @OnClick(R.id.fabAttachments)
+    fun onFabAttachmentsClick() {
+        drawer_layout.openDrawer(GravityCompat.END)
     }
 
     override fun onDownloaded(data: List<IDay>) {

@@ -308,9 +308,9 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
         openSourceFileSelectIntent()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (data.data?.path != null)
+        if (data?.data?.path != null)
             setNewDbFilePath(data.data.path)
     }
 

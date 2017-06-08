@@ -21,7 +21,7 @@ import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
-import kotlinx.android.synthetic.main.a_edit_day.*
+import kotlinx.android.synthetic.main.a_day_edit.*
 import org.joda.time.DateTime
 import java.io.IOException
 import java.util.*
@@ -74,7 +74,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.a_edit_day)
+        setContentView(R.layout.a_day_edit)
 
         ButterKnife.bind(this)
         GinaApplication.dataComponentForActivity(this).inject(this)
@@ -117,17 +117,16 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode != RESULT_CANCELED && requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT && data != null) {
 
             //multiple files
             if (data.clipData != null) {
                 for (i in 0..data.clipData.itemCount - 1)
                     addAttachment(data.clipData.getItemAt(i).uri)
-            } else {
+            } else {//single file
                 addAttachment(data.data)
-            }//single file
+            }
 
         }
     }
