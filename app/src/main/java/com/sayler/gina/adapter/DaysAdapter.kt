@@ -37,12 +37,11 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
                 setItem(day, position)
                 //attachments icon
                 day.attachments.size.let { attachmentsCount ->
-                    if (attachmentsCount > 0) {
+                    attachmentsCountView.visibility = if (attachmentsCount > 0) {
                         attachmentsCountView.text = attachmentsCount.toString()
-                        attachmentsCountView.visibility = View.VISIBLE
-                    } else {
-                        attachmentsCountView.visibility = View.GONE
-                    }
+                        View.VISIBLE
+                    } else
+                        View.GONE
                 }
 
                 //content
@@ -58,28 +57,11 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
 
                 //expand on time click
                 timeView.setOnClickListener { _ ->
-                    if (expanded) {
-                        showShortView()
-                    } else {
-                        showFullView()
-                    }
+                    if (expanded) showShortView() else showFullView()
                 }
                 showShortView()
             }
         }
-    }
-
-    private fun DaysViewHolder.showFullView() {
-        contentShortView.visibility = View.GONE
-        contentView.visibility = View.VISIBLE
-        expanded = true
-
-    }
-
-    private fun DaysViewHolder.showShortView() {
-        contentShortView.visibility = View.VISIBLE
-        contentView.visibility = View.GONE
-        expanded = false
     }
 
     override fun getSectionTitle(position: Int): String {
@@ -97,6 +79,18 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
 
     override fun onBindHeaderViewHolder(holder: DaysHeaderViewHolder, position: Int) {
         holder.title.text = items[position].date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
+    }
+
+    private fun DaysViewHolder.showFullView() {
+        contentShortView.visibility = View.GONE
+        contentView.visibility = View.VISIBLE
+        expanded = true
+    }
+
+    private fun DaysViewHolder.showShortView() {
+        contentShortView.visibility = View.VISIBLE
+        contentView.visibility = View.GONE
+        expanded = false
     }
 
     class DaysViewHolder(view: View, baseRecyclerViewAdapter: BaseRecyclerViewAdapter<IDay>) : BaseRecyclerViewAdapter.RecyclerViewHolderWithOnItemClick<IDay>(view, baseRecyclerViewAdapter) {
