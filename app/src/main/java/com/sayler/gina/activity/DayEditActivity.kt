@@ -4,12 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.annimon.stream.Stream
+import butterknife.OnTouch
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.domain.DataManager
@@ -21,11 +25,14 @@ import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.a_day_edit.*
 import org.joda.time.DateTime
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnDateSetListener {
     @Inject
@@ -43,6 +50,8 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     private enum class EditMode {
         NEW_DAY, EDIT_DAY
     }
+
+    private lateinit var fabs: List<FloatingActionButton>
 
     private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
         private val tmpAttachmentButtonHashMap = HashMap<IAttachment, Button>()
@@ -65,7 +74,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
 
         fun returnAttachments(): List<IAttachment> {
             val attachments = ArrayList<IAttachment>()
-            Stream.of(tmpAttachmentButtonHashMap).forEach { attachmentButtonEntry -> attachments.add(attachmentButtonEntry.key) }
+            tmpAttachmentButtonHashMap.forEach { attachmentButtonEntry -> attachments.add(attachmentButtonEntry.key) }
 
             return attachments
         }
@@ -76,6 +85,8 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_day_edit)
 
+        fabs = listOf(fab_add_attachment, fab_delete, fab_save)
+
         ButterKnife.bind(this)
         GinaApplication.dataComponentForActivity(this).inject(this)
 
@@ -85,7 +96,19 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
 
         readExtras()
 
+        setupViews()
+
         load()
+    }
+
+    private fun setupViews() {
+        RxTextView.textChanges(content)
+                .skip(2)
+                .doOnNext { fabs.onEach { it.visibility = GONE } }
+                .buffer(2, TimeUnit.SECONDS)
+                .filter { t -> t.size <= 0 }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { fabs.onEach { it.visibility = VISIBLE } }
     }
 
     private fun readExtras() {
@@ -131,6 +154,12 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
         }
     }
 
+    @OnTouch(R.id.root, R.id.content)
+    fun onElseClick(): Boolean {
+        fabs.onEach { it.visibility = VISIBLE }
+        return true
+    }
+
     @OnClick(R.id.yearMonthText, R.id.dayText)
     fun onFabEditClick() {
         val dpd = DatePickerDialog.newInstance(
@@ -158,7 +187,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     }
 
     private fun put() {
-        day.content = content!!.text.toString()
+        day.content = content.text.toString()
 
         diaryPresenter.put(day, attachmentsManager.returnAttachments())
     }

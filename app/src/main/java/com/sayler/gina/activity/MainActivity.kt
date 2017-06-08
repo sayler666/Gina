@@ -16,7 +16,7 @@ import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnLongClick
-import com.jakewharton.rxbinding.support.v7.widget.RxSearchView
+import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.adapter.DaysAdapter
@@ -33,11 +33,11 @@ import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.a_main.*
 import kotlinx.android.synthetic.main.i_error_content.*
 import kotlinx.android.synthetic.main.i_main_content.*
 import kotlinx.android.synthetic.main.i_progress_bar.*
-import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -95,6 +95,8 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
         val menuItem = menu.findItem(R.id.action_search)
 
         searchView = menuItem.actionView as SearchView
+
+
         searchView?.maxWidth = Integer.MAX_VALUE
         val v = searchView?.findViewById(android.support.v7.appcompat.R.id.search_plate)
         v?.setBackgroundColor(Color.TRANSPARENT)

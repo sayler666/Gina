@@ -12,6 +12,8 @@
             android:clipToPadding="false"
             android:fillViewport="true"
             android:paddingBottom="@dimen/p_bottom_fab"
+            android:id="@+id/root"
+            android:clickable="true"
             tools:ignore="MissingPrefix">
 
         <RelativeLayout
