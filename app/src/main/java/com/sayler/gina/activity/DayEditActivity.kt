@@ -142,7 +142,6 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != RESULT_CANCELED && requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT && data != null) {
-
             //multiple files
             if (data.clipData != null) {
                 for (i in 0..data.clipData.itemCount - 1)
@@ -150,14 +149,13 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
             } else {//single file
                 addAttachment(data.data)
             }
-
         }
     }
 
     @OnTouch(R.id.root, R.id.content)
     fun onElseClick(): Boolean {
         fabs.onEach { it.visibility = VISIBLE }
-        return true
+        return false
     }
 
     @OnClick(R.id.yearMonthText, R.id.dayText)

@@ -5,12 +5,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
+import android.support.v7.widget.LinearLayoutManager
 import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.annimon.stream.Stream
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
+import com.sayler.gina.attachment.AttachmentAdapter
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
@@ -97,12 +98,17 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
 
     private fun showAttachments() {
         attachmentsContainer.removeAllViews()
-        val iterator = day.attachments.iterator()
-        Stream.of(iterator).forEach { attachment ->
-            val button = createAttachmentButton(attachment)
-            attachmentsContainer.addView(button)
+        day.attachments.forEach {
+            createAttachmentButton(it).let { button ->
+                attachmentsContainer.addView(button)
+            }
         }
 
+        //drawer
+        val layoutManager = LinearLayoutManager(this)
+        attachmentsRecyclerView.layoutManager = layoutManager
+        val attachmentAdapter = AttachmentAdapter(day.attachments)
+        attachmentsRecyclerView.adapter = attachmentAdapter
     }
 
     private fun createAttachmentButton(attachment: IAttachment): Button {

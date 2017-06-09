@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF1744</color>
     <color name="colorAccentDark">#a71632</color>
+    <color name="grey">#a3a3a3</color>
+    <color name="grey_25_transparent">#45a3a3a3</color>
 
     <color name="primary_text">@color/white</color>
     <color name="secondary_text">#757575</color>

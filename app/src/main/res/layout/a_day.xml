@@ -66,15 +66,14 @@
 
     </FrameLayout>
     <!-- The navigation drawer -->
-    <RelativeLayout android:id="@+id/right_drawer"
-                    android:layout_width="240dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:choiceMode="singleChoice"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="0dp"
-                    android:clipToPadding="false"
-                    android:clipChildren="false"
-                    android:background="#111">
-    </RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/attachmentsRecyclerView"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
+            android:background="#111">
+    </android.support.v7.widget.RecyclerView>
 </android.support.v4.widget.DrawerLayout>
