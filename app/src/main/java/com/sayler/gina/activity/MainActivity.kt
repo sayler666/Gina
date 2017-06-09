@@ -96,7 +96,6 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
 
         searchView = menuItem.actionView as SearchView
 
-
         searchView?.maxWidth = Integer.MAX_VALUE
         val v = searchView?.findViewById(android.support.v7.appcompat.R.id.search_plate)
         v?.setBackgroundColor(Color.TRANSPARENT)
@@ -141,8 +140,8 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
     }
 
     private fun clearSearchViewAndHide() {
-        searchView!!.setQuery("", false)
-        searchView!!.isIconified = true
+        searchView?.setQuery("", false)
+        searchView?.isIconified = true
     }
 
     override fun onBackPressed() {
