@@ -7,7 +7,6 @@
 package com.sayler.gina.util
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.ShareCompat
@@ -15,10 +14,8 @@ import android.support.v4.content.FileProvider
 import okio.BufferedSink
 import okio.Okio
 import org.apache.commons.io.IOUtils
-
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
 
 /**
 

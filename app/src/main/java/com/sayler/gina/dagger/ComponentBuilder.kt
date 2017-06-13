@@ -10,7 +10,7 @@ import com.sayler.gina.dagger.module.ApplicationModule
 
 class ComponentBuilder {
 
-    companion object Factory{
+    companion object Factory {
         fun createApplicationComponent(application: GinaApplication): ApplicationComponent {
             return DaggerApplicationComponent.builder()
                     .applicationModule(ApplicationModule(application))

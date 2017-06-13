@@ -10,7 +10,7 @@ import com.sayler.gina.domain.IAttachment
 class AttachmentAdapter(val items: Collection<IAttachment>) : RecyclerView.Adapter<BetterViewHolder<AttachmentViewModel>>() {
     private val typeFactory = TypesFactoryImpl()
 
-    private  var viewModels: MutableList<AttachmentViewModel> = ArrayList()
+    private var viewModels: MutableList<AttachmentViewModel> = ArrayList()
 
     init {
         items.forEach { viewModels.add(AttachmentViewModelFactory.type(it)) }
@@ -20,8 +20,8 @@ class AttachmentAdapter(val items: Collection<IAttachment>) : RecyclerView.Adapt
         return items.count()
     }
 
-    override fun onBindViewHolder(holder: BetterViewHolder<AttachmentViewModel>?, position: Int) {
-        holder?.bind(viewModels[position])
+    override fun getItemViewType(position: Int): Int {
+        return viewModels[position].type(typeFactory)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): BetterViewHolder<AttachmentViewModel> {
@@ -32,7 +32,7 @@ class AttachmentAdapter(val items: Collection<IAttachment>) : RecyclerView.Adapt
         throw RuntimeException("Parent is null")
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return viewModels[position].type(typeFactory)
+    override fun onBindViewHolder(holder: BetterViewHolder<AttachmentViewModel>?, position: Int) {
+        holder?.bind(viewModels[position])
     }
 }

@@ -8,6 +8,6 @@ import android.view.View
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-abstract class BetterViewHolder<in T>(view: View): RecyclerView.ViewHolder(view) {
+abstract class BetterViewHolder<in T>(view: View) : RecyclerView.ViewHolder(view) {
     abstract fun bind(item: T)
 }

@@ -244,7 +244,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
         })
 
         //on item click
-        daysAdapter?.setOnItemClickListener { item, view, _ ->
+        daysAdapter?.setOnClick { item, view, _ ->
             val intent = DayActivity.newIntentShowDay(this, item.id)
             //shared elements
             val dayText = view.findViewById(R.id.day)
@@ -300,7 +300,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
     }
 
     private fun createRecyclerView(items: List<IDay>) {
-        daysAdapter?.setItems(items)
+        daysAdapter?.items = items
         daysAdapter?.notifyDataSetChanged()
     }
 

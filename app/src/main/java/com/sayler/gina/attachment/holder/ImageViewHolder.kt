@@ -1,6 +1,8 @@
 package com.sayler.gina.attachment.holder
 
+import android.graphics.BitmapFactory
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import butterknife.Bind
 import butterknife.ButterKnife
@@ -14,12 +16,18 @@ import com.sayler.gina.attachment.viewmodel.ImageViewModel
  */
 class ImageViewHolder(val view: View) : BetterViewHolder<ImageViewModel>(view) {
 
-    @Bind(R.id.file_type)
-    lateinit var fileType: TextView
+    @Bind(R.id.fileTypeSmallLabel)
+    lateinit var fileTypeSmallLabel: TextView
+    @Bind(R.id.image)
+    lateinit var image: ImageView
 
     override fun bind(item: ImageViewModel) {
         ButterKnife.bind(this, view)
-        fileType.text = item.attachment.mimeType.toString()
+        with(item.attachment) {
+            fileTypeSmallLabel.text = mimeType.substring(mimeType.indexOf("/") + 1).toUpperCase()
+            val decodeByteArray = BitmapFactory.decodeByteArray(file, 0, file.size)
+            image.setImageBitmap(decodeByteArray)
+        }
 
     }
 

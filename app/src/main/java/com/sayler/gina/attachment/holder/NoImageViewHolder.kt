@@ -13,11 +13,17 @@ import com.sayler.gina.attachment.viewmodel.NoImageViewModel
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
 class NoImageViewHolder(val view: View) : BetterViewHolder<NoImageViewModel>(view) {
-    @Bind(R.id.file_type)
-    lateinit var fileType: TextView
+    @Bind(R.id.fileTypeSmallLabel)
+    lateinit var fileTypeSmallLabel: TextView
+    @Bind(R.id.fileTypeBigLabel)
+    lateinit var fileTypeBig: TextView
 
     override fun bind(item: NoImageViewModel) {
         ButterKnife.bind(this, view)
-        fileType.text = item.attachment.mimeType.toString()
+        with(item.attachment) {
+            val fileTypeString = mimeType.substring(mimeType.indexOf("/") + 1).toUpperCase()
+            fileTypeSmallLabel.text = fileTypeString
+            fileTypeBig.text = fileTypeString
+        }
     }
 }

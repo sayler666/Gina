@@ -11,10 +11,11 @@ import com.sayler.gina.domain.IAttachment
 class AttachmentViewModelFactory {
     companion object {
         fun type(attachment: IAttachment): AttachmentViewModel {
-            return when (attachment.mimeType) {
-                "image/jpeg" -> ImageViewModel(attachment)
-                "image/png" -> ImageViewModel(attachment)
-                else -> NoImageViewModel(attachment)
+            return with(attachment) {
+                when {
+                    mimeType.contains("image/") -> ImageViewModel(attachment)
+                    else -> NoImageViewModel(attachment)
+                }
             }
         }
     }
