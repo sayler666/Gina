@@ -108,6 +108,11 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         val layoutManager = LinearLayoutManager(this)
         attachmentsRecyclerView.layoutManager = layoutManager
         val attachmentAdapter = AttachmentAdapter(day.attachments)
+        attachmentAdapter.setOnClick({ item, _ ->
+            with(item.attachment) {
+                FileUtils.openFileIntent(this@DayActivity, file, mimeType, applicationContext.packageName + ".provider")
+            }
+        })
         attachmentsRecyclerView.adapter = attachmentAdapter
     }
 

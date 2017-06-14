@@ -1,7 +1,6 @@
 package com.sayler.gina.attachment.viewmodel
 
 import com.sayler.gina.attachment.AttachmentViewModel
-import com.sayler.gina.attachment.TypesFactory
 import com.sayler.gina.domain.IAttachment
 
 /**
@@ -9,9 +8,8 @@ import com.sayler.gina.domain.IAttachment
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class ImageViewModel(val attachment: IAttachment) : AttachmentViewModel() {
-    override fun type(typesFactory: TypesFactory): Int {
-        return typesFactory.type(this)
+class ImageViewModel(attachment: IAttachment) : AttachmentViewModel(attachment) {
+    override fun type(attachmentTypesFactory: AttachmentTypesFactory): Int {
+        return attachmentTypesFactory.type(this)
     }
-
 }

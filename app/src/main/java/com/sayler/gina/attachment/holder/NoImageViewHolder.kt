@@ -5,6 +5,7 @@ import android.widget.TextView
 import butterknife.Bind
 import butterknife.ButterKnife
 import com.sayler.gina.R
+import com.sayler.gina.adapter.betteradapter.holder.BetterViewHolder
 import com.sayler.gina.attachment.viewmodel.NoImageViewModel
 
 /**
@@ -12,13 +13,16 @@ import com.sayler.gina.attachment.viewmodel.NoImageViewModel
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class NoImageViewHolder(val view: View) : BetterViewHolder<NoImageViewModel>(view) {
+class NoImageViewHolder( view: View, onClickListener: ((item: NoImageViewModel, view: View) -> Unit)?) : BetterViewHolder<NoImageViewModel>(view, onClickListener) {
+
+
     @Bind(R.id.fileTypeSmallLabel)
     lateinit var fileTypeSmallLabel: TextView
     @Bind(R.id.fileTypeBigLabel)
     lateinit var fileTypeBig: TextView
 
     override fun bind(item: NoImageViewModel) {
+        super.bind(item)
         ButterKnife.bind(this, view)
         with(item.attachment) {
             val fileTypeString = mimeType.substring(mimeType.indexOf("/") + 1).toUpperCase()

@@ -7,6 +7,7 @@ import android.widget.TextView
 import butterknife.Bind
 import butterknife.ButterKnife
 import com.sayler.gina.R
+import com.sayler.gina.adapter.betteradapter.holder.BetterViewHolder
 import com.sayler.gina.attachment.viewmodel.ImageViewModel
 
 /**
@@ -14,7 +15,7 @@ import com.sayler.gina.attachment.viewmodel.ImageViewModel
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class ImageViewHolder(val view: View) : BetterViewHolder<ImageViewModel>(view) {
+class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view: View) -> Unit)?) : BetterViewHolder<ImageViewModel>(view, onClickListener) {
 
     @Bind(R.id.fileTypeSmallLabel)
     lateinit var fileTypeSmallLabel: TextView
@@ -22,6 +23,7 @@ class ImageViewHolder(val view: View) : BetterViewHolder<ImageViewModel>(view) {
     lateinit var image: ImageView
 
     override fun bind(item: ImageViewModel) {
+        super.bind(item)
         ButterKnife.bind(this, view)
         with(item.attachment) {
             fileTypeSmallLabel.text = mimeType.substring(mimeType.indexOf("/") + 1).toUpperCase()

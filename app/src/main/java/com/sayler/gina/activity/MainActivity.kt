@@ -243,7 +243,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
             }
         })
 
-        //on item click
+        //on viewModel click
         daysAdapter?.setOnClick { item, view, _ ->
             val intent = DayActivity.newIntentShowDay(this, item.id)
             //shared elements
