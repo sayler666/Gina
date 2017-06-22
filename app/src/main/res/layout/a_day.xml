@@ -62,8 +62,15 @@
                     android:src="@drawable/ic_attach_file_black_24px"
                     android:layout_alignParentRight="false"
                     android:layout_toLeftOf="@id/fabEdit"/>
-        </RelativeLayout>
 
+            <RelativeLayout
+                    android:id="@+id/attachmentsContainerSliding"
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+            </RelativeLayout>
+        </RelativeLayout>
     </FrameLayout>
     <!-- The navigation drawer -->
     <android.support.v7.widget.RecyclerView

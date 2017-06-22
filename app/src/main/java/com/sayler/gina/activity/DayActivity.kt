@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.util.DisplayMetrics
 import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -17,12 +20,15 @@ import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
+import com.sayler.gina.fragment.AttachmentFragment
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
+import com.sayler.gina.util.ViewSliderCoordinator
 import kotlinx.android.synthetic.main.a_day.*
 import java.io.IOException
 import javax.inject.Inject
+
 
 class DayActivity : BaseActivity(), DiaryPresenterView {
     @Inject
@@ -32,6 +38,9 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
 
     lateinit var day: IDay
     var dayId: Long = 0
+
+    private var attachmentFragment: Fragment? = null
+    private var viewSliderCoordinator: ViewSliderCoordinator? = null
 
     private lateinit var broadcastReceiverEditDay: BroadcastReceiverHelper
     private lateinit var broadcastReceiverDeleteDay: BroadcastReceiverHelper
@@ -43,6 +52,8 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         ButterKnife.bind(this)
         GinaApplication.dataComponentForActivity(this).inject(this)
 
+        inflateInitialFragments()
+
         bindPresenters()
 
         setupBroadcastReceivers()
@@ -52,6 +63,14 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         setupViews()
 
         load()
+    }
+
+
+    private fun inflateInitialFragments() {
+        attachmentFragment = AttachmentFragment()
+        supportFragmentManager.beginTransaction()
+                .add(R.id.attachmentsContainerSliding, attachmentFragment, AttachmentFragment::class.java.simpleName)
+                .commit()
     }
 
     private fun setupBroadcastReceivers() {
@@ -77,7 +96,27 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     }
 
     private fun setupViews() {
-        //nothing here for now
+
+        val dm = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(dm)
+        val windowHeight = dm.heightPixels
+        val minimizedHeight = resources.getDimension(R.dimen.h_attachments_minimized)
+
+        val builder = ViewSliderCoordinator.Builder()
+        builder.setContainer(attachmentsContainerSliding)
+                .setSlideable(attachmentFragment as ViewSliderCoordinator.Slideable)
+                .setWindowHeight(windowHeight)
+                .setMinimizedHeight(minimizedHeight.toInt())
+        viewSliderCoordinator = builder.build()
+
+        Handler().postDelayed({
+            //minimizePlayer()
+        }, 500)
+
+    }
+
+    fun minimizePlayer() {
+        viewSliderCoordinator?.animatePlayerToPosition(ViewSliderCoordinator.ViewPosition.MINIMIZED, 500)
     }
 
     private fun bindPresenters() {
