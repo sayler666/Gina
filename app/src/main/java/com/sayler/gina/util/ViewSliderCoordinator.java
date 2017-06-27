@@ -21,7 +21,7 @@ public class ViewSliderCoordinator {
   private final int windowHeight;
   private int minimizedHeight;
   private int fullscreenTopOffset;
-  private ViewPosition playerPosition = ViewPosition.HIDDEN;
+  private ViewPosition position = ViewPosition.HIDDEN;
 
   private ViewSliderCoordinator(ViewSliderCoordinator.Builder builder) {
     minimizedHeight = builder.getMinimizedHeight();
@@ -38,43 +38,43 @@ public class ViewSliderCoordinator {
 
   }
 
-  public void animatePlayerToPosition(ViewPosition viewPosition, int duration) {
+  public void animateToPosition(ViewPosition viewPosition, int duration) {
     switch (viewPosition) {
       case HIDDEN:
-        startPlayerAnimation(windowHeight, duration);
+        startAnimation(windowHeight, duration);
         break;
       case MINIMIZED:
-        startPlayerAnimation(windowHeight - minimizedHeight, duration);
+        startAnimation(windowHeight - minimizedHeight, duration);
         break;
       case FULLSCREEN:
-        startPlayerAnimation(-fullscreenTopOffset, duration);
+        startAnimation(-fullscreenTopOffset, duration);
         break;
     }
   }
 
-  public ViewPosition getPlayerPosition() {
-    return playerPosition;
+  public ViewPosition getPosition() {
+    return position;
   }
 
-  private void startPlayerAnimation(int position, float timeOfAnimation) {
+  private void startAnimation(int position, float timeOfAnimation) {
     ValueAnimator valueAnimator = ValueAnimator.ofFloat(container.getTranslationY(), position);
     valueAnimator.setDuration((long) timeOfAnimation);
-    valueAnimator.addUpdateListener(animation -> slideFragmentY((float) animation.getAnimatedValue()));
+    valueAnimator.addUpdateListener(animation -> slideY((float) animation.getAnimatedValue()));
     valueAnimator.start();
   }
 
-  private void slideFragmentY(float translationY) {
-    float percentageOfMinimalSize = translationY / (windowHeight - minimizedHeight);
+  private void slideY(float translationY) {
+    float percentageOfMinimalSize = (translationY + fullscreenTopOffset) / (windowHeight + fullscreenTopOffset - minimizedHeight);
     container.setTranslationY(translationY);
     slideable.onSlide(percentageOfMinimalSize);
     if (Float.compare(percentageOfMinimalSize, 0.0f) <= 0) {
-      playerPosition = ViewPosition.FULLSCREEN;
+      position = ViewPosition.FULLSCREEN;
     } else {
-      playerPosition = ViewPosition.MINIMIZED;
+      position = ViewPosition.MINIMIZED;
     }
   }
 
-  View.OnTouchListener touchListener = new View.OnTouchListener() {
+  private View.OnTouchListener touchListener = new View.OnTouchListener() {
 
     public int direction;
     private float velocity;
@@ -97,12 +97,12 @@ public class ViewSliderCoordinator {
           return true;
         case (MotionEvent.ACTION_MOVE):
           if (event.getRawY() - viewY >= -fullscreenTopOffset) {
-            slideFragmentY(event.getRawY() - viewY);
+            slideY(event.getRawY() - viewY);
           } else {
-            slideFragmentY(-fullscreenTopOffset);
+            slideY(-fullscreenTopOffset);
           }
           if (event.getRawY() - viewY > windowHeight - minimizedHeight) {
-            slideFragmentY(windowHeight - minimizedHeight);
+            slideY(windowHeight - minimizedHeight);
           }
           if (lastEvent != null) {
             velocity = Math.abs((event.getRawY() - lastEventY) / (event.getEventTime() - lastEventTime));
@@ -115,8 +115,8 @@ public class ViewSliderCoordinator {
         case (MotionEvent.ACTION_UP):
           //single click detection
           if (System.currentTimeMillis() - firstClick < 50) {
-            //show big player
-            startPlayerAnimation(-fullscreenTopOffset, 500);
+            //show big
+            startAnimation(-fullscreenTopOffset, 500);
             return true;
           }
 
@@ -125,14 +125,14 @@ public class ViewSliderCoordinator {
             //togo
             timeOfAnimation = (windowHeight - minimizedHeight - container.getTranslationY()) / velocity;
             timeOfAnimation = normalizeTimeOfAnimation(timeOfAnimation);
-            //show small player
-            animatePlayerToPosition(ViewPosition.MINIMIZED, (int) timeOfAnimation);
+            //show small
+            animateToPosition(ViewPosition.MINIMIZED, (int) timeOfAnimation);
           } else {
             //togo
             timeOfAnimation = (container.getTranslationY()) / velocity;
             timeOfAnimation = normalizeTimeOfAnimation(timeOfAnimation);
-            //show big player
-            animatePlayerToPosition(ViewPosition.FULLSCREEN, (int) timeOfAnimation);
+            //show big
+            animateToPosition(ViewPosition.FULLSCREEN, (int) timeOfAnimation);
           }
           viewY = 0;
           return true;
@@ -189,23 +189,23 @@ public class ViewSliderCoordinator {
       return this;
     }
 
-    public int getMinimizedHeight() {
+    int getMinimizedHeight() {
       return minimizedHeight;
     }
 
-    public int getFullscreenTopOffset() {
+    int getFullscreenTopOffset() {
       return fullscreenTopOffset;
     }
 
-    public Slideable getSlideable() {
+    Slideable getSlideable() {
       return slideable;
     }
 
-    public ViewGroup getContainer() {
+    ViewGroup getContainer() {
       return container;
     }
 
-    public int getWindowHeight() {
+    int getWindowHeight() {
       return windowHeight;
     }
   }

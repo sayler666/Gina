@@ -52,25 +52,39 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         ButterKnife.bind(this)
         GinaApplication.dataComponentForActivity(this).inject(this)
 
-        inflateInitialFragments()
-
         bindPresenters()
 
         setupBroadcastReceivers()
 
         readExtras()
 
-        setupViews()
-
         load()
     }
 
-
-    private fun inflateInitialFragments() {
-        attachmentFragment = AttachmentFragment()
+    private fun inflateAttachmentsFragment() {
+        val attachments = ArrayList<IAttachment>()
+        attachments += day.attachments
+        attachmentFragment = AttachmentFragment.newInstance(attachments)
         supportFragmentManager.beginTransaction()
                 .add(R.id.attachmentsContainerSliding, attachmentFragment, AttachmentFragment::class.java.simpleName)
                 .commit()
+
+        val dm = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(dm)
+        val windowHeight = dm.heightPixels
+        val minimizedHeight = resources.getDimension(R.dimen.h_attachments_minimized)
+
+        val builder = ViewSliderCoordinator.Builder()
+        builder.setContainer(attachmentsContainerSliding)
+                .setSlideable(attachmentFragment as ViewSliderCoordinator.Slideable)
+                .setWindowHeight(windowHeight)
+                .setMinimizedHeight(minimizedHeight.toInt())
+                .setFullscreenTopOffset(-220)
+        viewSliderCoordinator = builder.build()
+
+        Handler().postDelayed({
+            minimizePlayer()
+        }, 500)
     }
 
     private fun setupBroadcastReceivers() {
@@ -95,28 +109,8 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         }
     }
 
-    private fun setupViews() {
-
-        val dm = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(dm)
-        val windowHeight = dm.heightPixels
-        val minimizedHeight = resources.getDimension(R.dimen.h_attachments_minimized)
-
-        val builder = ViewSliderCoordinator.Builder()
-        builder.setContainer(attachmentsContainerSliding)
-                .setSlideable(attachmentFragment as ViewSliderCoordinator.Slideable)
-                .setWindowHeight(windowHeight)
-                .setMinimizedHeight(minimizedHeight.toInt())
-        viewSliderCoordinator = builder.build()
-
-        Handler().postDelayed({
-            //minimizePlayer()
-        }, 500)
-
-    }
-
     fun minimizePlayer() {
-        viewSliderCoordinator?.animatePlayerToPosition(ViewSliderCoordinator.ViewPosition.MINIMIZED, 500)
+        viewSliderCoordinator?.animateToPosition(ViewSliderCoordinator.ViewPosition.MINIMIZED, 500)
     }
 
     private fun bindPresenters() {
@@ -153,6 +147,9 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
             }
         })
         attachmentsRecyclerView.adapter = attachmentAdapter
+
+        //bottom shelf
+        //inflateAttachmentsFragment()
     }
 
     private fun createAttachmentButton(attachment: IAttachment): Button {
