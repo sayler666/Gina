@@ -63,7 +63,7 @@ class AttachmentFragment : Fragment(), ViewSliderCoordinator.Slideable {
         //drawer
         val layoutManager = LinearLayoutManager(activity)
         attachmentsRecyclerView.layoutManager = layoutManager
-        val attachmentAdapter = AttachmentAdapter(attachments)
+        val attachmentAdapter = AttachmentAdapter(attachments, attachmentsRecyclerView)
         attachmentAdapter.setOnClick({ item, _ ->
             with(item.attachment) {
                 FileUtils.openFileIntent(this@AttachmentFragment.activity, file, mimeType, this@AttachmentFragment.activity.applicationContext.packageName + ".provider")

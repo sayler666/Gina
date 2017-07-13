@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.DisplayMetrics
+import android.view.Gravity
 import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -130,17 +131,17 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     }
 
     private fun showAttachments() {
-        attachmentsContainer.removeAllViews()
-        day.attachments.forEach {
-            createAttachmentButton(it).let { button ->
-                attachmentsContainer.addView(button)
-            }
-        }
+//        attachmentsContainer.removeAllViews()
+//        day.attachments.forEach {
+//            createAttachmentButton(it).let { button ->
+//                attachmentsContainer.addView(button)
+//            }
+//        }
 
         //drawer
         val layoutManager = LinearLayoutManager(this)
         attachmentsRecyclerView.layoutManager = layoutManager
-        val attachmentAdapter = AttachmentAdapter(day.attachments)
+        val attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView)
         attachmentAdapter.setOnClick({ item, _ ->
             with(item.attachment) {
                 FileUtils.openFileIntent(this@DayActivity, file, mimeType, applicationContext.packageName + ".provider")
@@ -177,6 +178,14 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         drawer_layout.openDrawer(GravityCompat.END)
     }
 
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(Gravity.END)) {
+            drawer_layout.closeDrawer(Gravity.END)
+            return
+        }
+        super.onBackPressed()
+    }
+
     override fun onDownloaded(data: List<IDay>) {
         day = data[0]
         showContent()
@@ -199,8 +208,10 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     }
 
     override fun onDestroy() {
+        (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
         diaryPresenter.onUnBindView()
         dataManager.close()
+        System.gc()
         super.onDestroy()
     }
 
