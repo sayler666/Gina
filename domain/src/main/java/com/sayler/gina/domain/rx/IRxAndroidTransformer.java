@@ -1,7 +1,6 @@
 package com.sayler.gina.domain.rx;
 
-import rx.Observable;
-
+import io.reactivex.ObservableTransformer;
 /**
  * Created by miquido on 10/11/16.
  */
@@ -13,6 +12,6 @@ public interface IRxAndroidTransformer {
    * @return
    */
 
-  <T> Observable.Transformer<T, T> applySchedulers();
+  <T> ObservableTransformer<T, T> applySchedulers();
 
 }

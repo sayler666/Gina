@@ -18,7 +18,8 @@ import com.sayler.ormliteimplementation.AttachmentsDataProvider;
 import com.sayler.ormliteimplementation.DaysDataProvider;
 import com.sayler.ormliteimplementation.entity.Attachment;
 import com.sayler.ormliteimplementation.entity.Day;
-import rx.Subscription;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -150,9 +151,9 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
   }
 
   private void retrieveAllData() {
-    Subscription subscription;
+    Disposable subscription;
     try {
-      subscription = rx.Observable.just(daysDataProvider.getAll())
+      subscription = Observable.just(daysDataProvider.getAll())
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, throwable ->
               daysGetInteractorCallback.onDownloadDataError(throwable));
@@ -164,13 +165,13 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
   }
 
   private void retrieveDataById(long id) {
-    Subscription subscription;
+    Disposable disposable;
     try {
-      subscription = rx.Observable.just(daysDataProvider.get(id))
+      disposable = Observable.just(daysDataProvider.get(id))
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, throwable ->
               daysGetInteractorCallback.onDownloadDataError(throwable));
-      needToUnsubscribe(subscription);
+      needToUnsubscribe(disposable);
     } catch (SQLException e) {
       e.printStackTrace();
       daysGetInteractorCallback.onDownloadDataError(e);
@@ -178,16 +179,16 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
   }
 
   private void retrieveDataText(String string) {
-    Subscription subscription;
+    Disposable disposable;
     try {
       QueryBuilder<Day, Long> queryBuilder = daysDataProvider.getDao().queryBuilder();
       PreparedQuery<Day> preparedQuery = queryBuilder.where().like(Day.CONTENT_COL, "%" + string + "%").prepare();
 
-      subscription = rx.Observable.just(daysDataProvider.getDao().query(preparedQuery))
+      disposable = Observable.just(daysDataProvider.getDao().query(preparedQuery))
           .compose(iRxAndroidTransformer.applySchedulers())
           .subscribe(this::handleLoadData, throwable ->
               daysGetInteractorCallback.onDownloadDataError(throwable));
-      needToUnsubscribe(subscription);
+      needToUnsubscribe(disposable);
     } catch (SQLException e) {
       e.printStackTrace();
       daysGetInteractorCallback.onDownloadDataError(e);

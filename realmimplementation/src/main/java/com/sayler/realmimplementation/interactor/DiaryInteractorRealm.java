@@ -6,15 +6,18 @@
 package com.sayler.realmimplementation.interactor;
 
 import com.annimon.stream.Stream;
-import com.sayler.gina.domain.*;
+import com.sayler.gina.domain.DataManager;
+import com.sayler.gina.domain.IAttachment;
+import com.sayler.gina.domain.IDay;
 import com.sayler.gina.domain.interactor.*;
+import com.sayler.gina.domain.rx.IRxAndroidTransformer;
 import com.sayler.realmimplementation.model.AttachmentRealm;
 import com.sayler.realmimplementation.model.DayRealm;
-import com.sayler.gina.domain.rx.IRxAndroidTransformer;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import rx.Subscription;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,33 +128,33 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   private void retrieveAllData() {
-    Subscription subscription;
+    Disposable disposable;
     RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class);
-    subscription = rx.Observable.just(query.findAll())
+    disposable = Observable.just(query.findAll())
         .compose(iRxAndroidTransformer.applySchedulers())
         .subscribe(this::handleLoadData, throwable ->
             daysGetInteractorCallback.onDownloadDataError(throwable));
-    needToUnsubscribe(subscription);
+    needToUnsubscribe(disposable);
   }
 
   private void retrieveDataById(long id) {
-    Subscription subscription;
+    Disposable disposable;
     RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class).equalTo("id", id);
-    subscription = rx.Observable.just(query.findAll())
+    disposable = Observable.just(query.findAll())
         .compose(iRxAndroidTransformer.applySchedulers())
         .subscribe(this::handleLoadData, throwable ->
             daysGetInteractorCallback.onDownloadDataError(throwable));
-    needToUnsubscribe(subscription);
+    needToUnsubscribe(disposable);
   }
 
   private void retrieveDataText(String searchText) {
-    Subscription subscription;
+    Disposable disposable;
     RealmQuery<DayRealm> query = dataManager.getDao().where(DayRealm.class).like("content", "*" + searchText + "*");
-    subscription = rx.Observable.just(query.findAll())
+    disposable = Observable.just(query.findAll())
         .compose(iRxAndroidTransformer.applySchedulers())
         .subscribe(this::handleLoadData, throwable ->
             daysGetInteractorCallback.onDownloadDataError(throwable));
-    needToUnsubscribe(subscription);
+    needToUnsubscribe(disposable);
   }
 
   private void handleLoadData(RealmResults<DayRealm> realmResults) {
