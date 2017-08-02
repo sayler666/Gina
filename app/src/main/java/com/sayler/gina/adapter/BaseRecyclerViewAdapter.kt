@@ -50,7 +50,7 @@ abstract class BaseRecyclerViewAdapter<T>(var context: Context, var items: List<
         }
 
         override fun onClick(v: View) {
-            if (item != null && item is S) {
+            if (item != null && item is S?) {
                 adapter.onItemClicked(item as S, v, pos)
             }
         }

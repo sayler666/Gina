@@ -37,7 +37,7 @@ class GinaApplication : Application() {
                 .tasksProcessingOrder(QueueProcessingType.LIFO)
                 .defaultDisplayImageOptions(options)
 
-        ImageLoaderHelper.getImageLoader().init(configBuilder.build())
+        ImageLoaderHelper.imageLoader.init(configBuilder.build())
     }
 
 
