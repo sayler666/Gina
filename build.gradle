@@ -13,7 +13,6 @@ buildscript {
     classpath "io.realm:realm-gradle-plugin:3.0.0"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-
   }
 }
 
@@ -22,9 +21,14 @@ apply plugin: 'kotlin'
 allprojects {
   repositories {
     repositories {
-      maven { url "https://clojars.org/repo/" }
       jcenter()
       mavenCentral()
+      maven {
+        url "https://clojars.org/repo/"
+      }
+      maven {
+        url "https://maven.google.com"
+      }
       maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
       }
@@ -38,4 +42,8 @@ repositories {
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+}
+
+ext {
+  supportLibVersion = '25.4.0'
 }
