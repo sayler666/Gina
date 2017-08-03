@@ -19,12 +19,11 @@ import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
-import com.sayler.gina.util.ViewSliderCoordinator
 import kotlinx.android.synthetic.main.a_day.*
 import javax.inject.Inject
 
 
-class DayActivity : BaseActivity(), DiaryContract.View {
+class DayActivity : BaseActivity() {
     @Inject
     lateinit var diaryPresenter: DiaryContract.Presenter
     @Inject
@@ -33,10 +32,32 @@ class DayActivity : BaseActivity(), DiaryContract.View {
     lateinit var day: IDay
     var dayId: Long = 0
 
-    private var viewSliderCoordinator: ViewSliderCoordinator? = null
-
     private lateinit var broadcastReceiverEditDay: BroadcastReceiverHelper
     private lateinit var broadcastReceiverDeleteDay: BroadcastReceiverHelper
+
+    private val diaryContractView = object : DiaryContract.View {
+        override fun onDownloaded(data: List<IDay>) {
+            day = data[0]
+            showContent()
+        }
+
+        override fun onError(errorMessage: String) {
+            Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun onNoDataSource() {
+            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun onPut() {
+            //not used
+        }
+
+        override fun onDelete() {
+            //not used
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +98,7 @@ class DayActivity : BaseActivity(), DiaryContract.View {
     }
 
     private fun bindPresenters() {
-        bindPresenter(diaryPresenter, this)
+        bindPresenter(diaryPresenter, diaryContractView)
     }
 
     private fun load() {
@@ -121,27 +142,6 @@ class DayActivity : BaseActivity(), DiaryContract.View {
             return
         }
         super.onBackPressed()
-    }
-
-    override fun onDownloaded(data: List<IDay>) {
-        day = data[0]
-        showContent()
-    }
-
-    override fun onError(errorMessage: String) {
-        Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onNoDataSource() {
-        Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onPut() {
-        //not used
-    }
-
-    override fun onDelete() {
-        //not used
     }
 
     override fun onDestroy() {

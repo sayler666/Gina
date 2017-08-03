@@ -7,11 +7,11 @@ import com.sayler.gina.domain.presenter.Presenter
  */
 
 class AttachmentManager : Presenter<AttachmentManagerContract.View>(), AttachmentManagerContract.Presenter {
-    override fun add() {
+    override fun remove(id: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun remove() {
+    override fun add(bytes: ByteArray, mimeType: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

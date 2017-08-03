@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class DayEditActivity : BaseActivity(), DiaryContract.View, DatePickerDialog.OnDateSetListener {
+class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     @Inject
     lateinit var diaryPresenter: DiaryContract.Presenter
     @Inject
@@ -45,12 +45,39 @@ class DayEditActivity : BaseActivity(), DiaryContract.View, DatePickerDialog.OnD
     private lateinit var attachmentsManager: AttachmentsManager
     private lateinit var editMode: EditMode
     private var dayId: Long = -1L
+    private lateinit var fabs: List<FloatingActionButton>
 
     private enum class EditMode {
         NEW_DAY, EDIT_DAY
     }
 
-    private lateinit var fabs: List<FloatingActionButton>
+    private val diaryContractView = object : DiaryContract.View {
+        override fun onPut() {
+            sendEditDayBroadcast(this@DayEditActivity)
+            dataManager.close()
+            finish()
+        }
+
+        override fun onDownloaded(data: List<IDay>) {
+            day = data[0]
+            showTextContent()
+            showAttachments()
+        }
+
+        override fun onDelete() {
+            sendDeleteDayBroadcast(this@DayEditActivity)
+            dataManager.close()
+            finish()
+        }
+
+        override fun onNoDataSource() {
+            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun onError(errorMessage: String) {
+            showError(errorMessage)
+        }
+    }
 
     private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
         private val tmpAttachmentButtonHashMap = HashMap<IAttachment, Button>()
@@ -129,7 +156,7 @@ class DayEditActivity : BaseActivity(), DiaryContract.View, DatePickerDialog.OnD
     }
 
     private fun bindPresenters() {
-        bindPresenter(diaryPresenter, this)
+        bindPresenter(diaryPresenter, diaryContractView)
     }
 
     private fun load() {
@@ -185,38 +212,11 @@ class DayEditActivity : BaseActivity(), DiaryContract.View, DatePickerDialog.OnD
 
     private fun put() {
         day.content = content.text.toString()
-
         diaryPresenter.put(day, attachmentsManager.returnAttachments())
     }
 
     private fun delete() {
         diaryPresenter.delete(day)
-    }
-
-    override fun onPut() {
-        sendEditDayBroadcast(this)
-        dataManager.close()
-        finish()
-    }
-
-    override fun onDownloaded(data: List<IDay>) {
-        day = data[0]
-        showTextContent()
-        showAttachments()
-    }
-
-    override fun onDelete() {
-        sendDeleteDayBroadcast(this)
-        dataManager.close()
-        finish()
-    }
-
-    override fun onNoDataSource() {
-        Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onError(errorMessage: String) {
-        showError(errorMessage)
     }
 
     private fun showError(errorMessage: String) {

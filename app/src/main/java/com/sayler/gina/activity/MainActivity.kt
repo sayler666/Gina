@@ -41,7 +41,7 @@ import kotlinx.android.synthetic.main.i_progress_bar.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.PermissionCallback {
+class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
 
     @Inject
     lateinit var dataManager: DataManager<*>
@@ -57,6 +57,30 @@ class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.Permiss
     private var daysAdapter: DaysAdapter? = null
     private var searchView: SearchView? = null
     private var currentSourceFile: String = ""
+
+    private val diaryContractView = object : DiaryContract.View {
+        override fun onDownloaded(data: List<IDay>) {
+            createRecyclerView(data)
+            uiStateController.setUiStateContent()
+        }
+
+        override fun onNoDataSource() {
+            uiStateController.setUiStateEmpty()
+        }
+
+        override fun onError(s: String) {
+            uiStateController.setUiStateError()
+            errorText.text = s
+        }
+
+        override fun onDelete() {
+            //not used
+        }
+
+        override fun onPut() {
+            //not used
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,6 +141,16 @@ class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.Permiss
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext { _ -> uiStateController.setUiStateLoading() }
                 .subscribe({ this.searchForText(it) })
+    }
+
+
+    private fun bindPresenters() {
+        bindPresenter(diaryPresenter, diaryContractView)
+    }
+
+    private fun load() {
+        uiStateController.setUiStateLoading()
+        diaryPresenter.loadAll()
     }
 
     private fun showPageTitle() {
@@ -286,15 +320,6 @@ class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.Permiss
         }
     }
 
-    private fun bindPresenters() {
-        bindPresenter(diaryPresenter, this)
-    }
-
-    private fun load() {
-        uiStateController.setUiStateLoading()
-        diaryPresenter.loadAll()
-    }
-
     private fun searchForText(charSequence: CharSequence) {
         diaryPresenter.loadByTextSearch(charSequence.toString())
     }
@@ -327,31 +352,9 @@ class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.Permiss
         }
     }
 
-    override fun onDownloaded(data: List<IDay>) {
-        createRecyclerView(data)
-        uiStateController.setUiStateContent()
-    }
-
-    override fun onNoDataSource() {
-        uiStateController.setUiStateEmpty()
-    }
-
-    override fun onError(s: String) {
-        uiStateController.setUiStateError()
-        errorText.text = s
-    }
-
     override fun onDestroy() {
         dataManager.close()
         super.onDestroy()
-    }
-
-    override fun onDelete() {
-        //not used
-    }
-
-    override fun onPut() {
-        //not used
     }
 
     override fun onPermissionGranted(permission: String) {
