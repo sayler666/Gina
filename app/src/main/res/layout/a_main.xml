@@ -1,70 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/root"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
     <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:minHeight="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:contentInsetStartWithNavigation="0dp"
-            app:titleTextColor="@android:color/white"
-            app:theme="@style/toolbarStyle">
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:minHeight="?attr/actionBarSize"
+        app:contentInsetStartWithNavigation="0dp"
+        app:theme="@style/toolbarStyle"
+        app:titleTextColor="@android:color/white">
+
         <TextView
-                android:id="@+id/pageTitle"
-                android:textSize="@dimen/ts_very_big"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/h_toolbar"
-                android:gravity="center_vertical"
-        />
+            android:id="@+id/pageTitle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/h_toolbar"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/ts_very_big" />
     </android.support.v7.widget.Toolbar>
-    <RelativeLayout
-            android:id="@+id/content"
-            android:layout_below="@id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
 
-        <include layout="@layout/i_main_content"/>
+    <RelativeLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:visibility="gone">
+
+        <include layout="@layout/i_main_content" />
     </RelativeLayout>
 
     <RelativeLayout
-            android:id="@+id/error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
+        android:id="@+id/error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
-        <include layout="@layout/i_error_content"/>
+        <include layout="@layout/i_error_content" />
     </RelativeLayout>
 
     <RelativeLayout
-            android:id="@+id/noDataSource"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible">
+        android:id="@+id/noDataSource"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
-                android:id="@+id/noDataSourceText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/no_data_source"/>
+            android:id="@+id/noDataSourceText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/no_data_source" />
 
         <Button
-                android:id="@+id/selectDataSourceButton"
-                android:layout_below="@+id/noDataSourceText"
-                android:text="@string/select_data_source"
-                android:textAllCaps="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:layout_centerInParent="true"/>
+            android:id="@+id/selectDataSourceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/noDataSourceText"
+            android:layout_centerInParent="true"
+            android:text="@string/select_data_source"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
     </RelativeLayout>
 
 
-    <include layout="@layout/i_progress_bar"/>
+    <include layout="@layout/i_progress_bar" />
 </RelativeLayout>

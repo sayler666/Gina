@@ -20,7 +20,9 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
-        <activity android:name=".activity.MainActivity">
+        <activity
+            android:name=".activity.MainActivity"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +31,6 @@
         </activity>
         <activity android:name=".activity.DayActivity" />
         <activity android:name=".activity.DayEditActivity" />
-        <activity android:name=".activity.KotlinActivity"></activity>
     </application>
 
 </manifest>
