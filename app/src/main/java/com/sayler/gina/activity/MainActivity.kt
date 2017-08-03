@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
@@ -22,8 +23,7 @@ import com.sayler.gina.R
 import com.sayler.gina.adapter.DaysAdapter
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
-import com.sayler.gina.domain.presenter.diary.DiaryPresenter
-import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
+import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.permission.PermissionUtils
 import com.sayler.gina.store.settings.SettingsStore
 import com.sayler.gina.store.settings.SettingsStoreManager
@@ -41,13 +41,13 @@ import kotlinx.android.synthetic.main.i_progress_bar.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.PermissionCallback {
+class MainActivity : BaseActivity(), DiaryContract.View, PermissionUtils.PermissionCallback {
 
     @Inject
     lateinit var dataManager: DataManager<*>
 
     @Inject
-    lateinit var diaryPresenter: DiaryPresenter
+    lateinit var diaryPresenter: DiaryContract.Presenter
 
     @Inject
     lateinit var settingsStoreManager: SettingsStoreManager
@@ -287,7 +287,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
     }
 
     private fun bindPresenters() {
-        diaryPresenter.onBindView(this)
+        bindPresenter(diaryPresenter, this)
     }
 
     private fun load() {
@@ -342,7 +342,6 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
     }
 
     override fun onDestroy() {
-        diaryPresenter.onUnBindView()
         dataManager.close()
         super.onDestroy()
     }
@@ -360,7 +359,7 @@ class MainActivity : BaseActivity(), DiaryPresenterView, PermissionUtils.Permiss
     }
 
     override fun onPermissionRejected(permission: String) {
-        //TODO error handling
+        Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + permission, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

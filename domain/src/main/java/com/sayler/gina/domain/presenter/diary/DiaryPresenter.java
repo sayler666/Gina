@@ -1,6 +1,5 @@
 package com.sayler.gina.domain.presenter.diary;
 
-import android.content.Context;
 import android.util.Log;
 import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
@@ -12,7 +11,7 @@ import com.sayler.gina.domain.presenter.Presenter;
 
 import java.util.List;
 
-public class DiaryPresenter extends Presenter<DiaryPresenterView> {
+public class DiaryPresenter extends Presenter<DiaryContract.View> implements DiaryContract.Presenter {
 
   private static final String TAG = "DummyPresenter";
 
@@ -20,11 +19,12 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   /* ------------------------------------------------------ PUBLIC ------------------------------------------------ */
 
-  public DiaryPresenter(final Context context, final DiaryInteractor diaryInteractor) {
+  public DiaryPresenter(final DiaryInteractor diaryInteractor) {
     this.diaryInteractor = diaryInteractor;
     needToFree(this.diaryInteractor);
   }
 
+  @Override
   public void loadAll() {
 
     diaryInteractor.loadAllData(new DaysGetInteractorCallback() {
@@ -47,6 +47,7 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
+  @Override
   public void loadById(long id) {
 
     diaryInteractor.loadDataById(id, new DaysGetInteractorCallback() {
@@ -69,6 +70,7 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
+  @Override
   public void loadByTextSearch(String searchText) {
 
     diaryInteractor.loadDataByTextContent(searchText, new DaysGetInteractorCallback() {
@@ -91,6 +93,7 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
+  @Override
   public void put(IDay day, List<IAttachment> attachments) {
 
     diaryInteractor.put(day, attachments, new DaysPutInteractorCallback() {
@@ -112,6 +115,7 @@ public class DiaryPresenter extends Presenter<DiaryPresenterView> {
 
   }
 
+  @Override
   public void delete(IDay day) {
 
     diaryInteractor.delete(day, new DaysDeleteInteractorCallback() {

@@ -6,6 +6,7 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.DataModule
 import com.sayler.gina.domain.ObjectCreator
 import com.sayler.gina.domain.interactor.DiaryInteractor
+import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
@@ -58,8 +59,8 @@ class DataModuleOrmLite : DataModule() {
     }
 
     @Provides
-    fun provideDaysPresenter(context: Context, diaryInteractor: DiaryInteractor): DiaryPresenter {
-        return DiaryPresenter(context, diaryInteractor)
+    fun provideDaysPresenter(diaryInteractor: DiaryInteractor): DiaryContract.Presenter {
+        return DiaryPresenter(diaryInteractor)
     }
 
 }

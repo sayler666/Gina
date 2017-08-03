@@ -20,8 +20,7 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.ObjectCreator
-import com.sayler.gina.domain.presenter.diary.DiaryPresenter
-import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
+import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
@@ -34,9 +33,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnDateSetListener {
+class DayEditActivity : BaseActivity(), DiaryContract.View, DatePickerDialog.OnDateSetListener {
     @Inject
-    lateinit var diaryPresenter: DiaryPresenter
+    lateinit var diaryPresenter: DiaryContract.Presenter
     @Inject
     lateinit var objectCreator: ObjectCreator
     @Inject
@@ -130,7 +129,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     }
 
     private fun bindPresenters() {
-        diaryPresenter.onBindView(this)
+        bindPresenter(diaryPresenter, this)
     }
 
     private fun load() {
@@ -213,7 +212,7 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     }
 
     override fun onNoDataSource() {
-        //TODO error handling
+        Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onError(errorMessage: String) {
@@ -252,7 +251,6 @@ class DayEditActivity : BaseActivity(), DiaryPresenterView, DatePickerDialog.OnD
     }
 
     override fun onDestroy() {
-        diaryPresenter.onUnBindView()
         dataManager.close()
         super.onDestroy()
     }

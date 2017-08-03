@@ -1,10 +1,10 @@
 package com.sayler.realmimplementation;
 
-import android.content.Context;
 import com.sayler.gina.domain.DataManager;
 import com.sayler.gina.domain.DataModule;
 import com.sayler.gina.domain.ObjectCreator;
 import com.sayler.gina.domain.interactor.DiaryInteractor;
+import com.sayler.gina.domain.presenter.diary.DiaryContract;
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter;
 import com.sayler.gina.domain.rx.IRxAndroidTransformer;
 import com.sayler.realmimplementation.creator.ObjectCreatorRealm;
@@ -38,8 +38,8 @@ public class DataModuleRealm extends DataModule {
   }
 
   @Provides
-  DiaryPresenter provideDaysPresenter(Context context, DiaryInteractor diaryInteractorRealm) {
-    return new DiaryPresenter(context, diaryInteractorRealm);
+  DiaryContract.Presenter provideDaysPresenter(DiaryInteractor diaryInteractorRealm) {
+    return new DiaryPresenter(diaryInteractorRealm);
   }
 
 }

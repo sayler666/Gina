@@ -4,43 +4,35 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Handler
-import android.support.v4.app.Fragment
+import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
-import android.util.DisplayMetrics
 import android.view.Gravity
-import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
 import com.sayler.gina.domain.DataManager
-import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
-import com.sayler.gina.domain.presenter.diary.DiaryPresenter
-import com.sayler.gina.domain.presenter.diary.DiaryPresenterView
-import com.sayler.gina.fragment.AttachmentFragment
+import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.sayler.gina.util.ViewSliderCoordinator
 import kotlinx.android.synthetic.main.a_day.*
-import java.io.IOException
 import javax.inject.Inject
 
 
-class DayActivity : BaseActivity(), DiaryPresenterView {
+class DayActivity : BaseActivity(), DiaryContract.View {
     @Inject
-    lateinit var diaryPresenter: DiaryPresenter
+    lateinit var diaryPresenter: DiaryContract.Presenter
     @Inject
     lateinit var dataManager: DataManager<*>
 
     lateinit var day: IDay
     var dayId: Long = 0
 
-    private var attachmentFragment: Fragment? = null
     private var viewSliderCoordinator: ViewSliderCoordinator? = null
 
     private lateinit var broadcastReceiverEditDay: BroadcastReceiverHelper
@@ -60,32 +52,6 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         readExtras()
 
         load()
-    }
-
-    private fun inflateAttachmentsFragment() {
-        val attachments = ArrayList<IAttachment>()
-        attachments += day.attachments
-        attachmentFragment = AttachmentFragment.newInstance(attachments)
-        supportFragmentManager.beginTransaction()
-                .add(R.id.attachmentsContainerSliding, attachmentFragment, AttachmentFragment::class.java.simpleName)
-                .commit()
-
-        val dm = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(dm)
-        val windowHeight = dm.heightPixels
-        val minimizedHeight = resources.getDimension(R.dimen.h_attachments_minimized)
-
-        val builder = ViewSliderCoordinator.Builder()
-        builder.setContainer(attachmentsContainerSliding)
-                .setSlideable(attachmentFragment as ViewSliderCoordinator.Slideable)
-                .setWindowHeight(windowHeight)
-                .setMinimizedHeight(minimizedHeight.toInt())
-                .setFullscreenTopOffset(-220)
-        viewSliderCoordinator = builder.build()
-
-        Handler().postDelayed({
-            minimizePlayer()
-        }, 500)
     }
 
     private fun setupBroadcastReceivers() {
@@ -110,12 +76,8 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
         }
     }
 
-    fun minimizePlayer() {
-        viewSliderCoordinator?.animateToPosition(ViewSliderCoordinator.ViewPosition.MINIMIZED, 500)
-    }
-
     private fun bindPresenters() {
-        diaryPresenter.onBindView(this)
+        bindPresenter(diaryPresenter, this)
     }
 
     private fun load() {
@@ -131,13 +93,6 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     }
 
     private fun showAttachments() {
-//        attachmentsContainer.removeAllViews()
-//        day.attachments.forEach {
-//            createAttachmentButton(it).let { button ->
-//                attachmentsContainer.addView(button)
-//            }
-//        }
-
         //drawer
         val layoutManager = LinearLayoutManager(this)
         attachmentsRecyclerView.layoutManager = layoutManager
@@ -148,24 +103,6 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
             }
         })
         attachmentsRecyclerView.adapter = attachmentAdapter
-
-        //bottom shelf
-        //inflateAttachmentsFragment()
-    }
-
-    private fun createAttachmentButton(attachment: IAttachment): Button {
-        val button = Button(this)
-        button.text = attachment.mimeType
-
-        button.setOnClickListener { _ ->
-            try {
-                FileUtils.openFileIntent(this, attachment.file, attachment.mimeType, applicationContext.packageName + ".provider")
-            } catch (e: IOException) {
-                e.printStackTrace()
-                //TODO error handling
-            }
-        }
-        return button
     }
 
     @OnClick(R.id.fabEdit)
@@ -192,11 +129,11 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
     }
 
     override fun onError(errorMessage: String) {
-        //TODO error handling
+        Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onNoDataSource() {
-        //TODO error handling
+        Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
     }
 
     override fun onPut() {
@@ -209,7 +146,6 @@ class DayActivity : BaseActivity(), DiaryPresenterView {
 
     override fun onDestroy() {
         (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
-        diaryPresenter.onUnBindView()
         dataManager.close()
         System.gc()
         super.onDestroy()
