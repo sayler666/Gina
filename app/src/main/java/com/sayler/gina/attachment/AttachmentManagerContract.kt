@@ -10,12 +10,12 @@ import com.sayler.gina.domain.presenter.BaseView
 
 class AttachmentManagerContract {
     interface View : BaseView {
-        fun onUpdate(attachments: List<IAttachment>)
+        fun onUpdate(attachments: MutableCollection<IAttachment>)
     }
 
     interface Presenter : BasePresenter<AttachmentManagerContract.View> {
         fun add(bytes: ByteArray, mimeType: String)
         fun remove(id: Int)
-        fun setup(attachments: MutableList<IAttachment>)
+        fun setup(attachments: MutableCollection<IAttachment>)
     }
 }

@@ -82,11 +82,10 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         }
     }
 
-    private val attachmentManagerView = object : AttachmentManagerContract.View{
-        override fun onUpdate(attachments: List<IAttachment>) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private val attachmentManagerView = object : AttachmentManagerContract.View {
+        override fun onUpdate(attachments: MutableCollection<IAttachment>) {
+            TODO("onUpdate not implemented. " + attachments.size) //To change body of created functions use File | Settings | File Templates.
         }
-
     }
 
     private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
@@ -178,6 +177,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        var attachmentList: MutableList<IAttachment>
         if (resultCode != RESULT_CANCELED && requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT && data != null) {
             //multiple files
             if (data.clipData != null) {
@@ -243,6 +243,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun showAttachments() {
+        attachmentManager.setup(day.attachments as MutableCollection<IAttachment>)
         for (attachment in day.attachments) {
             attachmentsManager.addFile(attachment.file, attachment.mimeType)
         }

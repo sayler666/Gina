@@ -8,6 +8,7 @@ package com.sayler.gina.dagger.module;
 import android.content.Context;
 import com.sayler.gina.attachment.AttachmentManager
 import com.sayler.gina.attachment.AttachmentManagerContract
+import com.sayler.gina.domain.ObjectCreator
 import com.sayler.gina.store.settings.SPSettingsStoreManager;
 import com.sayler.gina.store.settings.SettingsStoreManager;
 import dagger.Module;
@@ -26,7 +27,7 @@ class ManagersModule {
 
     @Singleton
     @Provides
-    fun provideAttachmentsManager(): AttachmentManagerContract.Presenter {
-        return AttachmentManager()
+    fun provideAttachmentsManager(objectCreator: ObjectCreator): AttachmentManagerContract.Presenter {
+        return AttachmentManager(objectCreator)
     }
 }
