@@ -16,6 +16,7 @@ import butterknife.OnTouch
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
+import com.sayler.gina.attachment.AttachmentManagerContract
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
@@ -40,6 +41,8 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     lateinit var objectCreator: ObjectCreator
     @Inject
     lateinit var dataManager: DataManager<*>
+    @Inject
+    lateinit var attachmentManager: AttachmentManagerContract.Presenter
 
     private lateinit var day: IDay
     private lateinit var attachmentsManager: AttachmentsManager
@@ -77,6 +80,13 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         override fun onError(errorMessage: String) {
             showError(errorMessage)
         }
+    }
+
+    private val attachmentManagerView = object : AttachmentManagerContract.View{
+        override fun onUpdate(attachments: List<IAttachment>) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
     }
 
     private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
@@ -156,6 +166,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun bindPresenters() {
+        bindPresenter(attachmentManager, attachmentManagerView)
         bindPresenter(diaryPresenter, diaryContractView)
     }
 

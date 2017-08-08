@@ -3,14 +3,14 @@ package com.sayler.gina.dagger.component
 import com.sayler.gina.activity.DayActivity
 import com.sayler.gina.activity.DayEditActivity
 import com.sayler.gina.activity.MainActivity
-import com.sayler.gina.dagger.module.ServicesModule
+import com.sayler.gina.dagger.module.ManagersModule
 import com.sayler.ormliteimplementation.DataModuleOrmLite
 import dagger.Component
 
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = arrayOf(DataModuleOrmLite::class, ServicesModule::class), dependencies = arrayOf(ApplicationComponent::class))
+@Component(modules = arrayOf(DataModuleOrmLite::class, ManagersModule::class), dependencies = arrayOf(ApplicationComponent::class))
 interface DataComponent {
 
     /* ---- ACTIVITY ---- */
