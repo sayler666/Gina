@@ -5,12 +5,16 @@ package com.sayler.realmimplementation.model;
  */
 
 import android.support.annotation.NonNull;
+import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
 import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @RealmClass
 public class DayRealm implements RealmModel, Comparable<DayRealm>, IDay {
@@ -54,7 +58,15 @@ public class DayRealm implements RealmModel, Comparable<DayRealm>, IDay {
   }
 
   @Override
-  public RealmList<AttachmentRealm> getAttachments() {
+  public Collection<IAttachment> getAttachments() {
+    Collection<IAttachment> iAttachments = new ArrayList<>();
+    for (AttachmentRealm attachment : realmList) {
+      iAttachments.add(attachment);
+    }
+    return iAttachments;
+  }
+
+  public RealmList<AttachmentRealm> getRealmList() {
     return realmList;
   }
 

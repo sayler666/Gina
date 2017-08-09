@@ -22,5 +22,5 @@ public interface IDay {
 
   void setContent(String content);
 
-  Collection<? extends IAttachment> getAttachments();
+  Collection<IAttachment> getAttachments();
 }

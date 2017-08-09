@@ -16,6 +16,7 @@ class AttachmentManagerContract {
     interface Presenter : BasePresenter<AttachmentManagerContract.View> {
         fun add(bytes: ByteArray, mimeType: String)
         fun remove(id: Int)
+        fun getAll(): MutableCollection<IAttachment>
         fun setup(attachments: MutableCollection<IAttachment>)
     }
 }

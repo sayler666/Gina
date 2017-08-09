@@ -9,15 +9,20 @@ import com.sayler.gina.attachment.viewmodel.AttachmentTypesFactory
 import com.sayler.gina.attachment.viewmodel.AttachmentViewModelFactory
 import com.sayler.gina.domain.IAttachment
 
-class AttachmentAdapter(var items: Collection<IAttachment>, var attachmentsRecyclerView: RecyclerView) : BetterAdapter<AttachmentViewModel>() {
+class AttachmentAdapter(val items: Collection<IAttachment>, var attachmentsRecyclerView: RecyclerView) : BetterAdapter<AttachmentViewModel>() {
     override val typeFactory = AttachmentTypesFactory()
 
     init {
         items.forEach { viewModels.add(AttachmentViewModelFactory.type(it)) }
     }
 
+    override fun updateItems(items: Collection<IAttachment>){
+        viewModels.clear()
+        items.forEach { viewModels.add(AttachmentViewModelFactory.type(it)) }
+    }
+
     override fun getItemCount(): Int {
-        return items.count()
+        return viewModels.count()
     }
 
     override fun getItemViewType(position: Int): Int {

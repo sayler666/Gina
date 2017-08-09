@@ -115,7 +115,7 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
 
     realm.beginTransaction();
     DayRealm dayRealm = realm.copyToRealmOrUpdate((DayRealm) day);
-    dayRealm.getAttachments().deleteAllFromRealm();
+    dayRealm.getRealmList().deleteAllFromRealm();
     realm.commitTransaction();
 
     realm.beginTransaction();

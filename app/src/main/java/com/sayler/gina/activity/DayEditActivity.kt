@@ -6,16 +6,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
+import android.support.v4.view.GravityCompat
+import android.support.v7.widget.LinearLayoutManager
+import android.view.Gravity
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.ViewGroup
-import android.widget.Button
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnTouch
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
+import com.sayler.gina.attachment.AttachmentAdapter
 import com.sayler.gina.attachment.AttachmentManagerContract
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
@@ -29,10 +31,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.a_day_edit.*
 import org.joda.time.DateTime
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     @Inject
@@ -45,10 +45,10 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     lateinit var attachmentManager: AttachmentManagerContract.Presenter
 
     private lateinit var day: IDay
-    private lateinit var attachmentsManager: AttachmentsManager
     private lateinit var editMode: EditMode
     private var dayId: Long = -1L
     private lateinit var fabs: List<FloatingActionButton>
+    private lateinit var attachmentAdapter: AttachmentAdapter
 
     private enum class EditMode {
         NEW_DAY, EDIT_DAY
@@ -64,7 +64,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         override fun onDownloaded(data: List<IDay>) {
             day = data[0]
             showTextContent()
-            showAttachments()
+            setupAttachments()
         }
 
         override fun onDelete() {
@@ -84,11 +84,12 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     private val attachmentManagerView = object : AttachmentManagerContract.View {
         override fun onUpdate(attachments: MutableCollection<IAttachment>) {
-            TODO("onUpdate not implemented. " + attachments.size) //To change body of created functions use File | Settings | File Templates.
+            attachmentAdapter.updateItems(attachments)
+            attachmentAdapter.notifyDataSetChanged()
         }
     }
 
-    private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
+    /*private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
         private val tmpAttachmentButtonHashMap = HashMap<IAttachment, Button>()
 
         fun addFile(bytes: ByteArray, mimeType: String) {
@@ -114,18 +115,16 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             return attachments
         }
 
-    }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_day_edit)
 
-        fabs = listOf(fab_add_attachment, fab_delete, fab_save)
+        fabs = listOf(fab_add_attachment, fab_delete, fab_save, fabAttachments)
 
         ButterKnife.bind(this)
         GinaApplication.dataComponentForActivity(this).inject(this)
-
-        attachmentsManager = AttachmentsManager(attachmentsContainer)
 
         bindPresenters()
 
@@ -176,8 +175,23 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         }
     }
 
+    private fun setupAttachments() {
+        //setup drawer with attachment
+        val layoutManager = LinearLayoutManager(this)
+        attachmentsRecyclerView.layoutManager = layoutManager
+        attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView)
+        attachmentAdapter.setOnClick({ item, _ ->
+            with(item.attachment) {
+                FileUtils.openFileIntent(this@DayEditActivity, file, mimeType, applicationContext.packageName + ".provider")
+            }
+        })
+        attachmentsRecyclerView.adapter = attachmentAdapter
+
+        //setup attachmentManager
+        attachmentManager.setup(day.attachments)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var attachmentList: MutableList<IAttachment>
         if (resultCode != RESULT_CANCELED && requestCode == Constants.REQUEST_CODE_SELECT_ATTACHMENT && data != null) {
             //multiple files
             if (data.clipData != null) {
@@ -206,6 +220,19 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         dpd.show(fragmentManager, DatePickerDialog::class.java.canonicalName)
     }
 
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(Gravity.END)) {
+            drawer_layout.closeDrawer(Gravity.END)
+            return
+        }
+        super.onBackPressed()
+    }
+
+    @OnClick(R.id.fabAttachments)
+    fun onFabAttachmentsClick() {
+        drawer_layout.openDrawer(GravityCompat.END)
+    }
+
     @OnClick(R.id.fab_save)
     fun onFabSaveClick() {
         put()
@@ -223,7 +250,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun put() {
         day.content = content.text.toString()
-        diaryPresenter.put(day, attachmentsManager.returnAttachments())
+        diaryPresenter.put(day, attachmentManager.getAll().toList())
     }
 
     private fun delete() {
@@ -242,19 +269,12 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             content.setSelection(content.text.length - 1)
     }
 
-    private fun showAttachments() {
-        attachmentManager.setup(day.attachments as MutableCollection<IAttachment>)
-        for (attachment in day.attachments) {
-            attachmentsManager.addFile(attachment.file, attachment.mimeType)
-        }
-    }
-
     private fun addAttachment(uri: Uri) {
         try {
             val fileBytes = FileUtils.readFileFromUri(uri, this)
             val mimeType = FileUtils.readMimeTypeFromUri(uri, this)
 
-            attachmentsManager.addFile(fileBytes, mimeType)
+            attachmentManager.add(fileBytes, mimeType)
         } catch (e: IOException) {
             e.printStackTrace()
             //TODO error handling

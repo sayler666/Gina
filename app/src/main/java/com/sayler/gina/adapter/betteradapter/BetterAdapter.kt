@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.sayler.gina.adapter.betteradapter.holder.BetterViewHolder
+import com.sayler.gina.domain.IAttachment
 
 /**
  * Created by sayler on 14.06.2017.
@@ -12,6 +13,8 @@ import com.sayler.gina.adapter.betteradapter.holder.BetterViewHolder
 abstract class BetterAdapter<VM> : RecyclerView.Adapter<BetterViewHolder<VM>>() {
     protected abstract val typeFactory: TypesFactory<VM>
     protected var viewModels: MutableList<VM> = ArrayList()
+
+    abstract fun updateItems(items: Collection<IAttachment>)
 
     var onClickListener: ((item: VM, view: View) -> Unit)? = null
 
@@ -30,5 +33,4 @@ abstract class BetterAdapter<VM> : RecyclerView.Adapter<BetterViewHolder<VM>>() 
     fun setOnClick(onClick: (item: VM, view: View) -> Unit) {
         onClickListener = onClick
     }
-
 }
