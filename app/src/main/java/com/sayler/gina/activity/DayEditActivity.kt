@@ -63,8 +63,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
         override fun onDownloaded(data: List<IDay>) {
             day = data[0]
-            showTextContent()
-            setupAttachments()
+            setupDay()
         }
 
         override fun onDelete() {
@@ -170,9 +169,22 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun load() {
         when (editMode) {
-            DayEditActivity.EditMode.NEW_DAY -> showTextContent()
+            DayEditActivity.EditMode.NEW_DAY -> setupDay()
             DayEditActivity.EditMode.EDIT_DAY -> diaryPresenter.loadById(dayId)
         }
+    }
+
+    private fun setupDay() {
+        showTextContent()
+        setupAttachments()
+    }
+
+    private fun showTextContent() {
+        dayText.text = day.date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
+        yearMonthText.text = day.date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
+        content.setText(day.content)
+        if (content.text.isNotEmpty())
+            content.setSelection(content.text.length - 1)
     }
 
     private fun setupAttachments() {
@@ -259,14 +271,6 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun showError(errorMessage: String) {
         Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun showTextContent() {
-        dayText.text = day.date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
-        yearMonthText.text = day.date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
-        content.setText(day.content)
-        if (content.text.isNotEmpty())
-            content.setSelection(content.text.length - 1)
     }
 
     private fun addAttachment(uri: Uri) {

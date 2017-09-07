@@ -43,11 +43,15 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay
 
   @Override
   public Collection<IAttachment> getAttachments() {
-    Collection<IAttachment> iAttachments = new ArrayList<>();
-    for (Attachment attachment : attachments) {
-      iAttachments.add(attachment);
+    if (attachments != null) {
+      Collection<IAttachment> iAttachments = new ArrayList<>();
+      for (Attachment attachment : attachments) {
+        iAttachments.add(attachment);
+      }
+      return iAttachments;
+    } else {
+      return new ArrayList<>();
     }
-    return iAttachments;
   }
 
   public DateTime getDate() {
