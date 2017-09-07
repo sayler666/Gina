@@ -17,8 +17,11 @@ class AttachmentManager(val objectCreator: ObjectCreator) : Presenter<Attachment
         presenterView.onUpdate(attachments)
     }
 
-    override fun remove(id: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun remove(attachment: IAttachment) {
+        if (attachments.contains(attachment)) {
+            attachments.remove(attachment)
+        }
+        presenterView.onUpdate(attachments)
     }
 
     override fun add(bytes: ByteArray, mimeType: String) {

@@ -20,4 +20,6 @@ public interface IAttachment extends Parcelable {
   byte[] getFile();
 
   void setFile(byte[] file);
+
+
 }

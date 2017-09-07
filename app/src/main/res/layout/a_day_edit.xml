@@ -1,86 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                                        xmlns:tools="http://schemas.android.com/tools"
+                                        android:id="@+id/drawer_layout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent">
     <!-- The main content view -->
     <FrameLayout
-        android:id="@+id/content_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
+            android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ScrollView
-                android:id="@+id/root"
+        <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:fillViewport="true"
-                android:paddingBottom="@dimen/p_bottom_fab"
-                tools:ignore="MissingPrefix">
+                android:layout_height="match_parent">
+
+            <ScrollView
+                    android:id="@+id/root"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:fillViewport="true"
+                    android:paddingBottom="@dimen/p_bottom_fab"
+                    tools:ignore="MissingPrefix">
 
                 <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/yearMonthText"
-                        style="@style/year_month_header" />
+                            android:id="@+id/yearMonthText"
+                            style="@style/year_month_header"/>
 
                     <TextView
-                        android:id="@+id/dayText"
-                        style="@style/day_header"
-                        android:layout_below="@+id/yearMonthText" />
+                            android:id="@+id/dayText"
+                            style="@style/day_header"
+                            android:layout_below="@+id/yearMonthText"/>
 
                     <EditText
-                        android:id="@+id/content"
-                        style="@style/content" />
+                            android:id="@+id/content"
+                            style="@style/content"/>
 
                 </RelativeLayout>
             </ScrollView>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_save"
-                style="@style/fab"
-                android:src="@drawable/ic_check_black_24px" />
+                    android:id="@+id/fab_save"
+                    style="@style/fab"
+                    android:src="@drawable/ic_check_black_24px"/>
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_delete"
-                style="@style/fab"
-                android:layout_alignParentRight="false"
-                android:layout_toLeftOf="@+id/fab_save"
-                android:src="@drawable/ic_delete_black_24px" />
+                    android:id="@+id/fab_delete"
+                    style="@style/fab"
+                    android:layout_alignParentRight="false"
+                    android:layout_toLeftOf="@+id/fab_save"
+                    android:src="@drawable/ic_delete_black_24px"/>
+
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_add_attachment"
-                style="@style/fab"
-                android:layout_alignParentRight="false"
-                android:layout_toLeftOf="@+id/fab_delete"
-                android:src="@drawable/ic_attach_file_black_24px" />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fabAttachments"
-                style="@style/fab"
-                android:layout_alignParentRight="false"
-                android:layout_toLeftOf="@id/fab_add_attachment"
-                android:src="@drawable/ic_attach_file_black_24px" />
+                    android:id="@+id/fabAttachments"
+                    style="@style/fab"
+                    android:layout_alignParentRight="false"
+                    android:layout_toLeftOf="@id/fab_delete"
+                    android:src="@drawable/ic_attach_file_black_24px"/>
         </RelativeLayout>
 
     </FrameLayout>
     <!-- The navigation drawer -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/attachmentsRecyclerView"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="#111"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+    <RelativeLayout
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end">
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/attachmentsRecyclerView"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:background="#111"
+                android:choiceMode="singleChoice"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="0dp"/>
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_add_attachment"
+                style="@style/fab"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_add_black_24px"/>
+    </RelativeLayout>
+
 </android.support.v4.widget.DrawerLayout>

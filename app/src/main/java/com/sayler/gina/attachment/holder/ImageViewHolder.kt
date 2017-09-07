@@ -23,7 +23,7 @@ class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view:
     @Bind(R.id.image)
     lateinit var image: ImageView
     @Bind(R.id.removeButton)
-    lateinit var removeButton: Button
+    lateinit var removeButton: View
 
     override fun bind(item: ImageViewModel) {
         super.bind(item)
@@ -43,6 +43,6 @@ class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view:
     }
 
     fun onRemoveClick() {
-
+        onRemoveClickListener?.invoke(viewModel as ImageViewModel)
     }
 }

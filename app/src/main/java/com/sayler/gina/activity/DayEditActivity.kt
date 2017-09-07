@@ -8,7 +8,6 @@ import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.Gravity
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -89,34 +88,6 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         }
     }
 
-    /*private inner class AttachmentsManager(private val attachmentsContainer: ViewGroup) {
-        private val tmpAttachmentButtonHashMap = HashMap<IAttachment, Button>()
-
-        fun addFile(bytes: ByteArray, mimeType: String) {
-            val newAttachment = objectCreator.createAttachment()
-            newAttachment.file = bytes
-            newAttachment.mimeType = mimeType
-
-            val newButton = Button(attachmentsContainer.context)
-            newButton.text = mimeType
-            newButton.setOnClickListener { view ->
-                tmpAttachmentButtonHashMap.remove(newAttachment)
-                attachmentsContainer.removeView(view)
-            }
-
-            attachmentsContainer.addView(newButton)
-            tmpAttachmentButtonHashMap.put(newAttachment, newButton)
-        }
-
-        fun returnAttachments(): List<IAttachment> {
-            val attachments = ArrayList<IAttachment>()
-            tmpAttachmentButtonHashMap.forEach { attachmentButtonEntry -> attachments.add(attachmentButtonEntry.key) }
-
-            return attachments
-        }
-
-    }*/
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_day_edit)
@@ -193,16 +164,16 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         val layoutManager = LinearLayoutManager(this)
         attachmentsRecyclerView.layoutManager = layoutManager
         attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView, true)
-        attachmentAdapter.setOnRemoveClick { item ->
-            if (item.editable) {
-                Log.d("Remove Button Clicked:", "remove item: " + item.toString())
-            }
-        }
+        //on item click
         attachmentAdapter.setOnClick({ item, _ ->
             with(item.attachment) {
                 FileUtils.openFileIntent(this@DayEditActivity, file, mimeType, applicationContext.packageName + ".provider")
             }
         })
+        //on remove button click on item
+        attachmentAdapter.setOnRemoveClick { item ->
+            attachmentManager.remove(item.attachment)
+        }
         attachmentsRecyclerView.adapter = attachmentAdapter
 
         //setup attachmentManager
