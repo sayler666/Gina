@@ -2,6 +2,7 @@ package com.sayler.gina.attachment.holder
 
 import android.graphics.BitmapFactory
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import butterknife.Bind
@@ -15,12 +16,14 @@ import com.sayler.gina.attachment.viewmodel.ImageViewModel
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view: View) -> Unit)?) : BetterViewHolder<ImageViewModel>(view, onClickListener) {
+class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view: View) -> Unit)?, var editable: Boolean, var onRemoveClickListener: ((item: ImageViewModel) -> Unit)?) : BetterViewHolder<ImageViewModel>(view, onClickListener) {
 
     @Bind(R.id.fileTypeSmallLabel)
     lateinit var fileTypeSmallLabel: TextView
     @Bind(R.id.image)
     lateinit var image: ImageView
+    @Bind(R.id.removeButton)
+    lateinit var removeButton: Button
 
     override fun bind(item: ImageViewModel) {
         super.bind(item)
@@ -31,6 +34,15 @@ class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view:
             image.setImageBitmap(decodeByteArray)
         }
 
+        removeButton.visibility = if (editable) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        removeButton.setOnClickListener { onRemoveClick() }
     }
 
+    fun onRemoveClick() {
+
+    }
 }

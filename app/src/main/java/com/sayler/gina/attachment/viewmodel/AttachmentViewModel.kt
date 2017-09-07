@@ -9,6 +9,6 @@ import com.sayler.gina.domain.IAttachment
  *
  * Copyright 2017 MiQUiDO <http:></http:>//www.miquido.com/>. All rights reserved.
  */
-abstract class AttachmentViewModel(val attachment: IAttachment){
+abstract class AttachmentViewModel(val attachment: IAttachment, val editable: Boolean ){
     abstract fun type(attachmentTypesFactory: AttachmentTypesFactory): Int
 }

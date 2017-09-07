@@ -1,6 +1,7 @@
 package com.sayler.gina.attachment.holder
 
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import butterknife.Bind
 import butterknife.ButterKnife
@@ -13,13 +14,15 @@ import com.sayler.gina.attachment.viewmodel.NoImageViewModel
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class NoImageViewHolder( view: View, onClickListener: ((item: NoImageViewModel, view: View) -> Unit)?) : BetterViewHolder<NoImageViewModel>(view, onClickListener) {
+class NoImageViewHolder(view: View, onClickListener: ((item: NoImageViewModel, view: View) -> Unit)?, var editable: Boolean, var onRemoveClickListener: ((item: NoImageViewModel) -> Unit)?) : BetterViewHolder<NoImageViewModel>(view, onClickListener) {
 
 
     @Bind(R.id.fileTypeSmallLabel)
     lateinit var fileTypeSmallLabel: TextView
     @Bind(R.id.fileTypeBigLabel)
     lateinit var fileTypeBig: TextView
+    @Bind(R.id.removeButton)
+    lateinit var removeButton: Button
 
     override fun bind(item: NoImageViewModel) {
         super.bind(item)
@@ -29,5 +32,15 @@ class NoImageViewHolder( view: View, onClickListener: ((item: NoImageViewModel, 
             fileTypeSmallLabel.text = fileTypeString
             fileTypeBig.text = fileTypeString
         }
+        removeButton.visibility = if (editable) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        removeButton.setOnClickListener { onRemoveClick() }
+    }
+
+    fun onRemoveClick() {
+        //onRemoveClickListener?.invoke(viewModel)
     }
 }

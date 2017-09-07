@@ -8,7 +8,7 @@ import com.sayler.gina.domain.IAttachment
  *
  * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-class ImageViewModel(attachment: IAttachment) : AttachmentViewModel(attachment) {
+class ImageViewModel(attachment: IAttachment, editable: Boolean) : AttachmentViewModel(attachment, editable) {
     override fun type(attachmentTypesFactory: AttachmentTypesFactory): Int {
         return attachmentTypesFactory.type(this)
     }

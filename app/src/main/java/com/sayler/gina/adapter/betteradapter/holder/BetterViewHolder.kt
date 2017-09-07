@@ -22,7 +22,7 @@ abstract class BetterViewHolder<VM>(var view: View, var onClickListener: ((item:
     }
 
     fun onClick() {
-        if (viewModel != null && viewModel is VM)
+        if (viewModel != null)
             onClickListener?.invoke(viewModel as VM, view)
     }
 }

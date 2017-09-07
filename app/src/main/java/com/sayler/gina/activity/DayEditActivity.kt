@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.Gravity
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -191,7 +192,12 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         //setup drawer with attachment
         val layoutManager = LinearLayoutManager(this)
         attachmentsRecyclerView.layoutManager = layoutManager
-        attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView)
+        attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView, true)
+        attachmentAdapter.setOnRemoveClick { item ->
+            if (item.editable) {
+                Log.d("Remove Button Clicked:", "remove item: " + item.toString())
+            }
+        }
         attachmentAdapter.setOnClick({ item, _ ->
             with(item.attachment) {
                 FileUtils.openFileIntent(this@DayEditActivity, file, mimeType, applicationContext.packageName + ".provider")
