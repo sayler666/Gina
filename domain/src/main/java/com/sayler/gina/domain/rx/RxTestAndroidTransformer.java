@@ -1,7 +1,8 @@
 package com.sayler.gina.domain.rx;
 
-import rx.Observable;
-import rx.schedulers.Schedulers;
+
+import io.reactivex.ObservableTransformer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by lchromy on 07.10.15.
@@ -11,9 +12,9 @@ import rx.schedulers.Schedulers;
 public class RxTestAndroidTransformer implements IRxAndroidTransformer {
 
   @Override
-  public <T> Observable.Transformer<T, T> applySchedulers() {
+  public <T> ObservableTransformer<T,T> applySchedulers() {
     return observable ->
-        observable.subscribeOn(Schedulers.immediate())
-            .observeOn(Schedulers.immediate());
+        observable.subscribeOn(Schedulers.trampoline())
+            .observeOn(Schedulers.trampoline());
   }
 }

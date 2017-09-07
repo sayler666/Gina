@@ -5,26 +5,26 @@
  */
 package com.sayler.gina.domain.interactor;
 
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 public abstract class BaseInteractor {
 
-  protected CompositeSubscription subscriptionsToUnsubscribe = new CompositeSubscription();
+  protected CompositeDisposable compositeDisposable = new CompositeDisposable();
 
   public void freeResources() {
-    subscriptionsToUnsubscribe.clear();
+    compositeDisposable.clear();
   }
 
-  protected final void unsubscribe(Subscription subscription) {
-    subscriptionsToUnsubscribe.remove(subscription);
+  protected final void unsubscribe(Disposable disposable) {
+    compositeDisposable.remove(disposable);
   }
 
   protected final void unsubscribeAll() {
-    subscriptionsToUnsubscribe.clear();
+    compositeDisposable.clear();
   }
 
-  protected final void needToUnsubscribe(Subscription subscription) {
-    subscriptionsToUnsubscribe.add(subscription);
+  protected final void needToUnsubscribe(Disposable disposable) {
+    compositeDisposable.add(disposable);
   }
 }

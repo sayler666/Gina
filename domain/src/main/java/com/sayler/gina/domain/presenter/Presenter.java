@@ -6,21 +6,19 @@ import com.sayler.gina.domain.interactor.CommonInteractor;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Presenter<T> {
+public abstract class Presenter<T> implements BasePresenter<T> {
   protected T presenterView;
 
-  protected List<CommonInteractor> interactorList = new ArrayList<>();
+  private List<CommonInteractor> interactorList = new ArrayList<>();
 
-  public void onBindView(T iPresenterView) {
+  @Override
+  public void bindView(T iPresenterView) {
     presenterView = iPresenterView;
   }
 
-  public void onUnBindView() {
+  @Override
+  public void unbindView() {
     freeResources();
-  }
-
-  public T getPresenterView() {
-    return presenterView;
   }
 
   private void freeResources() {
@@ -28,7 +26,7 @@ public abstract class Presenter<T> {
     cleanupInteractors();
   }
 
-  protected final void cleanupInteractors() {
+  private void cleanupInteractors() {
     Stream.of(interactorList).forEach(CommonInteractor::freeResources);
   }
 

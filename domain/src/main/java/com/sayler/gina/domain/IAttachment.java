@@ -5,7 +5,9 @@
  */
 package com.sayler.gina.domain;
 
-public interface IAttachment {
+import android.os.Parcelable;
+
+public interface IAttachment extends Parcelable {
 
   long getId();
 
@@ -18,4 +20,6 @@ public interface IAttachment {
   byte[] getFile();
 
   void setFile(byte[] file);
+
+
 }

@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
-apply plugin: 'com.neenbedankt.android-apt'
-
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android'
 android {
   compileSdkVersion 25
-  buildToolsVersion "24.0.3"
+  buildToolsVersion '25.0.3'
 
   defaultConfig {
     minSdkVersion 21
@@ -32,21 +32,25 @@ android {
 
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-    exclude group: 'com.android.support', module: 'support-annotations'
-  })
   testCompile 'junit:junit:4.12'
 
-  compile 'io.reactivex:rxandroid:1.1.0'
-  compile 'io.reactivex:rxjava:1.1.0'
+
+  compile "com.google.dagger:dagger:2.0.2"
+  kapt "com.google.dagger:dagger-compiler:2.0.2"
   compile 'org.glassfish:javax.annotation:10.0-b28'
+
+  compile group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.0.1'
+  compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.2'
+  compile group: 'io.reactivex.rxjava2', name: 'rxkotlin', version: '2.1.0'
   compile 'com.j256.ormlite:ormlite-core:4.47'
   compile 'com.j256.ormlite:ormlite-android:4.47'
-  compile 'com.android.support:appcompat-v7:25.0.1'
+  compile 'com.android.support:appcompat-v7:25.3.1'
   compile 'com.annimon:stream:1.1.3'
   compile 'joda-time:joda-time:2.5'
   compile 'org.apache.commons:commons-io:1.3.2'
-  apt 'com.google.dagger:dagger-compiler:2.0.2'
   compile 'com.google.dagger:dagger:2.0.2'
 
+}
+repositories {
+  mavenCentral()
 }

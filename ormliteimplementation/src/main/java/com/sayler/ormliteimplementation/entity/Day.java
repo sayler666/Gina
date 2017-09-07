@@ -11,8 +11,12 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @DatabaseTable(tableName = "days")
 public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay {
@@ -38,8 +42,16 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay
   }
 
   @Override
-  public ForeignCollection<Attachment> getAttachments() {
-    return attachments;
+  public Collection<IAttachment> getAttachments() {
+    if (attachments != null) {
+      Collection<IAttachment> iAttachments = new ArrayList<>();
+      for (Attachment attachment : attachments) {
+        iAttachments.add(attachment);
+      }
+      return iAttachments;
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   public DateTime getDate() {
