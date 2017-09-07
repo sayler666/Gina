@@ -6,13 +6,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 def versionMajor = 0
-def versionMinor = 0
-def versionPatch = 1
+def versionMinor = 5
+def versionPatch = 0
 
 def getVersionCode = { -> 1000 * versionMajor + 100 * versionMinor + versionPatch
 }
 def getVersionName = { ->
-  "0.3.0"
+  "0.5.0"
 }
 
 
