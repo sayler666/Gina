@@ -13,6 +13,8 @@
         <item name="android:statusBarColor">@color/colorAccentDark</item>
         <item name="toolbarStyle">@style/toolbarStyle</item>
         <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+        <item name="alertDialogTheme">@style/AlertDialogCustom</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogCustom</item>
     </style>
 
     <style name="SplashTheme" parent="AppTheme">
@@ -84,5 +86,14 @@
         <item name="android:paddingTop">@dimen/p_medium</item>
         <item name="android:textSize">@dimen/ts_medium</item>
         <item name="android:textColor">@color/primary_text</item>
+    </style>
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="buttonBarButtonStyle">@style/DialogButtonStyle</item>
+        <item name="android:textColorPrimary">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="DialogButtonStyle" parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/colorAccent</item>
     </style>
 </resources>
