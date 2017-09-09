@@ -1,6 +1,7 @@
 package com.sayler.gina.activity
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -24,6 +25,7 @@ import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.ObjectCreator
 import com.sayler.gina.domain.presenter.diary.DiaryContract
+import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
@@ -172,7 +174,9 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         })
         //on remove button click on item
         attachmentAdapter.setOnRemoveClick { item ->
-            attachmentManager.remove(item.attachment)
+            AlertUtility.showConfirmationAlert(this, R.string.remove_attachment_title, R.string.remove_attachment_confirmation, DialogInterface.OnClickListener { dialogInterface, i ->
+                attachmentManager.remove(item.attachment)
+            })
         }
         attachmentsRecyclerView.adapter = attachmentAdapter
 
@@ -229,7 +233,9 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     @OnClick(R.id.fab_delete)
     fun onFabDeleteClick() {
-        delete()
+        AlertUtility.showConfirmationAlert(this, R.string.remove_day_title, R.string.remove_day_confirmation, DialogInterface.OnClickListener { dialogInterface, i ->
+            delete()
+        })
     }
 
     @OnClick(R.id.fab_add_attachment)
