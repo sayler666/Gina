@@ -145,7 +145,8 @@ class DayActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
+        if (attachmentsRecyclerView.adapter != null)
+            (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
         dataManager.close()
         System.gc()
         super.onDestroy()
