@@ -21,5 +21,13 @@ class AlertUtility {
             builder.setNegativeButton(R.string.no, null)
             builder.show()
         }
+
+        fun showInfoAlert(activity: Activity, titleRes: Int, messageRes: String) {
+                    val builder = AlertDialog.Builder(activity)
+                    builder.setTitle(titleRes)
+                    builder.setMessage(messageRes)
+                    builder.setPositiveButton(R.string.ok,null)
+                    builder.show()
+                }
     }
 }
