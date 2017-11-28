@@ -142,7 +142,7 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
         searchView = menuItem.actionView as SearchView
 
         searchView?.maxWidth = Integer.MAX_VALUE
-        val v = searchView?.findViewById(android.support.v7.appcompat.R.id.search_plate)
+        val v: View? = searchView?.findViewById(android.support.v7.appcompat.R.id.search_plate)
         v?.setBackgroundColor(Color.TRANSPARENT)
 
         searchView?.setOnCloseListener {
@@ -311,8 +311,8 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
         daysAdapter?.setOnClick { item, view, _ ->
             val intent = DayActivity.newIntentShowDay(this, item.id)
             //shared elements
-            val dayText = view.findViewById(R.id.day)
-            val pair1 = Pair.create(dayText, dayText.transitionName)
+            val dayText: View? = view.findViewById(R.id.day)
+            val pair1 = Pair.create(dayText, dayText?.transitionName)
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, pair1)
             this.startActivity(intent, options.toBundle())
 

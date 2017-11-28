@@ -3,6 +3,7 @@ package com.sayler.gina.attachment;
 import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.sayler.gina.R
@@ -47,9 +48,15 @@ class AttachmentAdapter(val items: Collection<IAttachment>, var attachmentsRecyc
         (0..count - 1)
                 .asSequence()
                 .map { attachmentsRecyclerView.getChildAt(it) }
-                .filter { it.findViewById(R.id.image) != null }
-                .map { it.findViewById(R.id.image) as ImageView }
-                .map { it.drawable as BitmapDrawable }
+                .filter {
+                    val b: View? = it.findViewById(R.id.image)
+                    b != null
+                }
+                .map {
+                    val imageView: ImageView? = it.findViewById(R.id.image)
+                    imageView
+                }
+                .map { it?.drawable as BitmapDrawable }
                 .filter { it.bitmap != null }
                 .forEach { it.bitmap.recycle() }
         attachmentsRecyclerView.removeViews(0, count)
