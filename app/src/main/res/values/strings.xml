@@ -5,6 +5,7 @@
     <string name="select_data_source">Select data source</string>
     <string name="menu_search_title">Search</string>
     <string name="menu_change_source_file_title">Change source file</string>
+    <string name="menu_statistics">Statistics</string>
     <string name="permission_rejected">Permission rejected for:</string>
     <string name="remove">Remove</string>
     <string name="remove_day_title">Remove day</string>
@@ -13,4 +14,5 @@
     <string name="remove_attachment_confirmation">Do you really want to remove this attachment?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="ok">Ok</string>
 </resources>

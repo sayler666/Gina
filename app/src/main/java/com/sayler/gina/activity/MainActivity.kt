@@ -25,9 +25,15 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.permission.PermissionUtils
+import com.sayler.gina.stats.StatisticPair
+import com.sayler.gina.stats.decorator.CharsDecorator
+import com.sayler.gina.stats.decorator.EntriresStatistic
+import com.sayler.gina.stats.decorator.SentencesDecorator
+import com.sayler.gina.stats.decorator.WordsDecorator
 import com.sayler.gina.store.settings.SettingsStore
 import com.sayler.gina.store.settings.SettingsStoreManager
 import com.sayler.gina.ui.UiStateController
+import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
@@ -57,11 +63,13 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
     private var daysAdapter: DaysAdapter? = null
     private var searchView: SearchView? = null
     private var currentSourceFile: String = ""
+    private var statistics: String = ""
 
     private val diaryContractView = object : DiaryContract.View {
         override fun onDownloaded(data: List<IDay>) {
             createRecyclerView(data)
             uiStateController.setUiStateContent()
+            setupStatistic(data)
         }
 
         override fun onNoDataSource() {
@@ -79,6 +87,19 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
 
         override fun onPut() {
             //not used
+        }
+    }
+
+    private fun setupStatistic(data: List<IDay>) {
+        if (data.isNotEmpty()) {
+            val statisticGenerator = CharsDecorator(WordsDecorator(SentencesDecorator(EntriresStatistic())))
+            var statisticData = ""
+            statisticGenerator.generate(data).forEach { statisticPair: StatisticPair ->
+                statisticData += "${statisticPair.label}: ${statisticPair.value}\n"
+            }
+            this.statistics = statisticData.trimEnd('\n')
+        } else {
+            this.statistics = ""
         }
     }
 
@@ -169,8 +190,17 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
                 openSourceFileSelectIntent()
                 return true
             }
+            R.id.statistics -> {
+                showStatistic()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showStatistic() {
+        if (statistics.isNotEmpty())
+            AlertUtility.showInfoAlert(this, R.string.menu_statistics, this.statistics)
     }
 
     private fun clearSearchViewAndHide() {
