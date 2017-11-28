@@ -11,6 +11,8 @@ interface DataManager<T> {
 
     val isOpen: Boolean
 
+    fun getSourceFilePath(): String
+
     fun close()
 
     val dao: T

@@ -1,5 +1,6 @@
 package com.sayler.gina.dagger.component
 
+import com.sayler.gina.GinaApplication
 import com.sayler.gina.activity.DayActivity
 import com.sayler.gina.activity.DayEditActivity
 import com.sayler.gina.activity.MainActivity
@@ -19,6 +20,8 @@ interface DataComponent {
     fun inject(mainActivity: DayActivity)
 
     fun inject(mainActivity: DayEditActivity)
+
+    fun inject(ginaApplication: GinaApplication)
 
     /* ---- FRAGMENT ---- */
 

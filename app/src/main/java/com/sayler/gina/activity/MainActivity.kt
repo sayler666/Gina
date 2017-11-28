@@ -62,7 +62,6 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
     private lateinit var broadcastReceiverRefresh: BroadcastReceiverHelper
     private var daysAdapter: DaysAdapter? = null
     private var searchView: SearchView? = null
-    private var currentSourceFile: String = ""
     private var statistics: String = ""
 
     private val diaryContractView = object : DiaryContract.View {
@@ -281,11 +280,7 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
     private val rememberedSourceFile: String
         get() {
             val settingsStore = settingsStoreManager.get()
-            if (settingsStore != null) {
-                return settingsStore.dataSourceFilePath
-            } else {
-                return ""
-            }
+            return settingsStore?.dataSourceFilePath ?: ""
         }
 
     private fun setupRecyclerView() {
@@ -327,7 +322,7 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
     @OnLongClick(R.id.pageTitle)
     fun onToolbarTitleLongPress(): Boolean {
         //check if any file opened
-        if (currentSourceFile.isNotEmpty()) {
+        if (dataManager.isOpen) {
             toggleRememberSourceFile()
             setupTitle()
             return true
@@ -340,7 +335,7 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
         var settingsStore = settingsStoreManager.get()
         if (settingsStore == null) {
             //save current opened file if empty settings store empty
-            settingsStore = SettingsStore(currentSourceFile)
+            settingsStore = SettingsStore(dataManager.getSourceFilePath())
             settingsStoreManager.save(settingsStore)
             return true
         } else {
@@ -376,7 +371,6 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
 
     private fun setNewDbFilePath(newSourceFile: String) {
         if (newSourceFile.isNotEmpty()) {
-            currentSourceFile = newSourceFile
             dataManager.setSourceFile(newSourceFile)
             load()
         }

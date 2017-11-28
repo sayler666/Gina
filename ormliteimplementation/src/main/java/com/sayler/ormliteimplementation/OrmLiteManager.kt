@@ -11,6 +11,7 @@ import java.util.ArrayList
  */
 
 internal class OrmLiteManager(private val context: Context) : DataManager<@JvmWildcard List<BaseDataProvider<*>>> {
+    private lateinit var sourceFilePath: String
     private val baseDataProviderList = ArrayList<BaseDataProvider<*>>()
 
     fun add(baseDataProvider: BaseDataProvider<*>) {
@@ -18,8 +19,13 @@ internal class OrmLiteManager(private val context: Context) : DataManager<@JvmWi
     }
 
     override fun setSourceFile(sourceFilePath: String) {
+        this.sourceFilePath = sourceFilePath
         DBHelper.setDatabasePath(sourceFilePath)
         rebindProviders()
+    }
+
+    override fun getSourceFilePath(): String {
+        return sourceFilePath
     }
 
     override val isOpen: Boolean

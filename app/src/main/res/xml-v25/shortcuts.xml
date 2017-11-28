@@ -2,7 +2,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_mode_edit_black_24px"
+        android:icon="@mipmap/ic_shortcut_new_day"
         android:shortcutId="shortcut1"
         android:shortcutLongLabel="@string/shortcut_new_day"
         android:shortcutShortLabel="@string/shortcut_new_day"
