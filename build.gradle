@@ -53,5 +53,5 @@ dependencies {
 }
 
 ext {
-  supportLibVersion = '26.1.0'
+  supportLibVersion = '26.0.1'
 }
