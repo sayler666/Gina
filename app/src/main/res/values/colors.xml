@@ -6,6 +6,7 @@
     <color name="colorAccentDark">#a71632</color>
     <color name="grey">#a3a3a3</color>
     <color name="grey_25_transparent">#6adfdfdf</color>
+    <color name="grey_shortcut">#f5f5f5</color>
 
     <color name="primary_text">@color/white</color>
     <color name="secondary_text">#757575</color>
