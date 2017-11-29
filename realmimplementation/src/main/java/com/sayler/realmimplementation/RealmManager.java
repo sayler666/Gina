@@ -9,6 +9,7 @@ import com.sayler.gina.domain.DataManager;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -19,6 +20,7 @@ import java.io.File;
  */
 class RealmManager implements DataManager<Realm> {
 
+  private String realmSourcePath;
   private String realmDirectory;
   private String realmFileName;
   private boolean needNewInstance = true;
@@ -30,6 +32,7 @@ class RealmManager implements DataManager<Realm> {
 
   @Override
   public void setSourceFile(String sourceFilePath) {
+    this.realmSourcePath = sourceFilePath;
     this.realmDirectory =
         FilenameUtils.getPath(sourceFilePath);
     this.realmFileName =
@@ -65,4 +68,9 @@ class RealmManager implements DataManager<Realm> {
     return instance;
   }
 
+  @NotNull
+  @Override
+  public String getSourceFilePath() {
+    return realmSourcePath;
+  }
 }
