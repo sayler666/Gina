@@ -37,16 +37,12 @@ dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   testCompile 'junit:junit:4.12'
 
-  compile "com.google.dagger:dagger:2.0.2"
-  kapt "com.google.dagger:dagger-compiler:2.0.2"
+  compile "com.google.dagger:dagger:$daggerLibVersion"
+  kapt "com.google.dagger:dagger-compiler:$daggerLibVersion"
   compile 'org.glassfish:javax.annotation:10.0-b28'
 
   compile group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.0.1'
   compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.2'
   compile group: 'io.reactivex.rxjava2', name: 'rxkotlin', version: '2.1.0'
-  compile 'com.google.dagger:dagger:2.0.2'
   compile project(path: ':domain')
-}
-repositories {
-  mavenCentral()
 }
