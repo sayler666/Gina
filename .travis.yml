@@ -35,6 +35,9 @@ before_install:
 script:
   - ./gradlew assembleDebug
   - ./gradlew :app:testDebugUnitTest
+  - ./gradlew :domain:testDebugUnitTest
+  - ./gradlew :realmimplementation:testDebugUnitTest
+  - ./gradlew :ormliteimplementation:testDebugUnitTest
 
 licenses:
     - 'android-sdk-preview-license-.+'
