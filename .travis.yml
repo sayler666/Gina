@@ -38,6 +38,7 @@ script:
   - ./gradlew :domain:testDebugUnitTest
   - ./gradlew :realmimplementation:testDebugUnitTest
   - ./gradlew :ormliteimplementation:testDebugUnitTest
+  - ./gradlew sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=sayler666-github -Dsonar.login=bbe6d3a2391b0d29106302a85f3a4181dd0c325c
 
 licenses:
     - 'android-sdk-preview-license-.+'
