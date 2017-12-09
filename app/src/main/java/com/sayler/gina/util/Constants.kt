@@ -1,8 +1,5 @@
 package com.sayler.gina.util
 
-/**
- * Created by miquido on 28/11/16.
- */
 object Constants {
     val DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK = "d, EEEE"
     val DATE_PATTERN_YEAR_MONTH_2_LINES = "YYYY \nMMMM"

@@ -7,7 +7,7 @@ import com.sayler.gina.domain.DataManager
 import java.util.ArrayList
 
 /**
- * Created by miquido on 01/12/16.
+
  */
 
 internal class OrmLiteManager(private val context: Context) : DataManager<@JvmWildcard List<BaseDataProvider<*>>> {

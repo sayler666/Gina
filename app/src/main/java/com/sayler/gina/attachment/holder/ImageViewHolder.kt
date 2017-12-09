@@ -14,7 +14,7 @@ import com.sayler.gina.attachment.viewmodel.ImageViewModel
 /**
  * Created by sayler on 2017-06-09.
  *
- * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view: View) -> Unit)?, var editable: Boolean, var onRemoveClickListener: ((item: ImageViewModel) -> Unit)?) : BetterViewHolder<ImageViewModel>(view, onClickListener) {
 

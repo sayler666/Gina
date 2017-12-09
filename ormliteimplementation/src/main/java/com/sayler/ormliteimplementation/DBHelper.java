@@ -1,7 +1,7 @@
 /**
  * Created by Lukasz Chromy on 10.01.14.
  * <p>
- * Copyright 2014 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 package com.sayler.ormliteimplementation;
 

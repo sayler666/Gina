@@ -10,7 +10,7 @@ import com.sayler.gina.domain.IAttachment;
 import java.util.Arrays;
 
 /**
- * Created by miquido on 08/12/16.
+
  */
 
 @DatabaseTable(tableName = "attachments")

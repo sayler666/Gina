@@ -1,7 +1,7 @@
 /**
  * Created by sayler666 on 2015-05-27.
  * <p>
- * Copyright 2015 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 package com.sayler.ormliteimplementation;
 

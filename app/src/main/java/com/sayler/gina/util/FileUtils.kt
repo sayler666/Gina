@@ -1,8 +1,6 @@
 /**
  * Created by sayler on 2016-12-09.
  *
- *
- * Copyright 2016 MiQUiDO <http:></http:>//www.miquido.com/>. All rights reserved.
  */
 package com.sayler.gina.util
 

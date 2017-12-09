@@ -8,7 +8,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by lchromy on 07.10.15.
  * <p>
- * Copyright 2015 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 public class RxAndroidTransformer implements IRxAndroidTransformer {
   /**

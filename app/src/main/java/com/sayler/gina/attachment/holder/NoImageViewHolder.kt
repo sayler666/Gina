@@ -11,7 +11,7 @@ import com.sayler.gina.attachment.viewmodel.NoImageViewModel
 /**
  * Created by sayler on 2017-06-09.
  *
- * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 class NoImageViewHolder(view: View, onClickListener: ((item: NoImageViewModel, view: View) -> Unit)?, var editable: Boolean, var onRemoveClickListener: ((item: NoImageViewModel) -> Unit)?) : BetterViewHolder<NoImageViewModel>(view, onClickListener) {
 

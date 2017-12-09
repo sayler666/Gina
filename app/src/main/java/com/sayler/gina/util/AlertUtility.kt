@@ -8,7 +8,7 @@ import com.sayler.gina.R
 /**
  * Created by sayler on 2017-09-09.
  *
- * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 
 class AlertUtility {

@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.f_attachment.*
 /**
  * Created by sayler on 2017-06-23.
  *
- * Copyright 2017 MiQUiDO <http://www.miquido.com/>. All rights reserved.
+
  */
 class AttachmentFragment : Fragment(), ViewSliderCoordinator.Slideable {
 
