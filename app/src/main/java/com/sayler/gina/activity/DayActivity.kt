@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
+import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.sayler.gina.GinaApplication
@@ -114,16 +115,23 @@ class DayActivity : BaseActivity() {
     }
 
     private fun showAttachments() {
-        //drawer
-        val layoutManager = LinearLayoutManager(this)
-        attachmentsRecyclerView.layoutManager = layoutManager
-        val attachmentAdapter = AttachmentAdapter(day.attachments, attachmentsRecyclerView)
-        attachmentAdapter.setOnClick({ item, _ ->
-            with(item.attachment) {
-                FileUtils.openFileIntent(this@DayActivity, file, mimeType, applicationContext.packageName + ".provider")
+        with(day) {
+            if (attachments.isEmpty()) {
+                fabAttachments.visibility = View.GONE
+            }else{
+                fabAttachments.visibility = View.VISIBLE
             }
-        })
-        attachmentsRecyclerView.adapter = attachmentAdapter
+            //drawer
+            val layoutManager = LinearLayoutManager(this@DayActivity)
+            attachmentsRecyclerView.layoutManager = layoutManager
+            val attachmentAdapter = AttachmentAdapter(attachments, attachmentsRecyclerView)
+            attachmentAdapter.setOnClick({ item, _ ->
+                with(item.attachment) {
+                    FileUtils.openFileIntent(this@DayActivity, file, mimeType, applicationContext.packageName + ".provider")
+                }
+            })
+            attachmentsRecyclerView.adapter = attachmentAdapter
+        }
     }
 
     @OnClick(R.id.fabEdit)

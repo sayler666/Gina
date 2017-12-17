@@ -102,4 +102,32 @@ public class Day extends BaseEntity implements Comparable<Day>, Parcelable, IDay
       return new Day[size];
     }
   };
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Day)) {
+      return false;
+    }
+
+    Day day = (Day) o;
+
+    if (date != null ? !date.equals(day.date) : day.date != null) {
+      return false;
+    }
+    if (content != null ? !content.equals(day.content) : day.content != null) {
+      return false;
+    }
+    return attachments != null ? attachments.equals(day.attachments) : day.attachments == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = date != null ? date.hashCode() : 0;
+    result = 31 * result + (content != null ? content.hashCode() : 0);
+    result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
+    return result;
+  }
 }

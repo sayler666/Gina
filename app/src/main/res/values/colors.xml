@@ -2,16 +2,21 @@
 <resources>
     <color name="colorPrimary">#1d1d1d</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#FF1744</color>
-    <color name="colorAccentDark">#a71632</color>
+    <color name="colorAccent">#00695c</color>
+    <color name="colorAccentDark">#004D40</color>
+    <color name="colorAccentDark_25_alpha">#b8004d40</color>
+    <color name="colorAccentDarker">#003d33</color>
+    <color name="colorSecondary">#b71c1c</color>
+    <color name="colorSecondaryDark">#911818</color>
     <color name="grey">#a3a3a3</color>
     <color name="grey_25_transparent">#6adfdfdf</color>
     <color name="grey_shortcut">#f5f5f5</color>
 
     <color name="primary_text">@color/white</color>
     <color name="secondary_text">#757575</color>
-    <color name="icons">@color/colorPrimary</color>
-    <color name="divider">#4d0a17</color>
+    <color name="icons">@color/primary_text</color>
+    <color name="iconsToolbar">@color/colorPrimary</color>
+    <color name="divider">#00352c</color>
 
     <color name="transparent">#00000000</color>
     <color name="white">#ffffff</color>

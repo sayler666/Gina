@@ -9,9 +9,11 @@
     <string name="permission_rejected">Permission rejected for:</string>
     <string name="remove">Remove</string>
     <string name="remove_day_title">Remove day</string>
-    <string name="remove_attachment_title">Remove attachment</string>
     <string name="remove_day_confirmation">Do you really want to remove this day?</string>
+    <string name="remove_attachment_title">Remove attachment</string>
     <string name="remove_attachment_confirmation">Do you really want to remove this attachment?</string>
+    <string name="discard_title">Discard changes</string>
+    <string name="discard_confirmation">Do you really want to discard?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="ok">Ok</string>

@@ -22,9 +22,9 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:orientation="vertical"
-        app:fastscroll__bubbleColor="@color/colorAccent"
+        app:fastscroll__bubbleColor="@color/colorSecondary"
         app:fastscroll__bubbleTextAppearance="@style/bubble_text_appearance"
-        app:fastscroll__handleColor="@color/colorAccent" />
+        app:fastscroll__handleColor="@color/colorSecondary" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

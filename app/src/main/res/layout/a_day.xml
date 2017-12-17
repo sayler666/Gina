@@ -63,6 +63,7 @@
                 style="@style/fab"
                 android:layout_alignParentRight="false"
                 android:layout_toLeftOf="@id/fabEdit"
+                android:visibility="gone"
                 android:src="@drawable/ic_attach_file_black_24px" />
 
         </RelativeLayout>

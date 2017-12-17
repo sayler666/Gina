@@ -49,6 +49,8 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     private lateinit var day: IDay
     private lateinit var editMode: EditMode
     private var dayId: Long = -1L
+    private var initialHashDay: Int = -1
+    private var initialHashAttachments: Int = -1
     private lateinit var fabs: List<FloatingActionButton>
     private lateinit var attachmentAdapter: AttachmentAdapter
 
@@ -65,6 +67,8 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
         override fun onDownloaded(data: List<IDay>) {
             day = data[0]
+            initialHashDay = day.hashCode()
+            initialHashAttachments = day.attachments.hashCode()
             setupDay()
         }
 
@@ -111,6 +115,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     private fun setupViews() {
         RxTextView.textChanges(content)
                 .skip(2)
+                .map { day.content = content.text.toString() }
                 .doOnNext { fabs.onEach { it.visibility = GONE } }
                 .buffer(2, TimeUnit.SECONDS)
                 .filter { t -> t.size <= 0 }
@@ -128,6 +133,8 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
                 DayEditActivity.EditMode.NEW_DAY -> {
                     day = objectCreator.createDay()
                     day.date = DateTime()
+                    initialHashDay = day.hashCode()
+                    initialHashAttachments = day.attachments.hashCode()
                 }
                 DayEditActivity.EditMode.EDIT_DAY -> dayId = intent.getLongExtra(Constants.EXTRA_DAY_ID, -1)
             }
@@ -140,6 +147,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         bindPresenter(attachmentManager, attachmentManagerView)
         bindPresenter(diaryPresenter, diaryContractView)
     }
+
 
     private fun load() {
         when (editMode) {
@@ -218,8 +226,17 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             drawer_layout.closeDrawer(Gravity.END)
             return
         }
+
+        if (hasDayChanged()) {
+            AlertUtility.showConfirmationAlert(this, R.string.discard_title, R.string.discard_confirmation,
+                    DialogInterface.OnClickListener { _, _ -> super.onBackPressed() })
+            return
+        }
         super.onBackPressed()
     }
+
+    private fun hasDayChanged() =
+            initialHashDay != day.hashCode() || initialHashAttachments != attachmentManager.getAll().toList().hashCode()
 
     @OnClick(R.id.fabAttachments)
     fun onFabAttachmentsClick() {
@@ -244,7 +261,6 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun put() {
-        day.content = content.text.toString()
         diaryPresenter.put(day, attachmentManager.getAll().toList())
     }
 
