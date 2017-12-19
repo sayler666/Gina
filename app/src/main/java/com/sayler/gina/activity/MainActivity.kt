@@ -11,6 +11,7 @@ import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,7 +27,6 @@ import com.sayler.gina.adapter.DaysAdapter
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.diary.DiaryContract
-import com.sayler.gina.permission.PermissionUtils
 import com.sayler.gina.stats.decorator.CharsDecorator
 import com.sayler.gina.stats.decorator.EntriresStatistic
 import com.sayler.gina.stats.decorator.SentencesDecorator
@@ -38,6 +38,7 @@ import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
+import com.tbruyelle.rxpermissions2.RxPermissions
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -48,7 +49,7 @@ import kotlinx.android.synthetic.main.i_progress_bar.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
+class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var dataManager: DataManager<*>
@@ -220,6 +221,7 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
         recyclerView.addItemDecoration(decor)
         recyclerView.addItemDecoration(HorizontalDividerItemDecoration.Builder(this).colorResId(R.color.divider).marginResId(R.dimen.p_medium).build())
         fastscroll.setRecyclerView(recyclerView!!)
+        //fastscroll.addScrollerListener { RecyclerViewScrollListener.ScrollerListener {  } }
 
         daysAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
@@ -227,6 +229,17 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
             }
         })
 
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                Log.d("ScrollChange :", "new state $newState")
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_IDLE -> fabAddNewDay.visibility = View.VISIBLE
+                    RecyclerView.SCROLL_STATE_DRAGGING -> fabAddNewDay.visibility = View.GONE
+                }
+            }
+        })
+
+        recyclerView.scrollState
         //on viewModel click
         daysAdapter?.setOnClick { item, view, _ ->
             val intent = DayActivity.newIntentShowDay(this, item.id)
@@ -388,29 +401,21 @@ class MainActivity : BaseActivity(), PermissionUtils.PermissionCallback {
      */
 
     private fun askFormPermission() {
-        if (!PermissionUtils.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            PermissionUtils.askForPermission(this, this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-    }
-
-    override fun onPermissionGranted(permission: String) {
-        load()
-    }
-
-    override fun onPermissionRejected(permission: String) {
-        Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + permission, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        PermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe { granted ->
+                    if (granted) {
+                        load()
+                    } else {
+                        Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + Manifest.permission.WRITE_EXTERNAL_STORAGE, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
     }
 
     /**
      * ----------------------------------------PERMISSIONS END----------------------------------------------------------
      */
 
-    @OnClick(R.id.fab)
+    @OnClick(R.id.fabAddNewDay)
     fun onFabAddDayClick() {
         startActivity(DayEditActivity.newIntentNewDay(this))
     }

@@ -15,7 +15,7 @@ import android.view.View.VISIBLE
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnTouch
-import com.jakewharton.rxbinding2.widget.RxTextView
+import com.jakewharton.rxbinding2.widget.textChanges
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
@@ -113,7 +113,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun setupViews() {
-        RxTextView.textChanges(content)
+        content.textChanges()
                 .skip(2)
                 .map { day.content = content.text.toString() }
                 .doOnNext { fabs.onEach { it.visibility = GONE } }
