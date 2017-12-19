@@ -77,7 +77,6 @@
 
     <style name="content">
         <item name="android:layout_width">match_parent</item>
-        <item name="fontPath">fonts/DroidSerif-Regular.ttf</item>
         <item name="android:layout_below">@+id/dayText</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">@dimen/p_medium</item>
