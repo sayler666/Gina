@@ -11,7 +11,6 @@ import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,6 +32,7 @@ import com.sayler.gina.stats.decorator.SentencesDecorator
 import com.sayler.gina.stats.decorator.WordsDecorator
 import com.sayler.gina.store.settings.SettingsStore
 import com.sayler.gina.store.settings.SettingsStoreManager
+import com.sayler.gina.ui.DefaultScrollerViewProvider
 import com.sayler.gina.ui.UiStateController
 import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.BroadcastReceiverHelper
@@ -202,11 +202,11 @@ class MainActivity : BaseActivity() {
         }
 
     /**
-     * -----------------------------------------LIST BEGINNING----------------------------------------------------------
+     * -----------------------------------------REMEMBERED FILE END-----------------------------------------------------
      */
 
     /**
-     * -----------------------------------------REMEMBERED FILE END-----------------------------------------------------
+     * -----------------------------------------LIST BEGINNING----------------------------------------------------------
      */
 
     private fun setupRecyclerView() {
@@ -217,29 +217,28 @@ class MainActivity : BaseActivity() {
         recyclerView.adapter = daysAdapter
 
         //sticky header
-        val decor = StickyRecyclerHeadersDecoration(daysAdapter)
-        recyclerView.addItemDecoration(decor)
+        val stickyRecyclerHeadersDecoration = StickyRecyclerHeadersDecoration(daysAdapter)
+        recyclerView.addItemDecoration(stickyRecyclerHeadersDecoration)
         recyclerView.addItemDecoration(HorizontalDividerItemDecoration.Builder(this).colorResId(R.color.divider).marginResId(R.dimen.p_medium).build())
-        fastscroll.setRecyclerView(recyclerView!!)
-        //fastscroll.addScrollerListener { RecyclerViewScrollListener.ScrollerListener {  } }
-
         daysAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
-                decor.invalidateHeaders()
+                stickyRecyclerHeadersDecoration.invalidateHeaders()
             }
         })
 
+        //fast scroll
+        fastscroll.setRecyclerView(recyclerView!!)
+        val defaultScrollerViewProvider = DefaultScrollerViewProvider()
+        defaultScrollerViewProvider.onHandleVisibilityChangeListener = { visible ->
+            changeFabsVisibility(!visible)
+        }
+        fastscroll.setViewProvider(defaultScrollerViewProvider)
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                Log.d("ScrollChange :", "new state $newState")
-                when (newState) {
-                    RecyclerView.SCROLL_STATE_IDLE -> fabAddNewDay.visibility = View.VISIBLE
-                    RecyclerView.SCROLL_STATE_DRAGGING -> fabAddNewDay.visibility = View.GONE
-                }
+                changeFabsVisibility(newState == RecyclerView.SCROLL_STATE_IDLE)
             }
         })
 
-        recyclerView.scrollState
         //on viewModel click
         daysAdapter?.setOnClick { item, view, _ ->
             val intent = DayActivity.newIntentShowDay(this, item.id)
@@ -257,8 +256,16 @@ class MainActivity : BaseActivity() {
         daysAdapter?.notifyDataSetChanged()
     }
 
+    private fun changeFabsVisibility(visible: Boolean) {
+        if (visible) {
+            fabAddNewDay.visibility = View.VISIBLE
+        } else {
+            fabAddNewDay.visibility = View.GONE
+        }
+    }
+
     /**
-     * -----------------------------------------LIST BEGINNING----------------------------------------------------------
+     * -----------------------------------------LIST END----------------------------------------------------------------
      */
 
     /**
