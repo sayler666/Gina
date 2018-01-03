@@ -118,7 +118,7 @@ class DayActivity : BaseActivity() {
         with(day) {
             if (attachments.isEmpty()) {
                 fabAttachments.visibility = View.GONE
-            }else{
+            } else {
                 fabAttachments.visibility = View.VISIBLE
             }
             //drawer
@@ -144,6 +144,16 @@ class DayActivity : BaseActivity() {
         drawer_layout.openDrawer(GravityCompat.END)
     }
 
+    @OnClick(R.id.fabNextDay)
+    fun onFabNextDayClick() {
+        diaryPresenter.loadNextAfterDate(day.date)
+    }
+
+    @OnClick(R.id.fabPreviousDay)
+    fun onFabPreviousDayClick() {
+        diaryPresenter.loadPreviousBeforeDate(day.date)
+    }
+
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(Gravity.END)) {
             drawer_layout.closeDrawer(Gravity.END)
@@ -161,8 +171,6 @@ class DayActivity : BaseActivity() {
     }
 
     companion object {
-
-        private val TAG = "DayActivity"
 
         fun newIntentShowDay(context: Context, dayId: Long): Intent {
             val intent = Intent(context, DayActivity::class.java)

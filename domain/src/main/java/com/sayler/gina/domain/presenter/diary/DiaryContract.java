@@ -4,6 +4,7 @@ import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
 import com.sayler.gina.domain.presenter.BasePresenter;
 import com.sayler.gina.domain.presenter.BaseView;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class DiaryContract {
     void loadAll();
 
     void loadById(long id);
+
+    void loadNextAfterDate(DateTime dateTime);
+
+    void loadPreviousBeforeDate(DateTime dateTime);
 
     void loadByTextSearch(String searchText);
 
