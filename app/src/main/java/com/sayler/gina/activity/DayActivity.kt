@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -43,11 +44,11 @@ class DayActivity : BaseActivity() {
         }
 
         override fun onError(errorMessage: String) {
-            Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(R.id.coordinator), errorMessage, Snackbar.LENGTH_SHORT).show()
         }
 
         override fun onNoDataSource() {
-            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
         }
 
         override fun onPut() {
@@ -132,6 +133,20 @@ class DayActivity : BaseActivity() {
             })
             attachmentsRecyclerView.adapter = attachmentAdapter
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                onFabPreviousDayClick()
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                onFabNextDayClick()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     @OnClick(R.id.fabEdit)

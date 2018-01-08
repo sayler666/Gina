@@ -11,7 +11,7 @@ def versionPatch = 0
 def getVersionCode = { -> 1000 * versionMajor + 100 * versionMinor + versionPatch
 }
 def getVersionName = { ->
-  "0.7.0"
+  "0.8.0"
 }
 
 
