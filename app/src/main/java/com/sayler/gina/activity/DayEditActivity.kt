@@ -10,8 +10,6 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnTouch
@@ -116,11 +114,11 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         content.textChanges()
                 .skip(2)
                 .map { day.content = content.text.toString() }
-                .doOnNext { fabs.onEach { it.visibility = GONE } }
+                .doOnNext { fabs.onEach { it.hide() } }
                 .buffer(2, TimeUnit.SECONDS)
                 .filter { t -> t.size <= 0 }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { fabs.onEach { it.visibility = VISIBLE } }
+                .subscribe { fabs.onEach { it.show() } }
     }
 
     private fun readExtras() {
@@ -206,7 +204,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     @OnTouch(R.id.root, R.id.content)
     fun onElseClick(): Boolean {
-        fabs.onEach { it.visibility = VISIBLE }
+        fabs.onEach { it.show() }
         return false
     }
 
@@ -280,7 +278,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             attachmentManager.add(fileBytes, mimeType)
         } catch (e: IOException) {
             e.printStackTrace()
-            //TODO error handling
+            showError(getString(R.string.attachment_add_error))
         }
 
     }

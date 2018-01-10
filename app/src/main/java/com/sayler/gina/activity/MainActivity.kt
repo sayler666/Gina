@@ -14,6 +14,7 @@ import android.support.v7.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Animation
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnLongClick
@@ -258,9 +259,9 @@ class MainActivity : BaseActivity() {
 
     private fun changeFabsVisibility(visible: Boolean) {
         if (visible) {
-            fabAddNewDay.visibility = View.VISIBLE
+            fabAddNewDay.show()
         } else {
-            fabAddNewDay.visibility = View.GONE
+            fabAddNewDay.hide()
         }
     }
 

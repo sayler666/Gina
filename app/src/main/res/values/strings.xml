@@ -18,4 +18,5 @@
     <string name="no">No</string>
     <string name="ok">Ok</string>
     <string name="shortcut_new_day">New day</string>
+    <string name="attachment_add_error">Attachment not added!</string>
 </resources>

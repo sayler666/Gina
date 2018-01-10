@@ -1,7 +1,6 @@
 /**
  * Created by sayler on 2016-11-22.
  * <p>
-
  */
 package com.sayler.ormliteimplementation.interactor;
 
@@ -20,6 +19,7 @@ import com.sayler.ormliteimplementation.entity.Attachment;
 import com.sayler.ormliteimplementation.entity.Day;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
+import org.joda.time.DateTime;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
   private DaysGetInteractorCallback daysGetInteractorCallback;
   private DaysPutInteractorCallback daysPutInteractorCallback;
   private DaysDeleteInteractorCallback daysDeleteInteractorCallback;
+  private DaysGetNextPreviousInteractorCallback daysGetNextPreviousInteractorCallback;
   private IRxAndroidTransformer iRxAndroidTransformer;
   private DaysDataProvider daysDataProvider;
   private AttachmentsDataProvider attachmentsDataProvider;
@@ -59,6 +60,22 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     this.daysGetInteractorCallback = daysGetInteractorCallback;
     if (checkIfDbExist(daysGetInteractorCallback)) {
       retrieveDataById(id);
+    }
+  }
+
+  @Override
+  public void loadDataNextAfterDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback daysGetNextPreviousInteractorCallback) {
+    this.daysGetNextPreviousInteractorCallback = daysGetNextPreviousInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
+      retrieveDataNextAfterDate(dateTime);
+    }
+  }
+
+  @Override
+  public void loadDataPreviousBeforeDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback daysGetNextPreviousInteractorCallback) {
+    this.daysGetNextPreviousInteractorCallback = daysGetNextPreviousInteractorCallback;
+    if (checkIfDbExist(daysGetInteractorCallback)) {
+      retrieveDataPreviousBeforeDate(dateTime);
     }
   }
 
@@ -178,6 +195,48 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     }
   }
 
+  private void retrieveDataNextAfterDate(DateTime dateTime) {
+    Disposable disposable;
+    try {
+      QueryBuilder<Day, Long> queryBuilder = daysDataProvider.getDao().queryBuilder();
+      PreparedQuery<Day> preparedQuery = queryBuilder.orderBy(Day.DATE_COL,true).limit(1L).where().gt(Day.DATE_COL, dateTime).prepare();
+      disposable = Observable.just(daysDataProvider.getDao().query(preparedQuery))
+          .compose(iRxAndroidTransformer.applySchedulers())
+          .subscribe(this::handleLoadNextPreviousData, throwable -> {
+            if (throwable instanceof IndexOutOfBoundsException) {
+              daysGetNextPreviousInteractorCallback.onNoNextItemAvailable();
+            } else {
+              daysGetNextPreviousInteractorCallback.onDownloadDataError(throwable);
+            }
+          });
+      needToUnsubscribe(disposable);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      daysGetInteractorCallback.onDownloadDataError(e);
+    }
+  }
+
+  private void retrieveDataPreviousBeforeDate(DateTime dateTime) {
+    Disposable disposable;
+    try {
+      QueryBuilder<Day, Long> queryBuilder = daysDataProvider.getDao().queryBuilder();
+      PreparedQuery<Day> preparedQuery = queryBuilder.orderBy(Day.DATE_COL,false).limit(1L).where().lt(Day.DATE_COL, dateTime).prepare();
+      disposable = Observable.just(daysDataProvider.getDao().query(preparedQuery))
+          .compose(iRxAndroidTransformer.applySchedulers())
+          .subscribe(this::handleLoadNextPreviousData, throwable -> {
+            if (throwable instanceof IndexOutOfBoundsException) {
+              daysGetNextPreviousInteractorCallback.onNoPreviousItemAvailable();
+            } else {
+              daysGetNextPreviousInteractorCallback.onDownloadDataError(throwable);
+            }
+          });
+      needToUnsubscribe(disposable);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      daysGetInteractorCallback.onDownloadDataError(e);
+    }
+  }
+
   private void retrieveDataText(String string) {
     Disposable disposable;
     try {
@@ -197,6 +256,11 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
 
   private void handleLoadData(Day day) {
     List<Day> days = Collections.singletonList(day);
+    saveData(days);
+    daysGetInteractorCallback.onDownloadData();
+  }
+
+  private void handleLoadNextPreviousData(List<Day> days) {
     saveData(days);
     daysGetInteractorCallback.onDownloadData();
   }

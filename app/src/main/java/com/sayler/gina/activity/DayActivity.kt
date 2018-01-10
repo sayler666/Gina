@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -43,11 +44,11 @@ class DayActivity : BaseActivity() {
         }
 
         override fun onError(errorMessage: String) {
-            Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(R.id.coordinator), errorMessage, Snackbar.LENGTH_SHORT).show()
         }
 
         override fun onNoDataSource() {
-            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
         }
 
         override fun onPut() {
@@ -118,7 +119,7 @@ class DayActivity : BaseActivity() {
         with(day) {
             if (attachments.isEmpty()) {
                 fabAttachments.visibility = View.GONE
-            }else{
+            } else {
                 fabAttachments.visibility = View.VISIBLE
             }
             //drawer
@@ -134,6 +135,20 @@ class DayActivity : BaseActivity() {
         }
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                onFabPreviousDayClick()
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                onFabNextDayClick()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     @OnClick(R.id.fabEdit)
     fun onFabEditClick() {
         startActivity(DayEditActivity.newIntentEditDay(this, dayId))
@@ -142,6 +157,16 @@ class DayActivity : BaseActivity() {
     @OnClick(R.id.fabAttachments)
     fun onFabAttachmentsClick() {
         drawer_layout.openDrawer(GravityCompat.END)
+    }
+
+    @OnClick(R.id.fabNextDay)
+    fun onFabNextDayClick() {
+        diaryPresenter.loadNextAfterDate(day.date)
+    }
+
+    @OnClick(R.id.fabPreviousDay)
+    fun onFabPreviousDayClick() {
+        diaryPresenter.loadPreviousBeforeDate(day.date)
     }
 
     override fun onBackPressed() {
@@ -161,8 +186,6 @@ class DayActivity : BaseActivity() {
     }
 
     companion object {
-
-        private val TAG = "DayActivity"
 
         fun newIntentShowDay(context: Context, dayId: Long): Intent {
             val intent = Intent(context, DayActivity::class.java)

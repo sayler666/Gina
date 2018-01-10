@@ -3,11 +3,9 @@ package com.sayler.gina.domain.presenter.diary;
 import android.util.Log;
 import com.sayler.gina.domain.IAttachment;
 import com.sayler.gina.domain.IDay;
-import com.sayler.gina.domain.interactor.DaysDeleteInteractorCallback;
-import com.sayler.gina.domain.interactor.DaysGetInteractorCallback;
-import com.sayler.gina.domain.interactor.DaysPutInteractorCallback;
-import com.sayler.gina.domain.interactor.DiaryInteractor;
+import com.sayler.gina.domain.interactor.*;
 import com.sayler.gina.domain.presenter.Presenter;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -68,6 +66,76 @@ public class DiaryPresenter extends Presenter<DiaryContract.View> implements Dia
       }
     });
 
+  }
+
+  @Override
+  public void loadNextAfterDate(DateTime dateTime) {
+    diaryInteractor.loadDataNextAfterDate(dateTime, new DaysGetNextPreviousInteractorCallback() {
+      @Override
+      public void onDownloadData() {
+        List<IDay> data = diaryInteractor.getData();
+        handleLoadData(data);
+      }
+
+      @Override
+      public void onNoNextItemAvailable() {
+        if (presenterView != null) {
+          presenterView.onError("No next item.");
+        }
+      }
+
+      @Override
+      public void onNoPreviousItemAvailable() {
+        if (presenterView != null) {
+          presenterView.onError("No previous item.");
+        }
+      }
+
+      @Override
+      public void onDownloadDataError(Throwable throwable) {
+        dispatchDefaultPresenterError(throwable);
+      }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
+    });
+  }
+
+  @Override
+  public void loadPreviousBeforeDate(DateTime dateTime) {
+    diaryInteractor.loadDataPreviousBeforeDate(dateTime, new DaysGetNextPreviousInteractorCallback() {
+      @Override
+      public void onDownloadData() {
+        List<IDay> data = diaryInteractor.getData();
+        handleLoadData(data);
+      }
+
+      @Override
+      public void onNoNextItemAvailable() {
+        if (presenterView != null) {
+          presenterView.onError("No next item.");
+        }
+      }
+
+      @Override
+      public void onNoPreviousItemAvailable() {
+        if (presenterView != null) {
+          presenterView.onError("No previous item.");
+        }
+      }
+
+      @Override
+      public void onDownloadDataError(Throwable throwable) {
+        dispatchDefaultPresenterError(throwable);
+      }
+
+      @Override
+      public void onNoDatabase() {
+        noDataSource();
+      }
+    });
   }
 
   @Override

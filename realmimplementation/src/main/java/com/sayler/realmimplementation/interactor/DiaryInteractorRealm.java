@@ -1,7 +1,6 @@
 /**
  * Created by sayler on 2016-11-22.
  * <p>
-
  */
 package com.sayler.realmimplementation.interactor;
 
@@ -18,6 +17,7 @@ import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +53,16 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
     if (checkIfDbExist(daysGetInteractorCallback)) {
       retrieveDataById(id);
     }
+  }
+
+  @Override
+  public void loadDataNextAfterDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback interactorCallback) {
+    //TODO implement
+  }
+
+  @Override
+  public void loadDataPreviousBeforeDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback interactorCallback) {
+    //TODO implement
   }
 
   @Override
