@@ -47,13 +47,6 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     this.ormLiteManager = ormLiteManager;
   }
 
-  @Override
-  public void loadAllData(DaysGetInteractorCallback daysGetInteractorCallback) {
-    this.daysGetInteractorCallback = daysGetInteractorCallback;
-    if (checkIfDbExist(daysGetInteractorCallback)) {
-      retrieveAllData();
-    }
-  }
 
   @Override
   public void loadDataById(long id, DaysGetInteractorCallback daysGetInteractorCallback) {
@@ -79,13 +72,6 @@ public class DiaryInteractorOrmLite extends BaseInteractor implements DiaryInter
     }
   }
 
-  @Override
-  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback daysGetInteractorCallback) {
-    this.daysGetInteractorCallback = daysGetInteractorCallback;
-    if (checkIfDbExist(daysGetInteractorCallback)) {
-      retrieveDataText(searchText);
-    }
-  }
 
   @Override
   public void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback daysPutInteractorCallback) {

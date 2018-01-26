@@ -10,9 +10,12 @@ import io.reactivex.Observable
  *
  * Copyright 2018 MiQUiDO <http://www.miquido.com/>. All rights reserved.
  */
-open class GetAllUseCase(val daysDataProvider: DaysDataProvider, val ormLiteErrorMapper: OrmLiteErrorMapper) {
-    open fun getAll(): Observable<List<Day>> {
-        return Observable.just(daysDataProvider.all)
+open class FindByTextUseCase(val daysDataProvider: DaysDataProvider, val ormLiteErrorMapper: OrmLiteErrorMapper) {
+    open fun findByText(text: String): Observable<List<Day>> {
+        val queryBuilder = daysDataProvider.dao.queryBuilder()
+        val preparedQuery = queryBuilder.where().like(Day.CONTENT_COL, "%$text%").prepare()
+
+        return Observable.just(daysDataProvider.dao.query(preparedQuery))
                 .map {
                     it.sort()
                     it.reverse()

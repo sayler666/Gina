@@ -23,29 +23,6 @@ public class DiaryPresenter extends Presenter<DiaryContract.View> implements Dia
   }
 
   @Override
-  public void loadAll() {
-
-    diaryInteractor.loadAllData(new DaysGetInteractorCallback() {
-      @Override
-      public void onDownloadData() {
-        List<IDay> data = diaryInteractor.getData();
-        handleLoadData(data);
-      }
-
-      @Override
-      public void onDownloadDataError(Throwable throwable) {
-        dispatchDefaultPresenterError(throwable);
-      }
-
-      @Override
-      public void onNoDatabase() {
-        noDataSource();
-      }
-    });
-
-  }
-
-  @Override
   public void loadById(long id) {
 
     diaryInteractor.loadDataById(id, new DaysGetInteractorCallback() {
@@ -136,29 +113,6 @@ public class DiaryPresenter extends Presenter<DiaryContract.View> implements Dia
         noDataSource();
       }
     });
-  }
-
-  @Override
-  public void loadByTextSearch(String searchText) {
-
-    diaryInteractor.loadDataByTextContent(searchText, new DaysGetInteractorCallback() {
-      @Override
-      public void onDownloadData() {
-        List<IDay> data = diaryInteractor.getData();
-        handleLoadData(data);
-      }
-
-      @Override
-      public void onDownloadDataError(Throwable throwable) {
-        dispatchDefaultPresenterError(throwable);
-      }
-
-      @Override
-      public void onNoDatabase() {
-        noDataSource();
-      }
-    });
-
   }
 
   @Override

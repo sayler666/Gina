@@ -67,40 +67,6 @@ class MainActivity : BaseActivity() {
     private var searchView: SearchView? = null
     private var statistics: String = ""
 
-    private val diaryContractView = object : DiaryContract.View {
-        override fun showProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun hideProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun noDataSource() {
-            uiStateController.setUiStateEmpty()
-        }
-
-
-        override fun onDownloaded(data: List<IDay>) {
-            updateRecyclerView(data)
-            uiStateController.setUiStateContent()
-            setupStatistic(data)
-        }
-
-        override fun onError(s: String) {
-            uiStateController.setUiStateError()
-            errorText.text = s
-        }
-
-        override fun onDelete() {
-            //not used
-        }
-
-        override fun onPut() {
-            //not used
-        }
-    }
-
     private val showListView = object : ShowListContract.View {
         override fun showProgress() {
             uiStateController.setUiStateLoading()
@@ -151,7 +117,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun bindPresenters() {
-        bindPresenter(diaryPresenter, diaryContractView)
         bindPresenter(showListPresenter, showListView)
     }
 
@@ -411,7 +376,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun searchForText(charSequence: CharSequence) {
-        diaryPresenter.loadByTextSearch(charSequence.toString())
+        showListPresenter.loadByTextSearch(charSequence.toString())
     }
 
     private fun clearSearchViewAndHide() {
@@ -455,7 +420,7 @@ class MainActivity : BaseActivity() {
         RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe { granted ->
                     if (granted) {
-                        load()
+                        openRememberedSourceFile()
                     } else {
                         Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + Manifest.permission.WRITE_EXTERNAL_STORAGE, Snackbar.LENGTH_SHORT).show()
                     }

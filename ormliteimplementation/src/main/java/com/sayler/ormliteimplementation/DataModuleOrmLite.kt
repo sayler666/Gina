@@ -14,6 +14,7 @@ import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import com.sayler.ormliteimplementation.interactor.DiaryInteractorOrmLite
 import com.sayler.ormliteimplementation.list.presenter.ShowListPresenter
+import com.sayler.ormliteimplementation.list.usecase.FindByTextUseCase
 import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
 import dagger.Module
 import dagger.Provides
@@ -66,12 +67,14 @@ class DataModuleOrmLite : DataModule() {
         return DiaryPresenter(diaryInteractor)
     }
 
-    //use cases
+    //error mapper
 
     @Provides
     fun provideOrmLiteErrorMapper(): OrmLiteErrorMapper {
         return OrmLiteErrorMapper()
     }
+
+    //show list presenter
 
     @Provides
     fun provideGetAllUseCase(daysDataProvider: DaysDataProvider, ormLiteErrorMapper: OrmLiteErrorMapper): GetAllUseCase {
@@ -79,8 +82,13 @@ class DataModuleOrmLite : DataModule() {
     }
 
     @Provides
-    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer, getAllUseCase: GetAllUseCase): ShowListContract.Presenter {
-        return ShowListPresenter(getAllUseCase, iRxAndroidTransformer)
+    fun provideFindByTextUseCase(daysDataProvider: DaysDataProvider, ormLiteErrorMapper: OrmLiteErrorMapper): FindByTextUseCase {
+        return FindByTextUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer, getAllUseCase: GetAllUseCase, findByTextUseCase: FindByTextUseCase): ShowListContract.Presenter {
+        return ShowListPresenter(getAllUseCase, findByTextUseCase, iRxAndroidTransformer)
     }
 
 }

@@ -40,14 +40,6 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   }
 
   @Override
-  public void loadAllData(DaysGetInteractorCallback daysGetInteractorCallback) {
-    this.daysGetInteractorCallback = daysGetInteractorCallback;
-    if (checkIfDbExist(daysGetInteractorCallback)) {
-      retrieveAllData();
-    }
-  }
-
-  @Override
   public void loadDataById(long id, DaysGetInteractorCallback daysGetInteractorCallback) {
     this.daysGetInteractorCallback = daysGetInteractorCallback;
     if (checkIfDbExist(daysGetInteractorCallback)) {
@@ -63,14 +55,6 @@ public class DiaryInteractorRealm extends BaseInteractor implements DiaryInterac
   @Override
   public void loadDataPreviousBeforeDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback interactorCallback) {
     //TODO implement
-  }
-
-  @Override
-  public void loadDataByTextContent(String searchText, DaysGetInteractorCallback daysGetInteractorCallback) {
-    this.daysGetInteractorCallback = daysGetInteractorCallback;
-    if (checkIfDbExist(daysGetInteractorCallback)) {
-      retrieveDataText(searchText);
-    }
   }
 
   @Override

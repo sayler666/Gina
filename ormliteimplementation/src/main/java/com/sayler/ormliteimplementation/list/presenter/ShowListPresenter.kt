@@ -6,6 +6,7 @@ import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.entity.Day
 import com.sayler.ormliteimplementation.exception.CommunicationError
 import com.sayler.ormliteimplementation.exception.OrmLiteError
+import com.sayler.ormliteimplementation.list.usecase.FindByTextUseCase
 import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
 
 /**
@@ -15,6 +16,7 @@ import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
  */
 
 class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
+                        private val findByTextUseCase: FindByTextUseCase,
                         private val rxAndroidTransformer: IRxAndroidTransformer)
     : RxPresenter<ShowListContract.View>(), ShowListContract.Presenter {
 
@@ -28,7 +30,12 @@ class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
     }
 
     override fun loadByTextSearch(searchText: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        presenterView?.showProgress()
+        val disposable = findByTextUseCase
+                .findByText(searchText)
+                .compose(rxAndroidTransformer.applySchedulers())
+                .subscribe(::onSuccess, ::onError)
+        needToUnsubscribe(disposable)
     }
 
     private fun onSuccess(list: List<Day>?) {
