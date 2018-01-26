@@ -8,4 +8,5 @@ package com.sayler.ormliteimplementation.exception
 sealed class OrmLiteError : Throwable() {
     class TimeoutError: OrmLiteError()
     class SyntaxError: OrmLiteError()
+    class NoDataError: OrmLiteError()
 }

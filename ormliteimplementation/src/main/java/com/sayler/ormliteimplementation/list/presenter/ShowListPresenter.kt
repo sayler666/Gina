@@ -17,31 +17,29 @@ import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
 
 class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
                         private val findByTextUseCase: FindByTextUseCase,
-                        private val rxAndroidTransformer: IRxAndroidTransformer)
-    : RxPresenter<ShowListContract.View>(), ShowListContract.Presenter {
+                        rxAndroidTransformer: IRxAndroidTransformer)
+    : RxPresenter<ShowListContract.View>(rxAndroidTransformer), ShowListContract.Presenter {
 
     override fun loadAll() {
         presenterView?.showProgress()
-        val disposable = getAllUseCase
+
+        getAllUseCase
                 .getAll()
-                .compose(rxAndroidTransformer.applySchedulers())
-                .subscribe(::onSuccess, ::onError)
-        needToUnsubscribe(disposable)
+                .subscribeList(::onSuccess, ::onError)
     }
 
     override fun loadByTextSearch(searchText: String) {
         presenterView?.showProgress()
-        val disposable = findByTextUseCase
+
+        findByTextUseCase
                 .findByText(searchText)
-                .compose(rxAndroidTransformer.applySchedulers())
-                .subscribe(::onSuccess, ::onError)
-        needToUnsubscribe(disposable)
+                .subscribeList(::onSuccess, ::onError)
     }
 
     private fun onSuccess(list: List<Day>?) {
         presenterView?.hideProgress()
         list?.let {
-            presenterView?.download(list)
+            presenterView?.show(list)
         }
     }
 
@@ -51,6 +49,7 @@ class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
             is CommunicationError.NoDataSource -> presenterView?.noDataSource()
             is OrmLiteError.TimeoutError -> presenterView?.timeout()
             is OrmLiteError.SyntaxError -> presenterView?.syntaxError()
+            else -> presenterView?.error()
         }
     }
 

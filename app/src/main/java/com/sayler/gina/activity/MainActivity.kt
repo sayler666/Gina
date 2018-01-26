@@ -80,7 +80,7 @@ class MainActivity : BaseActivity() {
             uiStateController.setUiStateEmpty()
         }
 
-        override fun download(dayList: List<IDay>) {
+        override fun show(dayList: List<IDay>) {
             updateRecyclerView(dayList)
             uiStateController.setUiStateContent()
             setupStatistic(dayList)
@@ -94,6 +94,11 @@ class MainActivity : BaseActivity() {
         override fun syntaxError() {
             uiStateController.setUiStateError()
             errorText.text = "Syntax error"
+        }
+
+        override fun error() {
+            uiStateController.setUiStateError()
+            errorText.text = " Error"
         }
 
     }

@@ -12,11 +12,13 @@ import com.sayler.gina.domain.presenter.BaseView
 class ShowListContract {
 
     interface View : BaseView {
-        fun download(dayList: List<IDay>)
+        fun show(dayList: List<IDay>)
 
         fun timeout()
 
         fun syntaxError()
+
+        fun error()
     }
 
     interface Presenter : BasePresenter<View> {
