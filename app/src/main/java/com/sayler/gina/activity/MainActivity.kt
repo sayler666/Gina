@@ -14,7 +14,6 @@ import android.support.v7.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnLongClick
@@ -27,6 +26,7 @@ import com.sayler.gina.adapter.DaysAdapter
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.diary.DiaryContract
+import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.stats.decorator.CharsDecorator
 import com.sayler.gina.stats.decorator.EntriresStatistic
 import com.sayler.gina.stats.decorator.SentencesDecorator
@@ -55,9 +55,12 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var dataManager: DataManager<*>
     @Inject
-    lateinit var diaryPresenter: DiaryContract.Presenter
-    @Inject
     lateinit var settingsStoreManager: SettingsStoreManager
+    @Inject
+    lateinit var diaryPresenter: DiaryContract.Presenter
+
+    @Inject
+    lateinit var showListPresenter: ShowListContract.Presenter
     private lateinit var uiStateController: UiStateController
     private lateinit var broadcastReceiverRefresh: BroadcastReceiverHelper
     private var daysAdapter: DaysAdapter? = null
@@ -65,14 +68,23 @@ class MainActivity : BaseActivity() {
     private var statistics: String = ""
 
     private val diaryContractView = object : DiaryContract.View {
+        override fun showProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun hideProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun noDataSource() {
+            uiStateController.setUiStateEmpty()
+        }
+
+
         override fun onDownloaded(data: List<IDay>) {
             updateRecyclerView(data)
             uiStateController.setUiStateContent()
             setupStatistic(data)
-        }
-
-        override fun onNoDataSource() {
-            uiStateController.setUiStateEmpty()
         }
 
         override fun onError(s: String) {
@@ -87,6 +99,37 @@ class MainActivity : BaseActivity() {
         override fun onPut() {
             //not used
         }
+    }
+
+    private val showListView = object : ShowListContract.View {
+        override fun showProgress() {
+            uiStateController.setUiStateLoading()
+        }
+
+        override fun hideProgress() {
+            //do nothing
+        }
+
+        override fun noDataSource() {
+            uiStateController.setUiStateEmpty()
+        }
+
+        override fun download(dayList: List<IDay>) {
+            updateRecyclerView(dayList)
+            uiStateController.setUiStateContent()
+            setupStatistic(dayList)
+        }
+
+        override fun timeout() {
+            uiStateController.setUiStateError()
+            errorText.text = "Timoeut error"
+        }
+
+        override fun syntaxError() {
+            uiStateController.setUiStateError()
+            errorText.text = "Syntax error"
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,11 +152,11 @@ class MainActivity : BaseActivity() {
 
     private fun bindPresenters() {
         bindPresenter(diaryPresenter, diaryContractView)
+        bindPresenter(showListPresenter, showListView)
     }
 
     private fun load() {
-        uiStateController.setUiStateLoading()
-        diaryPresenter.loadAll()
+        showListPresenter.loadAll()
     }
 
     private fun setupViews() {

@@ -8,12 +8,15 @@ import com.sayler.gina.domain.ObjectCreator
 import com.sayler.gina.domain.interactor.DiaryInteractor
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
+import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
+import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import com.sayler.ormliteimplementation.interactor.DiaryInteractorOrmLite
+import com.sayler.ormliteimplementation.list.presenter.ShowListPresenter
+import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
 import dagger.Module
 import dagger.Provides
-
 import javax.inject.Singleton
 
 @Module
@@ -61,6 +64,23 @@ class DataModuleOrmLite : DataModule() {
     @Provides
     fun provideDaysPresenter(diaryInteractor: DiaryInteractor): DiaryContract.Presenter {
         return DiaryPresenter(diaryInteractor)
+    }
+
+    //use cases
+
+    @Provides
+    fun provideOrmLiteErrorMapper(): OrmLiteErrorMapper {
+        return OrmLiteErrorMapper()
+    }
+
+    @Provides
+    fun provideGetAllUseCase(daysDataProvider: DaysDataProvider, ormLiteErrorMapper: OrmLiteErrorMapper): GetAllUseCase {
+        return GetAllUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer, getAllUseCase: GetAllUseCase): ShowListContract.Presenter {
+        return ShowListPresenter(getAllUseCase, iRxAndroidTransformer)
     }
 
 }

@@ -38,6 +38,18 @@ class DayActivity : BaseActivity() {
     private lateinit var broadcastReceiverDeleteDay: BroadcastReceiverHelper
 
     private val diaryContractView = object : DiaryContract.View {
+        override fun showProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun hideProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun noDataSource() {
+            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+        }
+
         override fun onDownloaded(data: List<IDay>) {
             day = data[0]
             showContent()
@@ -45,10 +57,6 @@ class DayActivity : BaseActivity() {
 
         override fun onError(errorMessage: String) {
             Snackbar.make(findViewById(R.id.coordinator), errorMessage, Snackbar.LENGTH_SHORT).show()
-        }
-
-        override fun onNoDataSource() {
-            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
         }
 
         override fun onPut() {

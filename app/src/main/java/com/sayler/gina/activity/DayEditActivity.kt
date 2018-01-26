@@ -57,6 +57,18 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private val diaryContractView = object : DiaryContract.View {
+        override fun showProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun hideProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun noDataSource() {
+            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+        }
+
         override fun onPut() {
             sendEditDayBroadcast(this@DayEditActivity)
             dataManager.close()
@@ -76,16 +88,24 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             finish()
         }
 
-        override fun onNoDataSource() {
-            Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
-        }
-
         override fun onError(errorMessage: String) {
             showError(errorMessage)
         }
     }
 
     private val attachmentManagerView = object : AttachmentManagerContract.View {
+        override fun showProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun hideProgress() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun noDataSource() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
         override fun onUpdate(attachments: MutableCollection<IAttachment>) {
             attachmentAdapter.updateItems(attachments)
             attachmentAdapter.notifyDataSetChanged()

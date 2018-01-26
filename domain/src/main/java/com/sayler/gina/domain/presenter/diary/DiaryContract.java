@@ -20,8 +20,6 @@ public class DiaryContract {
 
     void onPut();
 
-    void onNoDataSource();
-
     void onDelete();
   }
 

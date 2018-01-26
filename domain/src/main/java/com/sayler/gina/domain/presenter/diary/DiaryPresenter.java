@@ -227,7 +227,7 @@ public class DiaryPresenter extends Presenter<DiaryContract.View> implements Dia
 
   private void noDataSource() {
     if (presenterView != null) {
-      presenterView.onNoDataSource();
+      presenterView.noDataSource();
     }
   }
 
