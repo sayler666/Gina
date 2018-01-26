@@ -4,6 +4,7 @@ import com.sayler.ormliteimplementation.DaysDataProvider
 import com.sayler.ormliteimplementation.entity.Day
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import io.reactivex.Observable
+import java.util.*
 
 /**
  * Created by sayler on 2018-01-26.
@@ -12,7 +13,13 @@ import io.reactivex.Observable
  */
 open class GetAllUseCase(val daysDataProvider: DaysDataProvider, val ormLiteErrorMapper: OrmLiteErrorMapper) {
     open fun getAll(): Observable<List<Day>> {
-        return Observable.just(daysDataProvider.all).handleError()
+        return Observable.just(daysDataProvider.all)
+                .map {
+                    Collections.sort<Day>(it)
+                    Collections.reverse(it)
+                    return@map it
+                }
+                .handleError()
     }
 
     private fun Observable<List<Day>>.handleError(): Observable<List<Day>> = onErrorResumeNext(::mapError)
