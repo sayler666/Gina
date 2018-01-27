@@ -14,9 +14,9 @@ import org.joda.time.DateTime
 /**
  * Created by sayler on 26.01.2018.
  */
-class DayPresenter(val findDayByIdUseCase: FindDayByIdUseCase,
-                   val findNextDayAfterDateUseCase: FindNextDayAfterDateUseCase,
-                   val findPreviousDayAfterDateUseCase: FindPreviousDayAfterDateUseCase,
+class DayPresenter(private val findDayByIdUseCase: FindDayByIdUseCase,
+                   private val findNextDayAfterDateUseCase: FindNextDayAfterDateUseCase,
+                   private val findPreviousDayAfterDateUseCase: FindPreviousDayAfterDateUseCase,
                    rxAndroidTransformer: IRxAndroidTransformer)
     : RxPresenter<DayContract.View>(rxAndroidTransformer), DayContract.Presenter {
     override fun loadById(id: Long) {

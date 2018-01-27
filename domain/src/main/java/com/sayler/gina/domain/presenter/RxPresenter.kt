@@ -39,12 +39,4 @@ abstract class RxPresenter<T>(val rxAndroidTransformer: IRxAndroidTransformer) :
         needToUnsubscribe(disposable)
     }
 
-    fun <T> Observable<List<T>>.subscribeList(success: (List<T>) -> Unit, error: (Throwable) -> Unit) {
-        val disposable = this
-                .compose(rxAndroidTransformer.applySchedulers())
-                .subscribe(success, error)
-
-        needToUnsubscribe(disposable)
-    }
-
 }

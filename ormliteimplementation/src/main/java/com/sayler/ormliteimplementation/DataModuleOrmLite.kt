@@ -6,11 +6,16 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.DataModule
 import com.sayler.gina.domain.ObjectCreator
 import com.sayler.gina.domain.interactor.DiaryInteractor
+import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
+import com.sayler.ormliteimplementation.day.presenter.DayPresenter
+import com.sayler.ormliteimplementation.day.usecase.FindDayByIdUseCase
+import com.sayler.ormliteimplementation.day.usecase.FindNextDayAfterDateUseCase
+import com.sayler.ormliteimplementation.day.usecase.FindPreviousDayAfterDateUseCase
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import com.sayler.ormliteimplementation.interactor.DiaryInteractorOrmLite
 import com.sayler.ormliteimplementation.list.presenter.ShowListPresenter
@@ -77,18 +82,57 @@ class DataModuleOrmLite : DataModule() {
     //show list presenter
 
     @Provides
-    fun provideGetAllUseCase(daysDataProvider: DaysDataProvider, ormLiteErrorMapper: OrmLiteErrorMapper): GetAllUseCase {
+    fun provideGetAllUseCase(daysDataProvider: DaysDataProvider,
+                             ormLiteErrorMapper: OrmLiteErrorMapper)
+            : GetAllUseCase {
         return GetAllUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
-    fun provideFindByTextUseCase(daysDataProvider: DaysDataProvider, ormLiteErrorMapper: OrmLiteErrorMapper): FindByTextUseCase {
+    fun provideFindByTextUseCase(daysDataProvider: DaysDataProvider,
+                                 ormLiteErrorMapper: OrmLiteErrorMapper)
+            : FindByTextUseCase {
         return FindByTextUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
-    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer, getAllUseCase: GetAllUseCase, findByTextUseCase: FindByTextUseCase): ShowListContract.Presenter {
+    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
+                                 getAllUseCase: GetAllUseCase,
+                                 findByTextUseCase: FindByTextUseCase)
+            : ShowListContract.Presenter {
         return ShowListPresenter(getAllUseCase, findByTextUseCase, iRxAndroidTransformer)
+    }
+
+    //day presenter
+
+    @Provides
+    fun provideFindDayByIdUseCase(daysDataProvider: DaysDataProvider,
+                                  ormLiteErrorMapper: OrmLiteErrorMapper)
+            : FindDayByIdUseCase {
+        return FindDayByIdUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideFindNextDayAfterDateUseCase(daysDataProvider: DaysDataProvider,
+                                           ormLiteErrorMapper: OrmLiteErrorMapper)
+            : FindNextDayAfterDateUseCase {
+        return FindNextDayAfterDateUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideFindPreviousDayAfterDateUseCase(daysDataProvider: DaysDataProvider,
+                                               ormLiteErrorMapper: OrmLiteErrorMapper)
+            : FindPreviousDayAfterDateUseCase {
+        return FindPreviousDayAfterDateUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideDayPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
+                            findDayByIdUseCase: FindDayByIdUseCase,
+                            findNextDayAfterDateUseCase: FindNextDayAfterDateUseCase,
+                            findPreviousDayAfterDateUseCase: FindPreviousDayAfterDateUseCase)
+            : DayContract.Presenter {
+        return DayPresenter(findDayByIdUseCase, findNextDayAfterDateUseCase, findPreviousDayAfterDateUseCase, iRxAndroidTransformer)
     }
 
 }

@@ -25,7 +25,7 @@ class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
 
         getAllUseCase
                 .getAll()
-                .subscribeList(::onSuccess, ::onError)
+                .subscribe(::onSuccess, ::onError)
     }
 
     override fun loadByTextSearch(searchText: String) {
@@ -33,14 +33,14 @@ class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
 
         findByTextUseCase
                 .findByText(searchText)
-                .subscribeList(::onSuccess, ::onError)
+                .subscribe(::onSuccess, ::onError)
     }
 
     private fun onSuccess(list: List<Day>?) {
         presenterView?.hideProgress()
         list?.let {
             presenterView?.show(list)
-        }
+        }?:presenterView?.error()
     }
 
     private fun onError(error: Throwable) {

@@ -17,6 +17,7 @@ import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
+import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
@@ -30,6 +31,8 @@ class DayActivity : BaseActivity() {
     lateinit var diaryPresenter: DiaryContract.Presenter
     @Inject
     lateinit var dataManager: DataManager<*>
+    @Inject
+    lateinit var dayPresenter: DayContract.Presenter
 
     lateinit var day: IDay
     var dayId: Long = 0
@@ -37,34 +40,42 @@ class DayActivity : BaseActivity() {
     private lateinit var broadcastReceiverEditDay: BroadcastReceiverHelper
     private lateinit var broadcastReceiverDeleteDay: BroadcastReceiverHelper
 
-    private val diaryContractView = object : DiaryContract.View {
+    private val dayView = object : DayContract.View {
         override fun showProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            //not used
         }
 
         override fun hideProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            //not used
         }
 
         override fun noDataSource() {
-            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(R.id.coordinator), "No data source", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onDownloaded(data: List<IDay>) {
-            day = data[0]
+        override fun show(day: IDay) {
+            this@DayActivity.day = day
             showContent()
         }
 
-        override fun onError(errorMessage: String) {
-            Snackbar.make(findViewById(R.id.coordinator), errorMessage, Snackbar.LENGTH_SHORT).show()
+        override fun noPreviousItemAvailable() {
+            Snackbar.make(findViewById(R.id.coordinator), "No previous day available", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onPut() {
-            //not used
+        override fun noNextItemAvailable() {
+            Snackbar.make(findViewById(R.id.coordinator), "No next day available", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onDelete() {
-            //not used
+        override fun timeout() {
+            Snackbar.make(findViewById(R.id.coordinator), "Timeout error", Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun syntaxError() {
+            Snackbar.make(findViewById(R.id.coordinator), "Syntax error", Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun error() {
+            Snackbar.make(findViewById(R.id.coordinator), "Error", Snackbar.LENGTH_SHORT).show()
         }
 
     }
@@ -108,11 +119,13 @@ class DayActivity : BaseActivity() {
     }
 
     private fun bindPresenters() {
-        bindPresenter(diaryPresenter, diaryContractView)
+        bindPresenter(dayPresenter, dayView)
+        //bindPresenter(diaryPresenter, diaryContractView)
     }
 
     private fun load() {
-        diaryPresenter.loadById(dayId)
+        //diaryPresenter.loadById(dayId)
+        dayPresenter.loadById(dayId)
     }
 
     private fun showContent() {
@@ -169,12 +182,14 @@ class DayActivity : BaseActivity() {
 
     @OnClick(R.id.fabNextDay)
     fun onFabNextDayClick() {
-        diaryPresenter.loadNextAfterDate(day.date)
+        //diaryPresenter.loadNextAfterDate(day.date)
+        dayPresenter.loadNextAfterDate(day.date)
     }
 
     @OnClick(R.id.fabPreviousDay)
     fun onFabPreviousDayClick() {
-        diaryPresenter.loadPreviousBeforeDate(day.date)
+        //diaryPresenter.loadPreviousBeforeDate(day.date)
+        dayPresenter.loadPreviousBeforeDate(day.date)
     }
 
     override fun onBackPressed() {

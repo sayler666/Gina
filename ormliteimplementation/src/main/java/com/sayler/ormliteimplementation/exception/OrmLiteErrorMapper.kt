@@ -12,13 +12,13 @@ class OrmLiteErrorMapper : ErrorMapper() {
     override fun map(error: Throwable): Throwable {
         when (error) {
             is SQLTimeoutException -> return handleTimeoutException(error)
-            is SQLSyntaxErrorException -> return handleSQLSyntaxError(error)
-            is IndexOutOfBoundsException -> return handleNoDataException(error)
+            is SQLSyntaxErrorException -> return handleSQLSyntaxException(error)
+            is IndexOutOfBoundsException, is NullPointerException -> return handleNoDataException(error)
         }
         return super.map(error)
     }
 
-    private fun handleSQLSyntaxError(error: SQLSyntaxErrorException): Throwable {
+    private fun handleSQLSyntaxException(error: SQLSyntaxErrorException): Throwable {
         return OrmLiteError.SyntaxError()
     }
 
@@ -26,7 +26,7 @@ class OrmLiteErrorMapper : ErrorMapper() {
         return OrmLiteError.TimeoutError()
     }
 
-    private fun handleNoDataException(error: IndexOutOfBoundsException): Throwable {
+    private fun handleNoDataException(error: Throwable): Throwable {
         return OrmLiteError.NoDataError()
     }
 }
