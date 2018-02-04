@@ -1,8 +1,8 @@
-package com.sayler.gina.stats.decorator
+package com.sayler.gina.domain.stats.decorator
 
 import com.sayler.gina.domain.IDay
-import com.sayler.gina.stats.Statistic
-import com.sayler.gina.stats.StatisticPair
+import com.sayler.gina.domain.stats.Statistic
+import com.sayler.gina.domain.stats.StatisticPair
 
 /**
  * Created by sayler on 03.10.2017.

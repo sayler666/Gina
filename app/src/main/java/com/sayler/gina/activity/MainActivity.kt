@@ -17,8 +17,6 @@ import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnLongClick
-import com.annimon.stream.Collectors
-import com.annimon.stream.Stream
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
@@ -27,10 +25,6 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
-import com.sayler.gina.stats.decorator.CharsDecorator
-import com.sayler.gina.stats.decorator.EntriresStatistic
-import com.sayler.gina.stats.decorator.SentencesDecorator
-import com.sayler.gina.stats.decorator.WordsDecorator
 import com.sayler.gina.store.settings.SettingsStore
 import com.sayler.gina.store.settings.SettingsStoreManager
 import com.sayler.gina.ui.DefaultScrollerViewProvider
@@ -65,9 +59,20 @@ class MainActivity : BaseActivity() {
     private lateinit var broadcastReceiverRefresh: BroadcastReceiverHelper
     private var daysAdapter: DaysAdapter? = null
     private var searchView: SearchView? = null
-    private var statistics: String = ""
 
     private val showListView = object : ShowListContract.View {
+
+
+        override fun show(dayList: List<IDay>) {
+            updateRecyclerView(dayList)
+            uiStateController.setUiStateContent()
+        }
+
+        override fun statistics(statistics: String) {
+            if (statistics.isNotEmpty())
+                AlertUtility.showInfoAlert(this@MainActivity, R.string.menu_statistics, statistics)
+        }
+
         override fun showProgress() {
             uiStateController.setUiStateLoading()
         }
@@ -78,12 +83,6 @@ class MainActivity : BaseActivity() {
 
         override fun noDataSource() {
             uiStateController.setUiStateEmpty()
-        }
-
-        override fun show(dayList: List<IDay>) {
-            updateRecyclerView(dayList)
-            uiStateController.setUiStateContent()
-            setupStatistic(dayList)
         }
 
         override fun timeout() {
@@ -306,7 +305,7 @@ class MainActivity : BaseActivity() {
                 return true
             }
             R.id.statistics -> {
-                showStatisticDialog()
+                showListPresenter.calculateStatistics()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -393,29 +392,6 @@ class MainActivity : BaseActivity() {
      * -----------------------------------------TOOLBAR END-------------------------------------------------------------
      */
 
-    /**
-     * ----------------------------------STATISTICS BEGINNING-----------------------------------------------------------
-     */
-
-    private fun setupStatistic(data: List<IDay>) {
-        if (data.isNotEmpty()) {
-            val statisticGenerator = CharsDecorator(WordsDecorator(SentencesDecorator(EntriresStatistic())))
-            val statisticPairs = statisticGenerator.generate(data)
-            val statisticData = Stream.of(statisticPairs).map { t -> "${t.label}: ${t.value}\n" }.collect(Collectors.joining())
-            this.statistics = statisticData.trimEnd('\n')
-        } else {
-            this.statistics = ""
-        }
-    }
-
-    private fun showStatisticDialog() {
-        if (statistics.isNotEmpty())
-            AlertUtility.showInfoAlert(this, R.string.menu_statistics, this.statistics)
-    }
-
-    /**
-     * ----------------------------------------STATISTICS END-----------------------------------------------------------
-     */
 
     /**
      * ----------------------------------------PERMISSIONS BEGINNING----------------------------------------------------

@@ -1,4 +1,4 @@
-package com.sayler.gina.stats
+package com.sayler.gina.domain.stats
 
 /**
  * Created by sayler on 03.10.2017.

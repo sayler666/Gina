@@ -14,6 +14,8 @@ class ShowListContract {
     interface View : BaseView {
         fun show(dayList: List<IDay>)
 
+        fun statistics(statistics: String)
+
         fun timeout()
 
         fun syntaxError()
@@ -25,5 +27,7 @@ class ShowListContract {
         fun loadAll()
 
         fun loadByTextSearch(searchText: String)
+
+        fun calculateStatistics()
     }
 }

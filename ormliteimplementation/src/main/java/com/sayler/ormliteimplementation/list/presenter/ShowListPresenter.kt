@@ -2,6 +2,7 @@ package com.sayler.ormliteimplementation.list.presenter
 
 import com.sayler.gina.domain.presenter.RxPresenter
 import com.sayler.gina.domain.presenter.list.ShowListContract
+import com.sayler.gina.domain.presenter.list.usecase.CalculateStatisticsUseCase
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.entity.Day
 import com.sayler.ormliteimplementation.exception.CommunicationError
@@ -17,8 +18,16 @@ import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
 
 class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
                         private val findByTextUseCase: FindByTextUseCase,
-                        rxAndroidTransformer: IRxAndroidTransformer)
-    : RxPresenter<ShowListContract.View>(rxAndroidTransformer), ShowListContract.Presenter {
+                        private val calculateStatisticsUseCase: CalculateStatisticsUseCase,
+                        rxAndroidTransformer: IRxAndroidTransformer
+) : RxPresenter<ShowListContract.View>(rxAndroidTransformer), ShowListContract.Presenter {
+    private var statistics: String? = null
+    private var days: List<Day>? = null
+        set(value) {
+            //clear stats when new data loaded
+            statistics = null
+            field = value
+        }
 
     override fun loadAll() {
         presenterView?.showProgress()
@@ -36,11 +45,26 @@ class ShowListPresenter(private val getAllUseCase: GetAllUseCase,
                 .subscribe(::onSuccess, ::onError)
     }
 
+    override fun calculateStatistics() {
+        days?.let {
+            if (statistics == null) {
+                statistics = calculateStatisticsUseCase.calculate(it)
+            }
+            statistics?.let {
+                presenterView?.statistics(it)
+            }
+        } ?: run {
+            presenterView?.error()
+        }
+    }
+
     private fun onSuccess(list: List<Day>?) {
+        days = list
+
         presenterView?.hideProgress()
         list?.let {
             presenterView?.show(list)
-        }?:presenterView?.error()
+        } ?: presenterView?.error()
     }
 
     private fun onError(error: Throwable) {

@@ -10,6 +10,7 @@ import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.list.ShowListContract
+import com.sayler.gina.domain.presenter.list.usecase.CalculateStatisticsUseCase
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
 import com.sayler.ormliteimplementation.day.presenter.DayPresenter
@@ -98,9 +99,10 @@ class DataModuleOrmLite : DataModule() {
     @Provides
     fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
                                  getAllUseCase: GetAllUseCase,
-                                 findByTextUseCase: FindByTextUseCase)
+                                 findByTextUseCase: FindByTextUseCase,
+                                 statisticsUseCase: CalculateStatisticsUseCase)
             : ShowListContract.Presenter {
-        return ShowListPresenter(getAllUseCase, findByTextUseCase, iRxAndroidTransformer)
+        return ShowListPresenter(getAllUseCase, findByTextUseCase, statisticsUseCase, iRxAndroidTransformer)
     }
 
     //day presenter
