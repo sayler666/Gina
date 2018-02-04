@@ -1,9 +1,8 @@
-package com.sayler.gina.store.settings
+package com.sayler.gina.domain.store.settings
 
 import android.content.Context
-import com.sayler.gina.store.SharedPreferenceHelper
-import com.sayler.gina.util.Constants
-
+import com.sayler.gina.domain.Constants
+import com.sayler.gina.domain.store.SharedPreferenceHelper
 import javax.inject.Singleton
 
 @Singleton

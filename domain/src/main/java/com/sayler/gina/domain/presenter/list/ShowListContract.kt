@@ -16,6 +16,14 @@ class ShowListContract {
 
         fun statistics(statistics: String)
 
+        fun sourceFileFound()
+
+        fun sourceNoFileFound()
+
+        fun sourceFileSaved()
+
+        fun forgotSourceFile()
+
         fun timeout()
 
         fun syntaxError()
@@ -29,5 +37,11 @@ class ShowListContract {
         fun loadByTextSearch(searchText: String)
 
         fun calculateStatistics()
+
+        fun onCreate()
+
+        fun setNewSource(path: String)
+
+        fun toggleRememberSourceFile()
     }
 }
