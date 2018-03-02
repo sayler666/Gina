@@ -44,14 +44,14 @@
                             android:layout_below="@+id/yearMonthText" />
 
                         <TextView
-                            android:id="@+id/content"
+                            android:id="@+id/contentText"
                             style="@style/content" />
 
                         <LinearLayout
                             android:id="@+id/attachmentsContainer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/content"
+                            android:layout_below="@+id/contentText"
                             android:orientation="vertical"
                             android:padding="@dimen/p_medium">
 

@@ -131,9 +131,9 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun setupViews() {
-        content.textChanges()
+        contentText.textChanges()
                 .skip(2)
-                .map { day.content = content.text.toString() }
+                .map { day.content = contentText.text.toString() }
                 .doOnNext { fabs.onEach { it.hide() } }
                 .buffer(2, TimeUnit.SECONDS)
                 .filter { t -> t.size <= 0 }
@@ -182,9 +182,9 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     private fun showTextContent() {
         dayText.text = day.date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
         yearMonthText.text = day.date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
-        content.setText(day.content)
-        if (content.text.isNotEmpty())
-            content.setSelection(content.text.length - 1)
+        contentText.setText(day.content)
+        if (contentText.text.isNotEmpty())
+            contentText.setSelection(contentText.text.length - 1)
     }
 
     private fun setupAttachments() {
@@ -222,7 +222,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         }
     }
 
-    @OnTouch(R.id.root, R.id.content)
+    @OnTouch(R.id.root, R.id.contentText)
     fun onElseClick(): Boolean {
         fabs.onEach { it.show() }
         return false
@@ -311,7 +311,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     override fun onDateSet(view: DatePickerDialog, year: Int, monthOfYear: Int, dayOfMonth: Int) {
         val dateTime = DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0)
         day.date = dateTime
-        day.content = content.text.toString()
+        day.content = contentText.text.toString()
         showTextContent()
     }
 
