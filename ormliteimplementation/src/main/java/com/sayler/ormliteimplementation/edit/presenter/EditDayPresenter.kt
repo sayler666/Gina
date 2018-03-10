@@ -4,6 +4,7 @@ import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.RxPresenter
 import com.sayler.gina.domain.presenter.edit.EditDayContract
+import com.sayler.gina.domain.presenter.list.usecase.CheckIfRememberedSourceUseCase
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.day.usecase.FindDayByIdUseCase
 import com.sayler.ormliteimplementation.edit.usecase.DeleteDayUseCase
@@ -18,8 +19,14 @@ import com.sayler.ormliteimplementation.exception.OrmLiteError
 class EditDayPresenter(private val findDayByIdUseCase: FindDayByIdUseCase,
                        private val deleteDateUseUseCase: DeleteDayUseCase,
                        private val putDayAndAttachmentUseCase: PutDayAndAttachmentUseCase,
+                       private val checkIfRememberedSourceUseCase: CheckIfRememberedSourceUseCase,
                        rxAndroidTransformer: IRxAndroidTransformer)
     : RxPresenter<EditDayContract.View>(rxAndroidTransformer), EditDayContract.Presenter {
+
+    override fun onCreate() {
+        //TODO setup edit mode
+        //check if any file opened if new day
+    }
 
     override fun loadById(id: Long) {
         presenterView?.showProgress()

@@ -169,10 +169,12 @@ class DataModuleOrmLite : DataModule() {
     }
 
     @Provides
-    fun provideEditDayPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
-                                findDayByIdUseCase: FindDayByIdUseCase,
-                                deleteDateUseUseCase: DeleteDayUseCase,
-                                putDayAndAttachmentUseCase: PutDayAndAttachmentUseCase): EditDayContract.Presenter {
-        return EditDayPresenter(findDayByIdUseCase, deleteDateUseUseCase, putDayAndAttachmentUseCase, iRxAndroidTransformer)
+    fun provideEditDayPresenter(
+            checkIfRememberedSourceUseCase: CheckIfRememberedSourceUseCase,
+            iRxAndroidTransformer: IRxAndroidTransformer,
+            findDayByIdUseCase: FindDayByIdUseCase,
+            deleteDateUseUseCase: DeleteDayUseCase,
+            putDayAndAttachmentUseCase: PutDayAndAttachmentUseCase): EditDayContract.Presenter {
+        return EditDayPresenter(findDayByIdUseCase, deleteDateUseUseCase, putDayAndAttachmentUseCase, checkIfRememberedSourceUseCase,iRxAndroidTransformer)
     }
 }

@@ -8,6 +8,7 @@ import com.sayler.gina.domain.presenter.BaseView
 class EditDayContract {
 
     interface View : BaseView {
+
         fun show(day: IDay)
 
         fun put()
@@ -24,6 +25,8 @@ class EditDayContract {
     }
 
     interface Presenter : BasePresenter<View> {
+        fun onCreate()
+
         fun loadById(id: Long)
 
         fun put(day: IDay, attachments: List<IAttachment>)
