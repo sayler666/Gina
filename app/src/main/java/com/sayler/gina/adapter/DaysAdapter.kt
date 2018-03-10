@@ -45,7 +45,7 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
 
                 //content
                 val contentFull = day.content
-                val contentShort = contentFull.truncateTo(200, "...")
+                val contentShort = contentFull?.truncateTo(200, "...")
                 contentShortView.text = contentShort
                 contentView.text = contentFull
 

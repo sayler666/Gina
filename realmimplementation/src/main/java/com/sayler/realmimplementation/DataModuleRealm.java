@@ -39,7 +39,7 @@ public class DataModuleRealm extends DataModule {
 
   @Provides
   DiaryContract.Presenter provideDaysPresenter(DiaryInteractor diaryInteractorRealm) {
-    return new DiaryPresenter(diaryInteractorRealm);
+    return new DiaryPresenter();
   }
 
 }

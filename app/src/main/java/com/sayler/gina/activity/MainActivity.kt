@@ -21,8 +21,8 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.adapter.DaysAdapter
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
+import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.ui.DefaultScrollerViewProvider
 import com.sayler.gina.ui.UiStateController

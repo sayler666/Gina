@@ -5,10 +5,7 @@ import android.os.Environment
 import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.DataModule
 import com.sayler.gina.domain.ObjectCreator
-import com.sayler.gina.domain.interactor.DiaryInteractor
 import com.sayler.gina.domain.presenter.day.DayContract
-import com.sayler.gina.domain.presenter.diary.DiaryContract
-import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.edit.EditDayContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.domain.presenter.list.usecase.CalculateStatisticsUseCase
@@ -27,7 +24,6 @@ import com.sayler.ormliteimplementation.edit.usecase.PutAttachmentUseCase
 import com.sayler.ormliteimplementation.edit.usecase.PutDayAndAttachmentUseCase
 import com.sayler.ormliteimplementation.edit.usecase.PutDayUseCase
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
-import com.sayler.ormliteimplementation.interactor.DiaryInteractorOrmLite
 import com.sayler.ormliteimplementation.list.presenter.ShowListPresenter
 import com.sayler.ormliteimplementation.list.usecase.FindByTextUseCase
 import com.sayler.ormliteimplementation.list.usecase.GetAllUseCase
@@ -72,15 +68,6 @@ class DataModuleOrmLite : DataModule() {
         return attachmentsDataProvider
     }
 
-    @Provides
-    fun provideDaysInteractorOrmLite(iRxAndroidTransformer: IRxAndroidTransformer, daysDataProvider: DaysDataProvider, attachmentsDataProvider: AttachmentsDataProvider, dataManager: DataManager<*>): DiaryInteractor {
-        return DiaryInteractorOrmLite(iRxAndroidTransformer, daysDataProvider, attachmentsDataProvider, dataManager)
-    }
-
-    @Provides
-    fun provideDaysPresenter(diaryInteractor: DiaryInteractor): DiaryContract.Presenter {
-        return DiaryPresenter(diaryInteractor)
-    }
 
     //error mapper
 
@@ -104,19 +91,24 @@ class DataModuleOrmLite : DataModule() {
     }
 
     @Provides
-    fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
-                                 getAllUseCase: GetAllUseCase,
-                                 findByTextUseCase: FindByTextUseCase,
-                                 statisticsUseCase: CalculateStatisticsUseCase,
-                                 settingsSetNewSourceUseCase: SetNewSourceUseCase,
-                                 checkIfRememberedSourceUseCase: CheckIfRememberedSourceUseCase,
-                                 rememberSourceUseCase: RememberSourceUseCase
+    fun provideShowListPresenter(
+            iRxAndroidTransformer: IRxAndroidTransformer,
+            getAllUseCase: GetAllUseCase,
+            findByTextUseCase: FindByTextUseCase,
+            statisticsUseCase: CalculateStatisticsUseCase,
+            settingsSetNewSourceUseCase: SetNewSourceUseCase,
+            checkIfRememberedSourceUseCase: CheckIfRememberedSourceUseCase,
+            rememberSourceUseCase: RememberSourceUseCase
     )
             : ShowListContract.Presenter {
-        return ShowListPresenter(getAllUseCase, findByTextUseCase, statisticsUseCase,
+        return ShowListPresenter(
+                getAllUseCase,
+                findByTextUseCase,
+                statisticsUseCase,
                 checkIfRememberedSourceUseCase,
                 settingsSetNewSourceUseCase,
-                rememberSourceUseCase, iRxAndroidTransformer)
+                rememberSourceUseCase,
+                iRxAndroidTransformer)
     }
 
     //day presenter

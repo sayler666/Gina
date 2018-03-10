@@ -21,6 +21,8 @@ import com.sayler.gina.attachment.AttachmentManagerContract
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.ObjectCreator
+import com.sayler.gina.domain.presenter.diary.DiaryContract
+import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.edit.EditDayContract
 import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.Constants

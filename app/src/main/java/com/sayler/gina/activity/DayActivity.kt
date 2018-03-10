@@ -15,7 +15,6 @@ import butterknife.OnClick
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.util.BroadcastReceiverHelper

@@ -16,6 +16,7 @@ internal class OrmLiteManager(private val context: Context) : DataManager<@JvmWi
 
     fun add(baseDataProvider: BaseDataProvider<*>) {
         baseDataProviderList.add(baseDataProvider)
+        rebindProviders()
     }
 
     override fun setSourceFile(sourceFilePath: String) {
