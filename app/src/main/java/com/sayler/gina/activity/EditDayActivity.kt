@@ -18,7 +18,6 @@ import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
 import com.sayler.gina.attachment.AttachmentManagerContract
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.ObjectCreator
@@ -312,9 +311,6 @@ class EditDayActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 
     override fun onDateSet(view: DatePickerDialog, year: Int, monthOfYear: Int, dayOfMonth: Int) {
         val dateTime = DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0)

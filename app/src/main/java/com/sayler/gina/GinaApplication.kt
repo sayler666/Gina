@@ -19,9 +19,6 @@ class GinaApplication : Application() {
     private lateinit var applicationComponent: ApplicationComponent
     private lateinit var dataComponent: DataComponent
 
-    @Inject
-    lateinit var settingsStoreManager: SettingsStoreManager
-
     override fun onCreate() {
         super.onCreate()
 

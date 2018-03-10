@@ -11,6 +11,10 @@ import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
 import com.sayler.gina.domain.presenter.edit.EditDayContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
+import com.sayler.gina.domain.presenter.list.usecase.CalculateStatisticsUseCase
+import com.sayler.gina.domain.presenter.list.usecase.CheckIfRememberedSourceUseCase
+import com.sayler.gina.domain.presenter.list.usecase.RememberSourceUseCase
+import com.sayler.gina.domain.presenter.list.usecase.SetNewSourceUseCase
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
 import com.sayler.ormliteimplementation.day.presenter.DayPresenter
@@ -109,7 +113,7 @@ class DataModuleOrmLite : DataModule() {
                                  rememberSourceUseCase: RememberSourceUseCase
     )
             : ShowListContract.Presenter {
-        return ShowListPresenter(getAllUseCase, findByTextUseCase,statisticsUseCase,
+        return ShowListPresenter(getAllUseCase, findByTextUseCase, statisticsUseCase,
                 checkIfRememberedSourceUseCase,
                 settingsSetNewSourceUseCase,
                 rememberSourceUseCase, iRxAndroidTransformer)
