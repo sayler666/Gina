@@ -102,8 +102,17 @@ class DataModuleOrmLite : DataModule() {
     @Provides
     fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
                                  getAllUseCase: GetAllUseCase,
-                                 findByTextUseCase: FindByTextUseCase): ShowListContract.Presenter {
-        return ShowListPresenter(getAllUseCase, findByTextUseCase, iRxAndroidTransformer)
+                                 findByTextUseCase: FindByTextUseCase,
+                                 statisticsUseCase: CalculateStatisticsUseCase,
+                                 settingsSetNewSourceUseCase: SetNewSourceUseCase,
+                                 checkIfRememberedSourceUseCase: CheckIfRememberedSourceUseCase,
+                                 rememberSourceUseCase: RememberSourceUseCase
+    )
+            : ShowListContract.Presenter {
+        return ShowListPresenter(getAllUseCase, findByTextUseCase,statisticsUseCase,
+                checkIfRememberedSourceUseCase,
+                settingsSetNewSourceUseCase,
+                rememberSourceUseCase, iRxAndroidTransformer)
     }
 
     //day presenter

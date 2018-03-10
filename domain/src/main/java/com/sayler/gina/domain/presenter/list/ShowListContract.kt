@@ -14,6 +14,16 @@ class ShowListContract {
     interface View : BaseView {
         fun show(dayList: List<IDay>)
 
+        fun statistics(statistics: String)
+
+        fun sourceFileFound()
+
+        fun sourceNoFileFound()
+
+        fun sourceFileSaved()
+
+        fun forgotSourceFile()
+
         fun timeout()
 
         fun syntaxError()
@@ -25,5 +35,13 @@ class ShowListContract {
         fun loadAll()
 
         fun loadByTextSearch(searchText: String)
+
+        fun calculateStatistics()
+
+        fun onCreate()
+
+        fun setNewSource(path: String)
+
+        fun toggleRememberSourceFile()
     }
 }

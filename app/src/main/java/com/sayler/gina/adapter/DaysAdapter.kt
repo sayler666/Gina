@@ -93,7 +93,7 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
     }
 
     class DaysViewHolder(view: View, baseRecyclerViewAdapter: BaseRecyclerViewAdapter<IDay>) : BaseRecyclerViewAdapter.RecyclerViewHolderWithOnItemClick<IDay>(view, baseRecyclerViewAdapter) {
-        @Bind(R.id.content)
+        @Bind(R.id.contentText)
         lateinit var contentView: TextView
         @Bind(R.id.contentShort)
         lateinit var contentShortView: TextView
@@ -109,7 +109,7 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
     }
 
     class DaysHeaderViewHolder(view: View, baseRecyclerViewAdapter: BaseRecyclerViewAdapter<IDay>) : BaseRecyclerViewAdapter.RecyclerViewHolderWithOnItemClick<IDay>(view, baseRecyclerViewAdapter) {
-        @Bind(R.id.content)
+        @Bind(R.id.contentText)
         lateinit var title: TextView
 
         init {

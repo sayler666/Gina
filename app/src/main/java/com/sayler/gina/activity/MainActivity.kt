@@ -17,22 +17,12 @@ import android.view.View
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnLongClick
-import com.annimon.stream.Collectors
-import com.annimon.stream.Stream
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.adapter.DaysAdapter
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
-import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
-import com.sayler.gina.stats.decorator.CharsDecorator
-import com.sayler.gina.stats.decorator.EntriresStatistic
-import com.sayler.gina.stats.decorator.SentencesDecorator
-import com.sayler.gina.stats.decorator.WordsDecorator
-import com.sayler.gina.store.settings.SettingsStore
-import com.sayler.gina.store.settings.SettingsStoreManager
 import com.sayler.gina.ui.DefaultScrollerViewProvider
 import com.sayler.gina.ui.UiStateController
 import com.sayler.gina.util.AlertUtility
@@ -51,23 +41,42 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainActivity : BaseActivity() {
-
-    @Inject
-    lateinit var dataManager: DataManager<*>
-    @Inject
-    lateinit var settingsStoreManager: SettingsStoreManager
-    @Inject
-    lateinit var diaryPresenter: DiaryContract.Presenter
-
     @Inject
     lateinit var showListPresenter: ShowListContract.Presenter
     private lateinit var uiStateController: UiStateController
     private lateinit var broadcastReceiverRefresh: BroadcastReceiverHelper
     private var daysAdapter: DaysAdapter? = null
     private var searchView: SearchView? = null
-    private var statistics: String = ""
 
     private val showListView = object : ShowListContract.View {
+        override fun sourceNoFileFound() {
+            uiStateController.setUiStateEmpty()
+        }
+
+        override fun sourceFileFound() {
+            load()
+            pageTitle.setTextColor(Color.WHITE)
+        }
+
+        override fun sourceFileSaved() {
+            pageTitle.setTextColor(Color.WHITE)
+        }
+
+        override fun forgotSourceFile() {
+            pageTitle.setTextColor(Color.BLACK)
+        }
+
+
+        override fun show(dayList: List<IDay>) {
+            updateRecyclerView(dayList)
+            uiStateController.setUiStateContent()
+        }
+
+        override fun statistics(statistics: String) {
+            if (statistics.isNotEmpty())
+                AlertUtility.showInfoAlert(this@MainActivity, R.string.menu_statistics, statistics)
+        }
+
         override fun showProgress() {
             uiStateController.setUiStateLoading()
         }
@@ -78,12 +87,6 @@ class MainActivity : BaseActivity() {
 
         override fun noDataSource() {
             uiStateController.setUiStateEmpty()
-        }
-
-        override fun show(dayList: List<IDay>) {
-            updateRecyclerView(dayList)
-            uiStateController.setUiStateContent()
-            setupStatistic(dayList)
         }
 
         override fun timeout() {
@@ -118,7 +121,6 @@ class MainActivity : BaseActivity() {
 
         askFormPermission()
 
-        openRememberedSourceFile()
     }
 
     private fun bindPresenters() {
@@ -147,7 +149,7 @@ class MainActivity : BaseActivity() {
 
     private fun setupUiStateController() {
         uiStateController = UiStateController.Builder()
-                .withContentUi(content)
+                .withContentUi(contentText)
                 .withLoadingUi(progressBar)
                 .withErrorUi(error)
                 .withEmptyUi(noDataSource)
@@ -163,57 +165,20 @@ class MainActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (data?.data?.path != null)
-            setNewDbFilePath(data.data.path)
+        data?.data?.path?.let { newSourceFile ->
+            if (newSourceFile.isNotEmpty()) {
+                showListPresenter.setNewSource(newSourceFile)
+            }
+        }
     }
 
     /**
      * -----------------------------------------REMEMBERED FILE BEGINNING-----------------------------------------------
      */
 
-    private fun openRememberedSourceFile() {
-        if (isSourceFileRemembered) {
-            setNewDbFilePath(rememberedSourceFile)
-        }
-    }
-
-    private fun toggleRememberSourceFile(): Boolean {
-        //toggle saved file
-        var settingsStore = settingsStoreManager.get()
-        return if (settingsStore == null) {
-            //save current opened file if empty settings store empty
-            settingsStore = SettingsStore(dataManager.getSourceFilePath())
-            settingsStoreManager.save(settingsStore)
-            true
-        } else {
-            //clear current opened file if settings store not empty
-            settingsStoreManager.clear()
-            false
-        }
-    }
-
     private fun openSourceFileSelectIntent() {
         FileUtils.selectFileIntent(this, Constants.REQUEST_CODE_SELECT_DB)
     }
-
-    private fun setNewDbFilePath(newSourceFile: String) {
-        if (newSourceFile.isNotEmpty()) {
-            dataManager.setSourceFile(newSourceFile)
-            load()
-        }
-    }
-
-    private val isSourceFileRemembered: Boolean
-        get() {
-            val settingsStore = settingsStoreManager.get()
-            return settingsStore?.dataSourceFilePath != null
-        }
-
-    private val rememberedSourceFile: String
-        get() {
-            val settingsStore = settingsStoreManager.get()
-            return settingsStore?.dataSourceFilePath ?: ""
-        }
 
     /**
      * -----------------------------------------REMEMBERED FILE END-----------------------------------------------------
@@ -306,7 +271,7 @@ class MainActivity : BaseActivity() {
                 return true
             }
             R.id.statistics -> {
-                showStatisticDialog()
+                showListPresenter.calculateStatistics()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -329,12 +294,8 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupTitle() {
-        if (isSourceFileRemembered) {
-            pageTitle.setTextColor(Color.WHITE)
-        } else {
-            pageTitle.setTextColor(Color.BLACK)
-        }
         pageTitle.setText(R.string.app_name)
+        pageTitle.setTextColor(Color.BLACK)
     }
 
     private fun showPageTitle() {
@@ -393,43 +354,24 @@ class MainActivity : BaseActivity() {
      * -----------------------------------------TOOLBAR END-------------------------------------------------------------
      */
 
-    /**
-     * ----------------------------------STATISTICS BEGINNING-----------------------------------------------------------
-     */
-
-    private fun setupStatistic(data: List<IDay>) {
-        if (data.isNotEmpty()) {
-            val statisticGenerator = CharsDecorator(WordsDecorator(SentencesDecorator(EntriresStatistic())))
-            val statisticPairs = statisticGenerator.generate(data)
-            val statisticData = Stream.of(statisticPairs).map { t -> "${t.label}: ${t.value}\n" }.collect(Collectors.joining())
-            this.statistics = statisticData.trimEnd('\n')
-        } else {
-            this.statistics = ""
-        }
-    }
-
-    private fun showStatisticDialog() {
-        if (statistics.isNotEmpty())
-            AlertUtility.showInfoAlert(this, R.string.menu_statistics, this.statistics)
-    }
-
-    /**
-     * ----------------------------------------STATISTICS END-----------------------------------------------------------
-     */
 
     /**
      * ----------------------------------------PERMISSIONS BEGINNING----------------------------------------------------
      */
 
     private fun askFormPermission() {
-        RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .subscribe { granted ->
-                    if (granted) {
-                        openRememberedSourceFile()
-                    } else {
-                        Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + Manifest.permission.WRITE_EXTERNAL_STORAGE, Snackbar.LENGTH_SHORT).show()
+        if (!RxPermissions(this).isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .subscribe { granted ->
+                        if (granted) {
+                            showListPresenter.onCreate()
+                        } else {
+                            Snackbar.make(findViewById(android.R.id.content), getString(R.string.permission_rejected) + Manifest.permission.WRITE_EXTERNAL_STORAGE, Snackbar.LENGTH_SHORT).show()
+                        }
                     }
-                }
+        } else {
+            showListPresenter.onCreate()
+        }
     }
 
     /**
@@ -443,12 +385,8 @@ class MainActivity : BaseActivity() {
 
     @OnLongClick(R.id.pageTitle)
     fun onToolbarTitleLongPress(): Boolean {
-        //check if any file opened
-        return if (dataManager.isOpen) {
-            toggleRememberSourceFile()
-            setupTitle()
-            true
-        } else false
+        showListPresenter.toggleRememberSourceFile()
+        return true
     }
 
     @OnClick(R.id.selectDataSourceButton)
@@ -457,7 +395,6 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        dataManager.close()
         super.onDestroy()
     }
 

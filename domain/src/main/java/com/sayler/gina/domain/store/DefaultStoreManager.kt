@@ -1,4 +1,4 @@
-package com.sayler.gina.store
+package com.sayler.gina.domain.store
 
 /**
  * Created by sayler on 2017-05-13.

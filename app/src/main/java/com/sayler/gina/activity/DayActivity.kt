@@ -15,10 +15,8 @@ import butterknife.OnClick
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.presenter.day.DayContract
-import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
@@ -27,10 +25,6 @@ import javax.inject.Inject
 
 
 class DayActivity : BaseActivity() {
-    @Inject
-    lateinit var diaryPresenter: DiaryContract.Presenter
-    @Inject
-    lateinit var dataManager: DataManager<*>
     @Inject
     lateinit var dayPresenter: DayContract.Presenter
 
@@ -55,6 +49,7 @@ class DayActivity : BaseActivity() {
 
         override fun show(day: IDay) {
             this@DayActivity.day = day
+            this@DayActivity.dayId = day.id
             showContent()
         }
 
@@ -120,19 +115,18 @@ class DayActivity : BaseActivity() {
 
     private fun bindPresenters() {
         bindPresenter(dayPresenter, dayView)
-        //bindPresenter(diaryPresenter, diaryContractView)
     }
 
     private fun load() {
-        //diaryPresenter.loadById(dayId)
         dayPresenter.loadById(dayId)
     }
 
     private fun showContent() {
-        dayText.text = day.date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
-        yearMonthText.text = day.date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
-        content.text = day.content
-
+        with(day) {
+            dayText.text = date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
+            yearMonthText.text = date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
+            contentText.text = content
+        }
         showAttachments()
     }
 
@@ -182,13 +176,11 @@ class DayActivity : BaseActivity() {
 
     @OnClick(R.id.fabNextDay)
     fun onFabNextDayClick() {
-        //diaryPresenter.loadNextAfterDate(day.date)
         dayPresenter.loadNextAfterDate(day.date)
     }
 
     @OnClick(R.id.fabPreviousDay)
     fun onFabPreviousDayClick() {
-        //diaryPresenter.loadPreviousBeforeDate(day.date)
         dayPresenter.loadPreviousBeforeDate(day.date)
     }
 
@@ -203,7 +195,6 @@ class DayActivity : BaseActivity() {
     override fun onDestroy() {
         if (attachmentsRecyclerView.adapter != null)
             (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
-        dataManager.close()
         System.gc()
         super.onDestroy()
     }

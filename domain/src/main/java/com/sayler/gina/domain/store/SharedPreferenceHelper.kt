@@ -1,11 +1,11 @@
-package com.sayler.gina.store
+package com.sayler.gina.domain.store
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.TextUtils
 import com.google.gson.Gson
-import com.sayler.gina.util.Constants
+import com.sayler.gina.domain.Constants
 import java.lang.reflect.Type
 
 /**

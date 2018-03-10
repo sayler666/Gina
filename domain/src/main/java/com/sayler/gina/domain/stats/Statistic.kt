@@ -1,4 +1,4 @@
-package com.sayler.gina.stats
+package com.sayler.gina.domain.stats
 
 import com.sayler.gina.domain.IDay
 
