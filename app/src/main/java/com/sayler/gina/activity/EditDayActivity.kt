@@ -22,7 +22,7 @@ import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IAttachment
 import com.sayler.gina.domain.IDay
 import com.sayler.gina.domain.ObjectCreator
-import com.sayler.gina.domain.presenter.diary.DiaryContract
+import com.sayler.gina.domain.presenter.edit.EditDayContract
 import com.sayler.gina.util.AlertUtility
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
@@ -34,13 +34,11 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
+class EditDayActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     @Inject
-    lateinit var diaryPresenter: DiaryContract.Presenter
+    lateinit var editDayPresenter: EditDayContract.Presenter
     @Inject
     lateinit var objectCreator: ObjectCreator
-    @Inject
-    lateinit var dataManager: DataManager<*>
     @Inject
     lateinit var attachmentManager: AttachmentManagerContract.Presenter
 
@@ -56,41 +54,52 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         NEW_DAY, EDIT_DAY
     }
 
-    private val diaryContractView = object : DiaryContract.View {
+    private val editDayView = object : EditDayContract.View {
+        override fun show(day: IDay) {
+            this@EditDayActivity.day = day
+            initialHashDay = day.hashCode()
+            initialHashAttachments = day.attachments.hashCode()
+            setupDay()
+        }
+
+        override fun put() {
+            sendEditDayBroadcast(this@EditDayActivity)
+            finish()
+        }
+
+        override fun delete() {
+            sendDeleteDayBroadcast(this@EditDayActivity)
+            finish()
+        }
+
+        override fun attachmentTooBig() {
+            showError("Attachment too big")
+        }
+
+        override fun timeout() {
+            showError("timeout")
+        }
+
+        override fun syntaxError() {
+            showError("syntax error")
+        }
+
+        override fun error() {
+            showError("error")
+        }
+
         override fun showProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            //not implemented yet
         }
 
         override fun hideProgress() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            //not implemented yet
         }
 
         override fun noDataSource() {
             Snackbar.make(findViewById(android.R.id.content), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onPut() {
-            sendEditDayBroadcast(this@DayEditActivity)
-            dataManager.close()
-            finish()
-        }
-
-        override fun onDownloaded(data: List<IDay>) {
-            day = data[0]
-            initialHashDay = day.hashCode()
-            initialHashAttachments = day.attachments.hashCode()
-            setupDay()
-        }
-
-        override fun onDelete() {
-            sendDeleteDayBroadcast(this@DayEditActivity)
-            dataManager.close()
-            finish()
-        }
-
-        override fun onError(errorMessage: String) {
-            showError(errorMessage)
-        }
     }
 
     private val attachmentManagerView = object : AttachmentManagerContract.View {
@@ -148,13 +157,13 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
             editMode = EditMode.values()[editModeOrdinal]
 
             when (editMode) {
-                DayEditActivity.EditMode.NEW_DAY -> {
+                EditDayActivity.EditMode.NEW_DAY -> {
                     day = objectCreator.createDay()
                     day.date = DateTime()
                     initialHashDay = day.hashCode()
                     initialHashAttachments = day.attachments.hashCode()
                 }
-                DayEditActivity.EditMode.EDIT_DAY -> dayId = intent.getLongExtra(Constants.EXTRA_DAY_ID, -1)
+                EditDayActivity.EditMode.EDIT_DAY -> dayId = intent.getLongExtra(Constants.EXTRA_DAY_ID, -1)
             }
         } else {
             throw IllegalStateException("Missing intent extra params: EXTRA_EDIT_MODE")
@@ -163,14 +172,14 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun bindPresenters() {
         bindPresenter(attachmentManager, attachmentManagerView)
-        bindPresenter(diaryPresenter, diaryContractView)
+        bindPresenter(editDayPresenter, editDayView)
     }
 
 
     private fun load() {
         when (editMode) {
-            DayEditActivity.EditMode.NEW_DAY -> setupDay()
-            DayEditActivity.EditMode.EDIT_DAY -> diaryPresenter.loadById(dayId)
+            EditDayActivity.EditMode.NEW_DAY -> setupDay()
+            EditDayActivity.EditMode.EDIT_DAY -> editDayPresenter.loadById(dayId)
         }
     }
 
@@ -195,7 +204,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
         //on item click
         attachmentAdapter.setOnClick({ item, _ ->
             with(item.attachment) {
-                FileUtils.openFileIntent(this@DayEditActivity, file, mimeType, applicationContext.packageName + ".provider")
+                FileUtils.openFileIntent(this@EditDayActivity, file, mimeType, applicationContext.packageName + ".provider")
             }
         })
         //on remove button click on item
@@ -231,7 +240,7 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     @OnClick(R.id.yearMonthText, R.id.dayText)
     fun onFabEditClick() {
         val dpd = DatePickerDialog.newInstance(
-                this@DayEditActivity,
+                this@EditDayActivity,
                 day.date.year,
                 day.date.monthOfYear - 1,
                 day.date.dayOfMonth
@@ -279,11 +288,11 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun put() {
-        diaryPresenter.put(day, attachmentManager.getAll().toList())
+        editDayPresenter.put(day, attachmentManager.getAll().toList())
     }
 
     private fun delete() {
-        diaryPresenter.delete(day)
+        editDayPresenter.delete(day)
     }
 
     private fun showError(errorMessage: String) {
@@ -304,7 +313,6 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     override fun onDestroy() {
-        dataManager.close()
         super.onDestroy()
     }
 
@@ -318,14 +326,14 @@ class DayEditActivity : BaseActivity(), DatePickerDialog.OnDateSetListener {
     companion object {
 
         fun newIntentEditDay(context: Context, dayId: Long): Intent {
-            val intent = Intent(context, DayEditActivity::class.java)
+            val intent = Intent(context, EditDayActivity::class.java)
             intent.putExtra(Constants.EXTRA_DAY_ID, dayId)
             intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.EDIT_DAY.ordinal)
             return intent
         }
 
         fun newIntentNewDay(context: Context): Intent {
-            val intent = Intent(context, DayEditActivity::class.java)
+            val intent = Intent(context, EditDayActivity::class.java)
             intent.putExtra(Constants.EXTRA_EDIT_MODE, EditMode.NEW_DAY.ordinal)
             return intent
         }

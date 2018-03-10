@@ -438,7 +438,7 @@ class MainActivity : BaseActivity() {
 
     @OnClick(R.id.fabAddNewDay)
     fun onFabAddDayClick() {
-        startActivity(DayEditActivity.newIntentNewDay(this))
+        startActivity(EditDayActivity.newIntentNewDay(this))
     }
 
     @OnLongClick(R.id.pageTitle)

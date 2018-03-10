@@ -172,7 +172,7 @@ class DayActivity : BaseActivity() {
 
     @OnClick(R.id.fabEdit)
     fun onFabEditClick() {
-        startActivity(DayEditActivity.newIntentEditDay(this, dayId))
+        startActivity(EditDayActivity.newIntentEditDay(this, dayId))
     }
 
     @OnClick(R.id.fabAttachments)

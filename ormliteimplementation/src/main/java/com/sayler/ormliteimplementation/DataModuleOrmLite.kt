@@ -9,6 +9,7 @@ import com.sayler.gina.domain.interactor.DiaryInteractor
 import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.domain.presenter.diary.DiaryContract
 import com.sayler.gina.domain.presenter.diary.DiaryPresenter
+import com.sayler.gina.domain.presenter.edit.EditDayContract
 import com.sayler.gina.domain.presenter.list.ShowListContract
 import com.sayler.gina.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.creator.ObjectCreatorOrmLite
@@ -16,6 +17,11 @@ import com.sayler.ormliteimplementation.day.presenter.DayPresenter
 import com.sayler.ormliteimplementation.day.usecase.FindDayByIdUseCase
 import com.sayler.ormliteimplementation.day.usecase.FindNextDayAfterDateUseCase
 import com.sayler.ormliteimplementation.day.usecase.FindPreviousDayAfterDateUseCase
+import com.sayler.ormliteimplementation.edit.presenter.EditDayPresenter
+import com.sayler.ormliteimplementation.edit.usecase.DeleteDayUseCase
+import com.sayler.ormliteimplementation.edit.usecase.PutAttachmentUseCase
+import com.sayler.ormliteimplementation.edit.usecase.PutDayAndAttachmentUseCase
+import com.sayler.ormliteimplementation.edit.usecase.PutDayUseCase
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import com.sayler.ormliteimplementation.interactor.DiaryInteractorOrmLite
 import com.sayler.ormliteimplementation.list.presenter.ShowListPresenter
@@ -83,23 +89,20 @@ class DataModuleOrmLite : DataModule() {
 
     @Provides
     fun provideGetAllUseCase(daysDataProvider: DaysDataProvider,
-                             ormLiteErrorMapper: OrmLiteErrorMapper)
-            : GetAllUseCase {
+                             ormLiteErrorMapper: OrmLiteErrorMapper): GetAllUseCase {
         return GetAllUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
     fun provideFindByTextUseCase(daysDataProvider: DaysDataProvider,
-                                 ormLiteErrorMapper: OrmLiteErrorMapper)
-            : FindByTextUseCase {
+                                 ormLiteErrorMapper: OrmLiteErrorMapper): FindByTextUseCase {
         return FindByTextUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
     fun provideShowListPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
                                  getAllUseCase: GetAllUseCase,
-                                 findByTextUseCase: FindByTextUseCase)
-            : ShowListContract.Presenter {
+                                 findByTextUseCase: FindByTextUseCase): ShowListContract.Presenter {
         return ShowListPresenter(getAllUseCase, findByTextUseCase, iRxAndroidTransformer)
     }
 
@@ -107,22 +110,19 @@ class DataModuleOrmLite : DataModule() {
 
     @Provides
     fun provideFindDayByIdUseCase(daysDataProvider: DaysDataProvider,
-                                  ormLiteErrorMapper: OrmLiteErrorMapper)
-            : FindDayByIdUseCase {
+                                  ormLiteErrorMapper: OrmLiteErrorMapper): FindDayByIdUseCase {
         return FindDayByIdUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
     fun provideFindNextDayAfterDateUseCase(daysDataProvider: DaysDataProvider,
-                                           ormLiteErrorMapper: OrmLiteErrorMapper)
-            : FindNextDayAfterDateUseCase {
+                                           ormLiteErrorMapper: OrmLiteErrorMapper): FindNextDayAfterDateUseCase {
         return FindNextDayAfterDateUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
     @Provides
     fun provideFindPreviousDayAfterDateUseCase(daysDataProvider: DaysDataProvider,
-                                               ormLiteErrorMapper: OrmLiteErrorMapper)
-            : FindPreviousDayAfterDateUseCase {
+                                               ormLiteErrorMapper: OrmLiteErrorMapper): FindPreviousDayAfterDateUseCase {
         return FindPreviousDayAfterDateUseCase(daysDataProvider, ormLiteErrorMapper)
     }
 
@@ -130,9 +130,44 @@ class DataModuleOrmLite : DataModule() {
     fun provideDayPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
                             findDayByIdUseCase: FindDayByIdUseCase,
                             findNextDayAfterDateUseCase: FindNextDayAfterDateUseCase,
-                            findPreviousDayAfterDateUseCase: FindPreviousDayAfterDateUseCase)
-            : DayContract.Presenter {
+                            findPreviousDayAfterDateUseCase: FindPreviousDayAfterDateUseCase): DayContract.Presenter {
         return DayPresenter(findDayByIdUseCase, findNextDayAfterDateUseCase, findPreviousDayAfterDateUseCase, iRxAndroidTransformer)
     }
 
+    //edit day presenter
+
+
+    @Provides
+    fun provideDeleteDayUseCase(daysDataProvider: DaysDataProvider,
+                                ormLiteErrorMapper: OrmLiteErrorMapper): DeleteDayUseCase {
+        return DeleteDayUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun providePutAttachmentUseCase(attachmentsDataProvider: AttachmentsDataProvider,
+                                    ormLiteErrorMapper: OrmLiteErrorMapper): PutAttachmentUseCase {
+        return PutAttachmentUseCase(attachmentsDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun providePutDayUseCase(daysDataProvider: DaysDataProvider,
+                             ormLiteErrorMapper: OrmLiteErrorMapper): PutDayUseCase {
+        return PutDayUseCase(daysDataProvider, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun providePutDayAndAttachmentUseCase(
+            ormLiteErrorMapper: OrmLiteErrorMapper,
+            putDayUseCase: PutDayUseCase,
+            putAttachmentUseCase: PutAttachmentUseCase): PutDayAndAttachmentUseCase {
+        return PutDayAndAttachmentUseCase(putAttachmentUseCase, putDayUseCase, ormLiteErrorMapper)
+    }
+
+    @Provides
+    fun provideEditDayPresenter(iRxAndroidTransformer: IRxAndroidTransformer,
+                                findDayByIdUseCase: FindDayByIdUseCase,
+                                deleteDateUseUseCase: DeleteDayUseCase,
+                                putDayAndAttachmentUseCase: PutDayAndAttachmentUseCase): EditDayContract.Presenter {
+        return EditDayPresenter(findDayByIdUseCase, deleteDateUseUseCase, putDayAndAttachmentUseCase, iRxAndroidTransformer)
+    }
 }

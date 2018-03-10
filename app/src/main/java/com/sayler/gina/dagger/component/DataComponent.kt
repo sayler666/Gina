@@ -2,7 +2,7 @@ package com.sayler.gina.dagger.component
 
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.activity.DayActivity
-import com.sayler.gina.activity.DayEditActivity
+import com.sayler.gina.activity.EditDayActivity
 import com.sayler.gina.activity.MainActivity
 import com.sayler.gina.dagger.module.ManagersModule
 import com.sayler.ormliteimplementation.DataModuleOrmLite
@@ -19,7 +19,7 @@ interface DataComponent {
 
     fun inject(mainActivity: DayActivity)
 
-    fun inject(mainActivity: DayEditActivity)
+    fun inject(mainDayActivity: EditDayActivity)
 
     fun inject(ginaApplication: GinaApplication)
 

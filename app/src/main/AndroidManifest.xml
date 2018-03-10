@@ -33,7 +33,7 @@
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity android:name=".activity.DayActivity" />
-        <activity android:name=".activity.DayEditActivity"
+        <activity android:name=".activity.EditDayActivity"
             android:exported="true" />
     </application>
 

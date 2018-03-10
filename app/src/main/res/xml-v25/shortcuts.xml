@@ -9,7 +9,7 @@
         android:shortcutDisabledMessage="@string/shortcut_new_day">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.sayler.gina.activity.DayEditActivity"
+            android:targetClass="com.sayler.gina.activity.EditDayActivity"
             android:targetPackage="com.sayler.gina" >
             <extra android:name="EXTRA_EDIT_MODE" android:value="0" />
         </intent>
