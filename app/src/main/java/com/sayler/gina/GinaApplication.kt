@@ -11,7 +11,6 @@ import com.sayler.gina.dagger.component.ApplicationComponent
 import com.sayler.gina.dagger.component.DataComponent
 import com.sayler.gina.image.ImageLoaderHelper
 import com.sayler.gina.domain.store.settings.SettingsStoreManager
-import io.realm.Realm
 import javax.inject.Inject
 
 class GinaApplication : Application() {
@@ -22,7 +21,6 @@ class GinaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Realm.init(this)
 
         createComponents()
         dataComponent(this).inject(this)

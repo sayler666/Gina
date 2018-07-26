@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.Bind
+import butterknife.BindView
 import butterknife.ButterKnife
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider
 import com.sayler.gina.R
@@ -93,13 +93,13 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
     }
 
     class DaysViewHolder(view: View, baseRecyclerViewAdapter: BaseRecyclerViewAdapter<IDay>) : BaseRecyclerViewAdapter.RecyclerViewHolderWithOnItemClick<IDay>(view, baseRecyclerViewAdapter) {
-        @Bind(R.id.contentText)
+        @BindView(R.id.contentText)
         lateinit var contentView: TextView
-        @Bind(R.id.contentShort)
+        @BindView(R.id.contentShort)
         lateinit var contentShortView: TextView
-        @Bind(R.id.day)
+        @BindView(R.id.day)
         lateinit var timeView: TextView
-        @Bind(R.id.attachmentsCount)
+        @BindView(R.id.attachmentsCount)
         lateinit var attachmentsCountView: TextView
         var expanded = false
 
@@ -109,7 +109,7 @@ class DaysAdapter(context: Context, items: List<IDay>) : BaseRecyclerViewAdapter
     }
 
     class DaysHeaderViewHolder(view: View, baseRecyclerViewAdapter: BaseRecyclerViewAdapter<IDay>) : BaseRecyclerViewAdapter.RecyclerViewHolderWithOnItemClick<IDay>(view, baseRecyclerViewAdapter) {
-        @Bind(R.id.contentText)
+        @BindView(R.id.contentText)
         lateinit var title: TextView
 
         init {
