@@ -46,6 +46,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
 
   public DBHelper(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    setWriteAheadLoggingEnabled(false);
   }
 
   @Override
