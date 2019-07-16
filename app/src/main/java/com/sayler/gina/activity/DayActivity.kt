@@ -15,9 +15,8 @@ import butterknife.OnClick
 import com.sayler.gina.GinaApplication
 import com.sayler.gina.R
 import com.sayler.gina.attachment.AttachmentAdapter
-import com.sayler.gina.domain.DataManager
 import com.sayler.gina.domain.IDay
-import com.sayler.gina.domain.presenter.diary.DiaryContract
+import com.sayler.gina.domain.presenter.day.DayContract
 import com.sayler.gina.util.BroadcastReceiverHelper
 import com.sayler.gina.util.Constants
 import com.sayler.gina.util.FileUtils
@@ -27,9 +26,7 @@ import javax.inject.Inject
 
 class DayActivity : BaseActivity() {
     @Inject
-    lateinit var diaryPresenter: DiaryContract.Presenter
-    @Inject
-    lateinit var dataManager: DataManager<*>
+    lateinit var dayPresenter: DayContract.Presenter
 
     lateinit var day: IDay
     var dayId: Long = 0
@@ -37,26 +34,43 @@ class DayActivity : BaseActivity() {
     private lateinit var broadcastReceiverEditDay: BroadcastReceiverHelper
     private lateinit var broadcastReceiverDeleteDay: BroadcastReceiverHelper
 
-    private val diaryContractView = object : DiaryContract.View {
-        override fun onDownloaded(data: List<IDay>) {
-            day = data[0]
+    private val dayView = object : DayContract.View {
+        override fun showProgress() {
+            //not used
+        }
+
+        override fun hideProgress() {
+            //not used
+        }
+
+        override fun noDataSource() {
+            Snackbar.make(findViewById(R.id.coordinator), "No data source", Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun show(day: IDay) {
+            this@DayActivity.day = day
+            this@DayActivity.dayId = day.id
             showContent()
         }
 
-        override fun onError(errorMessage: String) {
-            Snackbar.make(findViewById(R.id.coordinator), errorMessage, Snackbar.LENGTH_SHORT).show()
+        override fun noPreviousItemAvailable() {
+            Snackbar.make(findViewById(R.id.coordinator), "No previous day available", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onNoDataSource() {
-            Snackbar.make(findViewById(R.id.coordinator), R.string.no_data_source, Snackbar.LENGTH_SHORT).show()
+        override fun noNextItemAvailable() {
+            Snackbar.make(findViewById(R.id.coordinator), "No next day available", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onPut() {
-            //not used
+        override fun timeout() {
+            Snackbar.make(findViewById(R.id.coordinator), "Timeout error", Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onDelete() {
-            //not used
+        override fun syntaxError() {
+            Snackbar.make(findViewById(R.id.coordinator), "Syntax error", Snackbar.LENGTH_SHORT).show()
+        }
+
+        override fun error() {
+            Snackbar.make(findViewById(R.id.coordinator), "Error", Snackbar.LENGTH_SHORT).show()
         }
 
     }
@@ -100,18 +114,19 @@ class DayActivity : BaseActivity() {
     }
 
     private fun bindPresenters() {
-        bindPresenter(diaryPresenter, diaryContractView)
+        bindPresenter(dayPresenter, dayView)
     }
 
     private fun load() {
-        diaryPresenter.loadById(dayId)
+        dayPresenter.loadById(dayId)
     }
 
     private fun showContent() {
-        dayText.text = day.date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
-        yearMonthText.text = day.date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
-        content.text = day.content
-
+        with(day) {
+            dayText.text = date.toString(Constants.DATA_PATTERN_DAY_NUMBER_DAY_OF_WEEK)
+            yearMonthText.text = date.toString(Constants.DATE_PATTERN_YEAR_MONTH)
+            contentText.text = content
+        }
         showAttachments()
     }
 
@@ -151,7 +166,7 @@ class DayActivity : BaseActivity() {
 
     @OnClick(R.id.fabEdit)
     fun onFabEditClick() {
-        startActivity(DayEditActivity.newIntentEditDay(this, dayId))
+        startActivity(EditDayActivity.newIntentEditDay(this, dayId))
     }
 
     @OnClick(R.id.fabAttachments)
@@ -161,12 +176,12 @@ class DayActivity : BaseActivity() {
 
     @OnClick(R.id.fabNextDay)
     fun onFabNextDayClick() {
-        diaryPresenter.loadNextAfterDate(day.date)
+        dayPresenter.loadNextAfterDate(day.date)
     }
 
     @OnClick(R.id.fabPreviousDay)
     fun onFabPreviousDayClick() {
-        diaryPresenter.loadPreviousBeforeDate(day.date)
+        dayPresenter.loadPreviousBeforeDate(day.date)
     }
 
     override fun onBackPressed() {
@@ -180,7 +195,6 @@ class DayActivity : BaseActivity() {
     override fun onDestroy() {
         if (attachmentsRecyclerView.adapter != null)
             (attachmentsRecyclerView.adapter as AttachmentAdapter).releaseMemory()
-        dataManager.close()
         System.gc()
         super.onDestroy()
     }

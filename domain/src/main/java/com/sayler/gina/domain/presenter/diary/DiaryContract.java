@@ -20,21 +20,16 @@ public class DiaryContract {
 
     void onPut();
 
-    void onNoDataSource();
-
     void onDelete();
   }
 
   public interface Presenter extends BasePresenter<DiaryContract.View> {
-    void loadAll();
-
+ 
     void loadById(long id);
 
     void loadNextAfterDate(DateTime dateTime);
 
     void loadPreviousBeforeDate(DateTime dateTime);
-
-    void loadByTextSearch(String searchText);
 
     void put(IDay day, List<IAttachment> attachments);
 

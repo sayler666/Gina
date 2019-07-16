@@ -1,9 +1,7 @@
 package com.sayler.ormliteimplementation
 
 import android.content.Context
-import com.annimon.stream.Stream
 import com.sayler.gina.domain.DataManager
-
 import java.util.ArrayList
 
 /**
@@ -16,6 +14,7 @@ internal class OrmLiteManager(private val context: Context) : DataManager<@JvmWi
 
     fun add(baseDataProvider: BaseDataProvider<*>) {
         baseDataProviderList.add(baseDataProvider)
+        rebindProviders()
     }
 
     override fun setSourceFile(sourceFilePath: String) {

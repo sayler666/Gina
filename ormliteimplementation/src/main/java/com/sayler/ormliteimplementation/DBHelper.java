@@ -49,7 +49,7 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
     setWriteAheadLoggingEnabled(false);
   }
 
-  @Override
+    @Override
   public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
     Log.d(TAG, "Creating database with path:  " + getDatabasePath());
     try {

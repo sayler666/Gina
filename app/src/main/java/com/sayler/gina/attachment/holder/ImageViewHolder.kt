@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.Bind
+import butterknife.BindView
 import butterknife.ButterKnife
 import com.sayler.gina.R
 import com.sayler.gina.adapter.betteradapter.holder.BetterViewHolder
@@ -18,11 +18,11 @@ import com.sayler.gina.attachment.viewmodel.ImageViewModel
  */
 class ImageViewHolder(view: View, onClickListener: ((item: ImageViewModel, view: View) -> Unit)?, var editable: Boolean, var onRemoveClickListener: ((item: ImageViewModel) -> Unit)?) : BetterViewHolder<ImageViewModel>(view, onClickListener) {
 
-    @Bind(R.id.fileTypeSmallLabel)
+    @BindView(R.id.fileTypeSmallLabel)
     lateinit var fileTypeSmallLabel: TextView
-    @Bind(R.id.image)
+    @BindView(R.id.image)
     lateinit var image: ImageView
-    @Bind(R.id.removeButton)
+    @BindView(R.id.removeButton)
     lateinit var removeButton: View
 
     override fun bind(item: ImageViewModel) {

@@ -7,15 +7,12 @@ import org.joda.time.DateTime;
 import java.util.List;
 
 public interface DiaryInteractor extends CommonInteractor {
-  void loadAllData(DaysGetInteractorCallback interactorCallback);
 
   void loadDataById(long id, DaysGetInteractorCallback interactorCallback);
 
   void loadDataNextAfterDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback interactorCallback);
 
   void loadDataPreviousBeforeDate(DateTime dateTime, DaysGetNextPreviousInteractorCallback interactorCallback);
-
-  void loadDataByTextContent(String searchText, DaysGetInteractorCallback interactorCallback);
 
   void put(IDay day, List<IAttachment> attachments, DaysPutInteractorCallback interactorCallback);
 
