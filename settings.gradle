@@ -1,1 +1,1 @@
-include ':app', ':domain', ':ormliteimplementation', ':realmimplementation'
+include ':app', ':domain', ':ormliteimplementation', ':app2'

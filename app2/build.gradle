@@ -1,0 +1,51 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+kapt {
+  generateStubs = true
+}
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "com.sayler.gina"
+        minSdkVersion 26
+        targetSdkVersion 28
+        versionCode 1
+        versionName "$versionName"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "androidx.core:core-ktx:$coreKtxVersion"
+    implementation "com.airbnb.android:mvrx:$mvrxVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+
+    // Dagger2
+    implementation "com.google.dagger:dagger:$daggerLibVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerLibVersion"
+    implementation "com.google.dagger:dagger-android-support:$daggerLibVersion"
+    kapt "com.google.dagger:dagger-android-processor:$daggerLibVersion"
+    implementation "com.squareup.inject:assisted-inject-annotations-dagger2:$assistedInjectLibVersion"
+    kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assistedInjectLibVersion"
+
+}
+
+apply from: '../commonDependencies.gradle'
