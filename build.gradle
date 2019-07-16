@@ -1,31 +1,31 @@
-ext {
-  supportLibVersion = '26.0.1'
-  daggerLibVersion = '2.13'
-}
-
 buildscript {
-  ext.kotlin_version = '1.2.51'
-  repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-      url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    ext {
+        kotlinVersion = '1.3.41'
+        gradleVersion = '3.4.2'
+        sonarqubeGradleVersion = '2.6.1'
     }
-    maven {
-      url 'https://maven.google.com/'
-      name 'Google'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        google()
     }
-    maven {
-      url "https://plugins.gradle.org/m2/"
+    dependencies {
+        classpath "com.android.tools.build:gradle:$gradleVersion"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarqubeGradleVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlinVersion"
     }
-  }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.1.3'
-    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1"
-    classpath "io.realm:realm-gradle-plugin:3.0.0"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-  }
 }
 
 apply plugin: "org.sonarqube"
@@ -33,30 +33,31 @@ apply plugin: 'kotlin'
 
 
 allprojects {
-  repositories {
     repositories {
-      jcenter()
-      mavenCentral()
-      maven {
-        url "https://clojars.org/repo/"
-      }
-      maven {
-        url "https://maven.google.com"
-      }
-      maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-      }
+        repositories {
+            jcenter()
+            mavenCentral()
+            maven {
+                url "https://clojars.org/repo/"
+            }
+            maven {
+                url "https://maven.google.com"
+            }
+            maven {
+                url 'https://oss.sonatype.org/content/repositories/snapshots/'
+            }
+        }
     }
-  }
-  test {
-    testLogging {
-      events "passed", "skipped", "failed"
-      exceptionFormat "full"
+    test {
+        testLogging {
+            events "passed", "skipped", "failed"
+            exceptionFormat "full"
+        }
     }
-  }
 }
 
 dependencies {
-  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlin_version"
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlinVersion"
 }
 
+apply from: 'commonDependencies.gradle'

@@ -1,0 +1,20 @@
+ext {
+    versionName = '0.9.0'
+
+    supportLibVersion = '26.0.1'
+    daggerLibVersion = '2.23.2'
+    assistedInjectLibVersion = '0.4.0'
+    navigationVersion = '2.0.0'
+
+    rxJavaVersion = '2.2.10'
+    rxAndroidVersion = '2.1.1'
+    rxKotlinVersion = '2.3.0'
+    gsonLibVersion = '2.8.5'
+    
+    lifecycleVersion = '2.0.0'
+    roomVersion = '2.0.0'
+    coreKtxVersion = '1.0.1'
+    cardViewVersion = '1.0.0'
+    appcompatVersion = '1.0.2'
+    mvrxVersion = '1.0.0'
+}

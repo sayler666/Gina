@@ -22,7 +22,7 @@ android {
   compileSdkVersion 27
   defaultConfig {
     applicationId "com.sayler.gina"
-    minSdkVersion 21
+    minSdkVersion 26
     targetSdkVersion 27
     versionCode getVersionCode()
     versionName getVersionName()
@@ -111,7 +111,7 @@ dependencies {
   implementation group: 'com.jakewharton.rxbinding2', name: 'rxbinding-recyclerview-v7', version: '2.0.0'
   implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
   implementation "com.google.dagger:dagger:$daggerLibVersion"
-  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlin_version"
+  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlinVersion"
   implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
   kapt "com.google.dagger:dagger-compiler:$daggerLibVersion"

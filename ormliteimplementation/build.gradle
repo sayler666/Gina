@@ -5,7 +5,7 @@ android {
   compileSdkVersion 27
 
   defaultConfig {
-    minSdkVersion 21
+    minSdkVersion 26
     targetSdkVersion 27
     versionCode 1
     versionName "1.0"
@@ -54,6 +54,6 @@ dependencies {
   implementation group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.0.1'
   implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.2'
   implementation group: 'io.reactivex.rxjava2', name: 'rxkotlin', version: '2.1.0'
-  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlin_version"
+  compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlinVersion"
   implementation project(path: ':domain')
 }
