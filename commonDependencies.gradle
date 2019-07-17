@@ -11,10 +11,9 @@ ext {
     rxKotlinVersion = '2.3.0'
     gsonLibVersion = '2.8.5'
     
-    lifecycleVersion = '2.0.0'
     roomVersion = '2.0.0'
-    coreKtxVersion = '1.0.1'
+    coreKtxVersion = '1.0.2'
     cardViewVersion = '1.0.0'
-    appcompatVersion = '1.0.2'
-    mvrxVersion = '1.0.0'
+    mvrxVersion = '1.0.2'
+    epoxyVersion = '3.7.0'
 }

@@ -16,7 +16,7 @@ class DaysFragment : BaseMvRxFragment() {
     lateinit var viewModelFactory: DaysViewModel.Factory
     private val viewModel: DaysViewModel by fragmentViewModel()
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
