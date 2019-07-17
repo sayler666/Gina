@@ -1,23 +1,26 @@
+import com.sayler.buildsrc.App
+import com.sayler.buildsrc.Libs
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 kapt {
-  generateStubs = true
+    generateStubs = true
 }
 
 android {
     compileSdkVersion 28
 
     defaultConfig {
-        applicationId "com.sayler.gina"
+        applicationId "com.sayler.gina2"
         minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
-        versionName "$versionName"
+        versionName App.versionName
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -33,19 +36,21 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "androidx.core:core-ktx:$coreKtxVersion"
-    implementation "com.airbnb.android:mvrx:$mvrxVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+    // Navigation
+    implementation Libs.AndroidX.Navigation.fragment
+    implementation Libs.AndroidX.Navigation.ui
+
+    implementation Libs.AndroidX.coreKtx
 
     // Dagger2
-    implementation "com.google.dagger:dagger:$daggerLibVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerLibVersion"
-    implementation "com.google.dagger:dagger-android-support:$daggerLibVersion"
-    kapt "com.google.dagger:dagger-android-processor:$daggerLibVersion"
-    implementation "com.squareup.inject:assisted-inject-annotations-dagger2:$assistedInjectLibVersion"
-    kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assistedInjectLibVersion"
+    implementation Libs.Dagger.dagger
+    kapt Libs.Dagger.daggerCompiler
+    implementation Libs.Dagger.daggerAndroid
+    kapt Libs.Dagger.daggerAndroidProcessor
+    implementation Libs.Dagger.assistedInject
+    kapt Libs.Dagger.assistedInjectProcessor
+
+    // MvRx
+    implementation Libs.Airbnb.mvrx
 
 }
-
-apply from: '../commonDependencies.gradle'
