@@ -1,20 +1,27 @@
 package com.sayler.app2.ui.days
 
-import com.airbnb.mvrx.FragmentViewModelContext
-import com.airbnb.mvrx.MvRxState
-import com.airbnb.mvrx.MvRxViewModelFactory
-import com.airbnb.mvrx.ViewModelContext
+import com.airbnb.mvrx.*
 import com.sayler.app2.mvrx.MvRxViewModel
+import com.sayler.data.dao.DayDao
+import com.sayler.data.entity.Day
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 
 
-data class DaysState(val days: List<Any> = emptyList()) : MvRxState
+data class DaysState(val days: Async<List<Any>> = Uninitialized) : MvRxState
 
 class DaysViewModel @AssistedInject constructor(
-        @Assisted state: DaysState
+        @Assisted state: DaysState,
+        dayDao: DayDao
 ) : MvRxViewModel<DaysState>(state) {
 
+    init {
+        withState {
+            dayDao.getAll().execute {
+                copy(days = it)
+            }
+        }
+    }
 
     @AssistedInject.Factory
     interface Factory {

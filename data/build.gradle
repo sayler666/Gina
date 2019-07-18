@@ -1,0 +1,10 @@
+import com.sayler.buildsrc.Libs
+
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation Libs.AndroidX.Room.common
+    implementation Libs.AndroidX.Room.ktx
+    implementation Libs.AndroidX.Room.rxjava2
+}
+

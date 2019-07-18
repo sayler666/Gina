@@ -2,7 +2,9 @@ package com.sayler.app2.di
 
 
 import android.content.Context
+import androidx.room.Database
 import com.sayler.app2.GinaApplication
+import com.sayler.app2.data.DatabaseModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -15,7 +17,8 @@ import javax.inject.Singleton
         modules = [
             AndroidSupportInjectionModule::class,
             AppAssistedModule::class,
-            ActivityFragmentBuilder::class
+            ActivityFragmentBuilder::class,
+            DatabaseModule::class
         ]
 )
 interface ApplicationComponent : AndroidInjector<DaggerApplication> {
