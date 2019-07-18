@@ -36,13 +36,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Navigation
     implementation Libs.AndroidX.Navigation.fragment
     implementation Libs.AndroidX.Navigation.ui
 
     implementation Libs.AndroidX.coreKtx
 
-    // Dagger2
     implementation Libs.Dagger.dagger
     kapt Libs.Dagger.daggerCompiler
     implementation Libs.Dagger.daggerAndroid
@@ -50,7 +48,12 @@ dependencies {
     implementation Libs.Dagger.assistedInject
     kapt Libs.Dagger.assistedInjectProcessor
 
-    // MvRx
+    implementation Libs.AndroidX.Room.common
+    implementation Libs.AndroidX.Room.ktx
+    implementation Libs.AndroidX.Room.rxjava2
+    kapt Libs.AndroidX.Room.compiler
+
     implementation Libs.Airbnb.mvrx
+    compile project(path: ':data')
 
 }
