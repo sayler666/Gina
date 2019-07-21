@@ -1,4 +1,4 @@
-package com.sayler.data.entity
+package com.sayler.data.days.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
