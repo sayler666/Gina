@@ -1,1 +1,1 @@
-include ':app', ':domain', ':ormliteimplementation', ':app2', ':data'
+include ':app', ':domain', ':ormliteimplementation', ':app2', ':data', ':baseandroid'

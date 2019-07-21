@@ -2,6 +2,12 @@ package com.sayler.buildsrc
 
 object App {
     const val versionName = "0.9.0"
+    const val versionCode = 9000
+    const val applicationId = "com.sayler.gina2"
+
+    const val minSdk = 26
+    const val targetSdk = 28
+    const val compileSdk = 28
 }
 
 object Libs {
