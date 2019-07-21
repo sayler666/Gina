@@ -2,9 +2,9 @@ package com.sayler.app2.di
 
 
 import android.content.Context
-import androidx.room.Database
 import com.sayler.app2.GinaApplication
 import com.sayler.app2.data.DatabaseModule
+import com.sayler.app2.data.SettingsModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -18,6 +18,7 @@ import javax.inject.Singleton
             AndroidSupportInjectionModule::class,
             AppAssistedModule::class,
             ActivityFragmentBuilder::class,
+            SettingsModule::class,
             DatabaseModule::class
         ]
 )

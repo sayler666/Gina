@@ -55,5 +55,9 @@ dependencies {
     implementation Libs.AndroidX.Room.rxjava2
     kapt Libs.AndroidX.Room.compiler
 
+    implementation Libs.Moshi.moshi
+    implementation Libs.Moshi.moshiAdapters
+    kapt Libs.Moshi.moshiCodegen
+
     implementation Libs.Airbnb.mvrx
 }

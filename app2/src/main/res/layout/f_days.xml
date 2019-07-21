@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/saveSettingsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save settings" />
+
+    <Button
+        android:id="@+id/readSettingsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Read settings" />
+
+    <Button
+        android:id="@+id/addDayButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add day" />
+
+    <Button
+        android:id="@+id/readDayButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Read days" />
 </LinearLayout>

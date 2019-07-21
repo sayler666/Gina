@@ -1,8 +1,8 @@
-package com.sayler.data.dao
+package com.sayler.data.days.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.sayler.data.entity.Day
+import com.sayler.data.days.entity.Day
 import io.reactivex.Observable
 
 @Dao

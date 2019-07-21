@@ -31,5 +31,13 @@ dependencies {
     implementation Libs.AndroidX.Room.ktx
     implementation Libs.AndroidX.Room.rxjava2
     kapt Libs.AndroidX.Room.compiler
+
+    implementation Libs.Rx.rxJava
+    implementation Libs.Rx.rxKotlin
+    implementation Libs.Rx.rxAndroid
+
+    implementation Libs.Moshi.moshi
+    implementation Libs.Moshi.moshiAdapters
+    kapt Libs.Moshi.moshiCodegen
 }
 

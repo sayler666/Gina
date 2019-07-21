@@ -58,6 +58,13 @@ object Libs {
         const val rxKotlin = "io.reactivex.rxjava2:rxkotlin:2.3.0"
     }
 
+    object Moshi {
+        private const val moshiVersion = "1.8.0"
+        const val moshi = "com.squareup.moshi:moshi:$moshiVersion"
+        const val moshiAdapters = "com.squareup.moshi:moshi-adapters:$moshiVersion"
+        const val moshiCodegen = "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
+    }
+
     object Dagger {
         private const val daggerVersion = "2.23.2"
         private const val assistedInjectVersion = "0.4.0"

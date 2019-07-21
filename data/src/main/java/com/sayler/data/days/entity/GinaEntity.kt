@@ -1,4 +1,4 @@
-package com.sayler.data.entity
+package com.sayler.data.days.entity
 
 
 interface GinaEntity {
