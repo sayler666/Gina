@@ -3,6 +3,7 @@ package com.sayler.app2.data
 import android.content.Context
 import android.os.Debug
 import androidx.room.Room
+import com.sayler.data.GinaRoomDatabase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
