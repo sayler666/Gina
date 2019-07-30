@@ -20,4 +20,5 @@ interface EntityDao<in E : GinaEntity> {
 
     @Delete
     suspend fun delete(entity: E): Int
+
 }
