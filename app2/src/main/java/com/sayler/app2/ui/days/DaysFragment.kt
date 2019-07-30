@@ -10,6 +10,7 @@ import com.airbnb.mvrx.BaseMvRxFragment
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.sayler.app2.R
+import com.sayler.data.settings.SettingsState
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.f_days.*
 import javax.inject.Inject
@@ -32,23 +33,23 @@ class DaysFragment : BaseMvRxFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         saveSettingsButton.setOnClickListener {
-            viewModel.saveSettings("path")
+            viewModel.saveSettings(pathEditText.text.toString())
         }
-        readSettingsButton.setOnClickListener {
-            viewModel.readSettings()
-        }
-
         addDayButton.setOnClickListener {
             viewModel.addDay()
         }
-        readDayButton.setOnClickListener {
-            viewModel.readDays()
+        clearDaysButton.setOnClickListener {
+            viewModel.clearDays()
         }
     }
 
     override fun invalidate() {
         withState(viewModel) {
-            Log.d("DaysFragment", it.toString())
+            Log.d("Days: DaysFragment", it.days.toString())
+            Log.d("Days: DaysFragment", it.settingsState.toString())
+            when (it.settingsState) {
+                is SettingsState.Set -> pathEditText.setText(it.settingsState.settingsData.databasePath)
+            }
         }
     }
 

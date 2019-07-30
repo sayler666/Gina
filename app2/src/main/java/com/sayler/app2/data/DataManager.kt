@@ -7,11 +7,13 @@ import com.sayler.data.days.GinaRoomDatabase
 import com.sayler.data.settings.SettingsData
 import com.sayler.data.settings.SettingsRepository
 import com.sayler.data.settings.SettingsState
+import javax.inject.Inject
 
-class DataManager constructor(
+class DataManager @Inject constructor(
         private val settingsRepository: SettingsRepository,
         private val context: Context
-) {
+) : IDataManager {
+
     lateinit var ginaRoomDatabase: GinaRoomDatabase
 
     init {
@@ -23,23 +25,19 @@ class DataManager constructor(
         openDb(databasePath)
     }
 
-    fun setSourceFile(databasePath: String) {
+    override fun setSourceFile(databasePath: String) {
         settingsRepository.save(SettingsData(databasePath))
         openDb(databasePath)
     }
 
-    fun isDbOpen() = when (settingsRepository.get()) {
+    override fun isDbOpen() = when (settingsRepository.get()) {
         SettingsState.NotSet -> false
         is SettingsState.Set -> true
     }
 
-    fun <T> dao(dao: GinaRoomDatabase.() -> T): T {
-        return ginaRoomDatabase.dao()
-    }
+    override fun <T> dao(block: GinaRoomDatabase.() -> T): T = ginaRoomDatabase.block()
 
-    fun close() {
-        ginaRoomDatabase.close()
-    }
+    override fun close() = ginaRoomDatabase.close()
 
     private fun openDb(databasePath: String) {
         val builder = Room.databaseBuilder(context, GinaRoomDatabase::class.java, databasePath)
@@ -50,5 +48,12 @@ class DataManager constructor(
 
         ginaRoomDatabase = builder.build()
     }
+}
+
+interface IDataManager {
+    fun setSourceFile(databasePath: String)
+    fun isDbOpen(): Boolean
+    fun <T> dao(block: GinaRoomDatabase.() -> T): T
+    fun close()
 }
 
