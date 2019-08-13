@@ -12,6 +12,11 @@ object App {
 
 object Libs {
 
+    object Commons {
+        private const val commonsVersion = "1.3.2"
+        const val Io = "org.apache.commons:commons-io:$commonsVersion"
+    }
+
     object Kotlin {
         const val kotlinVersion = "1.3.41"
         const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -20,7 +25,10 @@ object Libs {
     object AndroidX {
 
         private const val coreKtxVersion = "1.0.2"
+        private const val appCompatVersion = "1.1.0-beta01"
         const val coreKtx = "androidx.core:core-ktx:$coreKtxVersion"
+
+        const val appCompat = "androidx.appcompat:appcompat:$appCompatVersion"
 
         object Navigation {
             private const val version = "2.1.0-alpha05"
