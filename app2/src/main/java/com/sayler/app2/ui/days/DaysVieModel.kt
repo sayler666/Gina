@@ -3,6 +3,7 @@ package com.sayler.app2.ui.days
 import androidx.lifecycle.viewModelScope
 import com.airbnb.mvrx.*
 import com.sayler.app2.data.IDataManager
+import com.sayler.app2.file.OnActivityResultObserver
 import com.sayler.app2.mvrx.MvRxViewModel
 import com.sayler.data.days.entity.Day
 import com.sayler.data.settings.ISettingsRepository
@@ -21,7 +22,8 @@ data class DaysState(
 class DaysViewModel @AssistedInject constructor(
         @Assisted state: DaysState,
         private val dataManager: IDataManager,
-        private val settingsRepository: ISettingsRepository
+        private val settingsRepository: ISettingsRepository,
+        onActivityResultObserver: OnActivityResultObserver
 ) : MvRxViewModel<DaysState>(state) {
 
     init {
@@ -37,6 +39,15 @@ class DaysViewModel @AssistedInject constructor(
         setState {
             copy(settingsState = settingsRepository.get())
         }
+
+        onActivityResultObserver
+                .observe(DaysFragment.REQUEST_CODE_SELECT_DB)
+                .distinctUntilChanged()
+                .subscribe {
+                    it.data?.data?.path?.let { newSourceFile ->
+                        saveSettings(newSourceFile)
+                    }
+                }
     }
 
     fun saveSettings(databasePath: String) {

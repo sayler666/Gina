@@ -3,6 +3,7 @@ package com.sayler.app2.data
 import android.content.Context
 import android.os.Debug
 import androidx.room.Room
+import androidx.room.RoomDatabase.JournalMode.TRUNCATE
 import com.sayler.data.days.GinaRoomDatabase
 import com.sayler.data.settings.SettingsData
 import com.sayler.data.settings.SettingsRepository
@@ -40,11 +41,12 @@ class DataManager @Inject constructor(
     override fun close() = ginaRoomDatabase.close()
 
     private fun openDb(databasePath: String) {
-        val builder = Room.databaseBuilder(context, GinaRoomDatabase::class.java, databasePath)
+        val builder = Room
+                .databaseBuilder(context, GinaRoomDatabase::class.java, databasePath)
                 .fallbackToDestructiveMigration()
-        if (Debug.isDebuggerConnected()) {
-            builder.allowMainThreadQueries()
-        }
+                .setJournalMode(TRUNCATE)
+
+        if (Debug.isDebuggerConnected()) builder.allowMainThreadQueries()
 
         ginaRoomDatabase = builder.build()
     }

@@ -10,6 +10,7 @@ import com.airbnb.mvrx.BaseMvRxFragment
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.sayler.app2.R
+import com.sayler.app2.file.FileUtils
 import com.sayler.data.settings.SettingsState
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.f_days.*
@@ -41,6 +42,9 @@ class DaysFragment : BaseMvRxFragment() {
         clearDaysButton.setOnClickListener {
             viewModel.clearDays()
         }
+        choosePathButton.setOnClickListener {
+            FileUtils.selectFileIntent(requireActivity(), REQUEST_CODE_SELECT_DB)
+        }
     }
 
     override fun invalidate() {
@@ -51,6 +55,11 @@ class DaysFragment : BaseMvRxFragment() {
                 is SettingsState.Set -> pathEditText.setText(it.settingsState.settingsData.databasePath)
             }
         }
+    }
+
+
+    companion object {
+        const val REQUEST_CODE_SELECT_DB = 665
     }
 
 }
