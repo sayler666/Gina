@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.airbnb.mvrx.BaseMvRxFragment
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.sayler.app2.R
@@ -49,8 +50,14 @@ class DaysFragment : BaseMvRxFragment() {
 
     override fun invalidate() {
         withState(viewModel) {
-            Log.d("Days: DaysFragment", it.days.toString())
-            Log.d("Days: DaysFragment", it.settingsState.toString())
+            //Log.d("DaysFragment: [Days]", it.days.toString())
+            when (it.attachment) {
+                is Success -> Log.d("DaysFragment: Attachments count:", it.attachment()?.size.toString())
+            }
+           // Log.d("DaysFragment: [Settings]", it.settingsState.toString())
+            when (it.days) {
+                is Success -> Log.d("DaysFragment: Days count:", it.days()?.size.toString())
+            }
             when (it.settingsState) {
                 is SettingsState.Set -> pathEditText.setText(it.settingsState.settingsData.databasePath)
             }
