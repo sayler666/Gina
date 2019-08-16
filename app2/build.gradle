@@ -8,6 +8,7 @@ apply plugin: 'kotlin-android-extensions'
 
 kapt {
     generateStubs = true
+    correctErrorTypes = true
 }
 
 android {
@@ -38,11 +39,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':data')
 
-
     implementation Libs.AndroidX.Navigation.fragment
     implementation Libs.AndroidX.Navigation.ui
 
     implementation Libs.AndroidX.coreKtx
+    implementation Libs.AndroidX.constraintLayout
 
     implementation Libs.Dagger.dagger
     kapt Libs.Dagger.daggerCompiler
@@ -59,6 +60,9 @@ dependencies {
     implementation Libs.Moshi.moshi
     implementation Libs.Moshi.moshiAdapters
     kapt Libs.Moshi.moshiCodegen
+
+    implementation Libs.Airbnb.epoxy
+    kapt Libs.Airbnb.epoxyProcessor
 
     implementation Libs.Airbnb.mvrx
 }

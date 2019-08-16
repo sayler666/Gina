@@ -7,7 +7,10 @@ import com.sayler.app2.intent.Path.Set
 
 sealed class Path {
     object NotSet : Path()
-    data class Set(val path: String) : Path()
+    data class Set(val path: String) : Path() {
+        operator fun invoke(): String = path
+    }
 }
+
 
 fun Intent?.getPath(): Path = this?.data?.path?.let { Set(it) } ?: NotSet

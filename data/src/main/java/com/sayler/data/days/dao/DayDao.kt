@@ -7,7 +7,7 @@ import io.reactivex.Observable
 
 @Dao
 abstract class DayDao : EntityDao<Day> {
-    @Query("SELECT * FROM days")
+    @Query("SELECT * FROM days ORDER BY id DESC")
     abstract fun getAll(): Observable<List<Day>>
 
     @Query("DELETE FROM days")

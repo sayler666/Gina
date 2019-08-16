@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <com.airbnb.epoxy.EpoxyRecyclerView
+        android:id="@+id/daysRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/choosePathButton" />
+
     <Button
         android:id="@+id/choosePathButton"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Choose Path" />
-    <EditText
-        android:id="@+id/pathEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/saveSettingsButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save settings" />
+        android:text="Choose Path"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addDayButton"
-        android:layout_width="match_parent"
+        android:src="@android:drawable/ic_menu_add"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add day" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <Button
-        android:id="@+id/clearDaysButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Clear days" />
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

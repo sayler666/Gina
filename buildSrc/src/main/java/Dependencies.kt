@@ -26,9 +26,11 @@ object Libs {
 
         private const val coreKtxVersion = "1.0.2"
         private const val appCompatVersion = "1.1.0-beta01"
+        private const val constraintLayoutVersion = "2.0.0-beta2"
         const val coreKtx = "androidx.core:core-ktx:$coreKtxVersion"
 
         const val appCompat = "androidx.appcompat:appcompat:$appCompatVersion"
+        const val constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
 
         object Navigation {
             private const val version = "2.1.0-alpha05"
@@ -56,8 +58,10 @@ object Libs {
     }
 
     object Airbnb {
+        private const val epoxyVersion = "3.7.0"
         const val mvrx = "com.airbnb.android:mvrx:1.0.2"
-        const val epoxy = "com.airbnb.android:epoxy:3.7.0"
+        const val epoxy = "com.airbnb.android:epoxy:$epoxyVersion"
+        const val epoxyProcessor = "com.airbnb.android:epoxy-processor:$epoxyVersion"
     }
 
     object Rx {
