@@ -1,7 +1,8 @@
-package com.sayler.app2.ui.days
+package com.sayler.app2.days
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.fragmentViewModel
@@ -43,6 +44,7 @@ class DaysFragment : MvRxFragment() {
                 dayView {
                     id(it.id)
                     title(it.content)
+                    clickListener { view -> Log.d(TAG, it.id.toString()) }
                 }
             }
         }
@@ -50,6 +52,7 @@ class DaysFragment : MvRxFragment() {
 
     companion object {
         const val REQUEST_CODE_SELECT_DB = 665
+        const val TAG = "DaysViewFragment"
     }
 
 }

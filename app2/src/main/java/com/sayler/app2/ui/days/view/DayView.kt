@@ -3,6 +3,7 @@ package com.sayler.app2.ui.days.view
 import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelView
 import com.airbnb.epoxy.TextProp
 import com.sayler.app2.R
@@ -23,5 +24,10 @@ class DayView @JvmOverloads constructor(
     @TextProp
     fun setTitle(title: CharSequence?) {
         dv_title.text = title
+    }
+
+    @CallbackProp
+    fun setClickListener(listener: OnClickListener?) {
+        root.setOnClickListener(listener)
     }
 }

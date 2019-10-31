@@ -1,7 +1,7 @@
 package com.sayler.app2.di
 
+import com.sayler.app2.days.DaysFragment
 import com.sayler.app2.ui.MainActivity
-import com.sayler.app2.ui.days.DaysFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
