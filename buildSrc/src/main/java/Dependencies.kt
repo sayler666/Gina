@@ -18,22 +18,22 @@ object Libs {
     }
 
     object Kotlin {
-        const val kotlinVersion = "1.3.41"
+        const val kotlinVersion = "1.3.50"
         const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     }
 
     object AndroidX {
 
-        private const val coreKtxVersion = "1.0.2"
-        private const val appCompatVersion = "1.1.0-beta01"
-        private const val constraintLayoutVersion = "2.0.0-beta2"
+        private const val coreKtxVersion = "1.1.0"
+        private const val appCompatVersion = "1.1.0"
+        private const val constraintLayoutVersion = "2.0.0-beta3"
         const val coreKtx = "androidx.core:core-ktx:$coreKtxVersion"
 
         const val appCompat = "androidx.appcompat:appcompat:$appCompatVersion"
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
 
         object Navigation {
-            private const val version = "2.1.0-alpha05"
+            private const val version = "2.1.0"
             const val fragment = "androidx.navigation:navigation-fragment-ktx:$version"
             const val ui = "androidx.navigation:navigation-ui-ktx:$version"
             const val safeArgs = "androidx.navigation:navigation-safe-args-gradle-plugin:$version"
