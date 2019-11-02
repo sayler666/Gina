@@ -10,6 +10,22 @@ object App {
     const val compileSdk = 28
 }
 
+object Kotlin {
+    const val kotlinVersion = "1.3.50"
+    const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+}
+
+object Classpath {
+
+    private const val gradleVersion = "3.5.0"
+    private const val sonarqubeVersion = "2.6.1"
+    const val gradle = "com.android.tools.build:gradle:$gradleVersion"
+    const val sonarqube = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarqubeVersion"
+    const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Kotlin.kotlinVersion}"
+    const val kotlinAndroid = "org.jetbrains.kotlin:kotlin-android-extensions:${Kotlin.kotlinVersion}"
+    const val navigationSafeArgs = Libs.AndroidX.Navigation.safeArgs
+}
+
 object Libs {
 
     object Commons {
@@ -17,10 +33,6 @@ object Libs {
         const val Io = "org.apache.commons:commons-io:$commonsVersion"
     }
 
-    object Kotlin {
-        const val kotlinVersion = "1.3.50"
-        const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    }
 
     object AndroidX {
 
