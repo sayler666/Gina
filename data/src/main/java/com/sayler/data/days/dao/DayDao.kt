@@ -10,6 +10,9 @@ abstract class DayDao : EntityDao<Day> {
     @Query("SELECT * FROM days ORDER BY id DESC")
     abstract fun getAll(): Observable<List<Day>>
 
+    @Query("SELECT * FROM days WHERE id = :id")
+    abstract fun get(id: Long): Observable<Day>
+
     @Query("DELETE FROM days")
     suspend abstract fun deleteAll()
 }

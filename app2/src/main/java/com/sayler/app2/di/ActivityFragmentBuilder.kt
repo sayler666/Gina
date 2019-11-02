@@ -1,5 +1,6 @@
 package com.sayler.app2.di
 
+import com.sayler.app2.day.DayFragment
 import com.sayler.app2.days.DaysFragment
 import com.sayler.app2.ui.MainActivity
 import dagger.Module
@@ -12,4 +13,7 @@ abstract class ActivityFragmentBuilder {
 
     @ContributesAndroidInjector
     abstract fun bindDaysFragment(): DaysFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindDayFragment(): DayFragment
 }

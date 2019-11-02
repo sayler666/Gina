@@ -9,6 +9,7 @@ import com.sayler.app2.intent.Path.NotSet
 import com.sayler.app2.intent.Path.Set
 import com.sayler.app2.intent.getPath
 import com.sayler.app2.mvrx.MvRxViewModel
+import com.sayler.app2.mvrx.fragment
 import com.sayler.data.days.entity.Day
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -77,7 +78,7 @@ class DaysViewModel @AssistedInject constructor(
         const val TAG = "DaysViewModel"
 
         override fun create(viewModelContext: ViewModelContext, state: DaysState): DaysViewModel? {
-            val fragment = (viewModelContext as FragmentViewModelContext).fragment<DaysFragment>()
+            val fragment = viewModelContext.fragment<DaysFragment>()
             return fragment.viewModelFactory.create(state)
         }
     }

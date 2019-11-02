@@ -7,5 +7,24 @@
     <fragment
         android:id="@+id/daysFragment"
         android:name="com.sayler.app2.days.DaysFragment"
-        android:label="DaysFragment" />
+        android:label="DaysFragment">
+        <action
+            android:id="@+id/openDay"
+            app:destination="@id/dayFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/dayFragment"
+        android:name="com.sayler.app2.day.DayFragment"
+        android:label="DayFragment">
+        <argument
+            android:name="dayId"
+            app:argType="long"
+            app:nullable="false" />
+    </fragment>
+
+
 </navigation>

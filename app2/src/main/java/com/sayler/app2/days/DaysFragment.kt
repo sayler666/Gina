@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.fragmentViewModel
 import com.sayler.app2.R
@@ -40,11 +41,14 @@ class DaysFragment : MvRxFragment() {
 
     override fun epoxyController() = viewModelController(viewModel) { state ->
         when (state.days) {
-            is Success -> state.days()?.forEach {
+            is Success -> state.days()?.forEach { day ->
                 dayView {
-                    id(it.id)
-                    title(it.content)
-                    clickListener { view -> Log.d(TAG, it.id.toString()) }
+                    id(day.id)
+                    title(day.content)
+                    clickListener { view ->
+                        Log.d(TAG, "Open day ${day.id}")
+                        findNavController().navigate(DaysFragmentDirections.openDay(day.id))
+                    }
                 }
             }
         }
@@ -52,7 +56,7 @@ class DaysFragment : MvRxFragment() {
 
     companion object {
         const val REQUEST_CODE_SELECT_DB = 665
-        const val TAG = "DaysViewFragment"
+        const val TAG = "DaysFragment"
     }
 
 }
