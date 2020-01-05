@@ -11,13 +11,16 @@ object App {
 }
 
 object Kotlin {
-    const val kotlinVersion = "1.3.50"
+    const val kotlinVersion = "1.3.61"
     const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    const val kotlinCoroutinesVersion = "1.3.0"
+    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+    const val kotlinCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 }
 
 object Classpath {
 
-    private const val gradleVersion = "3.5.0"
+    private const val gradleVersion = "3.5.3"
     private const val sonarqubeVersion = "2.6.1"
     const val gradle = "com.android.tools.build:gradle:$gradleVersion"
     const val sonarqube = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarqubeVersion"
@@ -36,9 +39,9 @@ object Libs {
 
     object AndroidX {
 
-        private const val coreKtxVersion = "1.1.0"
-        private const val appCompatVersion = "1.1.0"
-        private const val constraintLayoutVersion = "2.0.0-beta3"
+        private const val coreKtxVersion = "1.2.0-rc01"
+        private const val appCompatVersion = "1.2.0-alpha01"
+        private const val constraintLayoutVersion = "2.0.0-beta4"
         const val coreKtx = "androidx.core:core-ktx:$coreKtxVersion"
 
         const val appCompat = "androidx.appcompat:appcompat:$appCompatVersion"
@@ -51,6 +54,11 @@ object Libs {
             const val safeArgs = "androidx.navigation:navigation-safe-args-gradle-plugin:$version"
         }
 
+        object Lifecycle {
+            private const val version = "2.2.0-rc03"
+            const val lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$version"
+        }
+
         object Paging {
             private const val version = "2.1.0"
             const val common = "androidx.paging:paging-common:$version"
@@ -59,7 +67,7 @@ object Libs {
         }
 
         object Room {
-            private const val version = "2.1.0"
+            private const val version = "2.2.1"
             const val common = "androidx.room:room-common:$version"
             const val runtime = "androidx.room:room-runtime:$version"
             const val rxjava2 = "androidx.room:room-rxjava2:$version"
@@ -71,7 +79,7 @@ object Libs {
 
     object Airbnb {
         private const val epoxyVersion = "3.7.0"
-        const val mvrx = "com.airbnb.android:mvrx:1.0.2"
+        const val mvrx = "com.airbnb.android:mvrx:1.3.0"
         const val epoxy = "com.airbnb.android:epoxy:$epoxyVersion"
         const val epoxyProcessor = "com.airbnb.android:epoxy-processor:$epoxyVersion"
     }
@@ -90,8 +98,8 @@ object Libs {
     }
 
     object Dagger {
-        private const val daggerVersion = "2.23.2"
-        private const val assistedInjectVersion = "0.4.0"
+        private const val daggerVersion = "2.25.4"
+        private const val assistedInjectVersion = "0.5.2"
         const val dagger = "com.google.dagger:dagger:$daggerVersion"
         const val daggerCompiler = "com.google.dagger:dagger-compiler:$daggerVersion"
         const val daggerAndroid = "com.google.dagger:dagger-android-support:$daggerVersion"

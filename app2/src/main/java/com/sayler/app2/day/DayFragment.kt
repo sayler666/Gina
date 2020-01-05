@@ -10,8 +10,10 @@ import com.airbnb.mvrx.*
 import com.sayler.app2.R
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.f_day.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
+@UseExperimental(InternalCoroutinesApi::class)
 class DayFragment : BaseMvRxFragment() {
     val arguments: DayFragmentArgs by navArgs()
 

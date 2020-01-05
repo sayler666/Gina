@@ -7,6 +7,7 @@ import com.sayler.app2.mvrx.fragment
 import com.sayler.data.days.entity.Day
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import kotlinx.coroutines.InternalCoroutinesApi
 
 data class DayState(
         val day: Async<Day> = Uninitialized,
@@ -14,20 +15,19 @@ data class DayState(
 ) : MvRxState
 
 
+@UseExperimental(InternalCoroutinesApi::class)
 class DayViewModel @AssistedInject constructor(
         @Assisted state: DayState,
         private val dataManager: IDataManager
 ) : MvRxViewModel<DayState>(state) {
 
     init {
-        withState {
-            dataManager.dao { dayDao() }?.apply {
-                get(state.dayId)
-                        .distinctUntilChanged()
-                        .execute {
-                            copy(day = it)
-                        }
-            }
+        dataManager.dao { dayDao() }?.apply {
+            get(state.dayId)
+                    .distinctUntilChanged()
+                    .execute {
+                        copy(day = it)
+                    }
         }
     }
 

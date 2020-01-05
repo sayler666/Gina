@@ -4,11 +4,12 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.sayler.data.days.entity.Day
 import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class DayDao : EntityDao<Day> {
     @Query("SELECT * FROM days ORDER BY id DESC")
-    abstract fun getAll(): Observable<List<Day>>
+    abstract fun getAll(): Flow<List<Day>>
 
     @Query("SELECT * FROM days WHERE id = :id")
     abstract fun get(id: Long): Observable<Day>

@@ -3,6 +3,7 @@ package com.sayler.app2.mvrx
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.MvRxState
 import com.airbnb.mvrx.withState
+import kotlinx.coroutines.InternalCoroutinesApi
 
 class MvRxEpoxyController(
         val buildModelsCallback: MvRxEpoxyController.() -> Unit
@@ -12,6 +13,7 @@ class MvRxEpoxyController(
     }
 }
 
+@InternalCoroutinesApi
 fun <S : MvRxState, VM : MvRxViewModel<S>> MvRxFragment.viewModelController(
         viewModel: VM,
         buildModels: MvRxEpoxyController.(state: S) -> Unit

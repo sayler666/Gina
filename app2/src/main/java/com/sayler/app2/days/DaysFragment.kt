@@ -14,8 +14,10 @@ import com.sayler.app2.mvrx.viewModelController
 import com.sayler.app2.ui.days.view.dayView
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.f_days.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Inject
 
+@UseExperimental(InternalCoroutinesApi::class)
 class DaysFragment : MvRxFragment() {
 
     @Inject

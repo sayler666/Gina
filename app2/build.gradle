@@ -1,4 +1,5 @@
 import com.sayler.buildsrc.App
+import com.sayler.buildsrc.Kotlin
 import com.sayler.buildsrc.Libs
 
 apply plugin: 'com.android.application'
@@ -52,6 +53,8 @@ dependencies {
     implementation Libs.AndroidX.Navigation.fragment
     implementation Libs.AndroidX.Navigation.ui
 
+    implementation Libs.AndroidX.Lifecycle.lifecycleRuntimeKtx
+
     implementation Libs.AndroidX.coreKtx
     implementation Libs.AndroidX.constraintLayout
 
@@ -61,6 +64,9 @@ dependencies {
     kapt Libs.Dagger.daggerAndroidProcessor
     implementation Libs.Dagger.assistedInject
     kapt Libs.Dagger.assistedInjectProcessor
+
+    implementation Kotlin.kotlinCoroutines
+    implementation Kotlin.kotlinCoroutinesAndroid
 
     implementation Libs.AndroidX.Room.common
     implementation Libs.AndroidX.Room.ktx

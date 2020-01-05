@@ -10,8 +10,10 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import dagger.android.support.AndroidSupportInjectionModule
+import kotlinx.coroutines.InternalCoroutinesApi
 import javax.inject.Singleton
 
+@UseExperimental(InternalCoroutinesApi::class)
 @Singleton
 @Component(
         modules = [
