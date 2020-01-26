@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 def versionMajor = 0
 def versionMinor = 8
-def versionPatch = 1
+def versionPatch = 2
 
 def getVersionCode = { -> 1000 * versionMajor + 100 * versionMinor + versionPatch
 }
