@@ -1,1 +1,2 @@
-include ':app', ':domain', ':ormliteimplementation', ':realmimplementation'
+include ':app'
+rootProject.name = "Gina"
