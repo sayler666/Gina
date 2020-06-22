@@ -3,12 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
     compileSdkVersion 29
 
     defaultConfig {
-        applicationId "com.sayler.gina"
+        applicationId "com.sayler.gina3"
         minSdkVersion 29
         targetSdkVersion 29
         versionCode 1
@@ -48,12 +49,17 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Libs.kotlin_stdlib
+
+    // Core
     implementation Libs.appcompat
-    implementation Libs.constraintlayout
 
     // KTX
+    implementation Libs.activity_ktx
     implementation Libs.core_ktx
     implementation Libs.fragment_ktx
+
+    // UI
+    implementation Libs.constraintlayout
 
     // Navigation component
     implementation Libs.navigation_runtime_ktx
@@ -73,7 +79,7 @@ dependencies {
     implementation Libs.hilt_android
     kapt Libs.hilt_android_compiler
     implementation Libs.hilt_lifecycle_viewmodel
-    implementation Libs.hilt_common
+    kapt Libs.hilt_compiler
 
     // Coroutine
     implementation Libs.kotlinx_coroutines_android

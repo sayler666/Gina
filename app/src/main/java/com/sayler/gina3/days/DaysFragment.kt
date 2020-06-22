@@ -1,4 +1,4 @@
-package com.sayler.gina.entry
+package com.sayler.gina3.entry
 
 import android.os.Bundle
 import android.util.Log
@@ -6,31 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.sayler.gina.R
+import com.sayler.gina3.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EntryFragment : Fragment() {
+class DaysFragment : Fragment() {
 
-    private val entryViewModel by activityViewModels<EntryViewModel>()
+    private val daysViewModel by viewModels<DaysViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.entry_fragment, container, false)
+    ): View? = inflater.inflate(R.layout.days_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        entryViewModel.updateTest()
+        daysViewModel.updateTest()
     }
 
     private fun setupObservers() {
-        with(entryViewModel) {
+        with(daysViewModel) {
             test.observe(viewLifecycleOwner, Observer {
                 Log.d("EntryFragment", "value $it")
             })

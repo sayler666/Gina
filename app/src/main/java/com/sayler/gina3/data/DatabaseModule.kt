@@ -1,4 +1,4 @@
-package com.sayler.gina.data
+package com.sayler.gina3.data
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -27,6 +27,10 @@ class DatabaseModule {
         sharedPreferences: SharedPreferences,
         moshi: Moshi
     ): SettingsRepository = SettingsRepositoryImpl(sharedPreferences, moshi)
+
+    @Singleton
+    @Provides
+    fun provideDataManager(dataManager: DataManager) : IDataManager = dataManager
 
     companion object {
         private const val SETTINGS_PREFERENCES = "SETTINGS_PREFERENCES"

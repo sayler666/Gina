@@ -1,4 +1,4 @@
-package com.sayler.gina.entry
+package com.sayler.gina3.entry
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData

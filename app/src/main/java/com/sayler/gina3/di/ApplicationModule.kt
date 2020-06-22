@@ -1,4 +1,4 @@
-package com.sayler.gina.di
+package com.sayler.gina3.di
 
 import com.squareup.moshi.Moshi
 import dagger.Module

@@ -1,20 +1,17 @@
-package com.sayler.gina
+package com.sayler.gina3
 
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
-import com.sayler.gina.data.DataManager
-import com.sayler.gina.entry.EntryViewModel
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import com.sayler.gina3.data.DataManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private val entryViewModel by viewModels<EntryViewModel>()
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     @Inject
@@ -25,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setupNavigation()
-        setupObservers()
     }
 
     private fun setupNavigation() {
@@ -36,13 +32,9 @@ class MainActivity : AppCompatActivity() {
                     true -> R.id.daysFragment
                 }
             }
+        val appBarConfiguration =
+            AppBarConfiguration.Builder(R.id.entryFragment, R.id.daysFragment).build()
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
     }
 
-    private fun setupObservers() {
-        with(entryViewModel) {
-            test.observe(this@MainActivity, Observer {
-                Log.d("MainActivity", "value $it")
-            })
-        }
-    }
 }

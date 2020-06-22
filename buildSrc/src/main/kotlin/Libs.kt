@@ -12,13 +12,6 @@ object Libs {
             Versions.de_fayard_buildsrcversions_gradle_plugin
 
     /**
-     * https://developer.android.com/topic/libraries/architecture/index.html
-     */
-    const val navigation_safe_args_gradle_plugin: String =
-            "androidx.navigation:navigation-safe-args-gradle-plugin:" +
-            Versions.navigation_safe_args_gradle_plugin
-
-    /**
      * https://developer.android.com/studio
      */
     const val com_android_tools_build_gradle: String = "com.android.tools.build:gradle:" +
@@ -29,18 +22,6 @@ object Libs {
      */
     const val androidx_test_ext_junit: String = "androidx.test.ext:junit:" +
             Versions.androidx_test_ext_junit
-
-    /**
-     * https://developer.android.com/topic/libraries/architecture/index.html
-     */
-    const val navigation_fragment_ktx: String = "androidx.navigation:navigation-fragment-ktx:" +
-            Versions.navigation_fragment_ktx
-
-    /**
-     * https://developer.android.com/topic/libraries/architecture/index.html
-     */
-    const val navigation_runtime_ktx: String = "androidx.navigation:navigation-runtime-ktx:" +
-            Versions.navigation_runtime_ktx
 
     /**
      * https://github.com/Kotlin/kotlinx.coroutines
@@ -89,6 +70,30 @@ object Libs {
     /**
      * https://developer.android.com/topic/libraries/architecture/index.html
      */
+    const val navigation_fragment_ktx: String = "androidx.navigation:navigation-fragment-ktx:" +
+            Versions.androidx_navigation
+
+    /**
+     * https://developer.android.com/topic/libraries/architecture/index.html
+     */
+    const val navigation_runtime_ktx: String = "androidx.navigation:navigation-runtime-ktx:" +
+            Versions.androidx_navigation
+
+    /**
+     * https://developer.android.com/topic/libraries/architecture/index.html
+     */
+    const val navigation_safe_args_gradle_plugin: String =
+            "androidx.navigation:navigation-safe-args-gradle-plugin:" + Versions.androidx_navigation
+
+    /**
+     * https://developer.android.com/topic/libraries/architecture/index.html
+     */
+    const val navigation_ui_ktx: String = "androidx.navigation:navigation-ui-ktx:" +
+            Versions.androidx_navigation
+
+    /**
+     * https://developer.android.com/topic/libraries/architecture/index.html
+     */
     const val lifecycle_common_java8: String = "androidx.lifecycle:lifecycle-common-java8:" +
             Versions.androidx_lifecycle
 
@@ -130,18 +135,12 @@ object Libs {
             Versions.com_google_dagger
 
     /**
-     * https://developer.android.com/topic/libraries/architecture/index.html
-     */
-    const val navigation_ui_ktx: String = "androidx.navigation:navigation-ui-ktx:" +
-            Versions.navigation_ui_ktx
-
-    /**
      * http://tools.android.com
      */
     const val constraintlayout: String = "androidx.constraintlayout:constraintlayout:" +
             Versions.constraintlayout
 
-    const val hilt_common: String = "androidx.hilt:hilt-common:" + Versions.androidx_hilt
+    const val hilt_compiler: String = "androidx.hilt:hilt-compiler:" + Versions.androidx_hilt
 
     const val hilt_lifecycle_viewmodel: String = "androidx.hilt:hilt-lifecycle-viewmodel:" +
             Versions.androidx_hilt
@@ -166,6 +165,11 @@ object Libs {
      */
     const val espresso_core: String = "androidx.test.espresso:espresso-core:" +
             Versions.espresso_core
+
+    /**
+     * https://developer.android.com/jetpack/androidx
+     */
+    const val activity_ktx: String = "androidx.activity:activity-ktx:" + Versions.activity_ktx
 
     /**
      * https://developer.android.com/jetpack/androidx
