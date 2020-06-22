@@ -6,14 +6,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
+import com.sayler.gina.data.DataManager
 import com.sayler.gina.entry.EntryViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val entryViewModel by viewModels<EntryViewModel>()
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+
+    @Inject
+    lateinit var dataManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,10 +29,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNavigation() {
-        val initializedDb = true
         navController.graph = navController.navInflater.inflate(R.navigation.main_navigation_graph)
             .apply {
-                startDestination = when (initializedDb) {
+                startDestination = when (dataManager.isDbOpen()) {
                     false -> R.id.entryFragment
                     true -> R.id.daysFragment
                 }

@@ -104,6 +104,23 @@ object Libs {
     const val lifecycle_viewmodel_ktx: String = "androidx.lifecycle:lifecycle-viewmodel-ktx:" +
             Versions.androidx_lifecycle
 
+    /**
+     * https://github.com/square/moshi
+     */
+    const val moshi: String = "com.squareup.moshi:moshi:" + Versions.com_squareup_moshi
+
+    /**
+     * https://github.com/square/moshi
+     */
+    const val moshi_adapters: String = "com.squareup.moshi:moshi-adapters:" +
+            Versions.com_squareup_moshi
+
+    /**
+     * https://github.com/square/moshi
+     */
+    const val moshi_kotlin_codegen: String = "com.squareup.moshi:moshi-kotlin-codegen:" +
+            Versions.com_squareup_moshi
+
     const val hilt_android: String = "com.google.dagger:hilt-android:" + Versions.com_google_dagger
 
     const val hilt_android_compiler: String = "com.google.dagger:hilt-android-compiler:" +
@@ -133,6 +150,11 @@ object Libs {
      * https://developer.android.com/topic/libraries/architecture/index.html
      */
     const val room_compiler: String = "androidx.room:room-compiler:" + Versions.androidx_room
+
+    /**
+     * https://developer.android.com/topic/libraries/architecture/index.html
+     */
+    const val room_ktx: String = "androidx.room:room-ktx:" + Versions.androidx_room
 
     /**
      * https://developer.android.com/topic/libraries/architecture/index.html

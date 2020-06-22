@@ -1,0 +1,18 @@
+package com.sayler.data.dao
+
+import androidx.room.Dao
+import androidx.room.Query
+import com.sayler.data.entity.Day
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+abstract class DayDao : EntityDao<Day> {
+    @Query("SELECT * FROM days ORDER BY id DESC")
+    abstract fun getAll(): Flow<List<Day>>
+
+    @Query("SELECT * FROM days WHERE id = :id")
+    abstract fun get(id: Long): Flow<Day>
+
+    @Query("DELETE FROM days")
+    suspend abstract fun deleteAll()
+}

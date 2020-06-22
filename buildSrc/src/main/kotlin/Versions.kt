@@ -30,6 +30,8 @@ object Versions {
 
     const val androidx_lifecycle: String = "2.2.0"
 
+    const val com_squareup_moshi: String = "1.9.3"
+
     const val com_google_dagger: String = "2.28-alpha"
 
     const val navigation_ui_ktx: String = "2.2.2"

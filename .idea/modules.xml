@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Gina.iml" filepath="$PROJECT_DIR$/.idea/modules/Gina.iml" group="Gina" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Gina_buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/Gina_buildSrc.iml" group="Gina/Gina_buildSrc" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="Gina/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/data/data.iml" filepath="$PROJECT_DIR$/.idea/modules/data/data.iml" group="Gina/data" />
     </modules>
   </component>
 </project>
