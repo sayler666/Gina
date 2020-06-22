@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 29
@@ -14,7 +16,27 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    androidExtensions {
+        experimental = true
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -26,9 +48,37 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Libs.kotlin_stdlib
-    implementation Libs.core_ktx
     implementation Libs.appcompat
     implementation Libs.constraintlayout
+
+    // KTX
+    implementation Libs.core_ktx
+    implementation Libs.fragment_ktx
+
+    // Navigation component
+    implementation Libs.navigation_runtime_ktx
+    implementation Libs.navigation_fragment_ktx
+    implementation Libs.navigation_ui_ktx
+
+    // Lifecycle
+    implementation Libs.lifecycle_viewmodel_ktx
+    implementation Libs.lifecycle_livedata_ktx
+    implementation Libs.lifecycle_common_java8
+
+    // Room
+    implementation Libs.room_runtime
+    kapt Libs.room_compiler
+
+    // Dagger
+    implementation Libs.hilt_android
+    kapt Libs.hilt_android_compiler
+    implementation Libs.hilt_lifecycle_viewmodel
+    implementation Libs.hilt_common
+
+    // Coroutine
+    implementation Libs.kotlinx_coroutines_android
+    implementation Libs.kotlinx_coroutines_core
+
     testImplementation Libs.junit_junit
     androidTestImplementation Libs.androidx_test_ext_junit
     androidTestImplementation Libs.espresso_core

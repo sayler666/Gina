@@ -14,15 +14,35 @@ import org.gradle.plugin.use.PluginDependencySpec
 object Versions {
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.6.1" // available: "0.7.0"
 
+    const val navigation_safe_args_gradle_plugin: String = "2.2.1" // available: "2.2.2"
+
     const val com_android_tools_build_gradle: String = "4.0.0"
 
     const val androidx_test_ext_junit: String = "1.1.1"
 
+    const val navigation_fragment_ktx: String = "2.2.2"
+
+    const val navigation_runtime_ktx: String = "2.2.2"
+
+    const val org_jetbrains_kotlinx: String = "1.3.7"
+
     const val org_jetbrains_kotlin: String = "1.3.72"
+
+    const val androidx_lifecycle: String = "2.2.0"
+
+    const val com_google_dagger: String = "2.28-alpha"
+
+    const val navigation_ui_ktx: String = "2.2.2"
 
     const val constraintlayout: String = "1.1.3"
 
+    const val androidx_hilt: String = "1.0.0-alpha01"
+
+    const val androidx_room: String = "2.2.5"
+
     const val espresso_core: String = "3.2.0"
+
+    const val fragment_ktx: String = "1.2.5"
 
     const val junit_junit: String = "4.12" // available: "4.13"
 
