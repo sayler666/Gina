@@ -10,7 +10,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:colorControlHighlight">@color/colorPrimaryDark</item>
         <item name="android:colorButtonNormal">@color/colorAccent</item>
-        <item name="android:statusBarColor">@color/colorAccentDarker</item>
+        <item name="android:statusBarColor">@color/colorAccent</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <item name="toolbarStyle">@style/toolbarStyle</item>
         <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
         <item name="alertDialogTheme">@style/AlertDialogCustom</item>
@@ -26,7 +27,7 @@
     </style>
 
     <style name="toolbarStyle" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/colorAccentDark</item>
+        <item name="android:background">@color/colorAccent</item>
         <item name="searchViewStyle">@style/searchViewStyle</item>
     </style>
 

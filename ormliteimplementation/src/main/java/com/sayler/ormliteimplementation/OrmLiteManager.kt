@@ -1,7 +1,7 @@
 package com.sayler.ormliteimplementation
 
 import android.content.Context
-import com.sayler.gina.domain.DataManager
+import com.sayler.monia.domain.DataManager
 import java.util.ArrayList
 
 /**

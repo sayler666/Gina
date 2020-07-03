@@ -5,9 +5,9 @@
  */
 package com.sayler.ormliteimplementation.creator;
 
-import com.sayler.gina.domain.IAttachment;
-import com.sayler.gina.domain.IDay;
-import com.sayler.gina.domain.ObjectCreator;
+import com.sayler.monia.domain.IAttachment;
+import com.sayler.monia.domain.IDay;
+import com.sayler.monia.domain.ObjectCreator;
 import com.sayler.ormliteimplementation.entity.Attachment;
 import com.sayler.ormliteimplementation.entity.Day;
 

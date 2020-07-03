@@ -4,18 +4,14 @@
  */
 package com.sayler.ormliteimplementation.interactor;
 
-import com.sayler.gina.domain.DataManager;
-import com.sayler.gina.domain.IAttachment;
-import com.sayler.gina.domain.IDay;
-import com.sayler.gina.domain.interactor.BaseInteractor;
-import com.sayler.gina.domain.interactor.DaysDeleteInteractorCallback;
-import com.sayler.gina.domain.interactor.DaysGetInteractorCallback;
-import com.sayler.gina.domain.interactor.DaysGetNextPreviousInteractorCallback;
-import com.sayler.gina.domain.interactor.DaysPutInteractorCallback;
-import com.sayler.gina.domain.interactor.DiaryInteractor;
-import com.sayler.gina.domain.rx.IRxAndroidTransformer;
-import com.sayler.ormliteimplementation.AttachmentsDataProvider;
-import com.sayler.ormliteimplementation.DaysDataProvider;
+import com.sayler.monia.domain.IAttachment;
+import com.sayler.monia.domain.IDay;
+import com.sayler.monia.domain.interactor.BaseInteractor;
+import com.sayler.monia.domain.interactor.DaysDeleteInteractorCallback;
+import com.sayler.monia.domain.interactor.DaysGetInteractorCallback;
+import com.sayler.monia.domain.interactor.DaysGetNextPreviousInteractorCallback;
+import com.sayler.monia.domain.interactor.DaysPutInteractorCallback;
+import com.sayler.monia.domain.interactor.DiaryInteractor;
 
 import org.joda.time.DateTime;
 

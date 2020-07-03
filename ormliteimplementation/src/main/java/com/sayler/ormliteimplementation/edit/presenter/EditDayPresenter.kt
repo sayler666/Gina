@@ -1,11 +1,11 @@
 package com.sayler.ormliteimplementation.edit.presenter
 
-import com.sayler.gina.domain.IAttachment
-import com.sayler.gina.domain.IDay
-import com.sayler.gina.domain.presenter.RxPresenter
-import com.sayler.gina.domain.presenter.edit.EditDayContract
-import com.sayler.gina.domain.presenter.list.usecase.CheckIfRememberedSourceUseCase
-import com.sayler.gina.domain.rx.IRxAndroidTransformer
+import com.sayler.monia.domain.IAttachment
+import com.sayler.monia.domain.IDay
+import com.sayler.monia.domain.presenter.RxPresenter
+import com.sayler.monia.domain.presenter.edit.EditDayContract
+import com.sayler.monia.domain.presenter.list.usecase.CheckIfRememberedSourceUseCase
+import com.sayler.monia.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.day.usecase.FindDayByIdUseCase
 import com.sayler.ormliteimplementation.edit.usecase.DeleteDayUseCase
 import com.sayler.ormliteimplementation.edit.usecase.PutDayAndAttachmentUseCase

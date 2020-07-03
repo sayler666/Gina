@@ -10,7 +10,7 @@ def versionPatch = 2
 def getVersionCode = { -> 1000 * versionMajor + 100 * versionMinor + versionPatch
 }
 def getVersionName = { ->
-  "0.8.1"
+  "0.8.1-ms"
 }
 
 
@@ -21,7 +21,7 @@ kapt {
 android {
   compileSdkVersion 27
   defaultConfig {
-    applicationId "com.sayler.gina"
+    applicationId "com.sayler.monia"
     minSdkVersion 21
     targetSdkVersion 27
     versionCode getVersionCode()

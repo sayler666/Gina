@@ -11,8 +11,8 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sayler.gina.domain.IAttachment;
-import com.sayler.gina.domain.IDay;
+import com.sayler.monia.domain.IAttachment;
+import com.sayler.monia.domain.IDay;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

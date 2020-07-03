@@ -1,7 +1,7 @@
 package com.sayler.ormliteimplementation.edit.usecase
 
 import com.annimon.stream.Stream
-import com.sayler.gina.domain.IAttachment
+import com.sayler.monia.domain.IAttachment
 import com.sayler.ormliteimplementation.AttachmentsDataProvider
 import com.sayler.ormliteimplementation.entity.Attachment
 import com.sayler.ormliteimplementation.entity.Day

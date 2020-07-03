@@ -1,6 +1,6 @@
 package com.sayler.ormliteimplementation.edit.usecase
 
-import com.sayler.gina.domain.IAttachment
+import com.sayler.monia.domain.IAttachment
 import com.sayler.ormliteimplementation.entity.Day
 import com.sayler.ormliteimplementation.exception.OrmLiteErrorMapper
 import io.reactivex.Observable

@@ -1,8 +1,8 @@
 package com.sayler.ormliteimplementation.day.presenter
 
-import com.sayler.gina.domain.presenter.RxPresenter
-import com.sayler.gina.domain.presenter.day.DayContract
-import com.sayler.gina.domain.rx.IRxAndroidTransformer
+import com.sayler.monia.domain.presenter.RxPresenter
+import com.sayler.monia.domain.presenter.day.DayContract
+import com.sayler.monia.domain.rx.IRxAndroidTransformer
 import com.sayler.ormliteimplementation.day.usecase.FindDayByIdUseCase
 import com.sayler.ormliteimplementation.day.usecase.FindNextDayAfterDateUseCase
 import com.sayler.ormliteimplementation.day.usecase.FindPreviousDayAfterDateUseCase
