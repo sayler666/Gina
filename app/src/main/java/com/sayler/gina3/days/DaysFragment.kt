@@ -8,13 +8,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.sayler.data.entity.Day
 import com.sayler.gina3.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.toolbar.*
 
 @AndroidEntryPoint
 class DaysFragment : Fragment() {
 
     private val daysViewModel by viewModels<DaysViewModel>()
+
+    private val daysObserver = Observer<List<Day>> {
+        Log.d("DaysFragment", "value $it")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,14 +32,14 @@ class DaysFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
-        daysViewModel.updateTest()
+        setupToolbars()
     }
 
-    private fun setupObservers() {
-        with(daysViewModel) {
-            test.observe(viewLifecycleOwner, Observer {
-                Log.d("EntryFragment", "value $it")
-            })
-        }
+    private fun setupToolbars() {
+        toolbar.setTitle(R.string.app_name)
+    }
+
+    private fun setupObservers() = with(daysViewModel) {
+        days.observe(viewLifecycleOwner, daysObserver)
     }
 }

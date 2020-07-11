@@ -7,18 +7,16 @@
     <fragment
         android:id="@+id/entryFragment"
         android:name="com.sayler.gina3.entry.EntryFragment"
-        tools:layout="@layout/entry_fragment"
-        android:label="Entry">
+        tools:layout="@layout/entry_fragment">
         <action
             android:id="@+id/toDaysFragment"
             app:destination="@id/daysFragment"
             app:popUpTo="@id/entryFragment"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/daysFragment"
         android:name="com.sayler.gina3.entry.DaysFragment"
-        tools:layout="@layout/days_fragment"
-        android:label="Days" />
+        tools:layout="@layout/days_fragment" />
 </navigation>

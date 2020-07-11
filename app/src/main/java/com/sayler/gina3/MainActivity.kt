@@ -3,8 +3,6 @@ package com.sayler.gina3
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import com.sayler.gina3.data.DataManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -32,9 +30,6 @@ class MainActivity : AppCompatActivity() {
                     true -> R.id.daysFragment
                 }
             }
-        val appBarConfiguration =
-            AppBarConfiguration.Builder(R.id.entryFragment, R.id.daysFragment).build()
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
     }
 
 }

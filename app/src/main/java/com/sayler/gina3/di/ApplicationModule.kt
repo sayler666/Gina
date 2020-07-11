@@ -1,5 +1,7 @@
 package com.sayler.gina3.di
 
+import com.sayler.gina3.days.domain.DaysUseCase
+import com.sayler.gina3.days.domain.DaysUseCaseImpl
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -15,4 +17,6 @@ class ApplicationModule {
     @Provides
     fun provideMoshi() = Moshi.Builder().build()
 
+    @Provides
+    fun provideDaysUseCase(daysUseCaseImpl: DaysUseCaseImpl): DaysUseCase = daysUseCaseImpl
 }

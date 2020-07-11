@@ -34,7 +34,10 @@ class DataManager @Inject constructor(
     init {
         when (val settings = settingsRepository.get()) {
             NotSet -> Log.d("DataManager", "Path not set.")
-            is Set -> openConnection(settings.settingsData.databasePath)
+            is Set -> {
+                Log.d("DataManager", "Path set to: ${settings.settingsData.databasePath}")
+                openConnection(settings.settingsData.databasePath)
+            }
         }
     }
 
