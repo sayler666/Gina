@@ -6,6 +6,7 @@ buildscript {
     dependencies {
         classpath(Dependencies.Deps.classpathGradle)
         classpath(Dependencies.Deps.classpathKotlinGradle)
+        classpath(Dependencies.Deps.classpathHilt)
     }
 }
 

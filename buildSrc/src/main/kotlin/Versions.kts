@@ -1,5 +1,6 @@
 object Versions {
     const val kotlin = "1.7.0"
+    const val hilt = "2.44.2"
     const val appCompat = "1.5.1"
     const val compose = "1.3.1"
     const val activityCompose = "1.6.1"

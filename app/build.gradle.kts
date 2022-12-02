@@ -4,6 +4,8 @@ import Dependencies.Deps
 plugins {
     id("com.android.application")
     kotlin("android")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -42,9 +44,17 @@ android {
     buildFeatures {
         compose = true
     }
+    kapt {
+        correctErrorTypes = true
+    }
+    hilt {
+        enableAggregatingTask = true
+    }
 }
 
 dependencies {
+    implementation("com.google.dagger:hilt-android:2.44.2")
+    kapt("com.google.dagger:hilt-android-compiler:2.44.2")
     implementation(Deps.kotlin)
     implementation(Deps.appCompat)
     implementation(Deps.coreKtx)
