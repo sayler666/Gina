@@ -7,6 +7,14 @@ object Deps {
     val classpathKotlinGradle by lazy { "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}" }
     val classpathHilt by lazy { "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}" }
 
+    val lifecycle by lazy {"androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"}
+    val lifecycleViewModelCompose by lazy {"androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"}
+    val lifecycleRuntimeCompose by lazy {"androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycle}"}
+    val lifecycleRuntime by lazy {"androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"}
+    val lifecycleCompiler by lazy {"androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"}
+
+    val hilt by lazy {"com.google.dagger:hilt-android:${Versions.hilt}"}
+    val hiltCompiler by lazy {"com.google.dagger:hilt-android-compiler:${Versions.hilt}"}
     val appCompat by lazy { "androidx.appcompat:appcompat:${Versions.appCompat}" }
     val timber by lazy { "com.jakewharton.timber:timber:${Versions.timber}" }
     val kotlin by lazy { "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}" }

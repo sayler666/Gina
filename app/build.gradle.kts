@@ -53,14 +53,19 @@ android {
 }
 
 dependencies {
-    implementation("com.google.dagger:hilt-android:2.44.2")
-    kapt("com.google.dagger:hilt-android-compiler:2.44.2")
+    implementation(Deps.hilt)
+    kapt(Deps.hiltCompiler)
     implementation(Deps.kotlin)
     implementation(Deps.appCompat)
     implementation(Deps.coreKtx)
     implementation(Deps.activityCompose)
     implementation(Deps.composeUi)
     implementation(Deps.composeUiToolingPreview)
+    implementation(Deps.lifecycle)
+    implementation(Deps.lifecycleRuntimeCompose)
+    implementation(Deps.lifecycleViewModelCompose)
+    implementation(Deps.lifecycleRuntime)
+    implementation(Deps.lifecycleCompiler)
     implementation(Deps.timber)
     implementation(Deps.constraintLayout)
     implementation(Deps.composeMaterial)

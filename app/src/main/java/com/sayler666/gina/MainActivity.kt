@@ -8,8 +8,15 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sayler666.gina.SampleViewModel.Data
 import com.sayler666.gina.analytics.AnalyticsService
 import com.sayler666.gina.ui.theme.GinaTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,27 +33,24 @@ class MainActivity : ComponentActivity() {
         analytics.analyticsMethods()
         setContent {
             GinaTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    Counter()
                 }
             }
         }
     }
-
 }
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    GinaTheme {
-        Greeting("Android")
-    }
+fun Counter(viewModel: SampleViewModel = viewModel()) {
+    val uiState: Data by viewModel.dataFlow.collectAsStateWithLifecycle()
+    Text(
+        text = "${uiState.number}",
+        textAlign = TextAlign.Center,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp
+    )
 }
