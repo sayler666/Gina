@@ -4,7 +4,7 @@ object Versions {
     const val appCompat = "1.5.1"
     const val compose = "1.3.1"
     const val activityCompose = "1.6.1"
-    const val composeMaterial = "1.3.1"
+    const val composeMaterial3 = "1.0.1"
     const val timber = "4.7.1"
     const val lifecycle = "2.6.0-alpha03"
 

@@ -23,6 +23,6 @@ object Deps {
     val coreKtx by lazy { "androidx.core:core-ktx:1.7.0" }
     val activityCompose by lazy { "androidx.activity:activity-compose:${Versions.activityCompose}" }
     val composeUi by lazy { "androidx.compose.ui:ui:${Versions.compose}" }
-    val composeMaterial by lazy { "androidx.compose.material:material:${Versions.composeMaterial}" }
+    val composeMaterial by lazy { "androidx.compose.material3:material3:${Versions.composeMaterial3}" }
     val composeUiToolingPreview by lazy { "androidx.compose.ui:ui-tooling-preview:${Versions.compose}" }
 }

@@ -83,7 +83,7 @@ class GameOfLifeViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun generateInitialState() =
-        Array(resolution) { i -> Array(resolution) { j -> Math.random() < trueThreshold } }
+        Array(resolution) { Array(resolution) { Math.random() < trueThreshold } }
 
     companion object {
         const val trueThreshold = 0.08

@@ -2,9 +2,9 @@ package com.sayler666.gina.gameoflife.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,8 +25,8 @@ import com.sayler666.gina.gameoflife.viewmodel.GameOfLifeViewModel
 @Composable
 fun GameOfLife(viewModel: GameOfLifeViewModel = viewModel()) {
     val uiState: Data by viewModel.generationsFlow.collectAsStateWithLifecycle()
-    val primaryColor = MaterialTheme.colors.primary
-    val surfaceColor = MaterialTheme.colors.surface
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val surfaceColor = MaterialTheme.colorScheme.surface
     Column {
         Row(modifier = Modifier.padding(16.dp)) {
             Button(
