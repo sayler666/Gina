@@ -54,6 +54,7 @@ android {
 
 dependencies {
     implementation(Deps.hilt)
+    implementation(Deps.hiltNavigationCompose)
     kapt(Deps.hiltCompiler)
     implementation(Deps.kotlin)
     implementation(Deps.appCompat)
@@ -69,5 +70,10 @@ dependencies {
     implementation(Deps.timber)
     implementation(Deps.constraintLayout)
     implementation(Deps.composeMaterial)
+    implementation(Deps.navigationKtx)
+    implementation(Deps.composeNavigation)
+    implementation(Deps.room)
+    kapt(Deps.roomCompiler)
+    implementation(Deps.roomKtx)
     testImplementation(Deps.junit)
 }

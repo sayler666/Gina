@@ -1,4 +1,4 @@
-package com.sayler666.gina.days.ui
+package com.sayler666.gina.dayslist.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -10,17 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sayler666.gina.days.viewmodel.DaysViewModel
+import com.sayler666.gina.dayslist.viewmodel.DaysViewModel
+import com.sayler666.gina.db.Days
 import com.sayler666.gina.file.Files
 import com.sayler666.gina.permission.Permissions
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun Days(viewModel: DaysViewModel = viewModel()) {
+fun Days(viewModel: DaysViewModel = hiltViewModel()) {
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
+    val days: List<Days> by viewModel.days.collectAsStateWithLifecycle()
     val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
         it.data?.data?.path?.let { path -> viewModel.openDatabase(path) }
     }
@@ -44,13 +47,9 @@ fun Days(viewModel: DaysViewModel = viewModel()) {
                 Text("Open database")
             }
         }
-//
-//            Text(
-//
-//                text = "${uiState.step}",
-//                textAlign = TextAlign.End,
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 24.sp
-//            )
+        Text(
+            text = "Records: ${days.size}",
+            fontSize = 16.sp
+        )
     }
 }
