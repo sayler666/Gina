@@ -4,13 +4,13 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 
-@Database(entities = [Days::class], version = 1, exportSchema = false)
+@Database(entities = [Day::class], version = 1, exportSchema = false)
 abstract class GinaDatabase : RoomDatabase() {
     abstract fun daysDao(): DaysDao
 }
 
 @Entity(tableName = "days")
-data class Days(
+data class Day(
     @ColumnInfo(name = "date", typeAffinity = ColumnInfo.INTEGER)
     val date: Long?,
 
@@ -24,9 +24,6 @@ data class Days(
 
 @Dao
 interface DaysDao {
-    @Query("SELECT * FROM days")
-    fun getDaysFlow(): Flow<List<Days>>
-
-    @Query("SELECT * FROM days")
-    fun getDays(): List<Days>
+    @Query("SELECT * FROM days ORDER by date DESC")
+    fun getDaysFlow(): Flow<List<Day>>
 }

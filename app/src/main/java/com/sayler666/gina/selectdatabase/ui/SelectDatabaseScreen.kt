@@ -2,6 +2,7 @@ package com.sayler666.gina.selectdatabase
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.R.string.select_database_grant_permission
@@ -31,7 +34,10 @@ import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
 @Destination(start = true)
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun SelectDatabaseScreen(destinationsNavigator: DestinationsNavigator, viewModel: SelectDatabaseViewModel = hiltViewModel()) {
+fun SelectDatabaseScreen(
+    destinationsNavigator: DestinationsNavigator,
+    viewModel: SelectDatabaseViewModel = hiltViewModel()
+) {
     viewModel.attachDestinationsNavigator(destinationsNavigator)
 
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
@@ -57,7 +63,10 @@ fun SelectDatabaseScreen(destinationsNavigator: DestinationsNavigator, viewModel
                     permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent())
                 },
             ) {
-                Text(style = typography.labelLarge, text = stringResource(select_database_grant_permission))
+                Text(
+                    style = typography.labelLarge,
+                    text = stringResource(select_database_grant_permission)
+                )
             }
         } else {
             Button(
@@ -69,7 +78,10 @@ fun SelectDatabaseScreen(destinationsNavigator: DestinationsNavigator, viewModel
                     databaseResult.launch(Files.selectFileIntent())
                 },
             ) {
-                Text(style = typography.labelLarge, text = stringResource(select_database_open_database))
+                Text(
+                    style = typography.labelLarge,
+                    text = stringResource(select_database_open_database)
+                )
             }
         }
     }

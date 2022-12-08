@@ -2,7 +2,7 @@ package com.sayler666.gina.dayslist.usecase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.db.Days
+import com.sayler666.gina.db.Day
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -13,14 +13,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface GetDaysUseCase {
-    fun getDaysFlow(): Flow<List<Days>>
+    fun getDaysFlow(): Flow<List<Day>>
 }
 
 class GetDaysUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetDaysUseCase {
-    override fun getDaysFlow(): Flow<List<Days>> = flow {
+    override fun getDaysFlow(): Flow<List<Day>> = flow {
         try {
             databaseProvider.getOpenedDb()?.let {
                 emitAll(it.daysDao().getDaysFlow())

@@ -4,7 +4,7 @@ import android.os.Environment
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.destinations.DaysDestination
+import com.sayler666.gina.destinations.DaysListDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +37,7 @@ class SelectDatabaseViewModel @Inject constructor(
     }
 
     private fun navigateToDaysScreen() {
-        navigator?.navigate(DaysDestination, builder = {
+        navigator?.navigate(DaysListDestination, builder = {
             popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
         })
     }

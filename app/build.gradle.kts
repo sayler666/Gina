@@ -21,6 +21,9 @@ android {
         minSdk = ConfigData.minSdk
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Required when setting minSdkVersion to 20 or lower
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -36,6 +39,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+
+        // For AGP 4.1+
+        isCoreLibraryDesugaringEnabled = true
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -70,6 +76,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(Deps.desugarJdkLibs)
     implementation(Deps.hilt)
     implementation(Deps.hiltNavigationCompose)
     kapt(Deps.hiltCompiler)
@@ -88,7 +95,9 @@ dependencies {
     implementation(Deps.composeMaterial)
     implementation(Deps.navigationKtx)
     implementation(Deps.composeNavigation)
+    implementation(Deps.accompanistSystemUi)
     implementation(Deps.composeDestination)
+    implementation(Deps.composeIcons)
     ksp(Deps.composeDestinationKsp)
     implementation(Deps.room)
     kapt(Deps.roomCompiler)
