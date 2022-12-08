@@ -1,16 +1,19 @@
 import ConfigData.ConfigData
 import Dependencies.Deps
+import Versions.Versions
 
 plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp") version "1.7.21-1.0.8"
 }
 
 android {
     buildToolsVersion = ConfigData.buildToolsVersion
     compileSdkVersion = ConfigData.compileSdkVersion
+
     defaultConfig {
         applicationId = ConfigData.applicationId
         versionCode = ConfigData.versionCode
@@ -29,26 +32,40 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
         }
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.2.0"
+        kotlinCompilerExtensionVersion = Versions.composeKotlinCompiler
     }
+
     buildFeatures {
         compose = true
     }
+
     kapt {
         correctErrorTypes = true
     }
+
     hilt {
         enableAggregatingTask = true
+    }
+
+    applicationVariants.all {
+        kotlin.sourceSets {
+            getByName(name) {
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
     }
 }
 
@@ -68,12 +85,14 @@ dependencies {
     implementation(Deps.lifecycleRuntime)
     implementation(Deps.lifecycleCompiler)
     implementation(Deps.timber)
-    implementation(Deps.constraintLayout)
     implementation(Deps.composeMaterial)
     implementation(Deps.navigationKtx)
     implementation(Deps.composeNavigation)
+    implementation(Deps.composeDestination)
+    ksp(Deps.composeDestinationKsp)
     implementation(Deps.room)
     kapt(Deps.roomCompiler)
     implementation(Deps.roomKtx)
+    implementation(Deps.timber)
     testImplementation(Deps.junit)
 }

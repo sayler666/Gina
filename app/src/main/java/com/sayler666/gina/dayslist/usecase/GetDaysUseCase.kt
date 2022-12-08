@@ -1,5 +1,6 @@
 package com.sayler666.gina.dayslist.usecase
 
+import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.Days
 import kotlinx.coroutines.CoroutineDispatcher
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import timber.log.Timber
 import javax.inject.Inject
 
 interface GetDaysUseCase {
@@ -19,8 +21,12 @@ class GetDaysUseCaseImpl @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetDaysUseCase {
     override fun getDaysFlow(): Flow<List<Days>> = flow {
-        databaseProvider.getOpenedDb()?.let {
-            emitAll(it.daysDao().getDaysFlow())
+        try {
+            databaseProvider.getOpenedDb()?.let {
+                emitAll(it.daysDao().getDaysFlow())
+            }
+        } catch (e: SQLException) {
+            Timber.e(e, "Database error")
         }
     }.flowOn(dispatcher)
 }

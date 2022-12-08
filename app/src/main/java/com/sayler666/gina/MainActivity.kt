@@ -6,12 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.sayler666.gina.dayslist.ui.Days
+import com.ramcosta.composedestinations.DestinationsNavHost
 import com.sayler666.gina.ui.theme.GinaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,19 +21,9 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+                    DestinationsNavHost(navGraph = NavGraphs.root)
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun App() {
-    val navController = rememberNavController()
-    NavHost(navController, startDestination = "home") {
-        composable(route = "home") {
-            Days()
         }
     }
 }
