@@ -1,6 +1,7 @@
 import ConfigData.ConfigData
 import Dependencies.Deps
 import Versions.Versions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -44,9 +45,15 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
+
+            freeCompilerArgs += listOf(
+                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-opt-in=kotlinx.coroutines.FlowPreview",
+                "-opt-in=kotlin.Experimental",
+            )
         }
     }
 
@@ -92,7 +99,8 @@ dependencies {
     implementation(Deps.lifecycleRuntime)
     implementation(Deps.lifecycleCompiler)
     implementation(Deps.timber)
-    implementation(Deps.composeMaterial)
+    implementation(Deps.composeMaterial3)
+    implementation(Deps.composeMaterial2)
     implementation(Deps.navigationKtx)
     implementation(Deps.composeNavigation)
     implementation(Deps.accompanistSystemUi)

@@ -2,4 +2,10 @@
     <string name="app_name">Gina</string>
     <string name="select_database_open_database">Open database</string>
     <string name="select_database_grant_permission">Grant files permission</string>
+
+    <string name="days_label">Days</string>
+    <string name="calendar_label">Calendar</string>
+    <string name="insights_label">Insights</string>
+    <string name="settings_label">Settings</string>
+
 </resources>

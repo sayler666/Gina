@@ -21,21 +21,22 @@ object Deps {
     val lifecycleCompiler by lazy { "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}" }
 
     val composeUi by lazy { "androidx.compose.ui:ui:${Versions.compose}" }
-    val accompanistSystemUi by lazy {"com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}"}
-    val composeIcons by lazy {"androidx.compose.material:material-icons-extended:${Versions.compose}"}
-    val composeMaterial by lazy { "androidx.compose.material3:material3:${Versions.composeMaterial3}" }
+    val accompanistSystemUi by lazy { "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}" }
+    val composeIcons by lazy { "androidx.compose.material:material-icons-extended:${Versions.compose}" }
+    val composeMaterial3 by lazy { "androidx.compose.material3:material3:${Versions.composeMaterial3}" }
+    val composeMaterial2 by lazy { "androidx.compose.material:material:${Versions.composeMaterial2}" }
     val composeNavigation by lazy { "androidx.navigation:navigation-compose:${Versions.navigation}" }
     val composeUiToolingPreview by lazy { "androidx.compose.ui:ui-tooling-preview:${Versions.compose}" }
     val activityCompose by lazy { "androidx.activity:activity-compose:${Versions.activityCompose}" }
     val hiltNavigationCompose by lazy { "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigation}" }
-    val composeDestination by lazy { "io.github.raamcosta.compose-destinations:core:${Versions.composeDestination}" }
+    val composeDestination by lazy { "io.github.raamcosta.compose-destinations:animations-core:${Versions.composeDestination}" }
     val composeDestinationKsp by lazy { "io.github.raamcosta.compose-destinations:ksp:${Versions.composeDestination}" }
 
     val room by lazy { "androidx.room:room-runtime:${Versions.room}" }
     val roomCompiler by lazy { "androidx.room:room-compiler:${Versions.room}" }
     val roomKtx by lazy { "androidx.room:room-ktx:${Versions.room}" }
 
-    val desugarJdkLibs by lazy {"com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
+    val desugarJdkLibs by lazy { "com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
 
     val timber by lazy { "com.jakewharton.timber:timber:${Versions.timber}" }
     val junit by lazy { "junit:junit:${Versions.jUnit}" }

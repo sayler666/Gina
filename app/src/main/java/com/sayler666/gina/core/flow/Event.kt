@@ -1,4 +1,4 @@
-package com.sayler666.gina.flow
+package com.sayler666.gina.core.flow
 
 data class Event<T>(private var data: T?) {
     private var handled = false

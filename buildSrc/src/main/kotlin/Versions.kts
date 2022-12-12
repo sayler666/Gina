@@ -8,10 +8,11 @@ object Versions {
     const val lifecycle = "2.6.0-alpha03"
     const val navigation = "2.5.3"
 
-    const val composeKotlinCompiler =  "1.4.0-alpha02"
+    const val composeKotlinCompiler = "1.4.0-alpha02"
     const val compose = "1.3.1"
     const val activityCompose = "1.6.1"
-    const val composeMaterial3 = "1.0.1"
+    const val composeMaterial2 = "1.3.1"
+    const val composeMaterial3 = "1.1.0-alpha03"
     const val composeDestination = "1.7.27-beta"
     const val accompanist = "0.28.0"
 
