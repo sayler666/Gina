@@ -81,7 +81,7 @@ fun BottomNavigationBar(navController: NavController) {
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value
         ?: NavGraphs.root.startAppDestination
 
-    val selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+    val selectedIconColor = MaterialTheme.colorScheme.primary
     val unselectedIconColor = MaterialTheme.colorScheme.onSurface
 
     BottomNavigation(
