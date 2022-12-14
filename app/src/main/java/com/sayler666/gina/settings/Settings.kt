@@ -1,35 +1,50 @@
 package com.sayler666.gina.settings
 
 import android.app.Application
-import android.content.Context.MODE_PRIVATE
+import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.sayler666.gina.settings.SettingsDataStoreImpl.Companion.PREFERENCES_NAME
+import com.sayler666.gina.settings.SettingsDataStoreImpl.PreferencesKeys.DATABASE_PATH
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface Settings {
-    fun getDatabasePath(): String?
-    fun saveDatabasePath(path: String)
-    fun clearDatabasePath()
+    fun getDatabasePathFlow(): Flow<String?>
+    suspend fun saveDatabasePath(path: String)
+    suspend fun clearDatabasePath()
 }
 
-class SettingsImpl @Inject constructor(private val app: Application) : Settings {
-    override fun getDatabasePath(): String? =
-        with(app.getSharedPreferences(SP_NAME, MODE_PRIVATE)) {
-            return@with getString(DATABASE_PATH_KEY, null)
-        }
+private val Context.dataStore by preferencesDataStore(
+    name = PREFERENCES_NAME,
+)
 
-    override fun saveDatabasePath(path: String) {
-        with(app.getSharedPreferences(SP_NAME, MODE_PRIVATE).edit()) {
-            putString(DATABASE_PATH_KEY, path).apply()
+class SettingsDataStoreImpl @Inject constructor(private val app: Application) : Settings {
+
+    override fun getDatabasePathFlow(): Flow<String?> = app.dataStore.data.map { pref ->
+        pref[DATABASE_PATH]
+    }
+
+    override suspend fun saveDatabasePath(path: String) {
+        app.dataStore.edit { preferences ->
+            preferences[DATABASE_PATH] = path
         }
     }
 
-    override fun clearDatabasePath() {
-        with(app.getSharedPreferences(SP_NAME, MODE_PRIVATE).edit()) {
-            remove(DATABASE_PATH_KEY)
+    override suspend fun clearDatabasePath() {
+        app.dataStore.edit { preferences ->
+            preferences.minusAssign(DATABASE_PATH)
         }
+    }
+
+    private object PreferencesKeys {
+        val DATABASE_PATH = stringPreferencesKey("DATABASE_PATH")
     }
 
     companion object {
-        private const val SP_NAME = "SP_SETTINGS"
-        private const val DATABASE_PATH_KEY = "DATABASE_PATH"
+        const val PREFERENCES_NAME = "SETTINGS_DATA_STORE"
     }
+
 }

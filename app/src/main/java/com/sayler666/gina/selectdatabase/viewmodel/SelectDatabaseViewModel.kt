@@ -2,14 +2,21 @@ package com.sayler666.gina.selectdatabase.viewmodel
 
 import android.os.Environment
 import androidx.lifecycle.ViewModel
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.lifecycle.viewModelScope
+import com.sayler666.gina.core.flow.Event
+import com.sayler666.gina.core.flow.Event.Empty
+import com.sayler666.gina.core.flow.Event.Value
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.destinations.DaysListScreenDestination
-import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
+import com.sayler666.gina.destinations.Destination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,27 +24,22 @@ class SelectDatabaseViewModel @Inject constructor(
     private val databaseProvider: DatabaseProvider
 ) : ViewModel() {
 
-    private var navigator: DestinationsNavigator? = null
-
     private val _permissionGranted = MutableStateFlow(Environment.isExternalStorageManager())
     val permissionGranted: StateFlow<Boolean>
         get() = _permissionGranted.asStateFlow()
 
-    fun attachDestinationsNavigator(destinationsNavigator: DestinationsNavigator) {
-        navigator = destinationsNavigator
-    }
+    private val _navigateToHome = MutableStateFlow<Event<Destination>>(Empty)
+    val navigateToHome: StateFlow<Event<Destination>>
+        get() = _navigateToHome.filterNotNull()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Empty)
 
     fun refreshPermissionStatus() {
         _permissionGranted.value = Environment.isExternalStorageManager()
     }
 
     fun openDatabase(path: String) {
-        if (databaseProvider.openDB(path)) navigateToDaysScreen()
-    }
-
-    private fun navigateToDaysScreen() {
-        navigator?.navigate(DaysListScreenDestination, builder = {
-            popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
-        })
+        viewModelScope.launch {
+            if (databaseProvider.openDB(path)) _navigateToHome.tryEmit(Value(DaysListScreenDestination))
+        }
     }
 }

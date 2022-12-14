@@ -20,24 +20,28 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
 import com.sayler666.gina.core.file.Files
+import com.sayler666.gina.core.flow.Event
+import com.sayler666.gina.core.flow.Event.*
+import com.sayler666.gina.destinations.DaysListScreenDestination
+import com.sayler666.gina.destinations.Destination
+import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.permission.Permissions
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
 
-@Destination(start = true)
+@com.ramcosta.composedestinations.annotation.Destination(start = true)
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun SelectDatabaseScreen(
     destinationsNavigator: DestinationsNavigator,
     viewModel: SelectDatabaseViewModel = hiltViewModel()
 ) {
-    viewModel.attachDestinationsNavigator(destinationsNavigator)
-
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
+    val navigate: Event<Destination> by viewModel.navigateToHome.collectAsStateWithLifecycle()
+
     val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
         it.data?.data?.path?.let { path -> viewModel.openDatabase(path) }
     }
@@ -45,6 +49,11 @@ fun SelectDatabaseScreen(
         viewModel.refreshPermissionStatus()
     }
 
+    if ((navigate as? Value<Destination>)?.getValue() == DaysListScreenDestination) {
+        destinationsNavigator.navigate(DaysListScreenDestination, builder = {
+            popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
+        })
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()

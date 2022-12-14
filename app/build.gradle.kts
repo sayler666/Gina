@@ -110,6 +110,7 @@ dependencies {
     implementation(Deps.room)
     kapt(Deps.roomCompiler)
     implementation(Deps.roomKtx)
+    implementation(Deps.dataStorePreferences)
     implementation(Deps.timber)
     testImplementation(Deps.junit)
 }

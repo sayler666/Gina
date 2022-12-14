@@ -36,6 +36,8 @@ object Deps {
     val roomCompiler by lazy { "androidx.room:room-compiler:${Versions.room}" }
     val roomKtx by lazy { "androidx.room:room-ktx:${Versions.room}" }
 
+    val dataStorePreferences by lazy { "androidx.datastore:datastore-preferences:${Versions.dataStorePreferences}" }
+
     val desugarJdkLibs by lazy { "com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
 
     val timber by lazy { "com.jakewharton.timber:timber:${Versions.timber}" }

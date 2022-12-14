@@ -2,7 +2,7 @@ package com.sayler666.gina.db
 
 import android.app.Application
 import com.sayler666.gina.settings.Settings
-import com.sayler666.gina.settings.SettingsImpl
+import com.sayler666.gina.settings.SettingsDataStoreImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideSettings(settings: SettingsImpl): Settings = settings
+    fun provideSettings(settings: SettingsDataStoreImpl): Settings = settings
 
     @Provides
     @Singleton

@@ -17,6 +17,7 @@ object Versions {
     const val accompanist = "0.28.0"
 
     const val room = "2.4.3"
+    val dataStorePreferences = "1.0.0"
 
     const val desugarJdkLibs = "1.1.5"
 
