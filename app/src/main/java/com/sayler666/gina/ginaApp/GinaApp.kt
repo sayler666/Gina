@@ -14,22 +14,26 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
+import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.DaysListScreenDestination
 import com.sayler666.gina.destinations.Destination
+import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
+import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.theme.GinaTheme
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialNavigationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalLifecycleComposeApi::class
+)
 @Composable
 fun GinaApp(vm: GinaMainViewModel) {
     GinaTheme {
@@ -37,7 +41,9 @@ fun GinaApp(vm: GinaMainViewModel) {
         if (rememberedDatabase != null) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 StatusBarColor()
-                val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination else DaysListScreenDestination
+                NavigationBarColor()
+                val startRoute =
+                    if (rememberedDatabase == false) SelectDatabaseScreenDestination else DaysListScreenDestination
 
                 val navController = rememberAnimatedNavController()
                 val destination: Destination = navController.appCurrentDestinationAsState().value
@@ -51,7 +57,9 @@ fun GinaApp(vm: GinaMainViewModel) {
                     floatingActionButtonPosition = FabPosition.Center,
                     isFloatingActionButtonDocked = true,
                     bottomBar = {
-                        if (destination.shouldShowScaffoldElements) BottomNavigationBar(navController)
+                        if (destination.shouldShowScaffoldElements) BottomNavigationBar(
+                            navController
+                        )
                     },
                     content = { padding ->
                         Column(modifier = Modifier.padding(padding)) {
@@ -59,7 +67,7 @@ fun GinaApp(vm: GinaMainViewModel) {
                                 navGraph = NavGraphs.root,
                                 startRoute = startRoute,
                                 navController = navController,
-                                engine = rememberAnimatedNavHostEngine()
+                                //engine = rememberAnimatedNavHostEngine()
                             )
                         }
                     })
@@ -68,4 +76,8 @@ fun GinaApp(vm: GinaMainViewModel) {
     }
 }
 
-private val Destination.shouldShowScaffoldElements get() = this !is SelectDatabaseScreenDestination
+private val Destination.shouldShowScaffoldElements
+    get() = when (this) {
+        is SelectDatabaseScreenDestination, is DayDetailsScreenDestination, is FullImageDestination -> false
+        else -> true
+    }

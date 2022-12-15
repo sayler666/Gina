@@ -1,7 +1,9 @@
 package com.sayler666.gina.di
 
-import com.sayler666.gina.dayslist.usecase.GetDaysUseCase
-import com.sayler666.gina.dayslist.usecase.GetDaysUseCaseImpl
+import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
+import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCaseImpl
+import com.sayler666.gina.daysList.usecase.GetDaysUseCase
+import com.sayler666.gina.daysList.usecase.GetDaysUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,4 +16,8 @@ abstract class UseCaseModule {
     @Binds
     @Singleton
     abstract fun provideGetDaysUseCase(useCase: GetDaysUseCaseImpl): GetDaysUseCase
+
+    @Binds
+    @Singleton
+    abstract fun provideGetDayDetailsUseCase(useCase: GetDayDetailsUseCaseImpl): GetDayDetailsUseCase
 }

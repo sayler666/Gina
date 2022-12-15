@@ -15,9 +15,11 @@ object Versions {
     const val composeMaterial3 = "1.1.0-alpha03"
     const val composeDestination = "1.7.27-beta"
     const val accompanist = "0.28.0"
+    const val coilCompose = "2.2.2"
 
     const val room = "2.4.3"
-    val dataStorePreferences = "1.0.0"
+    const val dataStorePreferences = "1.0.0"
+    const val  okio = "3.2.0"
 
     const val desugarJdkLibs = "1.1.5"
 

@@ -26,11 +26,13 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.gameoflife.viewmodel.Data
 import com.sayler666.gina.gameoflife.viewmodel.GameOfLifeViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
+@RootNavGraph
 @Destination
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable

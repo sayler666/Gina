@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
@@ -32,7 +33,8 @@ import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.permission.Permissions
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
 
-@com.ramcosta.composedestinations.annotation.Destination(start = true)
+@RootNavGraph(start = true)
+@com.ramcosta.composedestinations.annotation.Destination
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun SelectDatabaseScreen(

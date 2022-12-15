@@ -1,6 +1,6 @@
-package com.sayler666.gina.dayslist.viewmodel
+package com.sayler666.gina.daysList.viewmodel
 
-import com.sayler666.gina.dayslist.viewmodel.Mood.NEUTRAL
+import com.sayler666.gina.daysList.viewmodel.Mood.NEUTRAL
 import com.sayler666.gina.db.Day
 import java.time.Instant
 import java.time.ZoneId

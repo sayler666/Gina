@@ -22,6 +22,7 @@ object Deps {
 
     val composeUi by lazy { "androidx.compose.ui:ui:${Versions.compose}" }
     val accompanistSystemUi by lazy { "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}" }
+    val accompanistFlowLayout by lazy { "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}" }
     val composeIcons by lazy { "androidx.compose.material:material-icons-extended:${Versions.compose}" }
     val composeMaterial3 by lazy { "androidx.compose.material3:material3:${Versions.composeMaterial3}" }
     val composeMaterial2 by lazy { "androidx.compose.material:material:${Versions.composeMaterial2}" }
@@ -31,12 +32,14 @@ object Deps {
     val hiltNavigationCompose by lazy { "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigation}" }
     val composeDestination by lazy { "io.github.raamcosta.compose-destinations:animations-core:${Versions.composeDestination}" }
     val composeDestinationKsp by lazy { "io.github.raamcosta.compose-destinations:ksp:${Versions.composeDestination}" }
+    val coilCompose by lazy { "io.coil-kt:coil-compose:${Versions.coilCompose}" }
 
     val room by lazy { "androidx.room:room-runtime:${Versions.room}" }
     val roomCompiler by lazy { "androidx.room:room-compiler:${Versions.room}" }
     val roomKtx by lazy { "androidx.room:room-ktx:${Versions.room}" }
 
     val dataStorePreferences by lazy { "androidx.datastore:datastore-preferences:${Versions.dataStorePreferences}" }
+    val okio by lazy { "com.squareup.okio:okio:${Versions.okio}" }
 
     val desugarJdkLibs by lazy { "com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
 

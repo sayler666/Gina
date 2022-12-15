@@ -1,7 +1,5 @@
-package com.sayler666.gina.dayslist.ui
+package com.sayler666.gina.daysList.ui
 
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -29,15 +27,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.NavGraphs
-import com.sayler666.gina.dayslist.viewmodel.DayEntity
-import com.sayler666.gina.dayslist.viewmodel.DaysViewModel
+import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
+import com.sayler666.gina.daysList.viewmodel.DayEntity
+import com.sayler666.gina.daysList.viewmodel.DaysListViewModel
+import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.ui.theme.md_theme_dark_error
 import com.sayler666.gina.ui.theme.md_theme_dark_outline
 import com.sayler666.gina.ui.theme.md_theme_dark_surfaceTint
@@ -47,17 +48,18 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalFoundationApi::class)
+@RootNavGraph
 @com.ramcosta.composedestinations.annotation.Destination
 @Composable
 fun DaysListScreen(
-    navController: NavController,
+    destinationsNavigator: DestinationsNavigator,
+    navController: NavController
 ) {
     val backStackEntry = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(NavGraphs.root.route)
     }
-    val viewModel: DaysViewModel = hiltViewModel(backStackEntry)
+    val viewModel: DaysListViewModel = hiltViewModel(backStackEntry)
     val days: List<DayEntity> by viewModel.days.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     Column(Modifier.fillMaxSize()) {
         val grouped = days.groupBy { it.header }
@@ -79,7 +81,7 @@ fun DaysListScreen(
 
                 items(day) { d ->
                     Day(d) {
-                        Toast.makeText(context, "Clicked ID: ${d.id}", LENGTH_SHORT).show()
+                       destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(d.id)))
                     }
                 }
             }

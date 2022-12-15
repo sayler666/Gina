@@ -1,8 +1,8 @@
-package com.sayler666.gina.dayslist.viewmodel
+package com.sayler666.gina.daysList.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.dayslist.usecase.GetDaysUseCase
+import com.sayler666.gina.daysList.usecase.GetDaysUseCase
 import com.sayler666.gina.db.DatabaseProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DaysViewModel @Inject constructor(
+class DaysListViewModel @Inject constructor(
     private val databaseProvider: DatabaseProvider,
     getDaysUseCase: GetDaysUseCase,
     daysMapper: DaysMapper
