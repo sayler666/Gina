@@ -1,7 +1,8 @@
 package com.sayler666.gina.ginaApp.navigation
 
 import android.widget.Toast
-import androidx.compose.material.FloatingActionButton
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -13,6 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 fun AddDayFab() {
     val context = LocalContext.current
     FloatingActionButton(
+        containerColor = MaterialTheme.colorScheme.primary,
+        shape = CircleShape,
         onClick = {
             Toast.makeText(context, "Add new entry", Toast.LENGTH_SHORT).show()
         }) {

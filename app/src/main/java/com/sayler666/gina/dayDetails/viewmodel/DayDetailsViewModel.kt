@@ -8,6 +8,7 @@ import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -19,12 +20,14 @@ class DayDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val navArgs: DayDetailsScreenNavArgs = DayDetailsScreenDestination.argsFrom(savedStateHandle)
+    private val navArgs: DayDetailsScreenNavArgs =
+        DayDetailsScreenDestination.argsFrom(savedStateHandle)
     private val id: Int
         get() = navArgs.dayId
 
     val day = getDayDetailsUseCase
         .getDayDetails(id)
+        .filterNotNull()
         .map(dayDetailsMapper::mapToVm)
         .stateIn(
             viewModelScope,

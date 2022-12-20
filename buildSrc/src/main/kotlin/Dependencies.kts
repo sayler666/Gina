@@ -33,6 +33,8 @@ object Deps {
     val composeDestination by lazy { "io.github.raamcosta.compose-destinations:animations-core:${Versions.composeDestination}" }
     val composeDestinationKsp by lazy { "io.github.raamcosta.compose-destinations:ksp:${Versions.composeDestination}" }
     val coilCompose by lazy { "io.coil-kt:coil-compose:${Versions.coilCompose}" }
+    val materialDialogsCore by lazy { "io.github.vanpra.compose-material-dialogs:core:${Versions.materialDialogs}" }
+    val materialDialogsDateTime by lazy { "io.github.vanpra.compose-material-dialogs:datetime:${Versions.materialDialogs}" }
 
     val room by lazy { "androidx.room:room-runtime:${Versions.room}" }
     val roomCompiler by lazy { "androidx.room:room-compiler:${Versions.room}" }
@@ -40,6 +42,8 @@ object Deps {
 
     val dataStorePreferences by lazy { "androidx.datastore:datastore-preferences:${Versions.dataStorePreferences}" }
     val okio by lazy { "com.squareup.okio:okio:${Versions.okio}" }
+
+    val commonsIo by lazy { "commons-io:commons-io:${Versions.commonsIo}" }
 
     val desugarJdkLibs by lazy { "com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
 

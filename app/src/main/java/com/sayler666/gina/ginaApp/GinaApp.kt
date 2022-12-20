@@ -17,11 +17,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.DaysListScreenDestination
-import com.sayler666.gina.destinations.Destination
-import com.sayler666.gina.destinations.FullImageDestination
-import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
+import com.sayler666.gina.destinations.*
 import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
@@ -78,6 +74,7 @@ fun GinaApp(vm: GinaMainViewModel) {
 
 private val Destination.shouldShowScaffoldElements
     get() = when (this) {
-        is SelectDatabaseScreenDestination, is DayDetailsScreenDestination, is FullImageDestination -> false
+        is SelectDatabaseScreenDestination, is DayDetailsScreenDestination,
+        is DayDetailsEditScreenDestination, is FullImageDestination -> false
         else -> true
     }

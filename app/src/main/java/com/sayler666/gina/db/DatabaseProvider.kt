@@ -35,7 +35,9 @@ class DatabaseProvider(private val application: Application, private val setting
         return true
     }
 
-    fun getOpenedDb(): GinaDatabase? {
-        return db
-    }
+    fun getOpenedDb(): GinaDatabase? = db
+}
+
+suspend fun DatabaseProvider.withDaysDao(action: suspend DaysDao.() -> Unit) {
+    getOpenedDb()?.daysDao()?.action()
 }
