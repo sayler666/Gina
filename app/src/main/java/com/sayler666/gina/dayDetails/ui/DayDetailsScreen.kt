@@ -67,7 +67,9 @@ fun DayDetailsScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        day?.let { destinationsNavigator.navigate(DayDetailsEditScreenDestination(it.id)) }
+                        day?.id?.let {
+                            destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
+                        }
                     }) {
                         Icon(Icons.Filled.Edit, null)
                     }

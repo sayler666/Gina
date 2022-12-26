@@ -1,9 +1,6 @@
 package com.sayler666.gina.dayDetailsEdit.ui
 
-import android.app.Activity.RESULT_CANCELED
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -45,6 +42,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
@@ -57,9 +56,10 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.gina.core.compose.conditional
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.file.Files.openFileIntent
-import com.sayler666.gina.core.file.Files.readBytesAndMimeTypeFromUri
+import com.sayler666.gina.core.file.handleSelectedFiles
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.ui.FilePreview
 import com.sayler666.gina.dayDetails.ui.ImagePreview
@@ -90,7 +90,9 @@ fun DayDetailsEditScreen(
     val context = LocalContext.current
 
     val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context, viewModel)
+        handleSelectedFiles(it, context) { content, mimeType ->
+            viewModel.addAttachment(content, mimeType)
+        }
     }
 
     val day: DayWithAttachmentsEntity? by viewModel.day.collectAsStateWithLifecycle()
@@ -145,38 +147,46 @@ fun DayDetailsEditScreen(
                     Attachments(it, destinationsNavigator) { attachmentHash ->
                         viewModel.removeAttachment(attachmentHash)
                     }
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp, 8.dp)
-                            .fillMaxWidth()
-                    ) {
-                        BasicTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = it.content,
-                            onValueChange = viewModel::setNewContent,
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
-                        )
+                    ContentTextField(it) { content ->
+                        viewModel.setNewContent(content)
                     }
                 }
             }
         })
 }
 
-private fun handleBackPress(
-    changesExist: Boolean,
-    showDiscardConfirmationDialog: MutableState<Boolean>,
-    navController: NavController
+@Composable
+fun ContentTextField(
+    day: DayWithAttachmentsEntity,
+    autoFocus: Boolean = false,
+    onContentChanged: (String) -> Unit
 ) {
-    if (changesExist) {
-        showDiscardConfirmationDialog.value = true
-    } else {
-        navController.popBackStack()
+    val focusRequester = remember { FocusRequester() }
+    Row(
+        modifier = Modifier
+            .padding(16.dp, 8.dp)
+            .fillMaxWidth()
+    ) {
+        BasicTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .conditional(autoFocus) {
+                    focusRequester(focusRequester)
+                },
+            value = day.content,
+            onValueChange = { onContentChanged(it) },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+        )
     }
+    if (autoFocus)
+        LaunchedEffect(Unit, block = {
+            focusRequester.requestFocus()
+        })
 }
 
 @Composable
-private fun Attachments(
+fun Attachments(
     day: DayWithAttachmentsEntity,
     destinationsNavigator: DestinationsNavigator,
     onRemoveAttachment: (Int) -> Unit
@@ -234,7 +244,7 @@ private fun TopBar(
 }
 
 @Composable
-private fun SaveFab(onSaveButtonClicked: () -> Unit) {
+fun SaveFab(onSaveButtonClicked: () -> Unit) {
     FloatingActionButton(
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.primary,
@@ -313,7 +323,6 @@ fun DeleteConfirmationDialog(showDialog: MutableState<Boolean>, onConfirmAction:
     }
 }
 
-
 @Composable
 fun DiscardConfirmationDialog(showDialog: MutableState<Boolean>, onDiscardAction: () -> Unit) {
     if (showDialog.value) {
@@ -342,29 +351,14 @@ fun DiscardConfirmationDialog(showDialog: MutableState<Boolean>, onDiscardAction
     }
 }
 
-private fun handleSelectedFiles(
-    it: ActivityResult,
-    context: Context,
-    viewModel: DayDetailsEditViewModel
+fun handleBackPress(
+    changesExist: Boolean,
+    showDiscardConfirmationDialog: MutableState<Boolean>,
+    navController: NavController
 ) {
-
-    fun addAttachment(uri: Uri) {
-        val (content, mimeType) = readBytesAndMimeTypeFromUri(uri, context)
-        viewModel.addAttachment(content, mimeType)
-    }
-
-    if (it.resultCode != RESULT_CANCELED && it.data != null) {
-        // multiple files
-        val multipleItems = it.data?.clipData
-        if (multipleItems != null) {
-            for (i in 0 until multipleItems.itemCount) {
-                addAttachment(multipleItems.getItemAt(i).uri)
-            }
-        } else {
-            // single file
-            it.data?.data?.let { uri ->
-                addAttachment(uri)
-            }
-        }
+    if (changesExist) {
+        showDiscardConfirmationDialog.value = true
+    } else {
+        navController.popBackStack()
     }
 }

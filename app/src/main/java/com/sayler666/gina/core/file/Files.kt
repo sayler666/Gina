@@ -1,8 +1,10 @@
 package com.sayler666.gina.core.file
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.result.ActivityResult
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import okio.BufferedSink
@@ -57,9 +59,37 @@ object Files {
         return contentResolver.getType(uri)
     }
 
-    fun readBytesAndMimeTypeFromUri(uri: Uri, context: Context): Pair<ByteArray, String>{
+    fun readBytesAndMimeTypeFromUri(uri: Uri, context: Context): Pair<ByteArray, String> {
         val fileBytes = readFileFromUri(uri, context)
         val mimeType = readMimeTypeFromUri(uri, context) ?: "*/*"
         return fileBytes to mimeType
     }
 }
+
+fun handleSelectedFiles(
+    it: ActivityResult,
+    context: Context,
+    onDayAdd: (ByteArray, String) -> Unit
+) {
+
+    fun addAttachment(uri: Uri) {
+        val (content, mimeType) = Files.readBytesAndMimeTypeFromUri(uri, context)
+        onDayAdd(content, mimeType)
+    }
+
+    if (it.resultCode != Activity.RESULT_CANCELED && it.data != null) {
+        // multiple files
+        val multipleItems = it.data?.clipData
+        if (multipleItems != null) {
+            for (i in 0 until multipleItems.itemCount) {
+                addAttachment(multipleItems.getItemAt(i).uri)
+            }
+        } else {
+            // single file
+            it.data?.data?.let { uri ->
+                addAttachment(uri)
+            }
+        }
+    }
+}
+

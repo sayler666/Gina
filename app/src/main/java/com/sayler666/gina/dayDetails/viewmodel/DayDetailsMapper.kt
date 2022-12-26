@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class DayDetailsMapper @Inject constructor() {
     fun mapToVm(day: DayWithAttachment): DayWithAttachmentsEntity {
-        requireNotNull(day.day.id)
+        //requireNotNull(day.day.id)
         requireNotNull(day.day.date)
         requireNotNull(day.day.content)
         return DayWithAttachmentsEntity(
@@ -60,7 +60,7 @@ class DayDetailsMapper @Inject constructor() {
 }
 
 data class DayWithAttachmentsEntity(
-    val id: Int,
+    val id: Int?,
     val date: String,
     val dateTimestamp: Long,
     val content: String,

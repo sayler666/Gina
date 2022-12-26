@@ -93,6 +93,9 @@ interface DaysDao {
     @Update
     suspend fun updateDay(day: Day): Int
 
+    @Insert
+    suspend fun addDay(day: Day): Long
+
     @Delete
     suspend fun deleteDay(day: Day): Int
 

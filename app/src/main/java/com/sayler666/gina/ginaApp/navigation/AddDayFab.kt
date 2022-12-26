@@ -1,23 +1,28 @@
 package com.sayler666.gina.ginaApp.navigation
 
-import android.widget.Toast
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
+import com.ramcosta.composedestinations.navigation.navigate
+import com.sayler666.gina.destinations.AddDayScreenDestination
+import com.sayler666.gina.destinations.DaysListScreenDestination
 
 @Composable
-fun AddDayFab() {
-    val context = LocalContext.current
+fun AddDayFab(navController: NavHostController) {
     FloatingActionButton(
         containerColor = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
         onClick = {
-            Toast.makeText(context, "Add new entry", Toast.LENGTH_SHORT).show()
+            navController.navigate(AddDayScreenDestination) {
+                launchSingleTop = true
+                restoreState = false
+                popUpTo(DaysListScreenDestination.route)
+            }
         }) {
         Icon(
             Icons.Filled.Add,
