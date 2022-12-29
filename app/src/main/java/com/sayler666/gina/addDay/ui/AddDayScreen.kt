@@ -14,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +47,13 @@ import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
+import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.ui.DatePicker
+import com.sayler666.gina.ui.MoodIcon
+import com.sayler666.gina.ui.MoodPicker
+import com.sayler666.gina.ui.mapToMoodIcon
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterial3Api::class)
@@ -97,7 +103,12 @@ fun AddDayScreen(
             }
         },
         bottomBar = {
-            BottomBar(addAttachmentLauncher) { viewModel.saveChanges() }
+            BottomBar(
+                dayTemp,
+                addAttachmentLauncher,
+                onSaveChanges = { viewModel.saveChanges() },
+                onMoodChanged = { mood -> viewModel.setNewMood(mood) }
+            )
         },
         content = { padding ->
             Column(
@@ -140,9 +151,13 @@ private fun TopBar(
 
 @Composable
 private fun BottomBar(
+    currentDay: DayWithAttachmentsEntity?,
     addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    onSaveChanges: () -> Unit
+    onSaveChanges: () -> Unit,
+    onMoodChanged: (Mood) -> Unit
 ) {
+    val showPopup = remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
@@ -151,12 +166,24 @@ private fun BottomBar(
             }) {
                 Icon(Filled.AddAPhoto, null)
             }
-            IconButton(onClick = { /* Do Something */ }) {
+            val moodIcon: MoodIcon = currentDay?.mood.mapToMoodIcon()
+            IconButton(onClick = { showPopup.value = true }) {
                 Icon(
-                    painter = rememberVectorPainter(image = Filled.SentimentNeutral),
+                    painter = rememberVectorPainter(image = moodIcon.icon),
+                    tint = moodIcon.tint,
                     contentDescription = null,
                 )
             }
+            MoodPicker(showPopup.value,
+                onDismiss = { showPopup.value = false },
+                onSelectMood = { mood ->
+                    scope.launch {
+                        delay(120)
+                        showPopup.value = false
+                    }
+                    onMoodChanged(mood)
+                }
+            )
         },
         floatingActionButton = { SaveFab { onSaveChanges() } }
     )

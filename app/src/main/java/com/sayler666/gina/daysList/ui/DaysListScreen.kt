@@ -11,12 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SentimentDissatisfied
-import androidx.compose.material.icons.filled.SentimentNeutral
-import androidx.compose.material.icons.filled.SentimentSatisfied
-import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
-import androidx.compose.material.icons.filled.SentimentVerySatisfied
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,13 +33,7 @@ import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.daysList.viewmodel.DayEntity
 import com.sayler666.gina.daysList.viewmodel.DaysListViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.ui.theme.md_theme_dark_error
-import com.sayler666.gina.ui.theme.md_theme_dark_outline
-import com.sayler666.gina.ui.theme.md_theme_dark_surfaceTint
-import com.sayler666.gina.ui.theme.md_theme_light_onPrimary
-import com.sayler666.gina.ui.theme.md_theme_light_tertiaryContainer
-import kotlin.random.Random
-import kotlin.random.nextInt
+import com.sayler666.gina.ui.mapToMoodIconOrNull
 
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalFoundationApi::class)
 @RootNavGraph
@@ -81,7 +69,11 @@ fun DaysListScreen(
 
                 items(day) { d ->
                     Day(d) {
-                       destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(d.id)))
+                        destinationsNavigator.navigate(
+                            DayDetailsScreenDestination(
+                                DayDetailsScreenNavArgs(d.id)
+                            )
+                        )
                     }
                 }
             }
@@ -98,7 +90,7 @@ fun Day(day: DayEntity, onClick: () -> Unit) {
         modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
         onClick = onClick
     ) {
-        val (icon, color) = mockSentimentIcon()
+        val icon = day.mood.mapToMoodIconOrNull()
         Column(
             Modifier
                 .padding(8.dp)
@@ -121,15 +113,17 @@ fun Day(day: DayEntity, onClick: () -> Unit) {
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    painter = rememberVectorPainter(
-                        image = icon
-                    ),
-                    tint = color,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
+                icon?.let {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        painter = rememberVectorPainter(
+                            image = icon.icon
+                        ),
+                        tint = icon.tint,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
             Text(
                 text = day.shortContent,
@@ -138,14 +132,4 @@ fun Day(day: DayEntity, onClick: () -> Unit) {
             )
         }
     }
-}
-
-// TODO remove this
-fun mockSentimentIcon() = when (Random.nextInt(1..5)) {
-    1 -> Icons.Filled.SentimentVeryDissatisfied to md_theme_dark_error
-    2 -> Icons.Filled.SentimentDissatisfied to md_theme_dark_outline
-    3 -> Icons.Filled.SentimentNeutral to md_theme_light_onPrimary
-    4 -> Icons.Filled.SentimentSatisfied to md_theme_dark_surfaceTint
-    5 -> Icons.Filled.SentimentVerySatisfied to md_theme_light_tertiaryContainer
-    else -> Icons.Filled.SentimentVerySatisfied to md_theme_light_tertiaryContainer
 }

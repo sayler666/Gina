@@ -10,6 +10,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
+import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
@@ -92,6 +93,11 @@ class DayDetailsEditViewModel @Inject constructor(
     fun setNewDate(epochMilliseconds: Long) {
         val currentDay = _tempDay.value ?: return
         _tempDay.value = currentDay.copy(day = currentDay.day.copy(date = epochMilliseconds))
+    }
+
+    fun setNewMood(mood: Mood) {
+        val currentDay = _tempDay.value ?: return
+        _tempDay.value = currentDay.copy(day = currentDay.day.copy(mood = mood.numberValue))
     }
 
     fun removeAttachment(byteHashCode: Int) {

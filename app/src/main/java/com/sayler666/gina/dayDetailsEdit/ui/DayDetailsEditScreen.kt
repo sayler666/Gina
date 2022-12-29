@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -41,6 +40,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -67,9 +67,15 @@ import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
+import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DatePicker
+import com.sayler666.gina.ui.MoodIcon
+import com.sayler666.gina.ui.MoodPicker
+import com.sayler666.gina.ui.mapToMoodIcon
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 data class DayDetailsEditScreenNavArgs(
@@ -135,7 +141,15 @@ fun DayDetailsEditScreen(
                 )
             }
         },
-        bottomBar = { BottomBar(showDeleteConfirmationDialog, viewModel, addAttachmentLauncher) },
+        bottomBar = {
+            BottomBar(
+                currentDay,
+                showDeleteConfirmationDialog,
+                addAttachmentLauncher,
+                onSaveChanges = { viewModel.saveChanges() },
+                onMoodChanged = { mood -> viewModel.setNewMood(mood) }
+            )
+        },
         content = { padding ->
             Column(
                 modifier = Modifier
@@ -260,10 +274,14 @@ fun SaveFab(onSaveButtonClicked: () -> Unit) {
 
 @Composable
 private fun BottomBar(
+    currentDay: DayWithAttachmentsEntity?,
     showDeleteConfirmationDialog: MutableState<Boolean>,
-    viewModel: DayDetailsEditViewModel,
-    addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+    addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    onSaveChanges: () -> Unit,
+    onMoodChanged: (Mood) -> Unit
 ) {
+    val showPopup = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
@@ -284,14 +302,27 @@ private fun BottomBar(
             }) {
                 Icon(Filled.AddAPhoto, null)
             }
-            IconButton(onClick = { /* Do Something */ }) {
+            val moodIcon: MoodIcon = currentDay?.mood.mapToMoodIcon()
+            IconButton(onClick = { showPopup.value = true }) {
                 Icon(
-                    painter = rememberVectorPainter(image = Filled.SentimentNeutral),
+                    painter = rememberVectorPainter(image = moodIcon.icon),
+                    tint = moodIcon.tint,
                     contentDescription = null,
                 )
             }
+            MoodPicker(showPopup.value,
+                onDismiss = { showPopup.value = false },
+                onSelectMood = { mood ->
+                    scope.launch {
+                        delay(120)
+                        showPopup.value = false
+                    }
+                    onMoodChanged(mood)
+                }
+            )
+
         },
-        floatingActionButton = { SaveFab { viewModel.saveChanges() } }
+        floatingActionButton = { SaveFab { onSaveChanges() } }
     )
 }
 

@@ -3,7 +3,7 @@ package com.sayler666.gina.dayDetails.viewmodel
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.daysList.viewmodel.Mood
-import com.sayler666.gina.daysList.viewmodel.Mood.NEUTRAL
+import com.sayler666.gina.daysList.viewmodel.Mood.Companion.mapToMoodOrNull
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
 import java.time.Instant
@@ -23,7 +23,8 @@ class DayDetailsMapper @Inject constructor() {
             date = getTitle(day.day.date),
             dateTimestamp = day.day.date,
             content = day.day.content,
-            attachments = mapAttachments(day.attachments)
+            attachments = mapAttachments(day.attachments),
+            mood = day.day.mood.mapToMoodOrNull()
         )
     }
 
@@ -64,7 +65,7 @@ data class DayWithAttachmentsEntity(
     val date: String,
     val dateTimestamp: Long,
     val content: String,
-    val mood: Mood = NEUTRAL,
+    val mood: Mood?,
     val attachments: List<AttachmentEntity> = emptyList()
 )
 
