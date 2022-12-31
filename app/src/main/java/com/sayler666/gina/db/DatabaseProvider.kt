@@ -2,6 +2,7 @@ package com.sayler666.gina.db
 
 import android.app.Application
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.sayler666.gina.settings.Settings
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
@@ -13,7 +14,9 @@ class DatabaseProvider(private val application: Application, private val setting
         val savedPath = settings.getDatabasePathFlow().first()
         savedPath?.let {
             try {
-                db = Room.databaseBuilder(application, GinaDatabase::class.java, savedPath).build()
+                db = Room.databaseBuilder(application, GinaDatabase::class.java, savedPath)
+                    .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                    .build()
             } catch (e: Exception) {
                 Timber.e(e, "Error opening DB")
                 return false
@@ -25,7 +28,9 @@ class DatabaseProvider(private val application: Application, private val setting
 
     suspend fun openDB(path: String): Boolean {
         try {
-            db = Room.databaseBuilder(application, GinaDatabase::class.java, path).build()
+            db = Room.databaseBuilder(application, GinaDatabase::class.java, path)
+                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                .build()
         } catch (e: Exception) {
             Timber.e(e, "Error opening DB")
             return false
