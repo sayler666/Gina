@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sayler666.gina.destinations.AddDayScreenDestination
-import com.sayler666.gina.destinations.DaysListScreenDestination
 
 @Composable
 fun AddDayFab(navController: NavHostController) {
@@ -18,10 +17,9 @@ fun AddDayFab(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
         onClick = {
-            navController.navigate(AddDayScreenDestination) {
+            navController.navigate(AddDayScreenDestination()) {
                 launchSingleTop = true
                 restoreState = false
-                popUpTo(DaysListScreenDestination.route)
             }
         }) {
         Icon(

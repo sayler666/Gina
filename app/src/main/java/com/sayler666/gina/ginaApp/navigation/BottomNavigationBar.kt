@@ -23,10 +23,10 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R
 import com.sayler666.gina.appCurrentDestinationAsState
+import com.sayler666.gina.destinations.CalendarScreenDestination
 import com.sayler666.gina.destinations.DaysListScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.DirectionDestination
-import com.sayler666.gina.destinations.GameOfLifeScreenDestination
 import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.startAppDestination
@@ -42,7 +42,7 @@ enum class BottomDestinations(
         R.string.days_label
     ),
     Calendar(
-        GameOfLifeScreenDestination,
+        CalendarScreenDestination,
         Icons.Filled.CalendarMonth,
         R.string.calendar_label
     ),
@@ -58,11 +58,6 @@ enum class BottomDestinations(
     )
 }
 
-@com.ramcosta.composedestinations.annotation.Destination
-@Composable
-fun CalendarScreen() {
-    // TODO move
-}
 
 //@com.ramcosta.composedestinations.annotation.Destination
 //@Composable

@@ -17,6 +17,7 @@ object Versions {
     const val accompanist = "0.28.0"
     const val coilCompose = "2.2.2"
     const val materialDialogs = "0.9.0"
+    const val calendarCompose = "2.1.1"
 
     const val room = "2.4.3"
     const val dataStorePreferences = "1.0.0"

@@ -31,6 +31,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -345,7 +346,7 @@ fun DeleteConfirmationDialog(showDialog: MutableState<Boolean>, onConfirmAction:
                 ) { Text("Remove") }
             },
             dismissButton = {
-                Button(
+                OutlinedButton(
                     shape = MaterialTheme.shapes.medium,
                     onClick = { showDialog.value = false }
                 ) { Text("Cancel") }
@@ -373,7 +374,7 @@ fun DiscardConfirmationDialog(showDialog: MutableState<Boolean>, onDiscardAction
                 ) { Text("Discard") }
             },
             dismissButton = {
-                Button(
+                OutlinedButton(
                     shape = MaterialTheme.shapes.medium,
                     onClick = { showDialog.value = false }
                 ) { Text("Cancel") }

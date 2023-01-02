@@ -139,6 +139,7 @@ dependencies {
     implementation(Deps.roomKtx)
     implementation(Deps.dataStorePreferences)
     implementation(Deps.commonsIo)
+    implementation(Deps.calendarCompose)
 //    implementation(Deps.materialDialogsCore)
 //    implementation(Deps.materialDialogsDateTime)
     implementation(Deps.okio)

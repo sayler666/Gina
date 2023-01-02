@@ -35,6 +35,7 @@ object Deps {
     val coilCompose by lazy { "io.coil-kt:coil-compose:${Versions.coilCompose}" }
     val materialDialogsCore by lazy { "io.github.vanpra.compose-material-dialogs:core:${Versions.materialDialogs}" }
     val materialDialogsDateTime by lazy { "io.github.vanpra.compose-material-dialogs:datetime:${Versions.materialDialogs}" }
+    val calendarCompose by lazy { "com.kizitonwose.calendar:compose:${Versions.calendarCompose}" }
 
     val room by lazy { "androidx.room:room-runtime:${Versions.room}" }
     val roomCompiler by lazy { "androidx.room:room-compiler:${Versions.room}" }

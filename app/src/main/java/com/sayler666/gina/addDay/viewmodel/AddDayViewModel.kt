@@ -1,7 +1,9 @@
 package com.sayler666.gina.addDay.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
@@ -10,6 +12,7 @@ import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayWithAttachment
+import com.sayler666.gina.destinations.AddDayScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
@@ -25,14 +29,21 @@ import javax.inject.Inject
 @HiltViewModel
 class AddDayViewModel @Inject constructor(
     private val dayDetailsMapper: DayDetailsMapper,
-    private val addDayUseCase: AddDayUseCase
+    private val addDayUseCase: AddDayUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val navArgs: AddDayScreenNavArgs =
+        AddDayScreenDestination.argsFrom(savedStateHandle)
+    private val date: LocalDate?
+        get() = navArgs.date
 
     private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(
         DayWithAttachment(
             Day(
                 id = null,
-                date = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000,
+                date = (date?.atStartOfDay()?.toEpochSecond(ZoneOffset.UTC)
+                    ?: (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))) * 1000,
                 content = "",
                 mood = 0
             ), emptyList()

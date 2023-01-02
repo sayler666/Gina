@@ -54,11 +54,17 @@ import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
+data class AddDayScreenNavArgs(
+    val date: LocalDate? = null
+)
 
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterial3Api::class)
 @RootNavGraph
-@Destination
+@Destination(
+    navArgsDelegate = AddDayScreenNavArgs::class
+)
 @Composable
 fun AddDayScreen(
     destinationsNavigator: DestinationsNavigator,
