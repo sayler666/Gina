@@ -11,7 +11,19 @@ plugins {
     id("com.google.devtools.ksp") version "1.7.21-1.0.8"
 }
 
+val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
+
 android {
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("release-keystore.jks")
+            storePassword = "splurge-bakery-pardon"
+            keyAlias = "gina3"
+            keyPassword = "splurge-bakery-pardon"
+        }
+    }
+
     buildToolsVersion = ConfigData.buildToolsVersion
     compileSdkVersion = ConfigData.compileSdkVersion
 
@@ -28,8 +40,21 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        debug {
+            signingConfig = signingConfigs["debug"]
+            isShrinkResources = false
             isMinifyEnabled = false
+            versionNameSuffix = "-dev"
+            applicationIdSuffix = ".debug"
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        release {
+            signingConfig = signingConfigs[if (useReleaseKeystore) "release" else "debug"]
+            isShrinkResources = true
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
