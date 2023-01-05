@@ -10,6 +10,7 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.core.CalendarMonth
 import kotlinx.coroutines.flow.filterNotNull
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.*
@@ -58,3 +59,7 @@ fun rememberFirstMostVisibleMonth(
     }
     return visibleMonth.value
 }
+
+fun LocalDate.toEpochMilliseconds() = toEpochDay() * MILLIS_IN_DAY
+
+const val MILLIS_IN_DAY = 24 * 60 * 60 * 1000

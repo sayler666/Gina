@@ -29,24 +29,27 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sayler666.gina.calendar.viewmodel.DatePickerPopupViewModel
 import com.sayler666.gina.core.date.displayText
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.YearMonth
 
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun DatePickerPopup(
+fun YearMonthSwitcherPopup(
     showPopup: Boolean,
     onDismiss: () -> Unit,
-    dayPickerEnabled: Boolean = false,
+    daySwitcherEnabled: Boolean = false,
     onSelectDate: (LocalDate) -> Unit,
     currentYearMonth: YearMonth
 ) {
-    val viewModel = DatePickerPopupViewModel(currentYearMonth)
+    val viewModel = YearMonthSwitcherViewModel(currentYearMonth)
     val date: LocalDate by viewModel.date.collectAsStateWithLifecycle()
 
     if (showPopup) Popup(
@@ -76,7 +79,7 @@ fun DatePickerPopup(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.Bottom) {
-                        if (dayPickerEnabled)
+                        if (daySwitcherEnabled)
                             IconButton(onClick = { viewModel.plusDay() }, Modifier.weight(0.33f)) {
                                 Icon(
                                     painter = rememberVectorPainter(image = Icons.Default.ExpandLess),
@@ -100,7 +103,7 @@ fun DatePickerPopup(
                         }
                     }
                     Row(horizontalArrangement = Arrangement.Center) {
-                        if (dayPickerEnabled)
+                        if (daySwitcherEnabled)
                             Text(
                                 text = date.dayOfMonth.toString(),
                                 textAlign = TextAlign.Center,
@@ -124,7 +127,7 @@ fun DatePickerPopup(
                         )
                     }
                     Row(horizontalArrangement = Arrangement.Center) {
-                        if (dayPickerEnabled)
+                        if (daySwitcherEnabled)
                             IconButton(onClick = { viewModel.minusDay() }, Modifier.weight(0.33f)) {
                                 Icon(
                                     painter = rememberVectorPainter(image = Icons.Default.ExpandMore),
@@ -168,4 +171,38 @@ fun DatePickerPopup(
 
         }
     }
+}
+
+internal class YearMonthSwitcherViewModel(currentYearMonth: YearMonth) : ViewModel() {
+
+    private val _date =
+        MutableStateFlow(LocalDate.of(currentYearMonth.year, currentYearMonth.month, 1))
+    val date: StateFlow<LocalDate>
+        get() = _date.asStateFlow()
+
+    fun plusDay() {
+        _date.value = _date.value.plusDays(1)
+    }
+
+    fun plusMonth() {
+        _date.value = _date.value.plusMonths(1)
+    }
+
+    fun plusYear() {
+        _date.value = _date.value.plusYears(1)
+    }
+
+    fun minusDay() {
+        _date.value = _date.value.minusDays(1)
+    }
+
+    fun minusMonth() {
+        _date.value = _date.value.minusMonths(1)
+
+    }
+
+    fun minusYear() {
+        _date.value = _date.value.minusYears(1)
+    }
+
 }

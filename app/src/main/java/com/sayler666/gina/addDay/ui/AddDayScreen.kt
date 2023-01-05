@@ -6,7 +6,9 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,12 +16,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +43,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
+import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.file.handleSelectedFiles
 import com.sayler666.gina.core.flow.Event
@@ -48,7 +54,6 @@ import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.daysList.viewmodel.Mood
-import com.sayler666.gina.ui.DatePicker
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon
@@ -91,6 +96,7 @@ fun AddDayScreen(
     // dialogs
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     DiscardConfirmationDialog(showDiscardConfirmationDialog) { navController.popBackStack() }
+    val showDatePickerPopup = remember { mutableStateOf(false) }
 
     BackHandler(onBack = {
         handleBackPress(true, showDiscardConfirmationDialog, navController)
@@ -104,7 +110,9 @@ fun AddDayScreen(
                     onNavigateBackClicked = {
                         handleBackPress(true, showDiscardConfirmationDialog, navController)
                     },
-                    onDateButtonClicked = { date -> viewModel.setNewDate(date) }
+                    onChangeDateClicked = {
+                        showDatePickerPopup.value = true
+                    }
                 )
             }
         },
@@ -117,6 +125,18 @@ fun AddDayScreen(
             )
         },
         content = { padding ->
+            dayTemp?.let {
+                DatePickerDialog(
+                    showDatePickerPopup.value,
+                    initialDate = it.localDate,
+                    onDismiss = {
+                        showDatePickerPopup.value = false
+                    },
+                    onDateChanged = { date ->
+                        viewModel.setNewDate(date)
+                    }
+                )
+            }
             Column(
                 modifier = Modifier
                     .padding(padding)
@@ -139,12 +159,23 @@ fun AddDayScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopBar(
     day: DayWithAttachmentsEntity,
-    onDateButtonClicked: (Long) -> Unit,
-    onNavigateBackClicked: () -> Unit
+    onNavigateBackClicked: () -> Unit,
+    onChangeDateClicked: () -> Unit,
 ) {
     TopAppBar(
         title = {
-            DatePicker(day.dateTimestamp) { onDateButtonClicked(it) }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    onChangeDateClicked()
+                }) {
+                Text(text = day.date)
+                Icon(
+                    Filled.ArrowDropDown,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    contentDescription = null
+                )
+            }
         },
         navigationIcon = {
             IconButton(

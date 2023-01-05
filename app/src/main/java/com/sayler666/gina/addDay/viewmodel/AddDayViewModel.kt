@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
+import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
@@ -68,9 +69,10 @@ class AddDayViewModel @Inject constructor(
         _tempDay.value = temp.copy(day = temp.day.copy(content = newContent))
     }
 
-    fun setNewDate(epochMilliseconds: Long) {
+    fun setNewDate(date: LocalDate) {
         val currentDay = _tempDay.value ?: return
-        _tempDay.value = currentDay.copy(day = currentDay.day.copy(date = epochMilliseconds))
+        _tempDay.value =
+            currentDay.copy(day = currentDay.day.copy(date = date.toEpochMilliseconds()))
     }
 
     fun setNewMood(mood: Mood) {

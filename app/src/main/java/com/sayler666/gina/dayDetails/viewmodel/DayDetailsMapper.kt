@@ -7,6 +7,7 @@ import com.sayler666.gina.daysList.viewmodel.Mood.Companion.mapToMoodOrNull
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale.getDefault
@@ -22,11 +23,16 @@ class DayDetailsMapper @Inject constructor() {
             id = day.day.id,
             date = getTitle(day.day.date),
             dateTimestamp = day.day.date,
+            localDate = getLocalDate(day.day.date),
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood.mapToMoodOrNull()
         )
     }
+
+    private fun getLocalDate(date: Long) = Instant.ofEpochSecond(date / 1000)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
 
     private fun getTitle(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
         .atZone(ZoneId.systemDefault())
@@ -64,6 +70,7 @@ data class DayWithAttachmentsEntity(
     val id: Int?,
     val date: String,
     val dateTimestamp: Long,
+    val localDate: LocalDate,
     val content: String,
     val mood: Mood?,
     val attachments: List<AttachmentEntity> = emptyList()

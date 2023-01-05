@@ -3,6 +3,7 @@ package com.sayler666.gina.dayDetailsEdit.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -90,9 +92,10 @@ class DayDetailsEditViewModel @Inject constructor(
         _tempDay.value = temp.copy(day = temp.day.copy(content = newContent))
     }
 
-    fun setNewDate(epochMilliseconds: Long) {
+    fun setNewDate(date: LocalDate) {
         val currentDay = _tempDay.value ?: return
-        _tempDay.value = currentDay.copy(day = currentDay.day.copy(date = epochMilliseconds))
+        _tempDay.value =
+            currentDay.copy(day = currentDay.day.copy(date = date.toEpochMilliseconds()))
     }
 
     fun setNewMood(mood: Mood) {

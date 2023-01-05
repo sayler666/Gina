@@ -6,6 +6,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
@@ -42,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -57,6 +60,7 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.core.compose.conditional
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.file.Files.openFileIntent
@@ -71,7 +75,6 @@ import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
-import com.sayler666.gina.ui.DatePicker
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon
@@ -122,9 +125,10 @@ fun DayDetailsEditScreen(
 
     // dialogs
     val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
-    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     DeleteConfirmationDialog(showDeleteConfirmationDialog) { viewModel.removeDay() }
+    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     DiscardConfirmationDialog(showDiscardConfirmationDialog) { navController.popBackStack() }
+    val showDatePickerPopup = remember { mutableStateOf(false) }
 
     BackHandler(onBack = {
         handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
@@ -138,7 +142,9 @@ fun DayDetailsEditScreen(
                     onNavigateBackClicked = {
                         handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
                     },
-                    onDateButtonClicked = { date -> viewModel.setNewDate(date) }
+                    onChangeDateClicked = {
+                        showDatePickerPopup.value = true
+                    }
                 )
             }
         },
@@ -152,6 +158,18 @@ fun DayDetailsEditScreen(
             )
         },
         content = { padding ->
+            currentDay?.let {
+                DatePickerDialog(
+                    showDatePickerPopup.value,
+                    initialDate = it.localDate,
+                    onDismiss = {
+                        showDatePickerPopup.value = false
+                    },
+                    onDateChanged = { date ->
+                        viewModel.setNewDate(date)
+                    }
+                )
+            }
             Column(
                 modifier = Modifier
                     .padding(padding)
@@ -242,12 +260,23 @@ fun Attachments(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopBar(
     day: DayWithAttachmentsEntity,
-    onDateButtonClicked: (Long) -> Unit,
-    onNavigateBackClicked: () -> Unit
+    onNavigateBackClicked: () -> Unit,
+    onChangeDateClicked: () -> Unit
 ) {
     TopAppBar(
         title = {
-            DatePicker(day.dateTimestamp) { onDateButtonClicked(it) }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    onChangeDateClicked()
+                }) {
+                Text(text = day.date)
+                Icon(
+                    Filled.ArrowDropDown,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    contentDescription = null
+                )
+            }
         },
         navigationIcon = {
             IconButton(
