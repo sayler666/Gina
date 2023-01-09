@@ -87,6 +87,9 @@ interface DaysDao {
     @Query("SELECT * FROM days ORDER by date DESC")
     fun getDaysFlow(): Flow<List<Day>>
 
+    @Query("SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' ORDER by date DESC")
+    fun getDaysFlow(searchQuery: String?): Flow<List<Day>>
+
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayWithAttachment>
 
