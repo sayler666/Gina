@@ -51,7 +51,8 @@ fun DatePickerDialog(
                     },
                     onEmptyDayClick = { date ->
                         selectedDay.value = date
-                    }
+                    },
+                    firstVisible = initialDate
                 )
                 Row(Modifier.padding(14.dp)) {
                     OutlinedButton(
@@ -59,7 +60,7 @@ fun DatePickerDialog(
                         shape = MaterialTheme.shapes.medium,
                         onClick = { onDismiss() }
                     ) { Text("Cancel") }
-                    Spacer(modifier = Modifier.weight(0.1f))
+                    Spacer(modifier = Modifier.weight(.025f))
                     Button(
                         modifier = Modifier.weight(0.5f),
                         shape = MaterialTheme.shapes.medium,

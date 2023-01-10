@@ -8,9 +8,9 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -38,7 +38,7 @@ enum class BottomDestinations(
 ) {
     DaysList(
         DaysListScreenDestination,
-        Icons.Filled.List,
+        Icons.Filled.AutoStories,
         R.string.days_label
     ),
     Calendar(

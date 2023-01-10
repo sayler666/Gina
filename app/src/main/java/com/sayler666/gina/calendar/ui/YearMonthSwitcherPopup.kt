@@ -156,7 +156,7 @@ fun YearMonthSwitcherPopup(
                             modifier = Modifier.weight(0.45f),
                             onClick = { onDismiss() }
                         ) { Text("Cancel") }
-                        Spacer(modifier = Modifier.weight(0.1f))
+                        Spacer(modifier = Modifier.weight(0.025f))
                         Button(
                             shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.weight(0.45f),

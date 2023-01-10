@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
+import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.mapToMoodIconOrNull
 
 
@@ -61,7 +63,15 @@ fun DayDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { day?.let { Text(text = it.date) } },
+                title = {
+                    day?.let { day ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() }

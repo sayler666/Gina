@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +53,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.daysList.viewmodel.Mood
+import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon
@@ -169,7 +169,7 @@ private fun TopBar(
                 modifier = Modifier.clickable {
                     onChangeDateClicked()
                 }) {
-                Text(text = day.date)
+                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
                 Icon(
                     Filled.ArrowDropDown,
                     tint = MaterialTheme.colorScheme.tertiary,

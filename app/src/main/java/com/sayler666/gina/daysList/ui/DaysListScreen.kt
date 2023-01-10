@@ -62,6 +62,7 @@ import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.daysList.viewmodel.DayEntity
 import com.sayler666.gina.daysList.viewmodel.DaysListViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.mapToMoodIconOrNull
 
 @OptIn(
@@ -241,22 +242,7 @@ fun Day(day: DayEntity, onClick: () -> Unit) {
                 .fillMaxWidth()
         ) {
             Row(Modifier.fillMaxWidth()) {
-                Text(
-                    text = day.dayOfMonth,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Column(Modifier.padding(5.dp)) {
-                    Text(
-                        text = day.dayOfWeek,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = day.yearAndMonth,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
                 icon?.let {
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(

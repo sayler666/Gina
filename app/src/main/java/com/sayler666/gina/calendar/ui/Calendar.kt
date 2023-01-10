@@ -46,6 +46,7 @@ import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.core.compose.conditional
 import com.sayler666.gina.core.date.displayText
 import com.sayler666.gina.core.date.rememberFirstMostVisibleMonth
+import com.sayler666.gina.ui.theme.RobotoSlabRegular
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -59,7 +60,8 @@ fun Calendar(
     onDayClick: (CalendarDayEntity) -> Unit,
     onEmptyDayClick: (LocalDate) -> Unit,
     selectable: Boolean = false,
-    selectedDate: LocalDate? = null
+    selectedDate: LocalDate? = null,
+    firstVisible: LocalDate? = null
 ) {
     val daysOfWeek = remember { daysOfWeek() }
     val today = remember { LocalDate.now() }
@@ -74,7 +76,7 @@ fun Calendar(
     val state = rememberCalendarState(
         startMonth = startMonth,
         endMonth = endMonth.value,
-        firstVisibleMonth = currentYearMonth.value,
+        firstVisibleMonth = firstVisible?.yearMonth ?: currentYearMonth.value,
         firstDayOfWeek = firstDayOfWeek,
         outDateStyle = OutDateStyle.EndOfGrid
     )
@@ -155,6 +157,11 @@ private fun CalendarTopBar(
             onTodayClick()
         }) {
             Icon(Filled.CalendarToday, null)
+            Text(
+                text = LocalDate.now().dayOfMonth.toString(),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     })
 }
@@ -217,7 +224,10 @@ private fun CalendarDay(
             Text(
                 text = day.date.dayOfMonth.toString(),
                 color = textColor,
-                style = TextStyle(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal),
+                style = TextStyle(
+                    fontFamily = RobotoSlabRegular,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                ),
                 modifier = Modifier
                     .padding(top = 0.dp)
                     .clip(shape = RoundedCornerShape(size = 10.dp))
@@ -246,7 +256,7 @@ private fun CalendarMonthHeader(daysOfWeek: List<DayOfWeek>) {
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.outline,
                 text = dayOfWeek.displayText(),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.labelSmall
             )
         }
     }

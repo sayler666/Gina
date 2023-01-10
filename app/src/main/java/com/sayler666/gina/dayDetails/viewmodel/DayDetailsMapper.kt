@@ -16,13 +16,13 @@ import javax.inject.Inject
 
 class DayDetailsMapper @Inject constructor() {
     fun mapToVm(day: DayWithAttachment): DayWithAttachmentsEntity {
-        //requireNotNull(day.day.id)
         requireNotNull(day.day.date)
         requireNotNull(day.day.content)
         return DayWithAttachmentsEntity(
             id = day.day.id,
-            date = getTitle(day.day.date),
-            dateTimestamp = day.day.date,
+            dayOfMonth = getDayOfMonth(day.day.date),
+            dayOfWeek = getDayOfWeek(day.day.date),
+            yearAndMonth = getYearAndMonth(day.day.date),
             localDate = getLocalDate(day.day.date),
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
@@ -34,11 +34,25 @@ class DayDetailsMapper @Inject constructor() {
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
 
-    private fun getTitle(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
+    private fun getDayOfMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
         .format(
-            DateTimeFormatter.ofPattern(DATE_PATTERN)
+            DateTimeFormatter.ofPattern("dd")
+        )
+
+    private fun getDayOfWeek(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(
+            DateTimeFormatter.ofPattern("EEEE")
+        )
+
+    private fun getYearAndMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(
+            DateTimeFormatter.ofPattern("yyyy, MMMM")
         )
 
     private fun mapAttachments(attachments: List<Attachment>): List<AttachmentEntity> =
@@ -68,8 +82,9 @@ class DayDetailsMapper @Inject constructor() {
 
 data class DayWithAttachmentsEntity(
     val id: Int?,
-    val date: String,
-    val dateTimestamp: Long,
+    val dayOfMonth: String,
+    val dayOfWeek: String,
+    val yearAndMonth: String,
     val localDate: LocalDate,
     val content: String,
     val mood: Mood?,
