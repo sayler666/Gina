@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.sayler666.gina.ui.theme.RobotoSlabLight
+import com.sayler666.gina.ui.theme.RobotoSlabRegular
 
 @Composable
 fun DayTitle(dayOfMonth: String, dayOfWeek: String, yearAndMonth: String) {
@@ -18,12 +20,12 @@ fun DayTitle(dayOfMonth: String, dayOfWeek: String, yearAndMonth: String) {
     Column(Modifier.padding(5.dp)) {
         Text(
             text = dayOfWeek,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = RobotoSlabRegular),
             color = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = yearAndMonth,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = RobotoSlabLight),
         )
     }
 }

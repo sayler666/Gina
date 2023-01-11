@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +48,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -138,7 +140,7 @@ fun SearchBar(
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 12.dp)
+                        .padding(start = 4.dp, end = 1.dp)
                         .border(
                             BorderStroke(
                                 1.dp,
@@ -146,7 +148,7 @@ fun SearchBar(
                             ),
                             shape = MaterialTheme.shapes.large
                         )
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(4.dp))
                         .onFocusChanged { focusState ->
                             showClearButton = focusState.isFocused
                         }
@@ -156,7 +158,9 @@ fun SearchBar(
                     colors = TextFieldDefaults.textFieldColors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+                        cursorColor = MaterialTheme.colorScheme.secondary,
+                        textColor = MaterialTheme.colorScheme.secondary
                     ),
                     trailingIcon = {
                         AnimatedVisibility(
@@ -200,17 +204,7 @@ private fun Days(
     LazyColumn {
         grouped.forEach { (header, day) ->
             stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(1f)
-                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
-                ) {
-                    Text(
-                        modifier = Modifier.padding(16.dp, 5.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        text = header
-                    )
-                }
+                YearMonthHeader(header)
             }
 
             items(day) { d ->
@@ -227,12 +221,30 @@ private fun Days(
     }
 }
 
+@Composable
+private fun YearMonthHeader(header: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
+    ) {
+        Text(
+            modifier = Modifier.padding(start = 8.dp, top = 5.dp, bottom = 8.dp),
+            style = MaterialTheme.typography.titleMedium,
+            text = header
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Day(day: DayEntity, onClick: () -> Unit) {
     Card(
-        shape = MaterialTheme.shapes.large,
-        modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+        shape = RectangleShape,
+        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f),
+        ),
         onClick = onClick
     ) {
         val icon = day.mood.mapToMoodIconOrNull()
