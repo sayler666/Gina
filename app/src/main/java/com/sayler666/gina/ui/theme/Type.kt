@@ -34,28 +34,43 @@ val Typography = Typography(
         letterSpacing = 0.4.sp,
     ),
     labelSmall = TextStyle(
-        fontFamily = RobotoSlabRegular,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
     ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W500,
         fontSize = 16.sp
     ),
+    headlineMedium = TextStyle(
+        fontFamily = RobotoSlabRegular,
+        fontWeight = FontWeight.Medium,
+        fontSize = 28.sp,
+    ),
     headlineLarge = TextStyle(
         fontFamily = RobotoSlabRegular,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         fontSize = 33.sp,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = RobotoSlabLight,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = RobotoSlabLight,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
     ),
     titleLarge = TextStyle(
         fontFamily = RobotoSlabRegular,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         fontSize = 22.sp,
     ),
 )

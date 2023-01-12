@@ -11,7 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -32,10 +31,7 @@ import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.theme.GinaTheme
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalLifecycleComposeApi::class
-)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(vm: GinaMainViewModel) {
     GinaTheme {

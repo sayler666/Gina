@@ -1,6 +1,6 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
-import com.sayler666.gina.core.date.ofEpochMilliseconds
+import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment
@@ -29,19 +29,19 @@ class DayDetailsMapper @Inject constructor() {
         )
     }
 
-    private fun getLocalDate(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
 
-    private fun getDayOfMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getDayOfMonth(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("dd")
         )
 
-    private fun getDayOfWeek(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getDayOfWeek(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("EEEE")
         )
 
-    private fun getYearAndMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getYearAndMonth(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("yyyy, MMMM")
         )

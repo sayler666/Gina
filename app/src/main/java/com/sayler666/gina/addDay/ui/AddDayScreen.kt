@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
@@ -65,7 +64,7 @@ data class AddDayScreenNavArgs(
     val date: LocalDate? = null
 )
 
-@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = AddDayScreenNavArgs::class
@@ -85,6 +84,7 @@ fun AddDayScreen(
     }
 
     val dayTemp: DayWithAttachmentsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
+    val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
     val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
     if (navigateBack is Event.Value<Unit>) destinationsNavigator.popBackStack()
@@ -99,7 +99,7 @@ fun AddDayScreen(
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
     BackHandler(onBack = {
-        handleBackPress(true, showDiscardConfirmationDialog, navController)
+        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
     })
 
     Scaffold(

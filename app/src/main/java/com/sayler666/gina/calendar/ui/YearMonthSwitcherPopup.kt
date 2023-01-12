@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.gina.core.date.displayText
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +39,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun YearMonthSwitcherPopup(
     showPopup: Boolean,

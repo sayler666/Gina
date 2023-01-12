@@ -58,19 +58,6 @@ enum class BottomDestinations(
     )
 }
 
-
-//@com.ramcosta.composedestinations.annotation.Destination
-//@Composable
-//fun SettingsScreen() {
-//    // TODO move
-//}
-
-@com.ramcosta.composedestinations.annotation.Destination
-@Composable
-fun InsightsScreen() {
-    // TODO move
-}
-
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value

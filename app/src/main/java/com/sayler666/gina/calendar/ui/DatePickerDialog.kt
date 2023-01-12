@@ -17,14 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
 import java.time.LocalDate
 import java.util.*
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun DatePickerDialog(
     showPopup: Boolean,

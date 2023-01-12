@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
@@ -18,7 +17,6 @@ import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import java.util.*
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Destination
 @Composable
 fun CalendarScreen(

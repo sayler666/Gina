@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -39,17 +41,17 @@ class AddDayViewModel @Inject constructor(
     private val date: LocalDate?
         get() = navArgs.date
 
-    private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(
-        DayWithAttachment(
-            Day(
-                id = null,
-                date = (date?.atStartOfDay()?.toEpochSecond(ZoneOffset.UTC)
-                    ?: (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))) * 1000,
-                content = "",
-                mood = 0
-            ), emptyList()
-        )
+    private val blankDay = DayWithAttachment(
+        Day(
+            id = null,
+            date = (date?.atStartOfDay()?.toEpochSecond(ZoneOffset.UTC)
+                ?: (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))) * 1000,
+            content = "",
+            mood = 0
+        ), emptyList()
     )
+
+    private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(blankDay)
     val tempDay: StateFlow<DayWithAttachmentsEntity?>
         get() = _tempDay
             .filterNotNull()
@@ -59,6 +61,16 @@ class AddDayViewModel @Inject constructor(
                 WhileSubscribed(500),
                 null
             )
+
+    val changesExist: StateFlow<Boolean> = _tempDay.flatMapLatest {
+        flow {
+            if (it != null) emit(it != blankDay)
+        }
+    }.stateIn(
+        viewModelScope,
+        WhileSubscribed(500),
+        false
+    )
 
     private val _navigateBack: MutableStateFlow<Event<Unit>> = MutableStateFlow(Event.Empty)
     val navigateBack: StateFlow<Event<Unit>>

@@ -12,11 +12,10 @@ object Versions {
     const val compose = "1.3.1"
     const val activityCompose = "1.6.1"
     const val composeMaterial2 = "1.3.1"
-    const val composeMaterial3 = "1.1.0-alpha03"
-    const val composeDestination = "1.7.27-beta"
+    const val composeMaterial3 = "1.1.0-alpha04"
+    const val composeDestination = "1.7.30-beta"
     const val accompanist = "0.28.0"
     const val coilCompose = "2.2.2"
-    const val materialDialogs = "0.9.0"
     const val calendarCompose = "2.1.1"
 
     const val room = "2.4.3"

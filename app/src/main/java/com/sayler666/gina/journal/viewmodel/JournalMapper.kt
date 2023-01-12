@@ -1,6 +1,6 @@
 package com.sayler666.gina.journal.viewmodel
 
-import com.sayler666.gina.core.date.ofEpochMilliseconds
+import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
@@ -29,17 +29,17 @@ class DaysMapper @Inject constructor() {
             if (content.length > it.length) it.plus("…") else it
         }
 
-    private fun getDayOfMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getDayOfMonth(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("dd")
         )
 
-    private fun getDayOfWeek(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getDayOfWeek(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("EEEE")
         )
 
-    private fun getYearAndMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
+    private fun getYearAndMonth(timestamp: Long) = timestamp.toLocalDate()
         .format(
             DateTimeFormatter.ofPattern("yyyy, MMMM")
         )
