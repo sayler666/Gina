@@ -21,7 +21,7 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideCoroutineDispatcherIo() : CoroutineDispatcher = Dispatchers.IO
+    fun provideCoroutineDispatcherIo(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
     @Singleton

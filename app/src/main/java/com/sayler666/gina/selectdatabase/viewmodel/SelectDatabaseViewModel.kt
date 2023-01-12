@@ -7,8 +7,8 @@ import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.core.flow.Event.Empty
 import com.sayler666.gina.core.flow.Event.Value
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.destinations.DaysListScreenDestination
 import com.sayler666.gina.destinations.Destination
+import com.sayler666.gina.destinations.JournalScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,7 +39,9 @@ class SelectDatabaseViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            if (databaseProvider.openDB(path)) _navigateToHome.tryEmit(Value(DaysListScreenDestination))
+            if (databaseProvider.openDB(path)) _navigateToHome.tryEmit(
+                Value(JournalScreenDestination)
+            )
         }
     }
 }

@@ -27,10 +27,10 @@ import com.sayler666.gina.R.string.select_database_open_database
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.core.flow.Event.*
-import com.sayler666.gina.destinations.DaysListScreenDestination
+import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.destinations.Destination
+import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
-import com.sayler666.gina.permission.Permissions
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
 
 @RootNavGraph(start = true)
@@ -51,8 +51,8 @@ fun SelectDatabaseScreen(
         viewModel.refreshPermissionStatus()
     }
 
-    if ((navigate as? Value<Destination>)?.getValue() == DaysListScreenDestination) {
-        destinationsNavigator.navigate(DaysListScreenDestination, builder = {
+    if ((navigate as? Value<Destination>)?.getValue() == JournalScreenDestination) {
+        destinationsNavigator.navigate(JournalScreenDestination, builder = {
             popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
         })
     }

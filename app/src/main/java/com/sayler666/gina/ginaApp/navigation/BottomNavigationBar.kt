@@ -24,10 +24,10 @@ import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R
 import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.CalendarScreenDestination
-import com.sayler666.gina.destinations.DaysListScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.DirectionDestination
 import com.sayler666.gina.destinations.InsightsScreenDestination
+import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.startAppDestination
 
@@ -36,8 +36,8 @@ enum class BottomDestinations(
     val icon: ImageVector,
     val label: Int
 ) {
-    DaysList(
-        DaysListScreenDestination,
+    Journal(
+        JournalScreenDestination,
         Icons.Filled.AutoStories,
         R.string.days_label
     ),
@@ -103,7 +103,7 @@ fun BottomNavigationBar(navController: NavController) {
                     navController.navigate(dest.destination) {
                         launchSingleTop = true
                         restoreState = true
-                        popUpTo(DaysListScreenDestination.route)
+                        popUpTo(JournalScreenDestination.route)
                     }
                 },
                 selected = currentDestination == dest.destination,

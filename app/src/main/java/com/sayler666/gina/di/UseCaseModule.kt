@@ -8,8 +8,8 @@ import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCaseImpl
-import com.sayler666.gina.daysList.usecase.GetDaysUseCase
-import com.sayler666.gina.daysList.usecase.GetDaysUseCaseImpl
+import com.sayler666.gina.journal.usecase.GetDaysUseCase
+import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

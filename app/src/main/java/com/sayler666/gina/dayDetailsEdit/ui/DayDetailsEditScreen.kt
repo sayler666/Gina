@@ -72,10 +72,10 @@ import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
-import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon

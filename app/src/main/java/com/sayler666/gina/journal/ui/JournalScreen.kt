@@ -1,4 +1,4 @@
-package com.sayler666.gina.daysList.ui
+package com.sayler666.gina.journal.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -61,9 +61,9 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
-import com.sayler666.gina.daysList.viewmodel.DayEntity
-import com.sayler666.gina.daysList.viewmodel.DaysListViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.journal.viewmodel.DayEntity
+import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.mapToMoodIconOrNull
 
@@ -75,14 +75,14 @@ import com.sayler666.gina.ui.mapToMoodIconOrNull
 @RootNavGraph
 @com.ramcosta.composedestinations.annotation.Destination
 @Composable
-fun DaysListScreen(
+fun JournalScreen(
     destinationsNavigator: DestinationsNavigator,
     navController: NavController
 ) {
     val backStackEntry = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(NavGraphs.root.route)
     }
-    val viewModel: DaysListViewModel = hiltViewModel(backStackEntry)
+    val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
     val days: List<DayEntity> by viewModel.daysSearch.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
 

@@ -10,8 +10,10 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.core.CalendarMonth
 import kotlinx.coroutines.flow.filterNotNull
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Month
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.*
 
@@ -61,5 +63,10 @@ fun rememberFirstMostVisibleMonth(
 }
 
 fun LocalDate.toEpochMilliseconds() = toEpochDay() * MILLIS_IN_DAY
+
+fun Long.ofEpochMilliseconds(): LocalDate =
+    Instant.ofEpochSecond(this / 1000)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
 
 const val MILLIS_IN_DAY = 24 * 60 * 60 * 1000

@@ -1,4 +1,4 @@
-package com.sayler666.gina.permission
+package com.sayler666.gina.core.permission
 
 import android.content.Intent
 import android.net.Uri

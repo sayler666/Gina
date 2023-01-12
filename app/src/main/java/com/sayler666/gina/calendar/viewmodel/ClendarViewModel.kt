@@ -2,8 +2,8 @@ package com.sayler666.gina.calendar.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.daysList.usecase.GetDaysUseCase
 import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map

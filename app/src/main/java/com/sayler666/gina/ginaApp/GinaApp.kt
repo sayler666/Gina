@@ -20,9 +20,9 @@ import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.DaysListScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.FullImageDestination
+import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
@@ -44,8 +44,8 @@ fun GinaApp(vm: GinaMainViewModel) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 StatusBarColor()
                 NavigationBarColor()
-                val startRoute =
-                    if (rememberedDatabase == false) SelectDatabaseScreenDestination else DaysListScreenDestination
+                val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
+                else JournalScreenDestination
 
                 val navController = rememberAnimatedNavController()
                 val destination: Destination = navController.appCurrentDestinationAsState().value

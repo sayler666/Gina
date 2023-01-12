@@ -1,4 +1,4 @@
-package com.sayler666.gina.daysList.usecase
+package com.sayler666.gina.journal.usecase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider

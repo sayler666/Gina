@@ -1,14 +1,13 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
+import com.sayler666.gina.core.date.ofEpochMilliseconds
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
-import com.sayler666.gina.daysList.viewmodel.Mood
-import com.sayler666.gina.daysList.viewmodel.Mood.Companion.mapToMoodOrNull
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
-import java.time.Instant
+import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale.getDefault
 import javax.inject.Inject
@@ -30,27 +29,19 @@ class DayDetailsMapper @Inject constructor() {
         )
     }
 
-    private fun getLocalDate(date: Long) = Instant.ofEpochSecond(date / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getLocalDate(timestamp: Long) = timestamp.ofEpochMilliseconds()
 
-    private fun getDayOfMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getDayOfMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("dd")
         )
 
-    private fun getDayOfWeek(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getDayOfWeek(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("EEEE")
         )
 
-    private fun getYearAndMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getYearAndMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("yyyy, MMMM")
         )
@@ -76,7 +67,6 @@ class DayDetailsMapper @Inject constructor() {
 
     companion object {
         const val IMAGE_MIME_TYPE_PREFIX = "image/"
-        const val DATE_PATTERN = "dd. MMMM, yyyy"
     }
 }
 

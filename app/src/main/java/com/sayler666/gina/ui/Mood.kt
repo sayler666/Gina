@@ -21,12 +21,11 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import com.sayler666.gina.daysList.viewmodel.Mood
-import com.sayler666.gina.daysList.viewmodel.Mood.BAD
-import com.sayler666.gina.daysList.viewmodel.Mood.GOOD
-import com.sayler666.gina.daysList.viewmodel.Mood.LOW
-import com.sayler666.gina.daysList.viewmodel.Mood.NEUTRAL
-import com.sayler666.gina.daysList.viewmodel.Mood.SUPERB
+import com.sayler666.gina.ui.Mood.BAD
+import com.sayler666.gina.ui.Mood.GOOD
+import com.sayler666.gina.ui.Mood.LOW
+import com.sayler666.gina.ui.Mood.NEUTRAL
+import com.sayler666.gina.ui.Mood.SUPERB
 import com.sayler666.gina.ui.theme.md_theme_dark_error
 import com.sayler666.gina.ui.theme.md_theme_dark_errorContainer
 import com.sayler666.gina.ui.theme.md_theme_dark_onSurfaceVariant
@@ -65,18 +64,51 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
 
 }
 
+enum class Mood(val numberValue: Int) {
+
+    BAD(-2),
+    LOW(-1),
+    NEUTRAL(0),
+    GOOD(1),
+    SUPERB(2);
+
+    companion object {
+        fun Int?.mapToMoodOrNull() = when (this) {
+            -2 -> BAD
+            -1 -> LOW
+            0 -> NEUTRAL
+            1 -> GOOD
+            2 -> SUPERB
+            else -> null
+        }
+    }
+}
+
 fun Mood?.mapToMoodIcon(): MoodIcon = mapToMoodIconOrNull() ?: MoodIcon(
     icon = Filled.SentimentNeutral,
     tint = md_theme_dark_onSurfaceVariant
 )
 
 fun Mood?.mapToMoodIconOrNull(): MoodIcon? = when (this) {
-    BAD -> MoodIcon(icon = Filled.SentimentVeryDissatisfied, tint = md_theme_dark_errorContainer)
-    LOW -> MoodIcon(icon = Filled.SentimentDissatisfied, tint = md_theme_dark_error)
-    NEUTRAL -> MoodIcon(icon = Filled.SentimentNeutral, tint = md_theme_dark_onSurfaceVariant)
-    GOOD -> MoodIcon(icon = Filled.SentimentSatisfied, tint = md_theme_dark_surfaceTint)
+    BAD -> MoodIcon(
+        icon = Filled.SentimentVeryDissatisfied,
+        tint = md_theme_dark_errorContainer
+    )
+    LOW -> MoodIcon(
+        icon = Filled.SentimentDissatisfied,
+        tint = md_theme_dark_error
+    )
+    NEUTRAL -> MoodIcon(
+        icon = Filled.SentimentNeutral,
+        tint = md_theme_dark_onSurfaceVariant
+    )
+    GOOD -> MoodIcon(
+        icon = Filled.SentimentSatisfied,
+        tint = md_theme_dark_surfaceTint
+    )
     SUPERB -> MoodIcon(
-        icon = Filled.SentimentVerySatisfied, tint = md_theme_dark_onTertiaryContainer
+        icon = Filled.SentimentVerySatisfied,
+        tint = md_theme_dark_onTertiaryContainer
     )
     else -> null
 }

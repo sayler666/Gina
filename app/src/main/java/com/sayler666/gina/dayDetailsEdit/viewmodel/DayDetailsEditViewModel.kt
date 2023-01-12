@@ -11,10 +11,10 @@ import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
-import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
+import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed

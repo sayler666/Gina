@@ -52,8 +52,8 @@ import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
-import com.sayler666.gina.daysList.viewmodel.Mood
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon

@@ -1,9 +1,9 @@
-package com.sayler666.gina.daysList.viewmodel
+package com.sayler666.gina.journal.viewmodel
 
-import com.sayler666.gina.daysList.viewmodel.Mood.Companion.mapToMoodOrNull
+import com.sayler666.gina.core.date.ofEpochMilliseconds
 import com.sayler666.gina.db.Day
-import java.time.Instant
-import java.time.ZoneId
+import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -29,23 +29,17 @@ class DaysMapper @Inject constructor() {
             if (content.length > it.length) it.plus("…") else it
         }
 
-    private fun getDayOfMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getDayOfMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("dd")
         )
 
-    private fun getDayOfWeek(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getDayOfWeek(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("EEEE")
         )
 
-    private fun getYearAndMonth(timestamp: Long) = Instant.ofEpochSecond(timestamp / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getYearAndMonth(timestamp: Long) = timestamp.ofEpochMilliseconds()
         .format(
             DateTimeFormatter.ofPattern("yyyy, MMMM")
         )
@@ -64,33 +58,3 @@ data class DayEntity(
     val shortContent: String,
     val mood: Mood? = null
 )
-
-enum class Mood(val numberValue: Int) {
-
-    BAD(-2),
-    LOW(-1),
-    NEUTRAL(0),
-    GOOD(1),
-    SUPERB(2);
-
-    companion object {
-        fun Int?.mapToMood() = when (this) {
-            -2 -> BAD
-            -1 -> LOW
-            0 -> NEUTRAL
-            1 -> GOOD
-            2 -> SUPERB
-            else -> NEUTRAL
-        }
-
-        fun Int?.mapToMoodOrNull() = when (this) {
-            -2 -> BAD
-            -1 -> LOW
-            0 -> NEUTRAL
-            1 -> GOOD
-            2 -> SUPERB
-            else -> null
-        }
-    }
-}
-

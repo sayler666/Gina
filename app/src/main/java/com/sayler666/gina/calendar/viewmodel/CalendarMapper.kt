@@ -1,9 +1,8 @@
 package com.sayler666.gina.calendar.viewmodel
 
+import com.sayler666.gina.core.date.ofEpochMilliseconds
 import com.sayler666.gina.db.Day
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 
 class CalendarMapper @Inject constructor() {
@@ -16,9 +15,7 @@ class CalendarMapper @Inject constructor() {
         )
     }
 
-    private fun getDate(date: Long): LocalDate = Instant.ofEpochSecond(date / 1000)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+    private fun getDate(date: Long): LocalDate = date.ofEpochMilliseconds()
 }
 
 data class CalendarDayEntity(
