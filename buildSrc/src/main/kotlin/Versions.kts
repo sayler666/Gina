@@ -7,6 +7,7 @@ object Versions {
     const val appCompat = "1.5.1"
     const val lifecycle = "2.6.0-alpha03"
     const val navigation = "2.5.3"
+    const val splashScreen = "1.0.0"
 
     const val composeKotlinCompiler = "1.4.0-alpha02"
     const val compose = "1.3.1"

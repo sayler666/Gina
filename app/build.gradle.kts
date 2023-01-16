@@ -140,6 +140,7 @@ dependencies {
     implementation(Deps.dataStorePreferences)
     implementation(Deps.commonsIo)
     implementation(Deps.calendarCompose)
+    implementation(Deps.splashScreen)
     implementation(Deps.okio)
     implementation(Deps.timber)
     testImplementation(Deps.junit)

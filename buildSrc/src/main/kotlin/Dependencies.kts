@@ -19,6 +19,7 @@ object Deps {
     val lifecycleRuntimeCompose by lazy { "androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycle}" }
     val lifecycleRuntime by lazy { "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}" }
     val lifecycleCompiler by lazy { "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}" }
+    val splashScreen by lazy { "androidx.core:core-splashscreen:${Versions.splashScreen}" }
 
     val composeUi by lazy { "androidx.compose.ui:ui:${Versions.compose}" }
     val accompanistSystemUi by lazy { "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}" }
