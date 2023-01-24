@@ -9,6 +9,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp") version "1.7.21-1.0.8"
+    id("kotlinx-serialization")
 }
 
 val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
@@ -113,6 +114,7 @@ dependencies {
     implementation(Deps.hiltNavigationCompose)
     kapt(Deps.hiltCompiler)
     implementation(Deps.kotlin)
+    implementation(Deps.kotlinSerializationJson)
     implementation(Deps.appCompat)
     implementation(Deps.coreKtx)
     implementation(Deps.activityCompose)
@@ -141,6 +143,7 @@ dependencies {
     implementation(Deps.commonsIo)
     implementation(Deps.calendarCompose)
     implementation(Deps.splashScreen)
+    implementation(Deps.compressor)
     implementation(Deps.okio)
     implementation(Deps.timber)
     testImplementation(Deps.junit)

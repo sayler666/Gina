@@ -5,12 +5,14 @@ object Deps {
     // Classpath Gradle Plugin
     val classpathGradle by lazy { "com.android.tools.build:gradle:${Versions.gradle}" }
     val classpathKotlinGradle by lazy { "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}" }
+    val classpathKotlinSerialization by lazy { "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}" }
     val classpathHilt by lazy { "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}" }
 
     val hilt by lazy { "com.google.dagger:hilt-android:${Versions.hilt}" }
     val hiltCompiler by lazy { "com.google.dagger:hilt-android-compiler:${Versions.hilt}" }
 
     val kotlin by lazy { "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}" }
+    val kotlinSerializationJson by lazy { "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinSerializationJson}" }
     val appCompat by lazy { "androidx.appcompat:appcompat:${Versions.appCompat}" }
     val coreKtx by lazy { "androidx.core:core-ktx:1.7.0" }
     val navigationKtx by lazy { "androidx.navigation:navigation-ui-ktx:${Versions.navigation}" }
@@ -44,6 +46,7 @@ object Deps {
     val okio by lazy { "com.squareup.okio:okio:${Versions.okio}" }
 
     val commonsIo by lazy { "commons-io:commons-io:${Versions.commonsIo}" }
+    val compressor by lazy { "id.zelory:compressor:${Versions.compressor}" }
 
     val desugarJdkLibs by lazy { "com.android.tools:desugar_jdk_libs:${Versions.desugarJdkLibs}" }
 

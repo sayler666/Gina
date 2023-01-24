@@ -27,6 +27,7 @@ class EditDayUseCaseImpl @Inject constructor(
                 updateDay(dayWithAttachment.day)
 
                 val attachmentsToAdd = dayWithAttachment.attachments.toMutableList()
+                    .filter { it.dayId == null }
                     .map { it.copy(dayId = dayWithAttachment.day.id) }
 
                 if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)

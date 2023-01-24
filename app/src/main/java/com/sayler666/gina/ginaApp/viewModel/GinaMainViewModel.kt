@@ -2,7 +2,7 @@ package com.sayler666.gina.ginaApp.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.settings.SettingsDataStoreImpl
+import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GinaMainViewModel @Inject constructor(
-    settings: SettingsDataStoreImpl
+    settings: Settings
 ) : ViewModel() {
     val hasRememberedDatabase: StateFlow<Boolean?> = settings.getDatabasePathFlow()
         .map { path -> path != null }

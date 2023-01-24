@@ -28,7 +28,7 @@ import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.DirectionDestination
 import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
-import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
+import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.startAppDestination
 
 enum class BottomDestinations(
@@ -52,7 +52,7 @@ enum class BottomDestinations(
         R.string.insights_label
     ),
     Settings(
-        SelectDatabaseScreenDestination,
+        SettingsScreenDestination,
         Icons.Filled.Settings,
         R.string.settings_label
     )

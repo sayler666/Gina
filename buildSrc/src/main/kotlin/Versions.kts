@@ -3,6 +3,7 @@ object Versions {
     const val hilt = "2.44.2"
     const val hiltNavigation = "1.0.0"
     const val ksp = "1.7.21-1.0.8"
+    const val kotlinSerializationJson = "1.4.1"
 
     const val appCompat = "1.5.1"
     const val lifecycle = "2.6.0-alpha03"
@@ -25,6 +26,7 @@ object Versions {
 
     const val desugarJdkLibs = "1.1.5"
     const val commonsIo = "2.6"
+    const val compressor = "3.0.1"
 
     const val timber = "4.7.1"
     const val jUnit = "4.12"

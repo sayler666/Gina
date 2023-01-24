@@ -7,6 +7,7 @@ buildscript {
         classpath(Dependencies.Deps.classpathGradle)
         classpath(Dependencies.Deps.classpathKotlinGradle)
         classpath(Dependencies.Deps.classpathHilt)
+        classpath(Dependencies.Deps.classpathKotlinSerialization)
     }
 }
 

@@ -1,9 +1,8 @@
-package com.sayler666.gina.selectdatabase
+package com.sayler666.gina.selectdatabase.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,7 @@ import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.core.flow.Event.*
+import com.sayler666.gina.core.flow.Event.Value
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination

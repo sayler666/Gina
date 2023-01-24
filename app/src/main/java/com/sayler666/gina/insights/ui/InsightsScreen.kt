@@ -64,33 +64,42 @@ import java.time.YearMonth
 fun InsightsScreen(
     viewModel: InsightsViewModel = hiltViewModel()
 ) {
+    val stateSearch: InsightsState? by viewModel.insightsStateSearch.collectAsStateWithLifecycle()
     val state: InsightsState? by viewModel.insightsState.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
 
-    state?.let {
-        Scaffold(
-            topBar = {
-                SearchBar(
-                    title = "Insights",
-                    searchText = searchText.value,
-                    onSearchTextChanged = {
-                        searchText.value = it
-                        viewModel.searchQuery(searchText.value)
-                    },
-                    onClearClick = {
-                        viewModel.searchQuery(null)
-                        searchText.value = ""
-                    }
-                )
-            },
-            content = { padding ->
-                Column(modifier = Modifier.padding(padding)) {
-                    Summary(it)
-
-                    HeatMapCalendar(it)
+    Scaffold(
+        topBar = {
+            SearchBar(
+                title = "Insights",
+                searchText = searchText.value,
+                onSearchTextChanged = {
+                    searchText.value = it
+                    viewModel.searchQuery(searchText.value)
+                },
+                onClearClick = {
+                    viewModel.searchQuery(null)
+                    searchText.value = ""
                 }
-            })
-    }
+            )
+        },
+        content = { padding ->
+            Column(modifier = Modifier.padding(padding)) {
+                if (stateSearch?.daysHeatMapData?.isNotEmpty() == true) {
+                    stateSearch?.let {
+                        Summary(it)
+                        HeatMapCalendar(it)
+                    }
+                } else {
+                    state?.let {
+                        if (it.daysHeatMapData.isNotEmpty()) {
+                            Summary(it)
+                            HeatMapCalendar(it)
+                        }
+                    }
+                }
+            }
+        })
 }
 
 @Composable

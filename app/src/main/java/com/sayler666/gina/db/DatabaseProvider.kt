@@ -3,15 +3,14 @@ package com.sayler666.gina.db
 import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.sayler666.gina.settings.Settings
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
-class DatabaseProvider(private val application: Application, private val settings: Settings) {
+class DatabaseProvider(private val application: Application, private val databaseSettings: DatabaseSettings) {
     private var db: GinaDatabase? = null
 
     suspend fun openSavedDB(): Boolean {
-        val savedPath = settings.getDatabasePathFlow().first()
+        val savedPath = databaseSettings.getDatabasePathFlow().first()
         savedPath?.let {
             try {
                 db = Room.databaseBuilder(application, GinaDatabase::class.java, savedPath)
@@ -36,7 +35,7 @@ class DatabaseProvider(private val application: Application, private val setting
             return false
         }
         // update settings
-        settings.saveDatabasePath(path)
+        databaseSettings.saveDatabasePath(path)
         return true
     }
 

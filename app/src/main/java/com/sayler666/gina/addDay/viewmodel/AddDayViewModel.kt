@@ -8,11 +8,15 @@ import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper.Companion.IMAGE_MIME_TYPE_PREFIX
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.AddDayScreenDestination
+import com.sayler666.gina.imageCompressor.ImageCompressor
+import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
+import com.sayler666.gina.settings.Settings
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +27,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,7 +38,8 @@ import javax.inject.Inject
 class AddDayViewModel @Inject constructor(
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val imageCompressor: ImageCompressor
 ) : ViewModel() {
 
     private val navArgs: AddDayScreenNavArgs =
@@ -103,22 +109,33 @@ class AddDayViewModel @Inject constructor(
         _tempDay.value = currentDay.copy(attachments = newAttachments)
     }
 
-    fun addAttachment(content: ByteArray, mimeType: String) {
+    fun addAttachments(attachments: List<Pair<ByteArray, String>>) {
         val currentDay = _tempDay.value ?: return
-        val newAttachments = currentDay.attachments
-            .toMutableList()
-            .also {
-                it.add(
-                    Attachment(
-                        dayId = null,
-                        content = content,
-                        mimeType = mimeType,
-                        id = null
-                    )
-                )
-            }
+        viewModelScope.launch {
+            val newAttachments = currentDay.attachments
+                .toMutableList()
+                .also { list ->
+                    attachments.forEach { (content, mimeType) ->
+                        val bytes = if (mimeType.contains(IMAGE_MIME_TYPE_PREFIX)) {
+                            imageCompressor.compressImage(content)
+                        } else {
+                            content
+                        }
+                        list.add(
+                            Attachment(
+                                dayId = null,
+                                content = bytes,
+                                mimeType = mimeType,
+                                id = null
+                            )
+                        )
+                    }
+                }
 
-        _tempDay.value = currentDay.copy(attachments = newAttachments)
+            _tempDay.update {
+                it?.copy(attachments = newAttachments)
+            }
+        }
     }
 
     fun saveChanges() {

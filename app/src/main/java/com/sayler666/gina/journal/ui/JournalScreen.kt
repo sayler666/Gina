@@ -59,7 +59,8 @@ fun JournalScreen(
         navController.getBackStackEntry(NavGraphs.root.route)
     }
     val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
-    val days: List<DayEntity> by viewModel.daysSearch.collectAsStateWithLifecycle()
+    val days: List<DayEntity> by viewModel.days.collectAsStateWithLifecycle()
+    val daysSearch: List<DayEntity> by viewModel.daysSearch.collectAsStateWithLifecycle(emptyList())
     val searchText = rememberSaveable { mutableStateOf("") }
 
     Scaffold(
@@ -83,7 +84,11 @@ fun JournalScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Days(days, destinationsNavigator)
+                if (daysSearch.isNotEmpty()) {
+                    Days(daysSearch, destinationsNavigator)
+                } else {
+                    Days(days, destinationsNavigator)
+                }
             }
         })
 }

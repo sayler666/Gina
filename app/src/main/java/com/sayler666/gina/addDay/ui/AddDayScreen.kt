@@ -78,8 +78,8 @@ fun AddDayScreen(
     val context = LocalContext.current
 
     val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context) { content, mimeType ->
-            viewModel.addAttachment(content, mimeType)
+        handleSelectedFiles(it, context) { attachments ->
+            viewModel.addAttachments(attachments)
         }
     }
 

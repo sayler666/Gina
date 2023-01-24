@@ -69,27 +69,29 @@ object Files {
 fun handleSelectedFiles(
     it: ActivityResult,
     context: Context,
-    onDayAdd: (ByteArray, String) -> Unit
+    addAttachments: (List<Pair<ByteArray, String>>) -> Unit
 ) {
 
-    fun addAttachment(uri: Uri) {
+    fun createAttachment(uri: Uri): Pair<ByteArray, String> {
         val (content, mimeType) = Files.readBytesAndMimeTypeFromUri(uri, context)
-        onDayAdd(content, mimeType)
+        return content to mimeType
     }
 
     if (it.resultCode != Activity.RESULT_CANCELED && it.data != null) {
         // multiple files
         val multipleItems = it.data?.clipData
+        val attachmentsList = mutableListOf<Pair<ByteArray, String>>()
         if (multipleItems != null) {
             for (i in 0 until multipleItems.itemCount) {
-                addAttachment(multipleItems.getItemAt(i).uri)
+                attachmentsList += createAttachment(multipleItems.getItemAt(i).uri)
             }
         } else {
             // single file
             it.data?.data?.let { uri ->
-                addAttachment(uri)
+                attachmentsList += createAttachment(uri)
             }
         }
+        if (attachmentsList.isNotEmpty()) addAttachments(attachmentsList)
     }
 }
 

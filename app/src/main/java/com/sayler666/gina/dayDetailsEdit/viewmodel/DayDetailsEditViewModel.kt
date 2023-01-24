@@ -7,6 +7,7 @@ import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper.Companion.IMAGE_MIME_TYPE_PREFIX
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
@@ -14,6 +15,7 @@ import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
+import com.sayler666.gina.imageCompressor.ImageCompressor
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,13 +30,15 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
+
 @HiltViewModel
 class DayDetailsEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getDayDetailsUseCase: GetDayDetailsUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
-    private val deleteDayUseCase: DeleteDayUseCase
+    private val deleteDayUseCase: DeleteDayUseCase,
+    private val imageCompressor: ImageCompressor
 ) : ViewModel() {
 
     private val navArgs: DayDetailsEditScreenNavArgs =
@@ -112,7 +116,7 @@ class DayDetailsEditViewModel @Inject constructor(
                     val same = it.content.hashCode() == byteHashCode
 
                     // mark for deletion only if attachment already stored in DB (has nonnull dayId)
-                    if (it.dayId != null) _attachmentsToDelete.value.add(it)
+                    if (it.dayId != null && same) _attachmentsToDelete.value.add(it)
                     return@removeIf same
                 }
             }
@@ -120,24 +124,32 @@ class DayDetailsEditViewModel @Inject constructor(
         _tempDay.value = currentDay.copy(attachments = newAttachments)
     }
 
-    fun addAttachment(content: ByteArray, mimeType: String) {
+    fun addAttachments(attachments: List<Pair<ByteArray, String>>) {
         val currentDay = _tempDay.value ?: return
-        val newAttachments = currentDay.attachments
-            .toMutableList()
-            .also {
-                val dayId = currentDay.day.id
-                requireNotNull(dayId)
-                it.add(
-                    Attachment(
-                        dayId = dayId,
-                        content = content,
-                        mimeType = mimeType,
-                        id = null
-                    )
-                )
-            }
+        viewModelScope.launch {
+            val newAttachments = currentDay.attachments
+                .toMutableList()
+                .also {
+                    attachments.forEach { (content, mimeType) ->
+                        val bytes = if (mimeType.contains(IMAGE_MIME_TYPE_PREFIX)) {
+                            imageCompressor.compressImage(content)
+                        } else {
+                            content
+                        }
 
-        _tempDay.value = currentDay.copy(attachments = newAttachments)
+                        it.add(
+                            Attachment(
+                                dayId = null,
+                                content = bytes,
+                                mimeType = mimeType,
+                                id = null
+                            )
+                        )
+                    }
+                }
+
+            _tempDay.value = currentDay.copy(attachments = newAttachments)
+        }
     }
 
     fun saveChanges() {
