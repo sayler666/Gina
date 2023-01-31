@@ -112,10 +112,10 @@ data class InsightsSearchState(
 }
 
 enum class Level(val color: Color) {
-    Zero(Color(0xFF434946)),
-    One(Color(0xFF5AE9D9)),
-    Two(Color(0xFF28B4A8)),
-    Three(Color(0xFF0E9184)),
-    Four(Color(0xFF097C71)),
-    Five(Color(0xFF005850)),
+    Zero(Color(0xFF333836)),
+    One(Color(0xFF0A4640)),
+    Two(Color(0xFF0B6158)),
+    Three(Color(0xFF279186)),
+    Four(Color(0xFF37CEC1)),
+    Five(Color(0xFF4FFCE8)),
 }

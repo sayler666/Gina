@@ -220,6 +220,27 @@ private fun HeatMapCalendar(state: InsightsState) {
                 },
                 monthHeader = { MonthHeader(it, endDate, heatMapCalendarState) },
             )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, end = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Less",
+                    Modifier.padding(end = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+                Level.values().forEach { LevelBox(it.color) }
+                Text(
+                    "More",
+                    Modifier.padding(start = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 }
