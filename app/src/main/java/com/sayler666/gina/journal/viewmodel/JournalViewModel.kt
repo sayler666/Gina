@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,24 +24,24 @@ class JournalViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow<String?>(null)
-    val daysSearch = _searchQuery.flatMapLatest { query ->
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val daysSearch: StateFlow<JournalSearchState> = _searchQuery.flatMapLatest { query ->
         getDaysUseCase
             .getDaysFlow(query)
-            .map {
-                daysMapper.mapToVm(it)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
-    }
+            .map(daysMapper::mapToVm)
+            .map { JournalSearchState(it, _searchQuery.value) }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = JournalSearchState()
+    )
 
     val days: StateFlow<List<DayEntity>>
         get() = getDaysUseCase
             .getDaysFlow()
-            .map {
-                daysMapper.mapToVm(it)
-            }.stateIn(
+            .map(daysMapper::mapToVm)
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()

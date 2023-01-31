@@ -207,7 +207,7 @@ private fun CalendarDay(
         }, contentAlignment = Alignment.Center
     ) {
         val textColor = when {
-            monthDate && !isSelected -> MaterialTheme.colorScheme.onSecondaryContainer
+            monthDate && !isSelected -> MaterialTheme.colorScheme.onSurface
             monthDate && isSelected -> MaterialTheme.colorScheme.surfaceVariant
             !monthDate && !isSelected -> MaterialTheme.colorScheme.outline
             else -> MaterialTheme.colorScheme.surface

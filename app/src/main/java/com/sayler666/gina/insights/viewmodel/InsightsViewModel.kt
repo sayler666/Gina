@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -20,14 +21,17 @@ class InsightsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow<String?>(null)
-    val insightsStateSearch = _searchQuery.flatMapLatest { query ->
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val insightsStateSearch: StateFlow<InsightsSearchState> = _searchQuery.flatMapLatest { query ->
         getDaysUseCase
             .getDaysFlow(query)
             .map(insightsMapper::toInsightsState)
+            .map { InsightsSearchState(it, _searchQuery.value) }
     }.stateIn(
         scope = viewModelScope,
         started = WhileSubscribed(5000),
-        initialValue = null
+        initialValue = InsightsSearchState()
     )
 
     val insightsState: StateFlow<InsightsState?>

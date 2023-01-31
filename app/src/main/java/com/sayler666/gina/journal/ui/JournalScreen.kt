@@ -3,6 +3,7 @@ package com.sayler666.gina.journal.ui
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -39,6 +41,7 @@ import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.journal.viewmodel.DayEntity
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
+import com.sayler666.gina.journal.viewmodel.JournalSearchState
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.SearchBar
 import com.sayler666.gina.ui.mapToMoodIconOrNull
@@ -60,7 +63,7 @@ fun JournalScreen(
     }
     val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
     val days: List<DayEntity> by viewModel.days.collectAsStateWithLifecycle()
-    val daysSearch: List<DayEntity> by viewModel.daysSearch.collectAsStateWithLifecycle(emptyList())
+    val journalSearchState: JournalSearchState by viewModel.daysSearch.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
 
     Scaffold(
@@ -84,13 +87,33 @@ fun JournalScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                if (daysSearch.isNotEmpty()) {
-                    Days(daysSearch, destinationsNavigator)
-                } else {
-                    Days(days, destinationsNavigator)
+                when {
+                    journalSearchState.hasResults() -> Days(journalSearchState.days, destinationsNavigator)
+                    journalSearchState.emptyResults() -> EmptySearchResult()
+                    journalSearchState.noSearch() -> Days(days, destinationsNavigator)
                 }
             }
         })
+}
+
+@Composable
+fun EmptySearchResult() {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Empty search result!",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Try narrowing search criteria.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
 }
 
 @Composable

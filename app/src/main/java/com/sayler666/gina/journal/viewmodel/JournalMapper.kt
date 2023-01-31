@@ -58,3 +58,12 @@ data class DayEntity(
     val shortContent: String,
     val mood: Mood? = null
 )
+
+data class JournalSearchState(
+    val days: List<DayEntity> = emptyList(),
+    val searchQuery: String? = null
+) {
+    fun hasResults() = days.isNotEmpty() && searchQuery != null
+    fun emptyResults() = days.isEmpty() && searchQuery != null
+    fun noSearch() = days.isEmpty() && searchQuery == null
+}
