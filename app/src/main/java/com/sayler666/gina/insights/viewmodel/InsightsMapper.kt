@@ -16,7 +16,7 @@ class InsightsMapper @Inject constructor() {
         return InsightsState(
             totalEntries = days.size,
             currentStreak = calculateCurrentStreak(days),
-            longestStreak = calculateLongestStreak(days), // TODO
+            longestStreak = calculateLongestStreak(days),
             totalMoods = days.count { it.mood != null },
             daysHeatMapData = generateHeatMapData(days)
         )
@@ -54,10 +54,9 @@ class InsightsMapper @Inject constructor() {
         }
             .reversed()
             .forEachIndexed { i, day ->
-                val dayDate = day.date?.toLocalDate()
-                when {
-                    dayDate == currentDay -> currentStreak++
-                    dayDate == currentDay.minusDays(i.toLong()) -> currentStreak++
+                when (day.date?.toLocalDate()) {
+                    currentDay -> currentStreak++
+                    currentDay.minusDays(i.toLong()) -> currentStreak++
                     else -> return@forEachIndexed
                 }
             }
@@ -102,6 +101,15 @@ data class InsightsState(
     val totalMoods: Int,
     val daysHeatMapData: Map<LocalDate, Level>
 )
+
+data class InsightsSearchState(
+    val days: InsightsState? = null,
+    val searchQuery: String? = null
+) {
+    fun hasResults() = days?.daysHeatMapData?.isNotEmpty() == true && searchQuery != null
+    fun emptyResults() = days?.daysHeatMapData?.isEmpty() == true && searchQuery != null
+    fun noSearch() = days?.daysHeatMapData?.isEmpty() == true && searchQuery == null
+}
 
 enum class Level(val color: Color) {
     Zero(Color(0xFF434946)),

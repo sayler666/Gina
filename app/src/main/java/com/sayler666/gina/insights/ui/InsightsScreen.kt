@@ -47,10 +47,12 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.core.date.displayText
+import com.sayler666.gina.insights.viewmodel.InsightsSearchState
 import com.sayler666.gina.insights.viewmodel.InsightsState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.Level.Zero
+import com.sayler666.gina.journal.ui.EmptySearchResult
 import com.sayler666.gina.ui.SearchBar
 import java.time.LocalDate
 import java.time.YearMonth
@@ -64,7 +66,7 @@ import java.time.YearMonth
 fun InsightsScreen(
     viewModel: InsightsViewModel = hiltViewModel()
 ) {
-    val stateSearch: InsightsState? by viewModel.insightsStateSearch.collectAsStateWithLifecycle()
+    val stateSearch: InsightsSearchState by viewModel.insightsStateSearch.collectAsStateWithLifecycle()
     val state: InsightsState? by viewModel.insightsState.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
 
@@ -85,14 +87,16 @@ fun InsightsScreen(
         },
         content = { padding ->
             Column(modifier = Modifier.padding(padding)) {
-                if (stateSearch?.daysHeatMapData?.isNotEmpty() == true) {
-                    stateSearch?.let {
-                        Summary(it)
-                        HeatMapCalendar(it)
+                when {
+                    stateSearch.hasResults() -> {
+                        stateSearch.days?.let {
+                            Summary(it)
+                            HeatMapCalendar(it)
+                        }
                     }
-                } else {
-                    state?.let {
-                        if (it.daysHeatMapData.isNotEmpty()) {
+                    stateSearch.emptyResults() -> EmptySearchResult()
+                    stateSearch.noSearch() -> {
+                        state?.let {
                             Summary(it)
                             HeatMapCalendar(it)
                         }
