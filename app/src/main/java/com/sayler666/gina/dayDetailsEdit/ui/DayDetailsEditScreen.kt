@@ -233,7 +233,7 @@ fun Attachments(
                         attachment,
                         onClick = {
                             destinationsNavigator.navigate(
-                                FullImageDestination(attachment.byte)
+                                FullImageDestination(attachment.byte, attachment.mimeType)
                             )
                         },
                         onRemoveClicked = {

@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import timber.log.Timber
 
 @Composable
 fun ZoomableBox(
@@ -23,6 +22,8 @@ fun ZoomableBox(
     minScale: Float = 1f,
     maxScale: Float = 7f,
     outsideImageClick: (() -> Unit)? = null,
+    originalImageHeight: Int,
+    originalImageWidth: Int,
     content: @Composable ZoomableBoxScope.() -> Unit
 ) {
     var scale by remember { mutableStateOf(1f) }
@@ -36,7 +37,8 @@ fun ZoomableBox(
             .clip(RectangleShape)
             .onSizeChanged {
                 size = it
-                Timber.d("Size changed: ${it.height}")
+                val asp = it.width.toFloat() / originalImageWidth
+                offsetY += (it.height - originalImageHeight.toFloat() * asp) / 2
             }
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->

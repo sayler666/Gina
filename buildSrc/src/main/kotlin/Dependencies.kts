@@ -14,7 +14,7 @@ object Deps {
     val kotlin by lazy { "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}" }
     val kotlinSerializationJson by lazy { "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinSerializationJson}" }
     val appCompat by lazy { "androidx.appcompat:appcompat:${Versions.appCompat}" }
-    val coreKtx by lazy { "androidx.core:core-ktx:1.7.0" }
+    val coreKtx by lazy { "androidx.core:core-ktx:${Versions.coreKtx}" }
     val navigationKtx by lazy { "androidx.navigation:navigation-ui-ktx:${Versions.navigation}" }
     val lifecycle by lazy { "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}" }
     val lifecycleViewModelCompose by lazy { "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}" }
@@ -26,7 +26,8 @@ object Deps {
     val composeUi by lazy { "androidx.compose.ui:ui:${Versions.compose}" }
     val accompanistSystemUi by lazy { "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}" }
     val accompanistFlowLayout by lazy { "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}" }
-    val composeIcons by lazy { "androidx.compose.material:material-icons-extended:${Versions.compose}" }
+    val composeConstraintLayout by lazy { "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraintLayout}" }
+    val composeIcons by lazy { "androidx.compose.material:material-icons-extended:${Versions.composeMaterialIcons}" }
     val composeMaterial3 by lazy { "androidx.compose.material3:material3:${Versions.composeMaterial3}" }
     val composeMaterial2 by lazy { "androidx.compose.material:material:${Versions.composeMaterial2}" }
     val composeNavigation by lazy { "androidx.navigation:navigation-compose:${Versions.navigation}" }
