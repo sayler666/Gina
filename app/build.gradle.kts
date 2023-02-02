@@ -64,8 +64,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
 
         // For AGP 4.1+
         isCoreLibraryDesugaringEnabled = true
@@ -116,7 +116,6 @@ dependencies {
     implementation(Deps.kotlin)
     implementation(Deps.kotlinSerializationJson)
     implementation(Deps.appCompat)
-    implementation(Deps.coreKtx)
     implementation(Deps.activityCompose)
     implementation(Deps.composeUi)
     implementation(Deps.composeUiToolingPreview)
@@ -130,6 +129,7 @@ dependencies {
     implementation(Deps.composeMaterial2)
     implementation(Deps.navigationKtx)
     implementation(Deps.composeNavigation)
+    implementation(Deps.composeConstraintLayout)
     implementation(Deps.accompanistSystemUi)
     implementation(Deps.accompanistFlowLayout)
     implementation(Deps.composeDestination)
