@@ -15,13 +15,13 @@ val RobotoSlabMedium = FontFamily(Font(R.font.roboto_slab_medium))
 
 val Typography = Typography(
     bodySmall = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = RobotoSlabRegular,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = RobotoSlabThin,
-        fontWeight = FontWeight.Bold,
+        fontFamily = RobotoSlabLight,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.0.sp,
         letterSpacing = 0.3.sp

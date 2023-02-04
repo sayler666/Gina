@@ -30,6 +30,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,8 +42,8 @@ import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.journal.viewmodel.DayEntity
-import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.journal.viewmodel.JournalSearchState
+import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.SearchBar
 import com.sayler666.gina.ui.mapToMoodIconOrNull
@@ -88,9 +90,16 @@ fun JournalScreen(
                     .padding(padding)
             ) {
                 when {
-                    journalSearchState.hasResults() -> Days(journalSearchState.days, destinationsNavigator)
+                    journalSearchState.hasResults() -> Days(
+                        journalSearchState.days,
+                        searchQuery = searchText.value,
+                        destinationsNavigator = destinationsNavigator
+                    )
                     journalSearchState.emptyResults() -> EmptySearchResult()
-                    journalSearchState.noSearch() -> Days(days, destinationsNavigator)
+                    journalSearchState.noSearch() -> Days(
+                        days,
+                        destinationsNavigator = destinationsNavigator
+                    )
                 }
             }
         })
@@ -120,6 +129,7 @@ fun EmptySearchResult() {
 @OptIn(ExperimentalFoundationApi::class)
 private fun Days(
     days: List<DayEntity>,
+    searchQuery: String? = null,
     destinationsNavigator: DestinationsNavigator
 ) {
     val grouped = days.groupBy { it.header }
@@ -130,7 +140,7 @@ private fun Days(
             }
 
             items(day) { d ->
-                Day(d) {
+                Day(d, searchQuery) {
                     destinationsNavigator.navigate(
                         DayDetailsScreenDestination(
                             DayDetailsScreenNavArgs(d.id)
@@ -160,7 +170,7 @@ private fun YearMonthHeader(header: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Day(day: DayEntity, onClick: () -> Unit) {
+fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
     Card(
         shape = RectangleShape,
         modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
@@ -189,8 +199,25 @@ fun Day(day: DayEntity, onClick: () -> Unit) {
                     )
                 }
             }
+            val text = if (searchQuery == null) {
+                buildAnnotatedString { append(day.shortContent) }
+            } else {
+                buildAnnotatedString {
+                    val startIndex = day.shortContent.indexOf(searchQuery, ignoreCase = true)
+                    val endIndex = startIndex + searchQuery.length
+                    append(day.shortContent)
+                    addStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            background = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        start = startIndex,
+                        end = endIndex
+                    )
+                }
+            }
             Text(
-                text = day.shortContent,
+                text = text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

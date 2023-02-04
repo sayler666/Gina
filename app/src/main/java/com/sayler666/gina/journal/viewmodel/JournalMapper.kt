@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
-    fun mapToVm(days: List<Day>): List<DayEntity> = days.map {
+    fun mapToVm(days: List<Day>, searchQuery: String? = null): List<DayEntity> = days.map {
         requireNotNull(it.id)
         requireNotNull(it.date)
         requireNotNull(it.content)
@@ -18,9 +18,28 @@ class DaysMapper @Inject constructor() {
             dayOfWeek = getDayOfWeek(it.date),
             yearAndMonth = getYearAndMonth(it.date),
             header = getYearAndMonth(it.date),
-            shortContent = getShortContent(it.content),
+            shortContent =
+            if (searchQuery != null) getShorContentAroundSearchQuery(
+                it.content,
+                searchQuery
+            ) else getShortContent(it.content),
             mood = it.mood.mapToMoodOrNull()
         )
+    }
+
+    private fun getShorContentAroundSearchQuery(content: String, searchQuery: String): String {
+        val searchQueryPosition = content.indexOf(searchQuery, ignoreCase = true)
+        val before = searchQueryPosition - (shortContentMaxLength / 2 - searchQuery.length / 2)
+        val after =
+            searchQueryPosition + searchQuery.length + (shortContentMaxLength / 2 - searchQuery.length / 2)
+        return content
+            .substring(maxOf(0, before)..minOf(after, content.length - 1)).trimEnd()
+            .let {
+                if (content.length == it.length) return it
+                var short = if (before > 0) "…".plus(it) else it
+                short = if (after > content.length - 1) short else short.plus("…")
+                short
+            }
     }
 
     private fun getShortContent(content: String): String = content

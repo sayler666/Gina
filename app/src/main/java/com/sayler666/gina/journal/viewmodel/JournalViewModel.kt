@@ -29,7 +29,7 @@ class JournalViewModel @Inject constructor(
     val daysSearch: StateFlow<JournalSearchState> = _searchQuery.flatMapLatest { query ->
         getDaysUseCase
             .getDaysFlow(query)
-            .map(daysMapper::mapToVm)
+            .map { daysMapper.mapToVm(it, query) }
             .map { JournalSearchState(it, _searchQuery.value) }
     }.stateIn(
         scope = viewModelScope,
