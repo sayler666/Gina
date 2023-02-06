@@ -3,11 +3,17 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.compose.ui.graphics.Color
 import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.db.Day
-import com.sayler666.gina.insights.viewmodel.Level.Five
-import com.sayler666.gina.insights.viewmodel.Level.Four
-import com.sayler666.gina.insights.viewmodel.Level.One
-import com.sayler666.gina.insights.viewmodel.Level.Three
-import com.sayler666.gina.insights.viewmodel.Level.Two
+import com.sayler666.gina.insights.viewmodel.ContributionLevel.Five
+import com.sayler666.gina.insights.viewmodel.ContributionLevel.Four
+import com.sayler666.gina.insights.viewmodel.ContributionLevel.One
+import com.sayler666.gina.insights.viewmodel.ContributionLevel.Three
+import com.sayler666.gina.insights.viewmodel.ContributionLevel.Two
+import com.sayler666.gina.ui.Mood.BAD
+import com.sayler666.gina.ui.Mood.GOOD
+import com.sayler666.gina.ui.Mood.LOW
+import com.sayler666.gina.ui.Mood.NEUTRAL
+import com.sayler666.gina.ui.Mood.SUPERB
+import com.sayler666.gina.ui.mapToMoodIcon
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -18,12 +24,13 @@ class InsightsMapper @Inject constructor() {
             currentStreak = calculateCurrentStreak(days),
             longestStreak = calculateLongestStreak(days),
             totalMoods = days.count { it.mood != null },
-            daysHeatMapData = generateHeatMapData(days)
+            contributionHeatMapData = generateContributionHeatMapData(days),
+            moodHeatMapData = generateMoodHeatMapData(days)
         )
     }
 
-    private fun generateHeatMapData(days: List<Day>): Map<LocalDate, Level> {
-        val heatMap = mutableMapOf<LocalDate, Level>()
+    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
+        val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
@@ -36,6 +43,24 @@ class InsightsMapper @Inject constructor() {
                 else -> Five
             }
             heatMap[currentDayDate] = level
+        }
+        return heatMap
+    }
+
+    private fun generateMoodHeatMapData(days: List<Day>): Map<LocalDate, Level> {
+        val heatMap = mutableMapOf<LocalDate, Level>()
+        days.forEach {
+            requireNotNull(it.date)
+            requireNotNull(it.content)
+            val currentDayDate = it.date.toLocalDate()
+            heatMap[currentDayDate] = when (it.mood) {
+                -2 -> MoodLevel.One
+                -1 -> MoodLevel.Two
+                0 -> MoodLevel.Three
+                1 -> MoodLevel.Four
+                2 -> MoodLevel.Five
+                else -> Zero
+            }
         }
         return heatMap
     }
@@ -99,20 +124,36 @@ data class InsightsState(
     val currentStreak: Int,
     val longestStreak: Int,
     val totalMoods: Int,
-    val daysHeatMapData: Map<LocalDate, Level>
+    val contributionHeatMapData: Map<LocalDate, Level>,
+    val moodHeatMapData: Map<LocalDate, Level>
 )
 
 data class InsightsSearchState(
     val days: InsightsState? = null,
     val searchQuery: String? = null
 ) {
-    fun hasResults() = days?.daysHeatMapData?.isNotEmpty() == true && searchQuery != null
-    fun emptyResults() = days?.daysHeatMapData?.isEmpty() == true && searchQuery != null
-    fun noSearch() = days?.daysHeatMapData?.isEmpty() == true && searchQuery == null
+    fun hasResults() = days?.contributionHeatMapData?.isNotEmpty() == true && searchQuery != null
+    fun emptyResults() = days?.contributionHeatMapData?.isEmpty() == true && searchQuery != null
+    fun noSearch() = days?.contributionHeatMapData?.isEmpty() == true && searchQuery == null
 }
 
-enum class Level(val color: Color) {
-    Zero(Color(0xFF333836)),
+interface Level {
+    val color: Color
+}
+
+object Zero : Level {
+    override val color: Color = Color(0xFF333836)
+}
+
+enum class MoodLevel(override val color: Color) : Level {
+    One(BAD.mapToMoodIcon().tint),
+    Two(LOW.mapToMoodIcon().tint),
+    Three(NEUTRAL.mapToMoodIcon().tint),
+    Four(GOOD.mapToMoodIcon().tint),
+    Five(SUPERB.mapToMoodIcon().tint)
+}
+
+enum class ContributionLevel(override val color: Color) : Level {
     One(Color(0xFF0A4640)),
     Two(Color(0xFF0B6158)),
     Three(Color(0xFF279186)),

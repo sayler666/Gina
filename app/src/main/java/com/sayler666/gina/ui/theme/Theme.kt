@@ -74,9 +74,9 @@ private val DarkColors = darkColorScheme(
 @Composable
 fun GinaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
-        DarkColors
+        DarkColors // dynamicDarkColorScheme(LocalContext.current)
     } else {
-        LightColors
+        LightColors // dynamicLightColorScheme(LocalContext.current)
     }
 
     MaterialTheme(

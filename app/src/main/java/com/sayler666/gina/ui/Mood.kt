@@ -26,11 +26,7 @@ import com.sayler666.gina.ui.Mood.GOOD
 import com.sayler666.gina.ui.Mood.LOW
 import com.sayler666.gina.ui.Mood.NEUTRAL
 import com.sayler666.gina.ui.Mood.SUPERB
-import com.sayler666.gina.ui.theme.md_theme_dark_error
-import com.sayler666.gina.ui.theme.md_theme_dark_errorContainer
 import com.sayler666.gina.ui.theme.md_theme_dark_onSurfaceVariant
-import com.sayler666.gina.ui.theme.md_theme_dark_onTertiaryContainer
-import com.sayler666.gina.ui.theme.md_theme_dark_surfaceTint
 
 @Composable
 fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -> Unit) {
@@ -92,23 +88,23 @@ fun Mood?.mapToMoodIcon(): MoodIcon = mapToMoodIconOrNull() ?: MoodIcon(
 fun Mood?.mapToMoodIconOrNull(): MoodIcon? = when (this) {
     BAD -> MoodIcon(
         icon = Filled.SentimentVeryDissatisfied,
-        tint = md_theme_dark_errorContainer
+        tint = Color(0xFFFF0000)
     )
     LOW -> MoodIcon(
         icon = Filled.SentimentDissatisfied,
-        tint = md_theme_dark_error
+        tint = Color(0xFFD36E2A)
     )
     NEUTRAL -> MoodIcon(
         icon = Filled.SentimentNeutral,
-        tint = md_theme_dark_onSurfaceVariant
+        tint = Color(0xFFFFFFFF)
     )
     GOOD -> MoodIcon(
         icon = Filled.SentimentSatisfied,
-        tint = md_theme_dark_surfaceTint
+        tint = Color(0xFFE3E91E)
     )
     SUPERB -> MoodIcon(
         icon = Filled.SentimentVerySatisfied,
-        tint = md_theme_dark_onTertiaryContainer
+        tint = Color(0xFF1CCF24)
     )
     else -> null
 }

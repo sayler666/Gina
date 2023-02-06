@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -47,11 +51,13 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.core.date.displayText
+import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightsSearchState
 import com.sayler666.gina.insights.viewmodel.InsightsState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
-import com.sayler666.gina.insights.viewmodel.Level.Zero
+import com.sayler666.gina.insights.viewmodel.MoodLevel
+import com.sayler666.gina.insights.viewmodel.Zero
 import com.sayler666.gina.journal.ui.EmptySearchResult
 import com.sayler666.gina.ui.SearchBar
 import java.time.LocalDate
@@ -69,6 +75,7 @@ fun InsightsScreen(
     val stateSearch: InsightsSearchState by viewModel.insightsStateSearch.collectAsStateWithLifecycle()
     val state: InsightsState? by viewModel.insightsState.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -86,24 +93,38 @@ fun InsightsScreen(
             )
         },
         content = { padding ->
-            Column(modifier = Modifier.padding(padding)) {
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .verticalScroll(scrollState)
+            ) {
                 when {
-                    stateSearch.hasResults() -> {
-                        stateSearch.days?.let {
-                            Summary(it)
-                            HeatMapCalendar(it)
-                        }
-                    }
+                    stateSearch.hasResults() -> stateSearch.days?.Render()
                     stateSearch.emptyResults() -> EmptySearchResult()
-                    stateSearch.noSearch() -> {
-                        state?.let {
-                            Summary(it)
-                            HeatMapCalendar(it)
-                        }
-                    }
+                    stateSearch.noSearch() -> state?.Render()
                 }
+                Spacer(modifier = Modifier.height(35.dp))
             }
         })
+}
+
+@Composable
+fun InsightsState.Render() {
+    Summary(this)
+    HeatMapCalendar(
+        this.contributionHeatMapData,
+        "Contributions",
+        "Less",
+        "More",
+        ContributionLevel.values() as Array<Level>
+    )
+    HeatMapCalendar(
+        this.moodHeatMapData,
+        "Moods",
+        "Worse",
+        "Better",
+        MoodLevel.values() as Array<Level>
+    )
 }
 
 @Composable
@@ -180,9 +201,15 @@ private fun Summary(it: InsightsState) {
 }
 
 @Composable
-private fun HeatMapCalendar(state: InsightsState) {
+private fun HeatMapCalendar(
+    heatMapData: Map<LocalDate, Level>,
+    title: String,
+    legendLeft: String,
+    legendRight: String,
+    legend: Array<Level>
+) {
     val endDate = remember { LocalDate.now() }
-    val startDate = remember { state.daysHeatMapData.keys.last() }
+    val startDate = remember { heatMapData.keys.last() }
 
     val context = LocalContext.current
     Card(
@@ -198,7 +225,7 @@ private fun HeatMapCalendar(state: InsightsState) {
                 firstDayOfWeek = firstDayOfWeekFromLocale(),
             )
             Text(
-                text = "Contributions",
+                text = title,
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.titleMedium
                     .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
@@ -213,7 +240,7 @@ private fun HeatMapCalendar(state: InsightsState) {
                         startDate = startDate,
                         endDate = endDate,
                         week = week,
-                        level = state.daysHeatMapData[day.date] ?: Zero,
+                        level = heatMapData[day.date] ?: Zero,
                     ) { clicked ->
                         Toast.makeText(context, clicked.toString(), Toast.LENGTH_SHORT).show()
                     }
@@ -228,14 +255,14 @@ private fun HeatMapCalendar(state: InsightsState) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Less",
+                    legendLeft,
                     Modifier.padding(end = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
-                Level.values().forEach { LevelBox(it.color) }
+                legend.forEach { LevelBox(it.color) }
                 Text(
-                    "More",
+                    legendRight,
                     Modifier.padding(start = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline
