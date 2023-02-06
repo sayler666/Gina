@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var showSplash = true
+        var showSplash = savedInstanceState?.getBoolean(SPLASH_KEY) ?: true
 
         installSplashScreen().setKeepOnScreenCondition { showSplash }
 
@@ -37,5 +37,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             GinaApp(vm)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(SPLASH_KEY, false)
+        super.onSaveInstanceState(outState)
+    }
+
+    companion object {
+        const val SPLASH_KEY = "SPLASH_KEY"
     }
 }
