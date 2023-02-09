@@ -14,6 +14,7 @@ import com.sayler666.gina.ui.Mood.LOW
 import com.sayler666.gina.ui.Mood.NEUTRAL
 import com.sayler666.gina.ui.Mood.SUPERB
 import com.sayler666.gina.ui.mapToMoodIcon
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -31,20 +32,37 @@ class InsightsMapper @Inject constructor() {
 
     private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
         val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
+
+        val median = days.mapNotNull { it.content }.map { it.length }.sortedBy { it }.med()
+
+        val bucket1 = 0..2 * median / 3
+        val bucket2 = bucket1.last + 1..bucket1.last * 2
+        val bucket3 = bucket2.last + 1..bucket1.last * 3
+        val bucket4 = bucket3.last + 1..bucket1.last * 4
+
+        Timber.d("Contributions buckets: $bucket1, $bucket2, $bucket3, $bucket4")
+
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
-            val currentDayDate = it.date.toLocalDate()
             val level = when (it.content.length) {
-                in 1..200 -> One
-                in 201..400 -> Two
-                in 401..600 -> Three
-                in 601..800 -> Four
+                in bucket1 -> One
+                in bucket2 -> Two
+                in bucket3 -> Three
+                in bucket4 -> Four
                 else -> Five
             }
-            heatMap[currentDayDate] = level
+            heatMap[it.date.toLocalDate()] = level
         }
         return heatMap
+    }
+
+    private fun List<Int>.med() = sorted().let {
+        if (it.isEmpty()) return 0
+        if (it.size % 2 == 0)
+            (it[it.size / 2] + it[(it.size - 1) / 2]) / 2
+        else
+            it[it.size / 2]
     }
 
     private fun generateMoodHeatMapData(days: List<Day>): Map<LocalDate, Level> {
