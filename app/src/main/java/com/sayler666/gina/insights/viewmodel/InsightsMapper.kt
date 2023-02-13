@@ -2,13 +2,16 @@ package com.sayler666.gina.insights.viewmodel
 
 import androidx.compose.ui.graphics.Color
 import com.sayler666.gina.core.date.toLocalDate
+import com.sayler666.gina.core.list.mutate
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Five
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Four
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.One
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Three
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Two
+import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.BAD
+import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import com.sayler666.gina.ui.Mood.GOOD
 import com.sayler666.gina.ui.Mood.LOW
 import com.sayler666.gina.ui.Mood.NEUTRAL
@@ -26,8 +29,27 @@ class InsightsMapper @Inject constructor() {
             longestStreak = calculateLongestStreak(days),
             totalMoods = days.count { it.mood != null },
             contributionHeatMapData = generateContributionHeatMapData(days),
-            moodHeatMapData = generateMoodHeatMapData(days)
+            moodHeatMapData = generateMoodHeatMapData(days),
+            moodChartData = generateMoodChartData(days)
         )
+    }
+
+    private fun generateMoodChartData(days: List<Day>): List<MoodChartData> {
+        val moods = days.mapNotNull { it.mood.mapToMoodOrNull() }
+
+        val superbCount = moods.count { it == SUPERB }.toFloat()
+        val goodCount = moods.count { it == GOOD }.toFloat()
+        val neutralCount = moods.count { it == NEUTRAL }.toFloat()
+        val lowCount = moods.count { it == LOW }.toFloat()
+        val badCount = moods.count { it == BAD }.toFloat()
+
+        return listOf<MoodChartData>().mutate {
+            if (superbCount > 0) it.add(MoodChartData(superbCount, SUPERB))
+            if (goodCount > 0) it.add(MoodChartData(goodCount, GOOD))
+            if (neutralCount > 0) it.add(MoodChartData(neutralCount, NEUTRAL))
+            if (lowCount > 0) it.add(MoodChartData(lowCount, LOW))
+            if (badCount > 0) it.add(MoodChartData(badCount, BAD))
+        }
     }
 
     private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
@@ -143,7 +165,8 @@ data class InsightsState(
     val longestStreak: Int,
     val totalMoods: Int,
     val contributionHeatMapData: Map<LocalDate, Level>,
-    val moodHeatMapData: Map<LocalDate, Level>
+    val moodHeatMapData: Map<LocalDate, Level>,
+    val moodChartData: List<MoodChartData>
 )
 
 data class InsightsSearchState(
@@ -163,12 +186,17 @@ object Zero : Level {
     override val color: Color = Color(0xFF333836)
 }
 
+data class MoodChartData(
+    val value: Float,
+    val mood: Mood
+)
+
 enum class MoodLevel(override val color: Color) : Level {
-    One(BAD.mapToMoodIcon().tint),
-    Two(LOW.mapToMoodIcon().tint),
-    Three(NEUTRAL.mapToMoodIcon().tint),
-    Four(GOOD.mapToMoodIcon().tint),
-    Five(SUPERB.mapToMoodIcon().tint)
+    One(BAD.mapToMoodIcon().color),
+    Two(LOW.mapToMoodIcon().color),
+    Three(NEUTRAL.mapToMoodIcon().color),
+    Four(GOOD.mapToMoodIcon().color),
+    Five(SUPERB.mapToMoodIcon().color)
 }
 
 enum class ContributionLevel(override val color: Color) : Level {

@@ -82,7 +82,7 @@ fun DayDetailsScreen(
                     day?.mood?.mapToMoodIconOrNull()?.let { icon ->
                         Icon(
                             rememberVectorPainter(image = icon.icon),
-                            tint = icon.tint,
+                            tint = icon.color,
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.width(4.dp))

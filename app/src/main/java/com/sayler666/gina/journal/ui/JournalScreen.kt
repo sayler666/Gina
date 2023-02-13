@@ -193,7 +193,7 @@ fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
                         painter = rememberVectorPainter(
                             image = icon.icon
                         ),
-                        tint = icon.tint,
+                        tint = icon.color,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )

@@ -48,7 +48,7 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
                             val icon = it.mapToMoodIcon()
                             Icon(
                                 painter = rememberVectorPainter(image = icon.icon),
-                                tint = icon.tint,
+                                tint = icon.color,
                                 contentDescription = null,
                             )
                         }
@@ -82,34 +82,34 @@ enum class Mood(val numberValue: Int) {
 
 fun Mood?.mapToMoodIcon(): MoodIcon = mapToMoodIconOrNull() ?: MoodIcon(
     icon = Filled.SentimentNeutral,
-    tint = md_theme_dark_onSurfaceVariant
+    color = md_theme_dark_onSurfaceVariant
 )
 
 fun Mood?.mapToMoodIconOrNull(): MoodIcon? = when (this) {
     BAD -> MoodIcon(
         icon = Filled.SentimentVeryDissatisfied,
-        tint = Color(0xFFFF0000)
+        color = Color(0xFFFF0000)
     )
     LOW -> MoodIcon(
         icon = Filled.SentimentDissatisfied,
-        tint = Color(0xFFD36E2A)
+        color = Color(0xFFD36E2A)
     )
     NEUTRAL -> MoodIcon(
         icon = Filled.SentimentNeutral,
-        tint = Color(0xFFFFFFFF)
+        color = Color(0xFFFFFFFF)
     )
     GOOD -> MoodIcon(
         icon = Filled.SentimentSatisfied,
-        tint = Color(0xFFE3E91E)
+        color = Color(0xFFE3E91E)
     )
     SUPERB -> MoodIcon(
         icon = Filled.SentimentVerySatisfied,
-        tint = Color(0xFF1CCF24)
+        color = Color(0xFF1CCF24)
     )
     else -> null
 }
 
 data class MoodIcon(
     val icon: ImageVector,
-    val tint: Color
+    val color: Color
 )

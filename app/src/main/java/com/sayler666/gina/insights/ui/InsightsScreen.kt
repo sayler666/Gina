@@ -2,6 +2,7 @@ package com.sayler666.gina.insights.ui
 
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,11 +11,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -33,10 +37,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,10 +63,12 @@ import com.sayler666.gina.insights.viewmodel.InsightsSearchState
 import com.sayler666.gina.insights.viewmodel.InsightsState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
+import com.sayler666.gina.insights.viewmodel.MoodChartData
 import com.sayler666.gina.insights.viewmodel.MoodLevel
 import com.sayler666.gina.insights.viewmodel.Zero
 import com.sayler666.gina.journal.ui.EmptySearchResult
 import com.sayler666.gina.ui.SearchBar
+import com.sayler666.gina.ui.mapToMoodIcon
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -116,15 +125,16 @@ fun InsightsState.Render() {
         "Contributions",
         "Less",
         "More",
-        ContributionLevel.values() as Array<Level>
+        arrayOf(*ContributionLevel.values())
     )
     HeatMapCalendar(
         this.moodHeatMapData,
         "Moods",
         "Worse",
         "Better",
-        MoodLevel.values() as Array<Level>
+        arrayOf(*MoodLevel.values())
     )
+    DoughnutChart(this.moodChartData)
 }
 
 @Composable
@@ -350,6 +360,100 @@ private fun getMonthWithYear(
                 visibleItemsInfo[1].month.yearMonth
             } else {
                 firstItem.month.yearMonth
+            }
+        }
+    }
+}
+
+@Composable
+fun DoughnutChart(
+    values: List<MoodChartData>,
+    size: Dp = 50.dp,
+    thickness: Dp = 20.dp
+) {
+
+    val sumOfValues = values.map { it.value }.sum()
+    val proportions = values.map { it.value }.map {
+        it * 100 / sumOfValues
+    }
+    val sweepAngles = proportions.map {
+        360 * it / 100
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Column {
+            Text(
+                text = "Moods graph",
+                modifier = Modifier.padding(12.dp),
+                style = MaterialTheme.typography.titleMedium
+                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+            )
+            Row(
+                Modifier
+                    .height(80.dp)
+                    .fillMaxWidth()
+                    .padding(start = 22.dp, bottom = 8.dp)
+            ) {
+                Box(
+                    Modifier
+                        .width(size)
+                        .height(size + 10.dp)
+                        .padding(top = 10.dp)
+                ) {
+                    Canvas(
+                        modifier = Modifier.size(size = size)
+                    ) {
+                        var startAngle = -90f
+                        for (i in values.indices) {
+                            drawArc(
+                                color = values[i].mood.mapToMoodIcon().color,
+                                startAngle = startAngle,
+                                sweepAngle = sweepAngles[i].toFloat(),
+                                useCenter = false,
+                                style = Stroke(width = thickness.toPx(), cap = StrokeCap.Butt)
+                            )
+                            startAngle += sweepAngles[i]
+                        }
+                    }
+                }
+                Legend(values)
+            }
+        }
+    }
+}
+
+@Composable
+fun Legend(values: List<MoodChartData>) {
+    val sumOfValues = values.map { it.value }.sum()
+    val proportions = values.map { it.value }.map {
+        it * 100 / sumOfValues
+    }
+    Column(
+        Modifier
+            .padding(start = 28.dp)
+            .fillMaxHeight(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        values.forEachIndexed { i, mood ->
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .background(color = mood.mood.mapToMoodIcon().color, shape = CircleShape)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = mood.mood.name.lowercase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                            + " %.2f".format(proportions[i]) + "%" + " (${mood.value.toInt()})",
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }
