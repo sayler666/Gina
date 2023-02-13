@@ -207,7 +207,7 @@ private fun BottomBar(
             IconButton(onClick = { showPopup.value = true }) {
                 Icon(
                     painter = rememberVectorPainter(image = moodIcon.icon),
-                    tint = moodIcon.tint,
+                    tint = moodIcon.color,
                     contentDescription = null,
                 )
             }
