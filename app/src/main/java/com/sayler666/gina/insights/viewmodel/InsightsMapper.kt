@@ -137,23 +137,25 @@ class InsightsMapper @Inject constructor() {
             requireNotNull(day1.date)
             requireNotNull(day2.date)
             day1.date.compareTo(day2.date)
-        }.forEach { day ->
-            val currentDayDate = day.date?.toLocalDate()
-                ?: throw java.lang.IllegalStateException("No date found in day ${day.id}")
-            if (currentStreak == 0) {
-                currentStreakStartDay = currentDayDate
-                currentStreak++
-            } else if (currentStreak > 0) {
-                if (currentDayDate == currentStreakStartDay.plusDays(currentStreak.toLong())) {
-                    currentStreak++
-                } else {
-                    longestStreak =
-                        if (longestStreak > currentStreak) longestStreak else currentStreak
+        }
+            .reversed()
+            .forEach { day ->
+                val currentDayDate = day.date?.toLocalDate()
+                    ?: throw java.lang.IllegalStateException("No date found in day ${day.id}")
+                if (currentStreak == 0) {
                     currentStreakStartDay = currentDayDate
-                    currentStreak = 1
+                    currentStreak++
+                } else if (currentStreak > 0) {
+                    if (currentDayDate == currentStreakStartDay.minusDays(currentStreak.toLong())) {
+                        currentStreak++
+                    } else {
+                        longestStreak =
+                            if (longestStreak > currentStreak) longestStreak else currentStreak
+                        currentStreakStartDay = currentDayDate
+                        currentStreak = 1
+                    }
                 }
             }
-        }
 
         return longestStreak
     }
