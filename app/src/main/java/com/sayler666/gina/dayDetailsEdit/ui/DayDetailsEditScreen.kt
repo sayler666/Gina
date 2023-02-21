@@ -15,9 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
@@ -120,8 +119,7 @@ fun DayDetailsEditScreen(
     )
 
     // scroll
-    val scrollState = rememberScrollState()
-    LaunchedEffect(scrollState.maxValue) { scrollState.scrollTo(scrollState.maxValue) }
+//    val scrollState = rememberScrollState()
 
     // dialogs
     val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
@@ -173,8 +171,6 @@ fun DayDetailsEditScreen(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .imePadding()
-                    .verticalScroll(scrollState)
             ) {
                 currentDay?.let {
                     Attachments(it, destinationsNavigator) { attachmentHash ->
@@ -202,7 +198,9 @@ fun ContentTextField(
     ) {
         BasicTextField(
             modifier = Modifier
+                .imePadding()
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .conditional(autoFocus) {
                     focusRequester(focusRequester)
                 },
