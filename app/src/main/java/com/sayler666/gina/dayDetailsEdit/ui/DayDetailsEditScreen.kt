@@ -118,9 +118,6 @@ fun DayDetailsEditScreen(
         inclusive = true
     )
 
-    // scroll
-//    val scrollState = rememberScrollState()
-
     // dialogs
     val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
     DeleteConfirmationDialog(showDeleteConfirmationDialog) { viewModel.removeDay() }

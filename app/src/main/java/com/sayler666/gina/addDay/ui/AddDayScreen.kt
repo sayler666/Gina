@@ -89,10 +89,6 @@ fun AddDayScreen(
     val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
     if (navigateBack is Event.Value<Unit>) destinationsNavigator.popBackStack()
 
-    // scroll
-    val scrollState = rememberScrollState()
-    LaunchedEffect(scrollState.maxValue) { scrollState.scrollTo(scrollState.maxValue) }
-
     // dialogs
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     DiscardConfirmationDialog(showDiscardConfirmationDialog) { navController.popBackStack() }
@@ -140,8 +136,6 @@ fun AddDayScreen(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .imePadding()
-                    .verticalScroll(scrollState)
             ) {
                 dayTemp?.let {
                     Attachments(it, destinationsNavigator) { attachmentHash ->
