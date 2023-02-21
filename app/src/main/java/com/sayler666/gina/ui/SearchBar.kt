@@ -36,6 +36,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -55,11 +56,15 @@ fun SearchBar(
     val showSearch = rememberSaveable { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val keyboardDismissed = rememberSaveable { mutableStateOf(false) }
 
     TopAppBar(title = { Text(title) }, navigationIcon = {}, actions = {
         if (showSearch.value.not()) IconButton(onClick = { showSearch.value = true }) {
             Icon(
-                imageVector = Icons.Filled.Search, modifier = Modifier, contentDescription = null
+                imageVector = Icons.Filled.Search,
+                modifier = Modifier,
+                contentDescription = null
             )
         }
         if (showSearch.value) OutlinedTextField(modifier = Modifier
@@ -86,11 +91,12 @@ fun SearchBar(
             ),
             trailingIcon = {
                 AnimatedVisibility(
-                    visible = showClearButton, enter = fadeIn(), exit = fadeOut()
+                    visible = showSearch.value, enter = fadeIn(), exit = fadeOut()
                 ) {
                     IconButton(onClick = {
                         onClearClick()
                         showSearch.value = false
+                        keyboardDismissed.value = false
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
@@ -105,11 +111,15 @@ fun SearchBar(
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
                 keyboardController?.hide()
+                focusManager.clearFocus()
+                keyboardDismissed.value = true
             })
         )
     })
 
     LaunchedEffect(showSearch.value) {
-        if (showSearch.value) focusRequester.requestFocus()
+        if (showSearch.value && keyboardDismissed.value.not()) {
+            focusRequester.requestFocus()
+        }
     }
 }
