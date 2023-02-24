@@ -1,6 +1,7 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
 import com.sayler666.gina.core.date.toLocalDate
+import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment
@@ -51,7 +52,7 @@ class DayDetailsMapper @Inject constructor() {
             requireNotNull(it.content)
             requireNotNull(it.mimeType)
             when {
-                it.mimeType.contains(IMAGE_MIME_TYPE_PREFIX) -> Image(
+                it.mimeType.isImageMimeType() -> Image(
                     id = it.id,
                     byte = it.content,
                     mimeType = it.mimeType
@@ -64,10 +65,6 @@ class DayDetailsMapper @Inject constructor() {
                 )
             }
         }
-
-    companion object {
-        const val IMAGE_MIME_TYPE_PREFIX = "image/"
-    }
 }
 
 data class DayWithAttachmentsEntity(

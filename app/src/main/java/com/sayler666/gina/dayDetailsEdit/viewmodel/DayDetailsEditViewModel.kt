@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.core.date.toEpochMilliseconds
+import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper.Companion.IMAGE_MIME_TYPE_PREFIX
 import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
@@ -18,6 +18,8 @@ import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.imageCompressor.ImageCompressor
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +28,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -41,6 +45,9 @@ class DayDetailsEditViewModel @Inject constructor(
     private val imageCompressor: ImageCompressor
 ) : ViewModel() {
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+        Timber.e(exception)
+    }
     private val navArgs: DayDetailsEditScreenNavArgs =
         DayDetailsEditScreenDestination.argsFrom(savedStateHandle)
     private val id: Int
@@ -125,30 +132,25 @@ class DayDetailsEditViewModel @Inject constructor(
     }
 
     fun addAttachments(attachments: List<Pair<ByteArray, String>>) {
-        val currentDay = _tempDay.value ?: return
         viewModelScope.launch {
-            val newAttachments = currentDay.attachments
-                .toMutableList()
-                .also {
-                    attachments.forEach { (content, mimeType) ->
-                        val bytes = if (mimeType.contains(IMAGE_MIME_TYPE_PREFIX)) {
-                            imageCompressor.compressImage(content)
-                        } else {
-                            content
-                        }
+            attachments.forEach { (content, mimeType) ->
+                launch(SupervisorJob() + exceptionHandler) {
+                    val bytes = when {
+                        mimeType.isImageMimeType() -> imageCompressor.compressImage(content)
+                        else -> content
+                    }
 
-                        it.add(
-                            Attachment(
-                                dayId = null,
-                                content = bytes,
-                                mimeType = mimeType,
-                                id = null
-                            )
-                        )
+                    val newAttachment = Attachment(
+                        dayId = null,
+                        content = bytes,
+                        mimeType = mimeType,
+                        id = null
+                    )
+                    _tempDay.update {
+                        it?.copy(attachments = it.attachments + newAttachment)
                     }
                 }
-
-            _tempDay.value = currentDay.copy(attachments = newAttachments)
+            }
         }
     }
 

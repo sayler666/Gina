@@ -95,3 +95,7 @@ fun handleSelectedFiles(
     }
 }
 
+fun String.isImageMimeType() =
+    this.contains(IMAGE_MIME_TYPE_PREFIX)
+
+const val IMAGE_MIME_TYPE_PREFIX = "image/"

@@ -7,6 +7,7 @@ import id.zelory.compressor.constraint.quality
 import id.zelory.compressor.constraint.resolution
 import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -22,33 +23,34 @@ class ImageCompressor @Inject constructor(
 
     suspend fun compressImage(
         bytes: ByteArray
-    ): ByteArray {
-        val compressorSettings = imageCompressorSettings.getImageCompressorSettingsFlow().first()
-        Timber.d("Compress: Compressor settings: $compressorSettings")
-
-        val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        Timber.d("Compress: Original image res: ${original.width}/${original.height}, size: ${bytes.size} bytes")
-
-        val file = withContext(Dispatchers.IO) {
-            File.createTempFile("file", ".tmp")
-        }
-
+    ): ByteArray = coroutineScope {
         withContext(Dispatchers.IO) {
+            val compressorSettings =
+                imageCompressorSettings.getImageCompressorSettingsFlow().first()
+            Timber.d("Compress: Compressor settings: $compressorSettings")
+
+            val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            Timber.d("Compress: Original image res: ${original.width}/${original.height}, size: ${bytes.size} bytes")
+
+            val file = withContext(Dispatchers.IO) {
+                File.createTempFile("file", ".tmp")
+            }
+
             val fos = FileOutputStream(file)
             fos.write(bytes)
             fos.close()
+
+            val compressedBytes = Compressor.compress(app, file) {
+                resolution(compressorSettings.width, compressorSettings.height)
+                quality(compressorSettings.quality)
+                size(compressorSettings.size)
+            }.readBytes()
+
+            val compressed = BitmapFactory.decodeByteArray(compressedBytes, 0, compressedBytes.size)
+            Timber.d("Compress: Compressed image res: ${compressed.width}/${compressed.height}, size: ${compressedBytes.size} bytes")
+
+            compressedBytes
         }
-
-        val compressedBytes = Compressor.compress(app, file) {
-            resolution(compressorSettings.width, compressorSettings.height)
-            quality(compressorSettings.quality)
-            size(compressorSettings.size)
-        }.readBytes()
-
-        val compressed = BitmapFactory.decodeByteArray(compressedBytes, 0, compressedBytes.size)
-        Timber.d("Compress: Compressed image res: ${compressed.width}/${compressed.height}, size: ${compressedBytes.size} bytes")
-
-        return compressedBytes
     }
 
     @Serializable
