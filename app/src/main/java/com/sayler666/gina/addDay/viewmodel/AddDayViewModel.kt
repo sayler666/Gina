@@ -15,8 +15,6 @@ import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.imageCompressor.ImageCompressor
-import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
-import com.sayler666.gina.settings.Settings
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,8 +28,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,8 +46,7 @@ class AddDayViewModel @Inject constructor(
     private val blankDay = DayWithAttachment(
         Day(
             id = null,
-            date = (date?.atStartOfDay()?.toEpochSecond(ZoneOffset.UTC)
-                ?: (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))) * 1000,
+            date = (date?.atStartOfDay()?.toLocalDate() ?: LocalDate.now()).toEpochMilliseconds(),
             content = "",
             mood = 0
         ), emptyList()
