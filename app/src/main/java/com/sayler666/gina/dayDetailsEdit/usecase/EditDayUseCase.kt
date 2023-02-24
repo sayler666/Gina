@@ -1,6 +1,7 @@
 package com.sayler666.gina.dayDetailsEdit.usecase
 
 import android.database.SQLException
+import androidx.room.withTransaction
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.DayWithAttachment
@@ -24,14 +25,15 @@ class EditDayUseCaseImpl @Inject constructor(
     ) {
         try {
             databaseProvider.withDaysDao {
-                updateDay(dayWithAttachment.day)
+                databaseProvider.getOpenedDb()?.withTransaction {
+                    updateDay(dayWithAttachment.day)
+                    val attachmentsToAdd = dayWithAttachment.attachments.toMutableList()
+                        .filter { it.dayId == null }
+                        .map { it.copy(dayId = dayWithAttachment.day.id) }
 
-                val attachmentsToAdd = dayWithAttachment.attachments.toMutableList()
-                    .filter { it.dayId == null }
-                    .map { it.copy(dayId = dayWithAttachment.day.id) }
-
-                if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)
-                if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
+                    if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)
+                    if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
+                }
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
