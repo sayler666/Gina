@@ -6,6 +6,7 @@ import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayWithAttachment
+import com.sayler666.gina.db.Friend
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import java.time.LocalDate
@@ -26,8 +27,18 @@ class DayDetailsMapper @Inject constructor() {
             localDate = getLocalDate(day.day.date),
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
-            mood = day.day.mood.mapToMoodOrNull()
+            mood = day.day.mood.mapToMoodOrNull(),
+            friends = mapToFriends(day.friends)
         )
+    }
+
+    private fun mapToFriends(friends: List<Friend>): List<FriendEntity> = friends.map { f ->
+        val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
+        val initials = when {
+            nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
+            else -> f.name[0].toString()
+        }
+        FriendEntity(id = f.id,name = f.name, avatar = f.avatar, selected = true, initials = initials)
     }
 
     private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
@@ -75,7 +86,8 @@ data class DayWithAttachmentsEntity(
     val localDate: LocalDate,
     val content: String,
     val mood: Mood?,
-    val attachments: List<AttachmentEntity> = emptyList()
+    val attachments: List<AttachmentEntity> = emptyList(),
+    val friends: List<FriendEntity> = emptyList()
 )
 
 sealed class AttachmentEntity(
@@ -138,3 +150,11 @@ sealed class AttachmentEntity(
         }
     }
 }
+
+data class FriendEntity(
+    val id: Int,
+    val name: String,
+    val selected: Boolean = false,
+    val avatar: ByteArray? = null,
+    val initials: String
+)
