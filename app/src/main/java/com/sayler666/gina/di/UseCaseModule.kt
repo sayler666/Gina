@@ -2,6 +2,8 @@ package com.sayler666.gina.di
 
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.addDay.usecase.AddDayUseCaseImpl
+import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCase
+import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCaseImpl
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
@@ -32,4 +34,7 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun provideAddDayUseCase(useCase: AddDayUseCaseImpl): AddDayUseCase
+
+    @Binds
+    abstract fun GetAllFriendsUseCase(useCase: GetAllFriendsUseCaseImpl): GetAllFriendsUseCase
 }

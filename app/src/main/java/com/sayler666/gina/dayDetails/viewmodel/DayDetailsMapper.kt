@@ -5,7 +5,7 @@ import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DayWithAttachment
+import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.Friend
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
@@ -16,10 +16,14 @@ import javax.inject.Inject
 
 
 class DayDetailsMapper @Inject constructor() {
-    fun mapToVm(day: DayWithAttachment): DayWithAttachmentsEntity {
+    fun mapToVm(
+        day: DayDetails,
+        allFriends: List<Friend> = emptyList(),
+        friendsSearchQuery: String? = null
+    ): DayDetailsEntity {
         requireNotNull(day.day.date)
         requireNotNull(day.day.content)
-        return DayWithAttachmentsEntity(
+        return DayDetailsEntity(
             id = day.day.id,
             dayOfMonth = getDayOfMonth(day.day.date),
             dayOfWeek = getDayOfWeek(day.day.date),
@@ -28,17 +32,38 @@ class DayDetailsMapper @Inject constructor() {
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood.mapToMoodOrNull(),
-            friends = mapToFriends(day.friends)
+            friends = mapToFriends(day.friends, allFriends, friendsSearchQuery)
         )
     }
 
-    private fun mapToFriends(friends: List<Friend>): List<FriendEntity> = friends.map { f ->
-        val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
-        val initials = when {
-            nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
-            else -> f.name[0].toString()
-        }
-        FriendEntity(id = f.id,name = f.name, avatar = f.avatar, selected = true, initials = initials)
+    private fun mapToFriends(
+        friends: List<Friend>,
+        allFriends: List<Friend> = emptyList(),
+        friendsSearchQuery: String? = null
+    ): List<FriendEntity> {
+        val friendsIds = friends.map { it.id }
+        val mapped = allFriends.map { f ->
+            val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
+            val initials = when {
+                nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
+                else -> f.name[0].toString()
+            }
+            FriendEntity(
+                id = f.id,
+                name = f.name,
+                avatar = f.avatar,
+                selected = friendsIds.contains(f.id),
+                initials = initials
+            )
+        }.sortedBy { it.name }
+            .sortedBy { !it.selected }
+            .filter { friend ->
+                friendsSearchQuery?.let {
+                    friend.name.contains(it, ignoreCase = true)
+                } ?: run { true }
+            }
+
+        return mapped
     }
 
     private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
@@ -78,7 +103,7 @@ class DayDetailsMapper @Inject constructor() {
         }
 }
 
-data class DayWithAttachmentsEntity(
+data class DayDetailsEntity(
     val id: Int?,
     val dayOfMonth: String,
     val dayOfWeek: String,

@@ -6,9 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -20,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,18 +33,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.ui.theme.RobotoSlabRegular
 
 @Composable
 fun FriendsPicker(
@@ -59,19 +59,47 @@ fun FriendsPicker(
     if (showPopup)
         Dialog(onDismissRequest = { onDismiss() }) {
             Card(
-                modifier = Modifier.padding(32.dp),
+                modifier = Modifier
+                    .padding(32.dp)
+                    .heightIn(100.dp, 350.dp),
                 shape = MaterialTheme.shapes.large,
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Column(Modifier.padding(8.dp)) {
-                    LazyColumn(modifier = Modifier.heightIn(50.dp, 250.dp), content = {
-                        items(friends) {
-                            FriendComponent(it, onClick = { selected ->
-                                onFriendClicked(it.id, selected)
-                            })
-                        }
-                    })
-                    SearchTextField(searchValue, onSearchChanged, onAddNewFriend)
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    val (list, textField) = createRefs()
+                    LazyColumn(modifier = Modifier
+                        .heightIn(50.dp, 250.dp)
+                        .clipToBounds()
+                        .fillMaxWidth()
+                        .constrainAs(list) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            bottom.linkTo(textField.top)
+                            height = Dimension.fillToConstraints
+                        },
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+                        content = {
+                            items(friends) {
+                                FriendComponent(it, onClick = { selected ->
+                                    onFriendClicked(it.id, selected)
+                                })
+                            }
+                        })
+                    SearchTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .constrainAs(textField) {
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                            }
+                            .padding(8.dp),
+                        searchValue,
+                        onSearchChanged,
+                        onAddNewFriend
+                    )
                 }
             }
         }
@@ -80,14 +108,13 @@ fun FriendsPicker(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun SearchTextField(
+    modifier: Modifier = Modifier,
     searchValue: String,
     onValueChanged: (String) -> Unit,
     onDone: (String) -> Unit
 ) {
     OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 4.dp, end = 1.dp)
+        modifier = modifier
             .border(
                 BorderStroke(
                     1.dp,
@@ -120,17 +147,14 @@ private fun SearchTextField(
 fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(start = 6.dp, bottom = 6.dp)
             .clickable {
                 onClick(!friend.selected)
             }) {
-        val shape = CircleShape
+        Spacer(modifier = Modifier.width(8.dp))
         Box(
             Modifier
-                .background(MaterialTheme.colorScheme.primary, shape = shape)
-                .shadow(6.dp, shape = shape)
-                .size(38.dp)
-                .clip(shape = shape),
+                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                .size(38.dp),
             contentAlignment = Alignment.Center
         ) {
             if (friend.avatar != null) {
@@ -138,6 +162,8 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
                     contentScale = ContentScale.Crop,
                     painter = rememberAsyncImagePainter(friend.avatar),
                     contentDescription = "",
+                    modifier = Modifier
+                        .shadow(elevation = 4.dp, shape = CircleShape)
                 )
             } else {
                 Text(
