@@ -42,28 +42,43 @@ class DayDetailsMapper @Inject constructor() {
         friendsSearchQuery: String? = null
     ): List<FriendEntity> {
         val friendsIds = friends.map { it.id }
-        val mapped = allFriends.map { f ->
-            val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
-            val initials = when {
-                nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
-                else -> f.name[0].toString()
+
+        return when (allFriends.isNotEmpty()) {
+            true -> allFriends.map { f ->
+                FriendEntity(
+                    id = f.id,
+                    name = f.name,
+                    avatar = f.avatar,
+                    selected = friendsIds.contains(f.id),
+                    initials = createInitials(f)
+                )
             }
-            FriendEntity(
-                id = f.id,
-                name = f.name,
-                avatar = f.avatar,
-                selected = friendsIds.contains(f.id),
-                initials = initials
-            )
+            false -> friends.map { f ->
+                FriendEntity(
+                    id = f.id,
+                    name = f.name,
+                    avatar = f.avatar,
+                    selected = true,
+                    initials = createInitials(f)
+                )
+            }
         }.sortedBy { it.name }
+            .sortedBy { it.avatar == null }
             .sortedBy { !it.selected }
             .filter { friend ->
                 friendsSearchQuery?.let {
                     friend.name.contains(it, ignoreCase = true)
                 } ?: run { true }
             }
+    }
 
-        return mapped
+    private fun createInitials(f: Friend): String {
+        val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
+        val initials = when {
+            nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
+            else -> f.name[0].toString()
+        }
+        return initials
     }
 
     private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
