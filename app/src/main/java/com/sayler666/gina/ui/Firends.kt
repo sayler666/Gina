@@ -143,36 +143,46 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
                 onClick(!friend.selected)
             }) {
         Spacer(modifier = Modifier.width(8.dp))
-        Box(
-            Modifier
-                .shadow(elevation = 3.dp, shape = CircleShape)
-                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                .size(38.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            if (friend.avatar != null) {
-                Image(
-                    contentScale = ContentScale.Crop,
-                    painter = rememberAsyncImagePainter(friend.avatar),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .shadow(elevation = 4.dp, shape = CircleShape)
-                )
-            } else {
-                Text(
-                    text = friend.initials,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelMedium
-                        .copy(color = MaterialTheme.colorScheme.background, fontSize = 15.sp)
-                )
-            }
-        }
+
+        FriendIcon(friend)
+
         Spacer(modifier = Modifier.width(12.dp))
+
         Text(text = friend.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+
         Spacer(modifier = Modifier.weight(1f))
+
         RadioButton(
             selected = friend.selected,
             onClick = { onClick(!friend.selected) }
         )
+    }
+}
+
+@Composable
+fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .shadow(elevation = 3.dp, shape = CircleShape)
+            .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+            .size(38.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (friend.avatar != null) {
+            Image(
+                contentScale = ContentScale.Crop,
+                painter = rememberAsyncImagePainter(friend.avatar),
+                contentDescription = "",
+                modifier = Modifier
+                    .shadow(elevation = 4.dp, shape = CircleShape)
+            )
+        } else {
+            Text(
+                text = friend.initials,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium
+                    .copy(color = MaterialTheme.colorScheme.background, fontSize = 15.sp)
+            )
+        }
     }
 }
