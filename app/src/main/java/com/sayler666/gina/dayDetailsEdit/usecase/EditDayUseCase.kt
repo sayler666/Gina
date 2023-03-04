@@ -5,6 +5,8 @@ import androidx.room.withTransaction
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.DayFriends
+import com.sayler666.gina.db.DaysDao
 import com.sayler666.gina.db.withDaysDao
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,16 +29,34 @@ class EditDayUseCaseImpl @Inject constructor(
             databaseProvider.withDaysDao {
                 databaseProvider.getOpenedDb()?.withTransaction {
                     updateDay(dayDetails.day)
-                    val attachmentsToAdd = dayDetails.attachments.toMutableList()
-                        .filter { it.dayId == null }
-                        .map { it.copy(dayId = dayDetails.day.id) }
-
-                    if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)
-                    if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
+                    attachments(dayDetails, attachmentsToDelete)
+                    friends(dayDetails)
                 }
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
+    }
+
+    private suspend fun DaysDao.friends(dayDetails: DayDetails) {
+        dayDetails.day.id?.let { dayId ->
+            deleteFriendsForDay(dayDetails.day.id)
+            val dayFriends = dayDetails.friends.map { friend ->
+                DayFriends(dayId, friend.id)
+            }
+            if (dayDetails.friends.isNotEmpty()) addFriends(dayFriends)
+        }
+    }
+
+    private suspend fun DaysDao.attachments(
+        dayDetails: DayDetails,
+        attachmentsToDelete: List<Attachment>
+    ) {
+        val attachmentsToAdd = dayDetails.attachments.toMutableList()
+            .filter { it.dayId == null }
+            .map { it.copy(dayId = dayDetails.day.id) }
+
+        if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)
+        if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
     }
 }

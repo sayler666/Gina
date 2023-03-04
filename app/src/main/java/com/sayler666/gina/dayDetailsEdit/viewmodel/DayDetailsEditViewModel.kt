@@ -189,10 +189,16 @@ class DayDetailsEditViewModel @Inject constructor(
     }
 
     fun addNewFriend(friendName: String) {
-
+        // TODO
     }
 
     fun friendSelect(friendId: Int, selected: Boolean) {
-
+        _tempDay.update { day ->
+            val friendInContext = allFriends.value.find { it.id == friendId } ?: return
+            when (selected) {
+                true -> day?.copy(friends = day.friends + friendInContext)
+                false -> day?.copy(friends = day.friends.filterNot { it.id == friendId })
+            }
+        }
     }
 }

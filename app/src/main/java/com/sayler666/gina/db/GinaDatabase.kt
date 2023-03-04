@@ -110,9 +110,9 @@ data class Friend(
 )
 data class DayFriends(
     @ColumnInfo(name = "id")
-    val id: Long,
+    val id: Int,
     @ColumnInfo(name = "friend_id")
-    val friendId: Long
+    val friendId: Int
 )
 
 data class DayDetails(
@@ -144,6 +144,12 @@ interface DaysDao {
 
     @Query("SELECT * FROM friends")
     fun getFriendFlow(): Flow<List<Friend>>
+
+    @Query("DELETE FROM daysFriends WHERE id = :id")
+    suspend fun deleteFriendsForDay(id: Int): Int
+
+    @Insert
+    suspend fun addFriends(daysFriends: List<DayFriends>)
 
     @Update
     suspend fun updateDay(day: Day): Int

@@ -28,23 +28,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
+import com.sayler666.gina.ui.theme.secondaryColors
 
 @Composable
 fun FriendsPicker(
@@ -124,15 +124,7 @@ private fun SearchTextField(
             .clip(RoundedCornerShape(4.dp)),
         value = searchValue,
         onValueChange = onValueChanged,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(
-                alpha = 0.2f
-            ),
-            cursorColor = MaterialTheme.colorScheme.secondary,
-            textColor = MaterialTheme.colorScheme.secondary
-        ),
+        colors = secondaryColors(),
         placeholder = { Text(text = "Search or add new friend...") },
         maxLines = 1,
         singleLine = true,
@@ -153,6 +145,7 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
         Spacer(modifier = Modifier.width(8.dp))
         Box(
             Modifier
+                .shadow(elevation = 3.dp, shape = CircleShape)
                 .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                 .size(38.dp),
             contentAlignment = Alignment.Center
@@ -170,7 +163,7 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
                     text = friend.initials,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelMedium
-                        .copy(color = MaterialTheme.colorScheme.background)
+                        .copy(color = MaterialTheme.colorScheme.background, fontSize = 15.sp)
                 )
             }
         }
