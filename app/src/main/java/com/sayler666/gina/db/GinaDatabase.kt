@@ -81,7 +81,7 @@ data class Attachment(
 data class Friend(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "friend_id")
-    val id: Int,
+    val id: Int = 0,
 
     @ColumnInfo(name = "name")
     val name: String,
@@ -149,7 +149,10 @@ interface DaysDao {
     suspend fun deleteFriendsForDay(id: Int): Int
 
     @Insert
-    suspend fun addFriends(daysFriends: List<DayFriends>)
+    suspend fun addFriendsToDay(daysFriends: List<DayFriends>)
+
+    @Insert
+    suspend fun addFriend(friend: Friend): Long
 
     @Update
     suspend fun updateDay(day: Day): Int

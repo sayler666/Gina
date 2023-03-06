@@ -44,7 +44,7 @@ class EditDayUseCaseImpl @Inject constructor(
             val dayFriends = dayDetails.friends.map { friend ->
                 DayFriends(dayId, friend.id)
             }
-            if (dayDetails.friends.isNotEmpty()) addFriends(dayFriends)
+            if (dayDetails.friends.isNotEmpty()) addFriendsToDay(dayFriends)
         }
     }
 
