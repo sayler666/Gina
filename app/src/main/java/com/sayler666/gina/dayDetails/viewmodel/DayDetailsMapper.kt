@@ -32,7 +32,7 @@ class DayDetailsMapper @Inject constructor() {
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood.mapToMoodOrNull(),
-            friends = mapToFriends(day.friends, allFriends, friendsSearchQuery)
+            friendsAll = mapToFriends(day.friends, allFriends, friendsSearchQuery)
         )
     }
 
@@ -127,8 +127,11 @@ data class DayDetailsEntity(
     val content: String,
     val mood: Mood?,
     val attachments: List<AttachmentEntity> = emptyList(),
-    val friends: List<FriendEntity> = emptyList()
-)
+    val friendsAll: List<FriendEntity> = emptyList()
+) {
+    val friendsSelected: List<FriendEntity>
+        get() = friendsAll.filter { it.selected }
+}
 
 sealed class AttachmentEntity(
     open val id: Int?,

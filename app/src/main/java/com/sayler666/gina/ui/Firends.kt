@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -160,12 +161,12 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
 }
 
 @Composable
-fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier) {
+fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier, size: Dp = 38.dp) {
     Box(
         modifier = modifier
             .shadow(elevation = 3.dp, shape = CircleShape)
             .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-            .size(38.dp),
+            .size(size),
         contentAlignment = Alignment.Center
     ) {
         if (friend.avatar != null) {
