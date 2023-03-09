@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,13 +56,14 @@ fun FriendsPicker(
     onDismiss: () -> Unit,
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit
+    onFriendClicked: (Int, Boolean) -> Unit,
+    selectable: Boolean = true
 ) {
     if (showPopup)
         Dialog(onDismissRequest = { onDismiss() }) {
             Card(
                 modifier = Modifier
-                    .padding(32.dp)
+                    .padding(8.dp)
                     .heightIn(100.dp, 350.dp),
                 shape = MaterialTheme.shapes.large,
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -84,9 +86,12 @@ fun FriendsPicker(
                         contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
                         content = {
                             items(friends) {
-                                FriendComponent(it, onClick = { selected ->
-                                    onFriendClicked(it.id, selected)
-                                })
+                                FriendComponent(friend = it,
+                                    selectable = selectable,
+                                    onClick = { selected ->
+                                        onFriendClicked(it.id, selected)
+                                    }
+                                )
                             }
                         })
                     SearchTextField(
@@ -137,9 +142,14 @@ private fun SearchTextField(
 }
 
 @Composable
-fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
+fun FriendComponent(
+    friend: FriendEntity,
+    onClick: (Boolean) -> Unit,
+    selectable: Boolean = false
+) {
     Row(verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .height(46.dp)
             .clickable {
                 onClick(!friend.selected)
             }) {
@@ -153,7 +163,7 @@ fun FriendComponent(friend: FriendEntity, onClick: (Boolean) -> Unit) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        RadioButton(
+        if (selectable) RadioButton(
             selected = friend.selected,
             onClick = { onClick(!friend.selected) }
         )
