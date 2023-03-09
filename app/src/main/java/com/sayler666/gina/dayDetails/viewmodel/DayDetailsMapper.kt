@@ -4,6 +4,7 @@ import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
+import com.sayler666.gina.dayDetails.viewmodel.FriendsMapper.Companion.createInitials
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.Friend
@@ -70,15 +71,6 @@ class DayDetailsMapper @Inject constructor() {
                     friend.name.contains(it, ignoreCase = true)
                 } ?: run { true }
             }
-    }
-
-    private fun createInitials(f: Friend): String {
-        val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
-        val initials = when {
-            nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
-            else -> f.name[0].toString()
-        }
-        return initials
     }
 
     private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()

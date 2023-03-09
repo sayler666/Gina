@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,8 +44,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.sayler666.gina.core.file.Files
+import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
+import com.sayler666.gina.ui.FriendsPicker
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +59,7 @@ fun SettingsScreen(
 ) {
     val imageCompressorSettings: CompressorSettings? by viewModel.imageCompressorSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
+    val friends: List<FriendEntity> by viewModel.friends.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -65,12 +70,32 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
+                    .padding(horizontal = 16.dp)
             ) {
+                Text(
+                    text = "Database",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 DatabaseSettingsSection(
                     databasePath,
                     onNewDbFileSelected = { path ->
                         viewModel.openDatabase(path)
-                    })
+                    }
+                )
+                FriendsSettingsSections(
+                    friends,
+                    onAddNewFriend = { viewModel.addNewFriend(it) },
+                    onSearchChanged = { viewModel.searchFriend(it) },
+                    onFriendClicked = { id ->
+                        // TODO
+                    }
+                )
+                Text(
+                    text = "Attachments",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 ImageCompressSettingsSection(
                     imageCompressorSettings,
                     onSetImageQuality = viewModel::setNewImageQuality,
@@ -88,21 +113,51 @@ private fun DatabaseSettingsSection(
     val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
         it.data?.data?.path?.let { path -> onNewDbFileSelected(path) }
     }
+    SettingsButton(
+        header = "Database file",
+        body = databasePath ?: "",
+        icon = Filled.Book,
+        onClick = {
+            databaseResult.launch(Files.selectFileIntent())
+        }
+    )
+}
 
-    Column(Modifier.padding(horizontal = 16.dp)) {
-        Text(
-            text = "Database",
-            style = MaterialTheme.typography.labelLarge
-        )
-        SettingsButton(
-            header = "Database file",
-            body = databasePath ?: "",
-            icon = Filled.Book,
-            onClick = {
-                databaseResult.launch(Files.selectFileIntent())
-            }
-        )
-    }
+@Composable
+private fun FriendsSettingsSections(
+    friends: List<FriendEntity>,
+    onSearchChanged: (String) -> Unit,
+    onAddNewFriend: (String) -> Unit,
+    onFriendClicked: (Int) -> Unit,
+) {
+    val searchQuery = rememberSaveable { mutableStateOf("") }
+    val showFriendsPopup = remember { mutableStateOf(false) }
+    SettingsButton(
+        header = "Friends",
+        body = "Manage friends list",
+        icon = Filled.People,
+        onClick = {
+            showFriendsPopup.value = true
+        }
+    )
+
+    FriendsPicker(
+        showPopup = showFriendsPopup.value,
+        friends = friends,
+        searchValue = searchQuery.value,
+        onDismiss = { showFriendsPopup.value = false },
+        onSearchChanged = {
+            searchQuery.value = it
+            onSearchChanged(it)
+        },
+        onAddNewFriend = {
+            onAddNewFriend(it)
+            searchQuery.value = ""
+            onSearchChanged("")
+        },
+        onFriendClicked = { id, _ -> onFriendClicked(id) },
+        selectable = false
+    )
 }
 
 @Composable
@@ -113,30 +168,19 @@ private fun ImageCompressSettingsSection(
 ) {
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
     imageCompressorSettings?.let {
-        Column(
-            Modifier
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp)
-        ) {
-            Text(
-                text = "Attachments",
-                style = MaterialTheme.typography.labelLarge
-            )
-            SettingsButton(
-                header = "Image optimization",
-                body = "Quality: ${it.quality}%, Size: ${it.size / 1000}KB",
-                icon = Filled.PhotoSizeSelectLarge,
-                onClick = { showImageCompressSettingsDialog.value = true }
-            )
-            ImageCompressSettingsDialog(
-                showDialog = showImageCompressSettingsDialog.value,
-                imageCompressorSettings = imageCompressorSettings,
-                onDismiss = { showImageCompressSettingsDialog.value = false },
-                onSetImageQuality = onSetImageQuality,
-                onSetImageSize = onSetImageSize
-            )
-        }
-
+        SettingsButton(
+            header = "Image optimization",
+            body = "Quality: ${it.quality}%, Size: ${it.size / 1000}KB",
+            icon = Filled.PhotoSizeSelectLarge,
+            onClick = { showImageCompressSettingsDialog.value = true }
+        )
+        ImageCompressSettingsDialog(
+            showDialog = showImageCompressSettingsDialog.value,
+            imageCompressorSettings = imageCompressorSettings,
+            onDismiss = { showImageCompressSettingsDialog.value = false },
+            onSetImageQuality = onSetImageQuality,
+            onSetImageSize = onSetImageSize
+        )
     }
 }
 
@@ -149,7 +193,7 @@ private fun SettingsButton(
 ) {
     Card(
         Modifier
-            .padding(top = 8.dp)
+            .padding(bottom = 10.dp)
             .fillMaxWidth()
             .clickable {
                 onClick()
@@ -158,7 +202,8 @@ private fun SettingsButton(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier
@@ -197,14 +242,10 @@ fun ImageCompressSettingsDialog(
     if (showDialog) {
         imageCompressorSettings?.let {
             Dialog(onDismissRequest = { onDismiss() }) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                ) {
-                    Card(Modifier.padding(top = 8.dp)) {
+                Card(Modifier.padding(8.dp)) {
+                    Column {
                         var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
-
-                        Row(modifier = Modifier.padding(12.dp)) {
+                        Row(modifier = Modifier.padding(8.dp)) {
                             Text(
                                 text = "Quality:",
                                 style = MaterialTheme.typography.labelLarge
@@ -216,7 +257,7 @@ fun ImageCompressSettingsDialog(
                             )
                         }
                         Slider(
-                            modifier = Modifier.padding(horizontal = 6.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             value = qualitySliderPosition,
                             valueRange = 1f..100f,
                             steps = 100,
@@ -226,12 +267,9 @@ fun ImageCompressSettingsDialog(
                             onValueChangeFinished = {
                                 onSetImageQuality(qualitySliderPosition.toInt())
                             })
-                    }
 
-                    Card(Modifier.padding(top = 8.dp)) {
                         var sizeSliderPosition by remember { mutableStateOf(it.size.toFloat()) }
-
-                        Row(modifier = Modifier.padding(12.dp)) {
+                        Row(modifier = Modifier.padding(8.dp)) {
                             Text(
                                 text = "Size:",
                                 style = MaterialTheme.typography.labelLarge
@@ -243,7 +281,7 @@ fun ImageCompressSettingsDialog(
                             )
                         }
                         Slider(
-                            modifier = Modifier.padding(horizontal = 6.dp),
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             value = sizeSliderPosition,
                             valueRange = 1f..500_000f,
                             steps = 100,
