@@ -3,6 +3,7 @@ package com.sayler666.gina.ui
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentSatisfied
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import com.sayler666.gina.ui.Mood.AWESOME
 import com.sayler666.gina.ui.Mood.BAD
 import com.sayler666.gina.ui.Mood.GOOD
 import com.sayler666.gina.ui.Mood.LOW
@@ -66,7 +68,8 @@ enum class Mood(val numberValue: Int) {
     LOW(-1),
     NEUTRAL(0),
     GOOD(1),
-    SUPERB(2);
+    SUPERB(2),
+    AWESOME(3);
 
     companion object {
         fun Int?.mapToMoodOrNull() = when (this) {
@@ -75,6 +78,7 @@ enum class Mood(val numberValue: Int) {
             0 -> NEUTRAL
             1 -> GOOD
             2 -> SUPERB
+            3 -> AWESOME
             else -> null
         }
     }
@@ -105,6 +109,10 @@ fun Mood?.mapToMoodIconOrNull(): MoodIcon? = when (this) {
     SUPERB -> MoodIcon(
         icon = Filled.SentimentVerySatisfied,
         color = Color(0xFF1CCF24)
+    )
+    AWESOME -> MoodIcon(
+        icon = Filled.AutoAwesome,
+        color = Color(0xFF12F8F8)
     )
     else -> null
 }

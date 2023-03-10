@@ -10,6 +10,7 @@ import com.sayler666.gina.insights.viewmodel.ContributionLevel.One
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Three
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Two
 import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.Mood.AWESOME
 import com.sayler666.gina.ui.Mood.BAD
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import com.sayler666.gina.ui.Mood.GOOD
@@ -37,6 +38,7 @@ class InsightsMapper @Inject constructor() {
     private fun generateMoodChartData(days: List<Day>): List<MoodChartData> {
         val moods = days.mapNotNull { it.mood.mapToMoodOrNull() }
 
+        val awesomeCount = moods.count { it == AWESOME }.toFloat()
         val superbCount = moods.count { it == SUPERB }.toFloat()
         val goodCount = moods.count { it == GOOD }.toFloat()
         val neutralCount = moods.count { it == NEUTRAL }.toFloat()
@@ -44,6 +46,7 @@ class InsightsMapper @Inject constructor() {
         val badCount = moods.count { it == BAD }.toFloat()
 
         return listOf<MoodChartData>().mutate {
+            if (awesomeCount > 0) it.add(MoodChartData(awesomeCount, AWESOME))
             if (superbCount > 0) it.add(MoodChartData(superbCount, SUPERB))
             if (goodCount > 0) it.add(MoodChartData(goodCount, GOOD))
             if (neutralCount > 0) it.add(MoodChartData(neutralCount, NEUTRAL))
@@ -99,6 +102,7 @@ class InsightsMapper @Inject constructor() {
                 0 -> MoodLevel.Three
                 1 -> MoodLevel.Four
                 2 -> MoodLevel.Five
+                3 -> MoodLevel.Six
                 else -> Zero
             }
         }
@@ -198,7 +202,8 @@ enum class MoodLevel(override val color: Color) : Level {
     Two(LOW.mapToMoodIcon().color),
     Three(NEUTRAL.mapToMoodIcon().color),
     Four(GOOD.mapToMoodIcon().color),
-    Five(SUPERB.mapToMoodIcon().color)
+    Five(SUPERB.mapToMoodIcon().color),
+    Six(AWESOME.mapToMoodIcon().color)
 }
 
 enum class ContributionLevel(override val color: Color) : Level {
