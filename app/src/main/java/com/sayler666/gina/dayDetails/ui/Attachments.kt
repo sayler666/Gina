@@ -33,9 +33,9 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity
+import com.sayler666.gina.ui.FullScreenDialog
 import com.sayler666.gina.ui.ZoomableBox
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -101,7 +101,7 @@ fun ImagePreview(
 
 
 @SuppressLint("UnrememberedMutableState")
-@Destination(style = DestinationStyle.Dialog::class)
+@Destination(style = FullScreenDialog::class)
 @Composable
 fun FullImage(
     destinationsNavigator: DestinationsNavigator,
@@ -117,6 +117,7 @@ fun FullImage(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
+            .padding(0.dp)
     ) {
         val (zoomableBox, bottomBar) = createRefs()
         ZoomableBox(
