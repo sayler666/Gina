@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -368,7 +369,7 @@ private fun getMonthWithYear(
 @Composable
 fun DoughnutChart(
     values: List<MoodChartData>,
-    size: Dp = 50.dp,
+    size: Dp = 60.dp,
     thickness: Dp = 20.dp
 ) {
 
@@ -393,15 +394,16 @@ fun DoughnutChart(
             )
             Row(
                 Modifier
-                    .height(80.dp)
+                    .wrapContentHeight()
                     .fillMaxWidth()
-                    .padding(start = 22.dp, bottom = 8.dp)
+                    .padding(start = 22.dp, bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     Modifier
                         .width(size)
                         .height(size + 10.dp)
-                        .padding(top = 10.dp)
+                        .padding(top = 5.dp)
                 ) {
                     Canvas(
                         modifier = Modifier.size(size = size)
@@ -411,7 +413,7 @@ fun DoughnutChart(
                             drawArc(
                                 color = values[i].mood.mapToMoodIcon().color,
                                 startAngle = startAngle,
-                                sweepAngle = sweepAngles[i].toFloat(),
+                                sweepAngle = sweepAngles[i],
                                 useCenter = false,
                                 style = Stroke(width = thickness.toPx(), cap = StrokeCap.Butt)
                             )
