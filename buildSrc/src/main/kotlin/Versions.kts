@@ -1,8 +1,8 @@
 object Versions {
-    const val kotlin = "1.7.21"
+    const val kotlin = "1.8.10"
     const val hilt = "2.44.2"
     const val hiltNavigation = "1.0.0"
-    const val ksp = "1.7.21-1.0.8"
+    const val ksp = "1.8.10-1.0.9"
     const val kotlinSerializationJson = "1.4.1"
 
     const val appCompat = "1.6.0"
@@ -11,12 +11,12 @@ object Versions {
     const val navigation = "2.5.3"
     const val splashScreen = "1.0.0"
 
-    const val composeKotlinCompiler = "1.4.0-alpha02"
+    const val composeKotlinCompiler = "1.4.3"
     const val compose = "1.3.3"
-    const val composeMaterialIcons = "1.3.1"
+    const val composeMaterialIcons = "1.4.0-rc01"
     const val activityCompose = "1.6.1"
     const val composeMaterial2 = "1.3.1"
-    const val composeMaterial3 = "1.1.0-alpha04"
+    const val composeMaterial3 = "1.1.0-alpha08"
     const val composeDestination = "1.7.30-beta"
     const val composeConstraintLayout = "1.0.1"
     const val accompanist = "0.28.0"

@@ -2,7 +2,8 @@ package com.sayler666.gina.selectdatabase.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,7 +13,6 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -53,16 +53,15 @@ fun SelectDatabaseScreen(
             popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
         })
     }
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center
     ) {
         if (permissionGranted.not()) {
             Button(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomEnd),
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
                 onClick = {
                     permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent())
@@ -77,7 +76,7 @@ fun SelectDatabaseScreen(
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomEnd),
+                    .padding(16.dp),
                 shape = MaterialTheme.shapes.extraLarge,
                 onClick = {
                     databaseResult.launch(Files.selectFileIntent())

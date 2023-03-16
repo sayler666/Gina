@@ -145,10 +145,15 @@ private fun FriendsSettingsSections(
         showPopup = showFriendsPopup.value,
         friends = friends,
         searchValue = searchQuery.value,
-        onDismiss = { showFriendsPopup.value = false },
+        onDismiss = {
+            showFriendsPopup.value = false
+            searchQuery.value = ""
+            onSearchChanged("")
+        },
         onSearchChanged = {
             searchQuery.value = it
             onSearchChanged(it)
+
         },
         onAddNewFriend = {
             onAddNewFriend(it)
