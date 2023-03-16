@@ -8,7 +8,7 @@ plugins {
     kotlin("android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp") version "1.7.21-1.0.8"
+    id("com.google.devtools.ksp") version "1.8.10-1.0.9"
     id("kotlinx-serialization")
 }
 

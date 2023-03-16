@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,11 +50,7 @@ import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.SearchBar
 import com.sayler666.gina.ui.mapToMoodIconOrNull
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalComposeUiApi::class
-)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
 @com.ramcosta.composedestinations.annotation.Destination
 @Composable
@@ -84,44 +82,35 @@ fun JournalScreen(
             )
         },
         content = { padding ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                when {
-                    journalSearchState.hasResults() -> Days(
-                        journalSearchState.days,
-                        searchQuery = searchText.value,
-                        destinationsNavigator = destinationsNavigator
-                    )
-                    journalSearchState.emptyResults() -> EmptySearchResult()
-                    journalSearchState.noSearch() -> Days(
-                        days,
-                        destinationsNavigator = destinationsNavigator
-                    )
-                }
-            }
+            Journal(padding, days, journalSearchState, searchText, destinationsNavigator)
         })
 }
 
 @Composable
-fun EmptySearchResult() {
+private fun Journal(
+    padding: PaddingValues,
+    days: List<DayEntity>,
+    journalSearchState: JournalSearchState,
+    searchText: MutableState<String>,
+    destinationsNavigator: DestinationsNavigator,
+) {
     Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        Modifier
+            .fillMaxSize()
+            .padding(padding)
     ) {
-        Text(
-            text = "Empty search result!",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "Try narrowing search criteria.",
-            style = MaterialTheme.typography.bodyMedium
-        )
+        when {
+            journalSearchState.hasResults() -> Days(
+                journalSearchState.days,
+                searchQuery = searchText.value,
+                destinationsNavigator = destinationsNavigator
+            )
+            journalSearchState.emptyResults() -> EmptySearchResult()
+            journalSearchState.noSearch() -> Days(
+                days,
+                destinationsNavigator = destinationsNavigator
+            )
+        }
     }
 }
 
@@ -133,10 +122,10 @@ private fun Days(
     destinationsNavigator: DestinationsNavigator
 ) {
     val grouped = days.groupBy { it.header }
-    LazyColumn {
+    LazyColumn(contentPadding = PaddingValues(bottom = 34.dp)) {
         grouped.forEach { (header, day) ->
             stickyHeader {
-                YearMonthHeader(header)
+                DateHeader(header)
             }
 
             items(day) { d ->
@@ -150,21 +139,6 @@ private fun Days(
             }
         }
 
-    }
-}
-
-@Composable
-private fun YearMonthHeader(header: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
-    ) {
-        Text(
-            modifier = Modifier.padding(start = 8.dp, top = 5.dp, bottom = 8.dp),
-            style = MaterialTheme.typography.titleMedium,
-            text = header
-        )
     }
 }
 
@@ -222,5 +196,40 @@ fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
+    }
+}
+
+@Composable
+fun EmptySearchResult() {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Empty search result!",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Try narrowing search criteria.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun DateHeader(header: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
+    ) {
+        Text(
+            modifier = Modifier.padding(start = 8.dp, top = 5.dp, bottom = 8.dp),
+            style = MaterialTheme.typography.titleMedium,
+            text = header
+        )
     }
 }

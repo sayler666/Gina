@@ -13,5 +13,5 @@ fun secondaryColors() = TextFieldDefaults.textFieldColors(
     unfocusedIndicatorColor = Color.Transparent,
     containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
     cursorColor = MaterialTheme.colorScheme.secondary,
-    textColor = MaterialTheme.colorScheme.secondary
+    focusedTextColor = MaterialTheme.colorScheme.secondary
 )
