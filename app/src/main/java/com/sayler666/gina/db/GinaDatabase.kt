@@ -142,18 +142,6 @@ interface DaysDao {
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayDetails>
 
-    @Query("SELECT * FROM friends")
-    fun getFriendFlow(): Flow<List<Friend>>
-
-    @Query("DELETE FROM daysFriends WHERE id = :id")
-    suspend fun deleteFriendsForDay(id: Int): Int
-
-    @Insert
-    suspend fun addFriendsToDay(daysFriends: List<DayFriends>)
-
-    @Insert
-    suspend fun addFriend(friend: Friend): Long
-
     @Update
     suspend fun updateDay(day: Day): Int
 
@@ -168,4 +156,25 @@ interface DaysDao {
 
     @Delete
     suspend fun removeAttachments(attachments: List<Attachment>)
+
+    @Query("SELECT * FROM friends WHERE friend_id = :id")
+    fun getFriendFlow(id: Int): Flow<Friend>
+
+    @Query("SELECT * FROM friends")
+    fun getFriendsFlow(): Flow<List<Friend>>
+
+    @Query("DELETE FROM daysFriends WHERE id = :id")
+    suspend fun deleteFriendsForDay(id: Int): Int
+
+    @Insert
+    suspend fun addFriendsToDay(daysFriends: List<DayFriends>)
+
+    @Insert
+    suspend fun addFriend(friend: Friend): Long
+
+    @Update
+    suspend fun updateFriend(friend: Friend): Int
+
+    @Delete
+    suspend fun deleteFriend(friend: Friend): Int
 }

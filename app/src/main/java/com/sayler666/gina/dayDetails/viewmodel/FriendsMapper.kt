@@ -7,21 +7,23 @@ class FriendsMapper @Inject constructor() {
     fun mapToFriends(
         friends: List<Friend> = emptyList(),
         friendsSearchQuery: String? = null
-    ): List<FriendEntity> = friends.map { f ->
-        FriendEntity(
-            id = f.id,
-            name = f.name,
-            avatar = f.avatar,
-            selected = true,
-            initials = createInitials(f)
-        )
-    }
+    ): List<FriendEntity> = friends.map(::mapToFriend)
         .sortedBy { it.name }
         .sortedBy { it.avatar == null }
         .sortedBy { !it.selected }
         .filter { friend ->
             friendsSearchQuery?.let { friend.name.contains(it, ignoreCase = true) } ?: run { true }
         }.toList()
+
+    fun mapToFriend(
+        friend: Friend
+    ): FriendEntity = FriendEntity(
+        id = friend.id,
+        name = friend.name,
+        avatar = friend.avatar,
+        selected = true,
+        initials = createInitials(friend)
+    )
 
     companion object {
         fun createInitials(f: Friend): String {

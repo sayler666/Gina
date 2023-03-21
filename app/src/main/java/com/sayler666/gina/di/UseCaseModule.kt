@@ -10,8 +10,14 @@ import com.sayler666.gina.dayDetailsEdit.usecase.AddFriendUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.AddFriendUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
+import com.sayler666.gina.dayDetailsEdit.usecase.DeleteFriendUseCase
+import com.sayler666.gina.dayDetailsEdit.usecase.DeleteFriendUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCaseImpl
+import com.sayler666.gina.dayDetailsEdit.usecase.EditFriendUseCase
+import com.sayler666.gina.dayDetailsEdit.usecase.EditFriendUseCaseImpl
+import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
+import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCaseImpl
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
 import dagger.Binds
@@ -38,8 +44,17 @@ abstract class UseCaseModule {
     abstract fun provideAddDayUseCase(useCase: AddDayUseCaseImpl): AddDayUseCase
 
     @Binds
-    abstract fun GetAllFriendsUseCase(useCase: GetAllFriendsUseCaseImpl): GetAllFriendsUseCase
+    abstract fun getFriendUseCase(useCase: GetFriendUseCaseImpl): GetFriendUseCase
 
     @Binds
-    abstract fun AddFriendUseCase(useCase: AddFriendUseCaseImpl): AddFriendUseCase
+    abstract fun getAllFriendsUseCase(useCase: GetAllFriendsUseCaseImpl): GetAllFriendsUseCase
+
+    @Binds
+    abstract fun addFriendUseCase(useCase: AddFriendUseCaseImpl): AddFriendUseCase
+
+    @Binds
+    abstract fun editFriendUseCase(useCase: EditFriendUseCaseImpl): EditFriendUseCase
+
+    @Binds
+    abstract fun deleteFriendUseCase(useCase: DeleteFriendUseCaseImpl): DeleteFriendUseCase
 }
