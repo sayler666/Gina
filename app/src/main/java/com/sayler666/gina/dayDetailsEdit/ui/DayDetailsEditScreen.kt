@@ -88,9 +88,9 @@ import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
+import com.sayler666.gina.friends.ui.FriendIcon
+import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.FriendIcon
-import com.sayler666.gina.ui.FriendsPicker
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker

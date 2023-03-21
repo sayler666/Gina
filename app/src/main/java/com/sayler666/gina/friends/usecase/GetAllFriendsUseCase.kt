@@ -1,4 +1,4 @@
-package com.sayler666.gina.dayDetails.usecaase
+package com.sayler666.gina.friends.usecase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider

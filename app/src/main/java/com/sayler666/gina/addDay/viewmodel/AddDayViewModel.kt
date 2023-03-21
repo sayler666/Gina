@@ -8,14 +8,14 @@ import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
-import com.sayler666.gina.dayDetailsEdit.usecase.AddFriendUseCase
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.destinations.AddDayScreenDestination
+import com.sayler666.gina.friends.usecase.AddFriendUseCase
+import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.imageCompressor.ImageCompressor
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel

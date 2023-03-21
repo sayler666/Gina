@@ -1,13 +1,12 @@
-package com.sayler666.gina.settings.viewmodel
+package com.sayler666.gina.friends.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.dayDetails.viewmodel.FriendsMapper
-import com.sayler666.gina.dayDetailsEdit.usecase.DeleteFriendUseCase
-import com.sayler666.gina.dayDetailsEdit.usecase.EditFriendUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
 import com.sayler666.gina.db.Friend
+import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
+import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -52,18 +52,22 @@ class FriendEditViewModel @Inject constructor(
         }
     }
 
-    fun deleteFriend() {
-        viewModelScope.launch(SupervisorJob() + exceptionHandler) {
-            _friend.value?.let {
-                //deleteFriendUseCase.deleteFriend(it)
-            }
-        }
+    fun changeName(newName: String) {
+        _friend.update { it?.copy(name = newName) }
     }
 
     fun updateFriend() {
         viewModelScope.launch(SupervisorJob() + exceptionHandler) {
             _friend.value?.let {
-                //editFriendUseCase.editFriend(it)
+                editFriendUseCase.editFriend(it)
+            }
+        }
+    }
+
+    fun deleteFriend() {
+        viewModelScope.launch(SupervisorJob() + exceptionHandler) {
+            _friend.value?.let {
+                deleteFriendUseCase.deleteFriend(it)
             }
         }
     }

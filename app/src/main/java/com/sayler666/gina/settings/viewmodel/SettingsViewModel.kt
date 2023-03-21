@@ -2,11 +2,11 @@ package com.sayler666.gina.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.dayDetails.viewmodel.FriendsMapper
-import com.sayler666.gina.dayDetailsEdit.usecase.AddFriendUseCase
 import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.friends.usecase.AddFriendUseCase
+import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
