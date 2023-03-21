@@ -77,47 +77,65 @@ fun FriendsPicker(
                 shape = MaterialTheme.shapes.large,
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                ConstraintLayout(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    val (list, textField) = createRefs()
-                    LazyColumn(modifier = Modifier
-                        .heightIn(50.dp, 250.dp)
-                        .clipToBounds()
-                        .fillMaxWidth()
-                        .constrainAs(list) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                            bottom.linkTo(textField.top)
-                            height = Dimension.fillToConstraints
-                        },
-                        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
-                        content = {
-                            items(friends) {
-                                FriendComponent(friend = it,
-                                    selectable = selectable,
-                                    onClick = { selected ->
-                                        onFriendClicked(it.id, selected)
-                                    }
-                                )
-                            }
-                        })
-                    SearchTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .constrainAs(textField) {
-                                bottom.linkTo(parent.bottom)
-                                start.linkTo(parent.start)
-                            }
-                            .padding(8.dp),
-                        searchValue,
-                        onSearchChanged,
-                        onAddNewFriend
-                    )
-                }
+                FriendsList(
+                    friends,
+                    selectable,
+                    onFriendClicked,
+                    searchValue,
+                    onSearchChanged,
+                    onAddNewFriend
+                )
             }
         }
+}
+
+@Composable
+fun FriendsList(
+    friends: List<FriendEntity>,
+    selectable: Boolean,
+    onFriendClicked: (Int, Boolean) -> Unit,
+    searchValue: String,
+    onSearchChanged: (String) -> Unit,
+    onAddNewFriend: (String) -> Unit
+) {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        val (list, textField) = createRefs()
+        LazyColumn(modifier = Modifier
+            .clipToBounds()
+            .fillMaxWidth()
+            .constrainAs(list) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                bottom.linkTo(textField.top)
+                height = Dimension.fillToConstraints
+            },
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+            content = {
+                items(friends) {
+                    FriendComponent(friend = it,
+                        selectable = selectable,
+                        onClick = { selected ->
+                            onFriendClicked(it.id, selected)
+                        }
+                    )
+                }
+            })
+        SearchTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(textField) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                }
+                .padding(8.dp),
+            searchValue,
+            onSearchChanged,
+            onAddNewFriend
+        )
+    }
 }
 
 @Composable
@@ -177,16 +195,16 @@ fun FriendEdit(
                             .padding(horizontal = 0.dp),
                     ) {
                         IconButton(onClick = {
-                            viewModel.deleteFriend()
-                            onDismiss()
+//                            TODO show confirmation dialog!!!!
+//                            viewModel.deleteFriend()
+//                            onDismiss()
                         }) {
                             Icon(Filled.Delete, null, tint = MaterialTheme.colorScheme.error)
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
-//                            TODO show confirmation dialog!!!!
-//                            //viewModel.updateFriend()
-//                            //onDismiss()
+                            viewModel.updateFriend()
+                            onDismiss()
                         }) {
                             Icon(Filled.Save, null, tint = MaterialTheme.colorScheme.primary)
                         }
