@@ -1,9 +1,7 @@
-package com.sayler666.gina.ui
+package com.sayler666.gina.friends.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons.Filled
@@ -41,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
@@ -57,8 +53,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.settings.viewmodel.FriendEditViewModel
-import com.sayler666.gina.ui.theme.secondaryColors
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
+import com.sayler666.gina.ui.theme.defaultTextFieldBorder
+import com.sayler666.gina.ui.theme.secondaryTextColors
 
 @Composable
 fun FriendsPicker(
@@ -158,17 +155,13 @@ fun FriendEdit(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         OutlinedTextField(
-                            modifier = Modifier
-                                .border(
-                                    BorderStroke(
-                                        1.dp,
-                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                                    ), shape = MaterialTheme.shapes.large
-                                )
-                                .clip(RoundedCornerShape(4.dp)),
+                            modifier = Modifier.defaultTextFieldBorder(),
                             value = name.value,
-                            onValueChange = { name.value = it },
-                            colors = secondaryColors(),
+                            onValueChange = {
+                                name.value = it
+                                viewModel.changeName(it)
+                            },
+                            colors = secondaryTextColors(),
                             maxLines = 1,
                             singleLine = true,
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
@@ -185,12 +178,15 @@ fun FriendEdit(
                     ) {
                         IconButton(onClick = {
                             viewModel.deleteFriend()
+                            onDismiss()
                         }) {
                             Icon(Filled.Delete, null, tint = MaterialTheme.colorScheme.error)
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
-                            viewModel.updateFriend()
+//                            TODO show confirmation dialog!!!!
+//                            //viewModel.updateFriend()
+//                            //onDismiss()
                         }) {
                             Icon(Filled.Save, null, tint = MaterialTheme.colorScheme.primary)
                         }
@@ -209,17 +205,10 @@ private fun SearchTextField(
     onDone: (String) -> Unit
 ) {
     OutlinedTextField(
-        modifier = modifier
-            .border(
-                BorderStroke(
-                    1.dp,
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                ), shape = MaterialTheme.shapes.large
-            )
-            .clip(RoundedCornerShape(4.dp)),
+        modifier = modifier.defaultTextFieldBorder(),
         value = searchValue,
         onValueChange = onValueChanged,
-        colors = secondaryColors(),
+        colors = secondaryTextColors(),
         placeholder = { Text(text = "Search or add new friend...") },
         maxLines = 1,
         singleLine = true,

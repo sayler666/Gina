@@ -4,11 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -30,7 +27,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -38,7 +34,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.ui.theme.secondaryColors
+import com.sayler666.gina.ui.theme.defaultTextFieldBorder
+import com.sayler666.gina.ui.theme.secondaryTextColors
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,19 +66,14 @@ fun SearchBar(
         if (showSearch.value) OutlinedTextField(modifier = Modifier
             .fillMaxWidth()
             .padding(start = 4.dp, end = 1.dp)
-            .border(
-                BorderStroke(
-                    1.dp, color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                ), shape = MaterialTheme.shapes.large
-            )
-            .clip(RoundedCornerShape(4.dp))
+            .defaultTextFieldBorder()
             .onFocusChanged { focusState ->
                 showClearButton = focusState.isFocused
             }
             .focusRequester(focusRequester),
             value = searchText,
             onValueChange = onSearchTextChanged,
-            colors = secondaryColors(),
+            colors = secondaryTextColors(),
             trailingIcon = {
                 AnimatedVisibility(
                     visible = showSearch.value, enter = fadeIn(), exit = fadeOut()
