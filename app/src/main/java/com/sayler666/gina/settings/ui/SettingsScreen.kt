@@ -47,6 +47,7 @@ import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
+import com.sayler666.gina.ui.FriendEdit
 import com.sayler666.gina.ui.FriendsPicker
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -66,6 +67,8 @@ fun SettingsScreen(
             TopAppBar(title = { Text("Settings") })
         },
         content = { padding ->
+            val showFriendEditPopup = remember { mutableStateOf(false) }
+            val friendIdToEdit = remember { mutableStateOf<Int?>(null) }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -88,8 +91,14 @@ fun SettingsScreen(
                     onAddNewFriend = { viewModel.addNewFriend(it) },
                     onSearchChanged = { viewModel.searchFriend(it) },
                     onFriendClicked = { id ->
-                        // TODO
+                        friendIdToEdit.value = id
+                        showFriendEditPopup.value = true
                     }
+                )
+                if (friendIdToEdit.value != null && showFriendEditPopup.value) FriendEdit(
+                    showFriendEditPopup.value,
+                    friendIdToEdit.value!!,
+                    onDismiss = { showFriendEditPopup.value = false }
                 )
                 Text(
                     text = "Attachments",

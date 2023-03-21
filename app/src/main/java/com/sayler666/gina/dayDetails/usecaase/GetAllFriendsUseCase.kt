@@ -24,7 +24,7 @@ class GetAllFriendsUseCaseImpl @Inject constructor(
     override fun getAllFriends(): Flow<List<Friend>> = flow {
         try {
             databaseProvider.withDaysDao {
-                emitAll(getFriendFlow())
+                emitAll(getFriendsFlow())
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
