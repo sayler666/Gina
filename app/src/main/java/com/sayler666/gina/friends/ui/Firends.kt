@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
+import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
 
@@ -151,6 +152,7 @@ fun FriendEdit(
 
     val friendEntity: FriendEntity? by viewModel.friend.collectAsStateWithLifecycle()
     friendEntity?.let { friend ->
+        val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
         if (showPopup) {
             Dialog(onDismissRequest = { onDismiss() }) {
                 val name = remember(friend) { mutableStateOf(friend.name) }
@@ -195,9 +197,7 @@ fun FriendEdit(
                             .padding(horizontal = 0.dp),
                     ) {
                         IconButton(onClick = {
-//                            TODO show confirmation dialog!!!!
-//                            viewModel.deleteFriend()
-//                            onDismiss()
+                            showDeleteConfirmationDialog.value = true
                         }) {
                             Icon(Filled.Delete, null, tint = MaterialTheme.colorScheme.error)
                         }
@@ -207,6 +207,18 @@ fun FriendEdit(
                             onDismiss()
                         }) {
                             Icon(Filled.Save, null, tint = MaterialTheme.colorScheme.primary)
+                        }
+
+                        ConfirmationDialog(
+                            title = "Remove ${friend.name}",
+                            text = "Do you really want to remove this friend?",
+                            confirmButtonText = "Remove",
+                            dismissButtonText = "Cancel",
+                            showDialog = showDeleteConfirmationDialog,
+                        ) {
+                            showDeleteConfirmationDialog.value = false
+                            viewModel.deleteFriend()
+                            onDismiss()
                         }
                     }
                 }
