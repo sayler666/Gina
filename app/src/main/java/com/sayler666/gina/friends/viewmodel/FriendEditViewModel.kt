@@ -67,7 +67,7 @@ class FriendEditViewModel @Inject constructor(
     fun deleteFriend() {
         viewModelScope.launch(SupervisorJob() + exceptionHandler) {
             _friend.value?.let {
-                //deleteFriendUseCase.deleteFriend(it)
+                deleteFriendUseCase.deleteFriend(it)
             }
         }
     }

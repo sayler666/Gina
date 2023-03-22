@@ -41,13 +41,13 @@ import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
 import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
-import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
 import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -81,7 +81,13 @@ fun AddDayScreen(
 
     // dialogs
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
-    DiscardConfirmationDialog(showDiscardConfirmationDialog) { navController.popBackStack() }
+    ConfirmationDialog(
+        title = "Discard changes",
+        text = "Do you really want to discard changes?",
+        confirmButtonText = "Discard",
+        dismissButtonText = "Cancel",
+        showDialog = showDiscardConfirmationDialog
+    ) { navController.popBackStack() }
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
     BackHandler(onBack = {

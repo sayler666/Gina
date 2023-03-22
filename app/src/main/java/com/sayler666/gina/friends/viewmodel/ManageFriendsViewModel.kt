@@ -3,10 +3,8 @@ package com.sayler666.gina.friends.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
-import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -22,11 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManageFriendsViewModel @Inject constructor(
-    private val setting: Settings,
     getAllFriendsUseCase: GetAllFriendsUseCase,
     friendsMapper: FriendsMapper,
-    private val addFriendUseCase: AddFriendUseCase,
-    private val databaseProvider: DatabaseProvider
+    private val addFriendUseCase: AddFriendUseCase
 ) : ViewModel() {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->

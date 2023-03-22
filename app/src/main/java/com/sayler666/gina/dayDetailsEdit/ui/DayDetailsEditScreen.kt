@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,17 +27,13 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,6 +85,7 @@ import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.VerticalDivider
+import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -100,7 +96,6 @@ data class DayDetailsEditScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalLayoutApi::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = DayDetailsEditScreenNavArgs::class
@@ -135,9 +130,23 @@ fun DayDetailsEditScreen(
 
     // dialogs
     val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
-    DeleteConfirmationDialog(showDeleteConfirmationDialog) { viewModel.removeDay() }
+    ConfirmationDialog(
+        title = "Remove day",
+        text = "Do you really want to remove this day?",
+        confirmButtonText = "Remove",
+        dismissButtonText = "Cancel",
+        showDialog = showDeleteConfirmationDialog,
+    ) { viewModel.removeDay() }
+
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
-    DiscardConfirmationDialog(showDiscardConfirmationDialog) { navController.popBackStack() }
+    ConfirmationDialog(
+        title = "Discard changes",
+        text = "Do you really want to discard changes?",
+        confirmButtonText = "Discard",
+        dismissButtonText = "Cancel",
+        showDialog = showDiscardConfirmationDialog,
+    ) { navController.popBackStack() }
+
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
     BackHandler(onBack = {
@@ -468,62 +477,6 @@ fun Mood(
             onMoodChanged(mood)
         }
     )
-}
-
-@Composable
-fun DeleteConfirmationDialog(showDialog: MutableState<Boolean>, onConfirmAction: () -> Unit) {
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog.value = false
-            },
-            title = { Text(text = "Remove day") },
-            text = { Text("Do you really want to remove this day?") },
-            confirmButton = {
-                Button(
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = {
-                        showDialog.value = false
-                        onConfirmAction()
-                    }
-                ) { Text("Remove") }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { showDialog.value = false }
-                ) { Text("Cancel") }
-            }
-        )
-    }
-}
-
-@Composable
-fun DiscardConfirmationDialog(showDialog: MutableState<Boolean>, onDiscardAction: () -> Unit) {
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog.value = false
-            },
-            title = { Text(text = "Discard changes") },
-            text = { Text("Do you really want to discard changes?") },
-            confirmButton = {
-                Button(
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = {
-                        showDialog.value = false
-                        onDiscardAction()
-                    }
-                ) { Text("Discard") }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { showDialog.value = false }
-                ) { Text("Cancel") }
-            }
-        )
-    }
 }
 
 fun handleBackPress(
