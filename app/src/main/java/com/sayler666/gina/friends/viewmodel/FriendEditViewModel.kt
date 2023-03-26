@@ -7,6 +7,7 @@ import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
 import com.sayler666.gina.db.Friend
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
+import com.sayler666.gina.imageCompressor.ImageCompressor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -27,6 +28,7 @@ class FriendEditViewModel @Inject constructor(
     private val getFriendUseCase: GetFriendUseCase,
     private val editFriendUseCase: EditFriendUseCase,
     private val deleteFriendUseCase: DeleteFriendUseCase,
+    private val imageCompressor: ImageCompressor
 ) : ViewModel() {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
@@ -69,6 +71,13 @@ class FriendEditViewModel @Inject constructor(
             _friend.value?.let {
                 deleteFriendUseCase.deleteFriend(it)
             }
+        }
+    }
+
+    fun changeAvatar(avatar: ByteArray) {
+        viewModelScope.launch {
+            val compressedAvatar = imageCompressor.compressImage(avatar)
+            _friend.update { it?.copy(avatar = compressedAvatar) }
         }
     }
 
