@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +43,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.core.file.Files
-import com.sayler666.gina.destinations.ManageFriendsScreenDestination
+import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
+import com.sayler666.gina.friends.ui.FriendEdit
+import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 
@@ -54,17 +56,19 @@ import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 @Destination
 @Composable
 fun SettingsScreen(
-    destinationsNavigator: DestinationsNavigator,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val imageCompressorSettings: CompressorSettings? by viewModel.imageCompressorSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
+    val friends: List<FriendEntity> by viewModel.friends.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Settings") })
         },
         content = { padding ->
+            val showFriendEditPopup = remember { mutableStateOf(false) }
+            val friendIdToEdit = remember { mutableStateOf<Int?>(null) }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -82,7 +86,20 @@ fun SettingsScreen(
                         viewModel.openDatabase(path)
                     }
                 )
-                FriendsSettingsSections(destinationsNavigator)
+                FriendsSettingsSections(
+                    friends,
+                    onAddNewFriend = { viewModel.addNewFriend(it) },
+                    onSearchChanged = { viewModel.searchFriend(it) },
+                    onFriendClicked = { id ->
+                        friendIdToEdit.value = id
+                        showFriendEditPopup.value = true
+                    }
+                )
+                if (friendIdToEdit.value != null && showFriendEditPopup.value) FriendEdit(
+                    showFriendEditPopup.value,
+                    friendIdToEdit.value!!,
+                    onDismiss = { showFriendEditPopup.value = false }
+                )
                 Text(
                     text = "Attachments",
                     style = MaterialTheme.typography.labelLarge,
@@ -117,15 +134,43 @@ private fun DatabaseSettingsSection(
 
 @Composable
 private fun FriendsSettingsSections(
-    destinationsNavigator: DestinationsNavigator
+    friends: List<FriendEntity>,
+    onSearchChanged: (String) -> Unit,
+    onAddNewFriend: (String) -> Unit,
+    onFriendClicked: (Int) -> Unit,
 ) {
+    val searchQuery = rememberSaveable { mutableStateOf("") }
+    val showFriendsPopup = remember { mutableStateOf(false) }
     SettingsButton(
         header = "Friends",
         body = "Manage friends list",
         icon = Filled.People,
         onClick = {
-            destinationsNavigator.navigate(ManageFriendsScreenDestination)
+            showFriendsPopup.value = true
         }
+    )
+
+    FriendsPicker(
+        showPopup = showFriendsPopup.value,
+        friends = friends,
+        searchValue = searchQuery.value,
+        onDismiss = {
+            showFriendsPopup.value = false
+            searchQuery.value = ""
+            onSearchChanged("")
+        },
+        onSearchChanged = {
+            searchQuery.value = it
+            onSearchChanged(it)
+
+        },
+        onAddNewFriend = {
+            onAddNewFriend(it)
+            searchQuery.value = ""
+            onSearchChanged("")
+        },
+        onFriendClicked = { id, _ -> onFriendClicked(id) },
+        selectable = false
     )
 }
 

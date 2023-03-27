@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
@@ -44,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,7 +105,19 @@ data class DayDetailsEditScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalLayoutApi::class)
+val WindowInsets.Companion.isImeVisible: Boolean
+    @Composable
+    get() {
+        val density = LocalDensity.current
+        val ime = this.ime
+        return remember {
+            derivedStateOf {
+                ime.getBottom(density) > 0
+            }
+        }.value
+    }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = DayDetailsEditScreenNavArgs::class
@@ -146,6 +163,7 @@ fun DayDetailsEditScreen(
     val isKeyboardOpen by keyboardAsState() // true or false
     currentDay?.let { day ->
         Scaffold(
+            modifier = Modifier.imePadding(),
             topBar = {
                 TopBar(
                     day,
@@ -184,6 +202,8 @@ fun DayDetailsEditScreen(
                     Modifier
                         .fillMaxSize()
                         .padding(scaffoldPadding)
+                        .consumeWindowInsets(scaffoldPadding)
+                        .systemBarsPadding()
                 ) {
                     DatePickerDialog(
                         showDatePickerPopup.value,
@@ -348,6 +368,7 @@ private fun BottomBar(
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
+        modifier = Modifier.navigationBarsPadding(),
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
             Delete(showDeleteConfirmationDialog)

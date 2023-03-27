@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -68,6 +69,7 @@ fun DayDetailsScreen(
 ) {
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
     Scaffold(
+        Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 title = {
