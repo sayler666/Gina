@@ -1,11 +1,9 @@
 package com.sayler666.gina.friends.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,7 +22,6 @@ import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Destination
 @Composable
@@ -45,14 +42,12 @@ fun ManageFriendsScreen(
         topBar = {
             TopAppBar(title = { Text("Friends") })
         },
-        content = { padding ->
+        content = { scaffoldPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .safeContentPadding()
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 8.dp)
-                    .padding(top = 46.dp)
+                    .padding(scaffoldPadding)
+                    .padding(8.dp)
             ) {
                 FriendsList(
                     friends = friends,
@@ -63,7 +58,6 @@ fun ManageFriendsScreen(
                     },
                     onAddNewFriend = {
                         searchQuery.value = ""
-                        viewModel.searchFriend("")
                         viewModel.addNewFriend(it)
                     },
                     onSearchChanged = {

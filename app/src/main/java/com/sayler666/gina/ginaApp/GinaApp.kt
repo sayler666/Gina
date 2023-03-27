@@ -3,6 +3,7 @@ package com.sayler666.gina.ginaApp
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,7 @@ import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.theme.GinaTheme
 import timber.log.Timber
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun GinaApp(vm: GinaMainViewModel) {
     GinaTheme {
