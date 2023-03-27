@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,11 +35,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.ui.theme.secondaryColors
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +82,13 @@ fun SearchBar(
             .focusRequester(focusRequester),
             value = searchText,
             onValueChange = onSearchTextChanged,
-            colors = secondaryColors(),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+                cursorColor = MaterialTheme.colorScheme.secondary,
+                textColor = MaterialTheme.colorScheme.secondary
+            ),
             trailingIcon = {
                 AnimatedVisibility(
                     visible = showSearch.value, enter = fadeIn(), exit = fadeOut()

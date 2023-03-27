@@ -9,9 +9,12 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons.Filled
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -75,9 +79,7 @@ import com.sayler666.gina.ui.FriendsPicker
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
-import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.mapToMoodIcon
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -152,11 +154,11 @@ fun DayDetailsEditScreen(
                     addAttachmentLauncher,
                     onSaveChanges = { viewModel.saveChanges() },
                     onMoodChanged = { mood -> viewModel.setNewMood(mood) },
-                    onSearchChanged = { search ->
-                        viewModel.searchFriend(search)
+                    onSearchChanged = {
+                        viewModel.searchFriend(it)
                     },
-                    onAddNewFriend = { newFriend ->
-                        viewModel.addNewFriend(newFriend)
+                    onAddNewFriend = {
+                        viewModel.addNewFriend(it)
                     },
                     onFriendClicked = { id, selected ->
                         viewModel.friendSelect(id, selected)
@@ -325,94 +327,69 @@ private fun BottomBar(
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
-            Delete(showDeleteConfirmationDialog)
+            IconButton(onClick = { showDeleteConfirmationDialog.value = true }) {
+                Icon(Filled.Delete, null)
+            }
+            Spacer(Modifier.width(8.dp))
+            Divider(
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(1.dp)
+                    .padding(0.dp, 8.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            IconButton(onClick = {
+                addAttachmentLauncher.launch(Files.selectFileIntent())
+            }) {
+                Icon(Filled.AddAPhoto, null)
+            }
+            val showFriendsPopup = remember { mutableStateOf(false) }
+            IconButton(onClick = { showFriendsPopup.value = true }) {
+                Icon(
+                    painter = rememberVectorPainter(image = Filled.People),
+                    contentDescription = null,
+                )
+            }
+            val searchName = rememberSaveable { mutableStateOf("") }
+            FriendsPicker(
+                showFriendsPopup.value,
+                searchValue = searchName.value,
+                onDismiss = { showFriendsPopup.value = false },
+                onSearchChanged = {
+                    searchName.value = it
+                    onSearchChanged(it)
+                },
+                onAddNewFriend = {
+                    showFriendsPopup.value = false
+                    onAddNewFriend(it)
+                },
+                onFriendClicked = { id, selected ->
+                    onFriendClicked(id, selected)
+                },
+                friends = currentDay.friends
+            )
 
-            VerticalDivider()
-
-            Attachments(addAttachmentLauncher)
-
-            Friends(onSearchChanged, onAddNewFriend, onFriendClicked, currentDay)
-
-            Mood(currentDay, showMoodPopup, scope, onMoodChanged)
+            val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
+            IconButton(onClick = { showMoodPopup.value = true }) {
+                Icon(
+                    painter = rememberVectorPainter(image = moodIcon.icon),
+                    tint = moodIcon.color,
+                    contentDescription = null,
+                )
+            }
+            MoodPicker(showMoodPopup.value,
+                onDismiss = { showMoodPopup.value = false },
+                onSelectMood = { mood ->
+                    scope.launch {
+                        delay(120)
+                        showMoodPopup.value = false
+                    }
+                    onMoodChanged(mood)
+                }
+            )
         },
         floatingActionButton = { SaveFab { onSaveChanges() } }
-    )
-}
-
-@Composable
-private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
-    IconButton(onClick = { showDeleteConfirmationDialog.value = true }) {
-        Icon(Filled.Delete, null)
-    }
-}
-
-@Composable
-private fun Attachments(addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
-    IconButton(onClick = {
-        addAttachmentLauncher.launch(Files.selectFileIntent())
-    }) {
-        Icon(Filled.AddAPhoto, null)
-    }
-}
-
-@Composable
-private fun Friends(
-    onSearchChanged: (String) -> Unit,
-    onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit,
-    currentDay: DayDetailsEntity
-) {
-    val showFriendsPopup = remember { mutableStateOf(false) }
-    IconButton(onClick = { showFriendsPopup.value = true }) {
-        Icon(
-            painter = rememberVectorPainter(image = Filled.People),
-            contentDescription = null,
-        )
-    }
-    val searchName = rememberSaveable { mutableStateOf("") }
-    FriendsPicker(
-        showFriendsPopup.value,
-        searchValue = searchName.value,
-        onDismiss = { showFriendsPopup.value = false },
-        onSearchChanged = {
-            searchName.value = it
-            onSearchChanged(it)
-        },
-        onAddNewFriend = {
-            showFriendsPopup.value = false
-            onAddNewFriend(it)
-        },
-        onFriendClicked = { id, selected ->
-            onFriendClicked(id, selected)
-        },
-        friends = currentDay.friends
-    )
-}
-
-@Composable
-private fun Mood(
-    currentDay: DayDetailsEntity,
-    showMoodPopup: MutableState<Boolean>,
-    scope: CoroutineScope,
-    onMoodChanged: (Mood) -> Unit
-) {
-    val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
-    IconButton(onClick = { showMoodPopup.value = true }) {
-        Icon(
-            painter = rememberVectorPainter(image = moodIcon.icon),
-            tint = moodIcon.color,
-            contentDescription = null,
-        )
-    }
-    MoodPicker(showMoodPopup.value,
-        onDismiss = { showMoodPopup.value = false },
-        onSelectMood = { mood ->
-            scope.launch {
-                delay(120)
-                showMoodPopup.value = false
-            }
-            onMoodChanged(mood)
-        }
     )
 }
 
