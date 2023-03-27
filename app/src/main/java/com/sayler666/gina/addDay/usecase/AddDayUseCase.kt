@@ -2,14 +2,14 @@ package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.db.withDaysDao
 import timber.log.Timber
 import javax.inject.Inject
 
 interface AddDayUseCase {
     suspend fun addDay(
-        dayDetails: DayDetails
+        dayWithAttachment: DayWithAttachment
     )
 }
 
@@ -17,12 +17,12 @@ class AddDayUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider
 ) : AddDayUseCase {
     override suspend fun addDay(
-        dayDetails: DayDetails
+        dayWithAttachment: DayWithAttachment
     ) {
         try {
             databaseProvider.withDaysDao {
-                val id = addDay(dayDetails.day)
-                dayDetails.attachments.toMutableList()
+                val id = addDay(dayWithAttachment.day)
+                dayWithAttachment.attachments.toMutableList()
                     .map { it.copy(dayId = id.toInt()) }
                     .let { insertAttachments(it) }
             }

@@ -9,7 +9,10 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
@@ -22,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +45,7 @@ import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.file.handleSelectedFiles
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
+import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
 import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
@@ -79,7 +83,7 @@ fun AddDayScreen(
         }
     }
 
-    val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
+    val dayTemp: DayWithAttachmentsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
     val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
@@ -148,7 +152,7 @@ fun AddDayScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopBar(
-    day: DayDetailsEntity,
+    day: DayWithAttachmentsEntity,
     onNavigateBackClicked: () -> Unit,
     onChangeDateClicked: () -> Unit,
 ) {
@@ -178,7 +182,7 @@ private fun TopBar(
 
 @Composable
 private fun BottomBar(
-    currentDay: DayDetailsEntity?,
+    currentDay: DayWithAttachmentsEntity?,
     addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit

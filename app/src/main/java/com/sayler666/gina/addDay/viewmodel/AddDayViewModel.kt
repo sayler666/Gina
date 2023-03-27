@@ -8,11 +8,11 @@ import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
-import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.imageCompressor.ImageCompressor
 import com.sayler666.gina.ui.Mood
@@ -49,7 +49,7 @@ class AddDayViewModel @Inject constructor(
     private val date: LocalDate?
         get() = navArgs.date
 
-    private val blankDay = DayDetails(
+    private val blankDay = DayWithAttachment(
         Day(
             id = null,
             date = (date?.atStartOfDay()?.toLocalDate() ?: LocalDate.now()).toEpochMilliseconds(),
@@ -58,8 +58,8 @@ class AddDayViewModel @Inject constructor(
         ), emptyList(), emptyList()
     )
 
-    private val _tempDay: MutableStateFlow<DayDetails?> = MutableStateFlow(blankDay)
-    val tempDay: StateFlow<DayDetailsEntity?>
+    private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(blankDay)
+    val tempDay: StateFlow<DayWithAttachmentsEntity?>
         get() = _tempDay
             .filterNotNull()
             .map(dayDetailsMapper::mapToVm)

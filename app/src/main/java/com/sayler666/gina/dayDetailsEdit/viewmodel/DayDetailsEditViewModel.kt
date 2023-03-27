@@ -6,15 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.imageCompressor.ImageCompressor
 import com.sayler666.gina.ui.Mood
@@ -24,10 +23,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,7 +39,6 @@ import javax.inject.Inject
 class DayDetailsEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getDayDetailsUseCase: GetDayDetailsUseCase,
-    getAllFriendsUseCase: GetAllFriendsUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
@@ -55,37 +53,27 @@ class DayDetailsEditViewModel @Inject constructor(
     private val id: Int
         get() = navArgs.dayId
 
-    private val allFriends = getAllFriendsUseCase.getAllFriends().stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        emptyList()
-    )
-    private val friendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _attachmentsToDelete: MutableStateFlow<MutableList<Attachment>> = MutableStateFlow(
         mutableListOf()
     )
-    private val _tempDay: MutableStateFlow<DayDetails?> = MutableStateFlow(null)
-    val tempDay: StateFlow<DayDetailsEntity?>
-        get() = combine(
-            _tempDay,
-            allFriends,
-            friendsSearchQuery
-        ) { day, allFriends, friendsSearchQuery ->
-            day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
-        }
+    private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(null)
+    val tempDay: StateFlow<DayWithAttachmentsEntity?>
+        get() = _tempDay
             .filterNotNull()
+            .map(dayDetailsMapper::mapToVm)
             .stateIn(
                 viewModelScope,
                 WhileSubscribed(500),
                 null
             )
 
-    val day = combine(getDayDetailsUseCase.getDayDetails(id), allFriends, friendsSearchQuery)
-    { day, allFriends, friendsSearchQuery ->
-        if (_tempDay.value == null) _tempDay.value = day
-        day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
-    }
+    val day = getDayDetailsUseCase
+        .getDayDetails(id)
         .filterNotNull()
+        .map {
+            if (_tempDay.value == null) _tempDay.value = it
+            dayDetailsMapper.mapToVm(it)
+        }
         .stateIn(
             viewModelScope,
             WhileSubscribed(500),
@@ -182,17 +170,5 @@ class DayDetailsEditViewModel @Inject constructor(
                 _navigateToList.tryEmit(Event.Value(Unit))
             }
         }
-    }
-
-    fun searchFriend(searchQuery: String) {
-        friendsSearchQuery.update { searchQuery }
-    }
-
-    fun addNewFriend(friendName: String) {
-
-    }
-
-    fun friendSelect(friendId: Int, selected: Boolean) {
-
     }
 }

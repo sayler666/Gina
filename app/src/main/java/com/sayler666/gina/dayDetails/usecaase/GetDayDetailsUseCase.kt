@@ -2,7 +2,7 @@ package com.sayler666.gina.dayDetails.usecaase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.DayWithAttachment
 import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +14,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface GetDayDetailsUseCase {
-    fun getDayDetails(id: Int): Flow<DayDetails?>
+    fun getDayDetails(id: Int): Flow<DayWithAttachment?>
 }
 
 class GetDayDetailsUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetDayDetailsUseCase {
-    override fun getDayDetails(id: Int): Flow<DayDetails?> = flow {
+    override fun getDayDetails(id: Int): Flow<DayWithAttachment?> = flow {
         try {
             databaseProvider.withDaysDao {
                 emitAll(getDayFlow(id))

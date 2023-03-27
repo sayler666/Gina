@@ -115,7 +115,7 @@ data class DayFriends(
     val friendId: Long
 )
 
-data class DayDetails(
+data class DayWithAttachment(
     @Embedded val day: Day,
     @Relation(
         parentColumn = "id",
@@ -140,10 +140,10 @@ interface DaysDao {
 
     @Transaction
     @Query("SELECT * FROM days WHERE id = :id")
-    fun getDayFlow(id: Int): Flow<DayDetails>
+    fun getDayFlow(id: Int): Flow<DayWithAttachment>
 
     @Query("SELECT * FROM friends")
-    fun getFriendFlow(): Flow<List<Friend>>
+    fun getFriendFlow(): Flow<Friend>
 
     @Update
     suspend fun updateDay(day: Day): Int

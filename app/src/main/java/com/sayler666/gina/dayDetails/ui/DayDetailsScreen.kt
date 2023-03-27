@@ -34,8 +34,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
+import com.sayler666.gina.dayDetails.viewmodel.DayWithAttachmentsEntity
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DayTitle
@@ -58,7 +58,7 @@ fun DayDetailsScreen(
     viewModel: DayDetailsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
+    val day: DayWithAttachmentsEntity? by viewModel.day.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             TopAppBar(
