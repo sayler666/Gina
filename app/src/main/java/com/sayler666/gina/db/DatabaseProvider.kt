@@ -57,3 +57,7 @@ class DatabaseProvider(
 suspend fun DatabaseProvider.withDaysDao(action: suspend DaysDao.() -> Unit) {
     getOpenedDb()?.daysDao()?.action()
 }
+
+suspend fun <T> DatabaseProvider.returnWithDaysDao(action: suspend DaysDao.() -> T): T? {
+    return getOpenedDb()?.daysDao()?.action()
+}

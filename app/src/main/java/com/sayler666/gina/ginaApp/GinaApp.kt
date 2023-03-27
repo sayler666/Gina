@@ -63,7 +63,6 @@ fun GinaApp(vm: GinaMainViewModel) {
                 },
                 content = { scaffoldPadding ->
                     var bottomP = scaffoldPadding.calculateBottomPadding()
-                    Timber.d("Padding: ${scaffoldPadding.calculateBottomPadding()}")
                     bottomP = if (bottomP >= 80.dp) bottomP - 48.dp else bottomP
                     Box(
                         modifier = Modifier
@@ -77,7 +76,7 @@ fun GinaApp(vm: GinaMainViewModel) {
                                 navGraph = NavGraphs.root,
                                 startRoute = startRoute,
                                 navController = navController,
-                                //engine = rememberAnimatedNavHostEngine()
+                                // engine = rememberAnimatedNavHostEngine()
                             )
                         }
                     }

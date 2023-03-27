@@ -142,6 +142,14 @@ interface DaysDao {
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayDetails>
 
+    @Transaction
+    @Query("SELECT id FROM days WHERE date > :date ORDER BY id ASC LIMIT 1")
+    suspend fun getNextDayIdAfter(date: Long): Int?
+
+    @Transaction
+    @Query("SELECT id FROM days WHERE date < :date ORDER BY id DESC LIMIT 1")
+    suspend fun getPreviousDayIdBefore(date: Long): Int?
+
     @Update
     suspend fun updateDay(day: Day): Int
 
