@@ -45,10 +45,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
-import com.sayler666.gina.friends.ui.FriendEdit
-import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
+import com.sayler666.gina.ui.FriendEdit
+import com.sayler666.gina.ui.FriendsPicker
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

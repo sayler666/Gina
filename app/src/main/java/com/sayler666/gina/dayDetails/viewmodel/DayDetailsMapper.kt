@@ -4,10 +4,10 @@ import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
+import com.sayler666.gina.dayDetails.viewmodel.FriendsMapper.Companion.createInitials
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.Friend
-import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import java.time.LocalDate
@@ -16,9 +16,7 @@ import java.util.Locale.getDefault
 import javax.inject.Inject
 
 
-class DayDetailsMapper @Inject constructor(
-    private val friendsMapper: FriendsMapper
-) {
+class DayDetailsMapper @Inject constructor() {
     fun mapToVm(
         day: DayDetails,
         allFriends: List<Friend> = emptyList(),
@@ -35,8 +33,44 @@ class DayDetailsMapper @Inject constructor(
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood.mapToMoodOrNull(),
-            friendsAll = friendsMapper.mapToDayFriends(day.friends, allFriends, friendsSearchQuery)
+            friendsAll = mapToFriends(day.friends, allFriends, friendsSearchQuery)
         )
+    }
+
+    private fun mapToFriends(
+        friends: List<Friend>,
+        allFriends: List<Friend> = emptyList(),
+        friendsSearchQuery: String? = null
+    ): List<FriendEntity> {
+        val friendsIds = friends.map { it.id }
+
+        return when (allFriends.isNotEmpty()) {
+            true -> allFriends.map { f ->
+                FriendEntity(
+                    id = f.id,
+                    name = f.name,
+                    avatar = f.avatar,
+                    selected = friendsIds.contains(f.id),
+                    initials = createInitials(f)
+                )
+            }
+            false -> friends.map { f ->
+                FriendEntity(
+                    id = f.id,
+                    name = f.name,
+                    avatar = f.avatar,
+                    selected = true,
+                    initials = createInitials(f)
+                )
+            }
+        }.sortedBy { it.name }
+            .sortedBy { it.avatar == null }
+            .sortedBy { !it.selected }
+            .filter { friend ->
+                friendsSearchQuery?.let {
+                    friend.name.contains(it, ignoreCase = true)
+                } ?: run { true }
+            }
     }
 
     private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
