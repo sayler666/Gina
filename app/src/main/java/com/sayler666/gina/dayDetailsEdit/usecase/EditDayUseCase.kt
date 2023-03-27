@@ -38,6 +38,16 @@ class EditDayUseCaseImpl @Inject constructor(
         }
     }
 
+    private suspend fun DaysDao.friends(dayDetails: DayDetails) {
+        dayDetails.day.id?.let { dayId ->
+            deleteFriendsForDay(dayDetails.day.id)
+            val dayFriends = dayDetails.friends.map { friend ->
+                DayFriends(dayId, friend.id)
+            }
+            if (dayDetails.friends.isNotEmpty()) addFriendsToDay(dayFriends)
+        }
+    }
+
     private suspend fun DaysDao.attachments(
         dayDetails: DayDetails,
         attachmentsToDelete: List<Attachment>
@@ -48,15 +58,5 @@ class EditDayUseCaseImpl @Inject constructor(
 
         if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd)
         if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
-    }
-
-    private suspend fun DaysDao.friends(dayDetails: DayDetails) {
-        dayDetails.day.id?.let { dayId ->
-            deleteFriendsForDay(dayDetails.day.id)
-            val dayFriends = dayDetails.friends.map { friend ->
-                DayFriends(dayId, friend.id)
-            }
-            if (dayDetails.friends.isNotEmpty()) addFriendsToDay(dayFriends)
-        }
     }
 }

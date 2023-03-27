@@ -41,7 +41,7 @@ import javax.inject.Inject
 class DayDetailsEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getDayDetailsUseCase: GetDayDetailsUseCase,
-    getAllFriendsUseCase: GetAllFriendsUseCase,
+    private val getAllFriendsUseCase: GetAllFriendsUseCase,
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
@@ -175,6 +175,7 @@ class DayDetailsEditViewModel @Inject constructor(
     fun addNewFriend(friendName: String) {
         viewModelScope.launch(SupervisorJob() + exceptionHandler) {
             addFriendUseCase.addFriend(friendName)
+//            refreshFriends()
         }
     }
 

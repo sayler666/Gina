@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomAppBar
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,18 +38,22 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
+import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.core.file.handleSelectedFiles
 import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
 import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.DiscardConfirmationDialog
-import com.sayler666.gina.dayDetailsEdit.ui.Friends
-import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.MoodIcon
+import com.sayler666.gina.ui.MoodPicker
+import com.sayler666.gina.ui.mapToMoodIcon
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -103,23 +109,12 @@ fun AddDayScreen(
             }
         },
         bottomBar = {
-            dayTemp?.let {
-                BottomBar(
-                    it,
-                    addAttachmentLauncher,
-                    onSaveChanges = { viewModel.saveChanges() },
-                    onMoodChanged = { mood -> viewModel.setNewMood(mood) },
-                    onSearchChanged = { search ->
-                        viewModel.searchFriend(search)
-                    },
-                    onAddNewFriend = { newFriend ->
-                        viewModel.addNewFriend(newFriend)
-                    },
-                    onFriendClicked = { id, selected ->
-                        viewModel.friendSelect(id, selected)
-                    }
-                )
-            }
+            BottomBar(
+                dayTemp,
+                addAttachmentLauncher,
+                onSaveChanges = { viewModel.saveChanges() },
+                onMoodChanged = { mood -> viewModel.setNewMood(mood) }
+            )
         },
         content = { padding ->
             dayTemp?.let {
@@ -183,30 +178,39 @@ private fun TopBar(
 
 @Composable
 private fun BottomBar(
-    currentDay: DayDetailsEntity,
+    currentDay: DayDetailsEntity?,
     addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSaveChanges: () -> Unit,
-    onMoodChanged: (Mood) -> Unit,
-    onSearchChanged: (String) -> Unit,
-    onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit
+    onMoodChanged: (Mood) -> Unit
 ) {
     val showPopup = remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
-            Attachments(addAttachmentLauncher)
-
-            Friends(
-                currentDay.friendsSelected,
-                onSearchChanged,
-                onAddNewFriend,
-                onFriendClicked,
-                currentDay
+            IconButton(onClick = {
+                addAttachmentLauncher.launch(Files.selectFileIntent())
+            }) {
+                Icon(Filled.AddAPhoto, null)
+            }
+            val moodIcon: MoodIcon = currentDay?.mood.mapToMoodIcon()
+            IconButton(onClick = { showPopup.value = true }) {
+                Icon(
+                    painter = rememberVectorPainter(image = moodIcon.icon),
+                    tint = moodIcon.color,
+                    contentDescription = null,
+                )
+            }
+            MoodPicker(showPopup.value,
+                onDismiss = { showPopup.value = false },
+                onSelectMood = { mood ->
+                    scope.launch {
+                        delay(120)
+                        showPopup.value = false
+                    }
+                    onMoodChanged(mood)
+                }
             )
-
-            Mood(currentDay, showPopup, scope, onMoodChanged)
         },
         floatingActionButton = { SaveFab { onSaveChanges() } }
     )

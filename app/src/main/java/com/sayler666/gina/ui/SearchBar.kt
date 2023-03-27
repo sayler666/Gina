@@ -99,7 +99,6 @@ fun SearchBar(
                     }
                 }
             },
-            placeholder = { Text("Search...") },
             maxLines = 1,
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),

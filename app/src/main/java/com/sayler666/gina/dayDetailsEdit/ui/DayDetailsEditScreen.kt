@@ -7,13 +7,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
@@ -24,7 +21,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -53,8 +49,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -73,12 +67,10 @@ import com.sayler666.gina.dayDetails.ui.ImagePreview
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.FriendIcon
 import com.sayler666.gina.ui.FriendsPicker
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
@@ -339,13 +331,7 @@ private fun BottomBar(
 
             Attachments(addAttachmentLauncher)
 
-            Friends(
-                currentDay.friendsSelected,
-                onSearchChanged,
-                onAddNewFriend,
-                onFriendClicked,
-                currentDay
-            )
+            Friends(onSearchChanged, onAddNewFriend, onFriendClicked, currentDay)
 
             Mood(currentDay, showMoodPopup, scope, onMoodChanged)
         },
@@ -361,7 +347,7 @@ private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
 }
 
 @Composable
-fun Attachments(addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
+private fun Attachments(addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
     IconButton(onClick = {
         addAttachmentLauncher.launch(Files.selectFileIntent())
     }) {
@@ -370,64 +356,42 @@ fun Attachments(addAttachmentLauncher: ManagedActivityResultLauncher<Intent, Act
 }
 
 @Composable
-fun Friends(
-    friends: List<FriendEntity>,
+private fun Friends(
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
     onFriendClicked: (Int, Boolean) -> Unit,
     currentDay: DayDetailsEntity
 ) {
     val showFriendsPopup = remember { mutableStateOf(false) }
-
-    when (friends.isNotEmpty()) {
-        true -> Box(modifier = Modifier.clickable(
-            indication = rememberRipple(bounded = false),
-            interactionSource = remember {
-                MutableInteractionSource()
-            }
-        ) { showFriendsPopup.value = true }) {
-            friends.take(2)
-                .forEachIndexed { i, friend ->
-                    FriendIcon(
-                        friend = friend,
-                        size = 32.dp,
-                        modifier = Modifier
-                            .offset(i * 5.dp)
-                            .zIndex(-i.toFloat())
-                    )
-                }
-        }
-        false -> IconButton(onClick = { showFriendsPopup.value = true }) {
-            Icon(
-                painter = rememberVectorPainter(image = Filled.People),
-                contentDescription = null,
-            )
-        }
+    IconButton(onClick = { showFriendsPopup.value = true }) {
+        Icon(
+            painter = rememberVectorPainter(image = Filled.People),
+            contentDescription = null,
+        )
     }
-
-    val searchQuery = rememberSaveable { mutableStateOf("") }
+    val searchName = rememberSaveable { mutableStateOf("") }
     FriendsPicker(
         showFriendsPopup.value,
-        searchValue = searchQuery.value,
+        searchValue = searchName.value,
         onDismiss = { showFriendsPopup.value = false },
         onSearchChanged = {
-            searchQuery.value = it
+            searchName.value = it
             onSearchChanged(it)
         },
         onAddNewFriend = {
             onAddNewFriend(it)
-            searchQuery.value = ""
-            onSearchChanged(searchQuery.value)
+            searchName.value = ""
+            onSearchChanged(searchName.value)
         },
         onFriendClicked = { id, selected ->
             onFriendClicked(id, selected)
         },
-        friends = currentDay.friendsAll
+        friends = currentDay.friends
     )
 }
 
 @Composable
-fun Mood(
+private fun Mood(
     currentDay: DayDetailsEntity,
     showMoodPopup: MutableState<Boolean>,
     scope: CoroutineScope,

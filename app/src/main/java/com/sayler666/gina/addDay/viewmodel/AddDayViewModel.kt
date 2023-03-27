@@ -8,10 +8,8 @@ import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.core.date.toEpochMilliseconds
 import com.sayler666.gina.core.file.isImageMimeType
 import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.dayDetails.usecaase.GetAllFriendsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
-import com.sayler666.gina.dayDetailsEdit.usecase.AddFriendUseCase
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayDetails
@@ -24,10 +22,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,11 +35,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddDayViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val getAllFriendsUseCase: GetAllFriendsUseCase,
-    private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
+    savedStateHandle: SavedStateHandle,
     private val imageCompressor: ImageCompressor
 ) : ViewModel() {
 
@@ -62,23 +58,11 @@ class AddDayViewModel @Inject constructor(
         ), emptyList(), emptyList()
     )
 
-    private val allFriends = getAllFriendsUseCase.getAllFriends().stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        emptyList()
-    )
-    private val friendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
-
     private val _tempDay: MutableStateFlow<DayDetails?> = MutableStateFlow(blankDay)
     val tempDay: StateFlow<DayDetailsEntity?>
-        get() = combine(
-            _tempDay,
-            allFriends,
-            friendsSearchQuery
-        ) { day, allFriends, friendsSearchQuery ->
-            day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
-        }
+        get() = _tempDay
             .filterNotNull()
+            .map(dayDetailsMapper::mapToVm)
             .stateIn(
                 viewModelScope,
                 WhileSubscribed(500),
@@ -145,26 +129,6 @@ class AddDayViewModel @Inject constructor(
                         it?.copy(attachments = it.attachments + newAttachment)
                     }
                 }
-            }
-        }
-    }
-
-    fun searchFriend(searchQuery: String) {
-        friendsSearchQuery.update { searchQuery }
-    }
-
-    fun addNewFriend(friendName: String) {
-        viewModelScope.launch(SupervisorJob() + exceptionHandler) {
-            addFriendUseCase.addFriend(friendName)
-        }
-    }
-
-    fun friendSelect(friendId: Int, selected: Boolean) {
-        _tempDay.update { day ->
-            val friendInContext = allFriends.value.find { it.id == friendId } ?: return
-            when (selected) {
-                true -> day?.copy(friends = day.friends + friendInContext)
-                false -> day?.copy(friends = day.friends.filterNot { it.id == friendId })
             }
         }
     }

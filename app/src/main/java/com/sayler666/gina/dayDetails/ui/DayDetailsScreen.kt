@@ -116,7 +116,7 @@ fun DayDetailsScreen(
             }
         },
         bottomBar = {
-            day?.friendsSelected?.let { friends ->
+            day?.friends?.let { friends ->
                 if (friends.isNotEmpty())
                     BottomAppBar(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -169,6 +169,7 @@ private fun AttachmentsRow(
                         }
                     )
                 }
+
             }
         }
     }
@@ -176,11 +177,11 @@ private fun AttachmentsRow(
 
 @Composable
 fun FriendsRow(friends: List<FriendEntity>) {
-    FlowRow(modifier = Modifier.padding(14.dp, 6.dp)) {
+    FlowRow(modifier = Modifier.padding(16.dp, 6.dp)) {
         val context = LocalContext.current
         friends.forEach { friend ->
-            FriendIcon(friend = friend, size = 42.dp, modifier = Modifier
-                .padding(end = 8.dp, top = 0.dp)
+            FriendIcon(friend = friend, modifier = Modifier
+                .padding(end = 8.dp)
                 .clickable(
                     indication = rememberRipple(bounded = false),
                     interactionSource = remember { MutableInteractionSource() }
