@@ -2,7 +2,6 @@ package com.sayler666.gina.dayDetails.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -122,9 +120,7 @@ fun DayDetailsScreen(
             day?.friendsSelected?.let { friends ->
                 if (friends.isNotEmpty())
                     BottomAppBar(
-                        modifier = Modifier
-                            .navigationBarsPadding()
-                            .wrapContentHeight(),
+                        modifier = Modifier.navigationBarsPadding(),
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         content = { FriendsRow(friends) }
                     )
@@ -182,23 +178,19 @@ private fun AttachmentsRow(
 
 @Composable
 fun FriendsRow(friends: List<FriendEntity>) {
-    Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState())
-    ) {
+    FlowRow(modifier = Modifier.padding(14.dp, 6.dp)) {
         val context = LocalContext.current
         friends.forEach { friend ->
-            FriendIcon(friend = friend,
-                size = 42.dp,
-                modifier = Modifier
-                    .padding(end = 8.dp, top = 0.dp)
-                    .clickable(
-                        indication = rememberRipple(bounded = false),
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        Toast
-                            .makeText(context, friend.name, Toast.LENGTH_SHORT)
-                            .show()
-                    })
+            FriendIcon(friend = friend, size = 42.dp, modifier = Modifier
+                .padding(end = 8.dp, top = 0.dp)
+                .clickable(
+                    indication = rememberRipple(bounded = false),
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    Toast
+                        .makeText(context, friend.name, Toast.LENGTH_SHORT)
+                        .show()
+                })
         }
     }
 }

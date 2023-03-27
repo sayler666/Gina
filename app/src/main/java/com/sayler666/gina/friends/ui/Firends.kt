@@ -1,11 +1,5 @@
 package com.sayler666.gina.friends.ui
 
-import android.content.Context
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -60,13 +52,11 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
-import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
-
 
 @Composable
 fun FriendsPicker(
@@ -149,22 +139,6 @@ fun FriendsList(
     }
 }
 
-fun handleAvatar(
-    uri: Uri?,
-    context: Context,
-    applyAvatar: (ByteArray) -> Unit
-) {
-
-    fun createAttachment(uri: Uri): ByteArray {
-        val (content, _) = Files.readBytesAndMimeTypeFromUri(uri, context)
-        return content
-    }
-
-    uri?.let {
-        applyAvatar(createAttachment(uri))
-    }
-}
-
 @Composable
 fun FriendEdit(
     showPopup: Boolean,
@@ -172,17 +146,6 @@ fun FriendEdit(
     onDismiss: () -> Unit,
     viewModel: FriendEditViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-
-    val addAvatar = rememberLauncherForActivityResult(PickVisualMedia()) {
-        handleAvatar(it, context) { avatar ->
-            viewModel.changeAvatar(avatar)
-        }
-    }
-    val request: PickVisualMediaRequest = PickVisualMediaRequest.Builder()
-        .setMediaType(ImageOnly)
-        .build()
-
     LaunchedEffect(friendId) {
         viewModel.loadFriend(friendId)
     }
@@ -207,18 +170,7 @@ fun FriendEdit(
                     ) {
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        Box {
-                            FriendIcon(friend)
-                            Icon(
-                                Filled.Edit,
-                                null,
-                                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .clickable {
-                                        addAvatar.launch(request)
-                                    })
-                        }
+                        FriendIcon(friend)
 
                         Spacer(modifier = Modifier.width(12.dp))
 
