@@ -23,10 +23,6 @@ class JournalViewModel @Inject constructor(
     private val daysMapper: DaysMapper
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
-    }
-
     private val _searchQuery = MutableStateFlow<String?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,5 +49,11 @@ class JournalViewModel @Inject constructor(
 
     fun searchQuery(searchQuery: String?) {
         _searchQuery.update { searchQuery }
+    }
+
+    init {
+        viewModelScope.launch {
+            databaseProvider.openSavedDB()
+        }
     }
 }

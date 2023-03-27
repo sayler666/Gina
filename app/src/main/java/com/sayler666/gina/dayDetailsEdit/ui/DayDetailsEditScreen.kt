@@ -6,23 +6,16 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
@@ -47,13 +40,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,7 +52,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
@@ -105,19 +94,7 @@ data class DayDetailsEditScreenNavArgs(
     val dayId: Int
 )
 
-val WindowInsets.Companion.isImeVisible: Boolean
-    @Composable
-    get() {
-        val density = LocalDensity.current
-        val ime = this.ime
-        return remember {
-            derivedStateOf {
-                ime.getBottom(density) > 0
-            }
-        }.value
-    }
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = DayDetailsEditScreenNavArgs::class
@@ -136,9 +113,9 @@ fun DayDetailsEditScreen(
         }
     }
 
-    val dayStored: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
+    val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
-    val currentDay = dayTemp ?: dayStored
+    val currentDay = if (dayTemp != null) dayTemp else day
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
     val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
@@ -160,28 +137,25 @@ fun DayDetailsEditScreen(
     BackHandler(onBack = {
         handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
     })
-    val isKeyboardOpen by keyboardAsState() // true or false
-    currentDay?.let { day ->
-        Scaffold(
-            modifier = Modifier.imePadding(),
-            topBar = {
+
+    Scaffold(
+        topBar = {
+            currentDay?.let {
                 TopBar(
-                    day,
+                    it,
                     onNavigateBackClicked = {
-                        handleBackPress(
-                            changesExist,
-                            showDiscardConfirmationDialog,
-                            navController
-                        )
+                        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
                     },
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
                     }
                 )
-            },
-            bottomBar = {
+            }
+        },
+        bottomBar = {
+            currentDay?.let {
                 BottomBar(
-                    day,
+                    it,
                     showDeleteConfirmationDialog,
                     addAttachmentLauncher,
                     onSaveChanges = { viewModel.saveChanges() },
@@ -196,48 +170,35 @@ fun DayDetailsEditScreen(
                         viewModel.friendSelect(id, selected)
                     }
                 )
-            },
-            content = { scaffoldPadding ->
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(scaffoldPadding)
-                        .consumeWindowInsets(scaffoldPadding)
-                        .systemBarsPadding()
-                ) {
-                    DatePickerDialog(
-                        showDatePickerPopup.value,
-                        initialDate = day.localDate,
-                        onDismiss = {
-                            showDatePickerPopup.value = false
-                        },
-                        onDateChanged = { date ->
-                            viewModel.setNewDate(date)
-                        }
-                    )
-                    Column {
-                        AnimatedVisibility(
-                            visible = !isKeyboardOpen
-                        ) {
-                            Attachments(day, destinationsNavigator) { attachmentHash ->
-                                viewModel.removeAttachment(attachmentHash)
-                            }
-                        }
-
-                        ContentTextField(day) { content ->
-                            viewModel.setNewContent(content)
-                        }
+            }
+        },
+        content = { padding ->
+            currentDay?.let {
+                DatePickerDialog(
+                    showDatePickerPopup.value,
+                    initialDate = it.localDate,
+                    onDismiss = {
+                        showDatePickerPopup.value = false
+                    },
+                    onDateChanged = { date ->
+                        viewModel.setNewDate(date)
+                    }
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+            ) {
+                currentDay?.let {
+                    Attachments(it, destinationsNavigator) { attachmentHash ->
+                        viewModel.removeAttachment(attachmentHash)
+                    }
+                    ContentTextField(it) { content ->
+                        viewModel.setNewContent(content)
                     }
                 }
-            })
-
-    }
-}
-
-@Composable
-fun keyboardAsState(): State<Boolean> {
-    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    return rememberUpdatedState(isImeVisible)
+            }
+        })
 }
 
 @Composable
@@ -254,7 +215,9 @@ fun ContentTextField(
     ) {
         BasicTextField(
             modifier = Modifier
+                .imePadding()
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .conditional(autoFocus) {
                     focusRequester(focusRequester)
                 },
@@ -368,7 +331,6 @@ private fun BottomBar(
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
-        modifier = Modifier.navigationBarsPadding(),
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
             Delete(showDeleteConfirmationDialog)

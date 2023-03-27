@@ -1,19 +1,16 @@
 package com.sayler666.gina.ginaApp
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -33,48 +30,37 @@ import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.theme.GinaTheme
-import timber.log.Timber
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(vm: GinaMainViewModel) {
     GinaTheme {
         val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
         if (rememberedDatabase != null) {
-            StatusBarColor()
-            NavigationBarColor()
-            val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
-            else JournalScreenDestination
+            Surface(modifier = Modifier.fillMaxSize()) {
+                StatusBarColor()
+                NavigationBarColor()
+                val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
+                else JournalScreenDestination
 
-            val navController = rememberAnimatedNavController()
-            val destination: Destination = navController.appCurrentDestinationAsState().value
-                ?: NavGraphs.root.startAppDestination
+                val navController = rememberAnimatedNavController()
+                val destination: Destination = navController.appCurrentDestinationAsState().value
+                    ?: NavGraphs.root.startAppDestination
 
-            Scaffold(
-                Modifier.imePadding(),
-                backgroundColor = MaterialTheme.colorScheme.background,
-                floatingActionButton = {
-                    if (destination.shouldShowScaffoldElements) AddDayFab(navController)
-                },
-                floatingActionButtonPosition = FabPosition.Center,
-                isFloatingActionButtonDocked = true,
-                bottomBar = {
-                    if (destination.shouldShowScaffoldElements) BottomNavigationBar(
-                        navController
-                    )
-                },
-                content = { scaffoldPadding ->
-                    var bottomP = scaffoldPadding.calculateBottomPadding()
-                    Timber.d("Padding: ${scaffoldPadding.calculateBottomPadding()}")
-                    bottomP = if (bottomP >= 80.dp) bottomP - 48.dp else bottomP
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = bottomP)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
+                Scaffold(
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    floatingActionButton = {
+                        if (destination.shouldShowScaffoldElements) AddDayFab(navController)
+                    },
+                    floatingActionButtonPosition = FabPosition.Center,
+                    isFloatingActionButtonDocked = true,
+                    bottomBar = {
+                        if (destination.shouldShowScaffoldElements) BottomNavigationBar(
+                            navController
+                        )
+                    },
+                    content = { padding ->
+                        Column(modifier = Modifier.padding(padding)) {
                             DestinationsNavHost(
                                 navGraph = NavGraphs.root,
                                 startRoute = startRoute,
@@ -82,8 +68,8 @@ fun GinaApp(vm: GinaMainViewModel) {
                                 //engine = rememberAnimatedNavHostEngine()
                             )
                         }
-                    }
-                })
+                    })
+            }
         }
     }
 }
