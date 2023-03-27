@@ -379,9 +379,8 @@ private fun Friends(
             onSearchChanged(it)
         },
         onAddNewFriend = {
+            showFriendsPopup.value = false
             onAddNewFriend(it)
-            searchName.value = ""
-            onSearchChanged(searchName.value)
         },
         onFriendClicked = { id, selected ->
             onFriendClicked(id, selected)
