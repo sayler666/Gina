@@ -6,9 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -165,6 +167,7 @@ fun handleAvatar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FriendEdit(
     showPopup: Boolean,
@@ -215,9 +218,11 @@ fun FriendEdit(
                                 tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
-                                    .clickable {
-                                        addAvatar.launch(request)
-                                    })
+                                    .combinedClickable(
+                                        onClick = { addAvatar.launch(request) },
+                                        onLongClick = { viewModel.clearAvatar() }
+                                    )
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))

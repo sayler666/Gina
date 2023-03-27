@@ -81,4 +81,8 @@ class FriendEditViewModel @Inject constructor(
         }
     }
 
+    fun clearAvatar() {
+        _friend.update { it?.copy(avatar = null) }
+    }
+
 }
