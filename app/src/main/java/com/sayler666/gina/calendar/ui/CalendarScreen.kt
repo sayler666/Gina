@@ -1,8 +1,11 @@
 package com.sayler666.gina.calendar.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -15,7 +18,6 @@ import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import java.util.*
 
 @Destination
 @Composable
@@ -29,18 +31,20 @@ fun CalendarScreen(
     val days: List<CalendarDayEntity> by viewModel.days.collectAsStateWithLifecycle()
 
     if (days.isNotEmpty()) {
-        Calendar(
-            days,
-            onDayClick = { day ->
-                destinationsNavigator.navigate(
-                    DayDetailsScreenDestination(DayDetailsScreenNavArgs(day.id))
-                )
-            },
-            onEmptyDayClick = { date ->
-                destinationsNavigator.navigate(
-                    AddDayScreenDestination(AddDayScreenNavArgs(date))
-                )
-            }
-        )
+        Box(Modifier.fillMaxSize()) {
+            Calendar(
+                days,
+                onDayClick = { day ->
+                    destinationsNavigator.navigate(
+                        DayDetailsScreenDestination(DayDetailsScreenNavArgs(day.id))
+                    )
+                },
+                onEmptyDayClick = { date ->
+                    destinationsNavigator.navigate(
+                        AddDayScreenDestination(AddDayScreenNavArgs(date))
+                    )
+                }
+            )
+        }
     }
 }

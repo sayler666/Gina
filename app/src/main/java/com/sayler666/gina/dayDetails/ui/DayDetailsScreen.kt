@@ -2,6 +2,7 @@ package com.sayler666.gina.dayDetails.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -26,11 +27,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.key.Key.Companion.VolumeDown
+import androidx.compose.ui.input.key.Key.Companion.VolumeUp
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,12 +50,15 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.core.file.Files
+import com.sayler666.gina.core.flow.Event
+import com.sayler666.gina.core.flow.withValue
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
+import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.ui.DayTitle
@@ -57,18 +69,24 @@ data class DayDetailsScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
-@Destination(
-    navArgsDelegate = DayDetailsScreenNavArgs::class
-)
+@Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
 @Composable
 fun DayDetailsScreen(
     destinationsNavigator: DestinationsNavigator,
     navController: NavController,
     viewModel: DayDetailsViewModel = hiltViewModel()
 ) {
-    val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
+    val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
+    val goToDay: Event<Int> by viewModel.goToDayId.collectAsStateWithLifecycle()
+    goToDay.withValue { dayId ->
+        destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))) {
+            popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
+        }
+    }
+    val requester = remember { FocusRequester() }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -130,7 +148,27 @@ fun DayDetailsScreen(
                     )
             }
         },
+        modifier = Modifier
+            .onKeyEvent {
+                when (it.key) {
+                    VolumeUp -> {
+                        viewModel.goToNextDay()
+                        return@onKeyEvent true
+                    }
+                    VolumeDown -> {
+                        viewModel.goToPreviousDay()
+                        return@onKeyEvent true
+                    }
+                    else -> return@onKeyEvent false
+                }
+            }
+            .focusRequester(requester)
+            .focusable()
     )
+
+    LaunchedEffect(Unit) {
+        requester.requestFocus()
+    }
 }
 
 @Composable
