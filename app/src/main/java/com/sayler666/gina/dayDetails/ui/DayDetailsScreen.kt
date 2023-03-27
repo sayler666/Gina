@@ -1,8 +1,5 @@
 package com.sayler666.gina.dayDetails.ui
 
-import android.widget.Toast
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -42,11 +36,9 @@ import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.FriendIcon
 import com.sayler666.gina.ui.mapToMoodIconOrNull
 
 
@@ -65,6 +57,7 @@ fun DayDetailsScreen(
     navController: NavController,
     viewModel: DayDetailsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
@@ -110,86 +103,43 @@ fun DayDetailsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 day?.let {
-                    AttachmentsRow(it, destinationsNavigator)
-                    Text(it)
+                    if (it.attachments.isNotEmpty()) {
+                        FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
+                            it.attachments.forEach { attachment ->
+                                when (attachment) {
+                                    is Image -> ImagePreview(
+                                        attachment,
+                                        onClick = {
+                                            destinationsNavigator.navigate(
+                                                FullImageDestination(
+                                                    attachment.byte,
+                                                    attachment.mimeType
+                                                )
+                                            )
+                                        }
+                                    )
+                                    is NonImage -> FilePreview(
+                                        attachment,
+                                        onClick = {
+                                            Files.openFileIntent(
+                                                context,
+                                                attachment.byte,
+                                                attachment.mimeType
+                                            )
+                                        }
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                    Row(modifier = Modifier.padding(16.dp, 8.dp)) {
+                        Text(
+                            text = it.content,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
-        },
-        bottomBar = {
-            day?.friends?.let { friends ->
-                if (friends.isNotEmpty())
-                    BottomAppBar(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        content = { FriendsRow(friends) }
-                    )
-            }
-        },
-    )
-}
-
-@Composable
-private fun Text(it: DayDetailsEntity) {
-    Row(modifier = Modifier.padding(16.dp, 8.dp)) {
-        Text(
-            text = it.content,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-private fun AttachmentsRow(
-    day: DayDetailsEntity,
-    destinationsNavigator: DestinationsNavigator,
-) {
-    if (day.attachments.isNotEmpty()) {
-        val context = LocalContext.current
-        FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
-            day.attachments.forEach { attachment ->
-                when (attachment) {
-                    is Image -> ImagePreview(
-                        attachment,
-                        onClick = {
-                            destinationsNavigator.navigate(
-                                FullImageDestination(
-                                    attachment.byte,
-                                    attachment.mimeType
-                                )
-                            )
-                        }
-                    )
-                    is NonImage -> FilePreview(
-                        attachment,
-                        onClick = {
-                            Files.openFileIntent(
-                                context,
-                                attachment.byte,
-                                attachment.mimeType
-                            )
-                        }
-                    )
-                }
-
-            }
-        }
-    }
-}
-
-@Composable
-fun FriendsRow(friends: List<FriendEntity>) {
-    FlowRow(modifier = Modifier.padding(16.dp, 6.dp)) {
-        val context = LocalContext.current
-        friends.forEach { friend ->
-            FriendIcon(friend = friend, modifier = Modifier
-                .padding(end = 8.dp)
-                .clickable(
-                    indication = rememberRipple(bounded = false),
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    Toast
-                        .makeText(context, friend.name, Toast.LENGTH_SHORT)
-                        .show()
-                })
-        }
-    }
+        })
 }
