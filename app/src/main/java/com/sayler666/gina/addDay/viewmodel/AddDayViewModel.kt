@@ -55,7 +55,7 @@ class AddDayViewModel @Inject constructor(
             date = (date?.atStartOfDay()?.toLocalDate() ?: LocalDate.now()).toEpochMilliseconds(),
             content = "",
             mood = 0
-        ), emptyList(), emptyList()
+        ), emptyList()
     )
 
     private val _tempDay: MutableStateFlow<DayWithAttachment?> = MutableStateFlow(blankDay)

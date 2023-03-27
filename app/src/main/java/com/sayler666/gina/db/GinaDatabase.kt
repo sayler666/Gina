@@ -4,11 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 
-@Database(
-    entities = [Day::class, Attachment::class, Friend::class, DayFriends::class],
-    version = 1,
-    exportSchema = false
-)
+@Database(entities = [Day::class, Attachment::class], version = 1, exportSchema = false)
 abstract class GinaDatabase : RoomDatabase() {
     abstract fun daysDao(): DaysDao
 }
@@ -77,57 +73,13 @@ data class Attachment(
     }
 }
 
-@Entity(tableName = "friends")
-data class Friend(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "friend_id")
-    val id: Int,
-
-    @ColumnInfo(name = "name")
-    val name: String,
-
-    @ColumnInfo(name = "avatar", typeAffinity = ColumnInfo.BLOB)
-    val avatar: ByteArray?
-)
-
-@Entity(
-    tableName = "daysFriends",
-    primaryKeys = ["id", "friend_id"],
-    foreignKeys = [
-        ForeignKey(
-            entity = Day::class,
-            parentColumns = ["id"],
-            childColumns = ["id"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Friend::class,
-            parentColumns = ["friend_id"],
-            childColumns = ["friend_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
-data class DayFriends(
-    @ColumnInfo(name = "id")
-    val id: Long,
-    @ColumnInfo(name = "friend_id")
-    val friendId: Long
-)
-
 data class DayWithAttachment(
     @Embedded val day: Day,
     @Relation(
         parentColumn = "id",
         entityColumn = "days_id"
     )
-    val attachments: List<Attachment>,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "friend_id",
-        associateBy = Junction(DayFriends::class)
-    )
-    val friends: List<Friend>
+    val attachments: List<Attachment>
 )
 
 @Dao
@@ -138,12 +90,8 @@ interface DaysDao {
     @Query("SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' ORDER by date DESC")
     fun getDaysFlow(searchQuery: String?): Flow<List<Day>>
 
-    @Transaction
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayWithAttachment>
-
-    @Query("SELECT * FROM friends")
-    fun getFriendFlow(): Flow<Friend>
 
     @Update
     suspend fun updateDay(day: Day): Int

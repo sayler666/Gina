@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
@@ -44,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -75,14 +73,12 @@ import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.FriendsPicker
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
 import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 data class DayDetailsEditScreenNavArgs(
@@ -148,15 +144,13 @@ fun DayDetailsEditScreen(
             }
         },
         bottomBar = {
-            currentDay?.let {
-                BottomBar(
-                    it,
-                    showDeleteConfirmationDialog,
-                    addAttachmentLauncher,
-                    onSaveChanges = { viewModel.saveChanges() },
-                    onMoodChanged = { mood -> viewModel.setNewMood(mood) }
-                )
-            }
+            BottomBar(
+                currentDay,
+                showDeleteConfirmationDialog,
+                addAttachmentLauncher,
+                onSaveChanges = { viewModel.saveChanges() },
+                onMoodChanged = { mood -> viewModel.setNewMood(mood) }
+            )
         },
         content = { padding ->
             currentDay?.let {
@@ -305,13 +299,13 @@ fun SaveFab(onSaveButtonClicked: () -> Unit) {
 
 @Composable
 private fun BottomBar(
-    currentDay: DayWithAttachmentsEntity,
+    currentDay: DayWithAttachmentsEntity?,
     showDeleteConfirmationDialog: MutableState<Boolean>,
     addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit
 ) {
-    val showMoodPopup = remember { mutableStateOf(false) }
+    val showPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -333,50 +327,25 @@ private fun BottomBar(
             }) {
                 Icon(Filled.AddAPhoto, null)
             }
-            val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
-            IconButton(onClick = { showMoodPopup.value = true }) {
+            val moodIcon: MoodIcon = currentDay?.mood.mapToMoodIcon()
+            IconButton(onClick = { showPopup.value = true }) {
                 Icon(
                     painter = rememberVectorPainter(image = moodIcon.icon),
                     tint = moodIcon.color,
                     contentDescription = null,
                 )
             }
-            MoodPicker(showMoodPopup.value,
-                onDismiss = { showMoodPopup.value = false },
+            MoodPicker(showPopup.value,
+                onDismiss = { showPopup.value = false },
                 onSelectMood = { mood ->
                     scope.launch {
                         delay(120)
-                        showMoodPopup.value = false
+                        showPopup.value = false
                     }
                     onMoodChanged(mood)
                 }
             )
 
-            val showFriendsPopup = remember { mutableStateOf(false) }
-            IconButton(onClick = { showFriendsPopup.value = true }) {
-                Icon(
-                    painter = rememberVectorPainter(image = Filled.People),
-                    contentDescription = null,
-                )
-            }
-            val searchName = rememberSaveable { mutableStateOf("") }
-            FriendsPicker(
-                showFriendsPopup.value,
-                searchValue = searchName.value,
-                onDismiss = { showFriendsPopup.value = false },
-                onSearchChanged = {
-                    searchName.value = it
-                    // TODO view model
-                },
-                onAddNewFriend = {
-                    showFriendsPopup.value = false
-                    // TODO view model
-                },
-                onFriendClicked = { id, selected ->
-                    Timber.d("selected $selected, friendId: $id")
-                },
-                friends = currentDay.friends
-            )
         },
         floatingActionButton = { SaveFab { onSaveChanges() } }
     )
