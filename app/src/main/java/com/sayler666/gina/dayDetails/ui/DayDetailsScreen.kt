@@ -66,6 +66,7 @@ import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.mapToMoodIconOrNull
+import kotlinx.coroutines.delay
 
 
 data class DayDetailsScreenNavArgs(
@@ -170,6 +171,7 @@ fun DayDetailsScreen(
     )
 
     LaunchedEffect(Unit) {
+        delay(300)
         requester.requestFocus()
     }
 }
