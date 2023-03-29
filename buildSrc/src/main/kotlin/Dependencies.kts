@@ -35,7 +35,6 @@ object Deps {
     val hiltNavigationCompose by lazy { "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigation}" }
     val activityCompose by lazy { "androidx.activity:activity-compose:${Versions.activityCompose}" }
     val accompanistSystemUi by lazy { "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}" }
-    val accompanistFlowLayout by lazy { "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}" }
     val coilCompose by lazy { "io.coil-kt:coil-compose:${Versions.coilCompose}" }
     val calendarCompose by lazy { "com.kizitonwose.calendar:compose:${Versions.calendarCompose}" }
 

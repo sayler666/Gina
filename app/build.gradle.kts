@@ -71,16 +71,8 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-
-            freeCompilerArgs += listOf(
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.FlowPreview",
-                "-opt-in=kotlin.Experimental",
-            )
-        }
+    kotlin {
+        jvmToolchain(11)
     }
 
     composeOptions {
@@ -129,7 +121,6 @@ dependencies {
     implementation(Deps.composeNavigation)
     implementation(Deps.composeConstraintLayout)
     implementation(Deps.accompanistSystemUi)
-    implementation(Deps.accompanistFlowLayout)
     implementation(Deps.composeDestination)
     implementation(Deps.coilCompose)
     implementation(Deps.composeIcons)
