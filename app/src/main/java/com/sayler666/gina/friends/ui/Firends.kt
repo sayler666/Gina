@@ -63,8 +63,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.core.file.Files
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
+import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
@@ -320,7 +320,11 @@ fun FriendComponent(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text(text = friend.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+        Text(
+            text = "${friend.name} (${friend.daysCount})",
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 

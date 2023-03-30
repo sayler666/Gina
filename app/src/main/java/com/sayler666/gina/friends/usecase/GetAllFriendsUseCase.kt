@@ -2,7 +2,7 @@ package com.sayler666.gina.friends.usecase
 
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.FriendWithCount
 import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -14,17 +14,17 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface GetAllFriendsUseCase {
-    fun getAllFriends(): Flow<List<Friend>>
+    fun getAllFriendsWithCount(): Flow<List<FriendWithCount>>
 }
 
 class GetAllFriendsUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetAllFriendsUseCase {
-    override fun getAllFriends(): Flow<List<Friend>> = flow {
+    override fun getAllFriendsWithCount(): Flow<List<FriendWithCount>> = flow {
         try {
             databaseProvider.withDaysDao {
-                emitAll(getFriendsFlow())
+                emitAll(getFriendsWithCountFlow())
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")

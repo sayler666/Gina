@@ -6,7 +6,8 @@ import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayDetails
-import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.FriendWithCount
+import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
@@ -21,7 +22,7 @@ class DayDetailsMapper @Inject constructor(
 ) {
     fun mapToVm(
         day: DayDetails,
-        allFriends: List<Friend> = emptyList(),
+        allFriends: List<FriendWithCount> = emptyList(),
         friendsSearchQuery: String? = null
     ): DayDetailsEntity {
         requireNotNull(day.day.date)
@@ -151,11 +152,3 @@ sealed class AttachmentEntity(
         }
     }
 }
-
-data class FriendEntity(
-    val id: Int,
-    val name: String,
-    val selected: Boolean = false,
-    val avatar: ByteArray? = null,
-    val initials: String
-)

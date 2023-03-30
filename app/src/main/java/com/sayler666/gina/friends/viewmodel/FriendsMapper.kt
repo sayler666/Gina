@@ -1,13 +1,13 @@
 package com.sayler666.gina.friends.viewmodel
 
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.FriendWithCount
 import javax.inject.Inject
 
 class FriendsMapper @Inject constructor() {
     fun mapToDayFriends(
         dayFriends: List<Friend>,
-        allFriends: List<Friend>,
+        allFriends: List<FriendWithCount>,
         searchQuery: String? = null
     ): List<FriendEntity> {
         val friendsIds = dayFriends.map { it.id }
@@ -15,7 +15,7 @@ class FriendsMapper @Inject constructor() {
         return when (allFriends.isNotEmpty()) {
             true -> allFriends.map { f ->
                 mapToFriend(f)
-                    .copy(selected = friendsIds.contains(f.id))
+                    .copy(selected = friendsIds.contains(f.friendId))
             }
             false -> dayFriends.map { f ->
                 mapToFriend(f)
@@ -28,12 +28,23 @@ class FriendsMapper @Inject constructor() {
     }
 
     fun mapToFriends(
-        allFriends: List<Friend> = emptyList(),
+        allFriends: List<FriendWithCount> = emptyList(),
         searchQuery: String? = null
     ): List<FriendEntity> = allFriends.map(::mapToFriend)
         .sort()
         .filterBySearchQuery(searchQuery)
         .toList()
+
+    private fun mapToFriend(
+        friend: FriendWithCount
+    ): FriendEntity = FriendEntity(
+        id = friend.friendId,
+        name = friend.friendName,
+        avatar = friend.friendAvatar,
+        selected = true,
+        initials = createInitials(friend.friendName),
+        daysCount = friend.daysCount
+    )
 
     fun mapToFriend(
         friend: Friend
@@ -42,7 +53,7 @@ class FriendsMapper @Inject constructor() {
         name = friend.name,
         avatar = friend.avatar,
         selected = true,
-        initials = createInitials(friend)
+        initials = createInitials(friend.name)
     )
 
     private fun List<FriendEntity>.filterBySearchQuery(query: String?) = filter { friend ->
@@ -50,14 +61,13 @@ class FriendsMapper @Inject constructor() {
     }
 
     private fun List<FriendEntity>.sort() = sortedBy { it.name }
-        .sortedBy { it.avatar == null }
-        .sortedBy { !it.selected }
+        .sortedByDescending { it.daysCount }
 
-    private fun createInitials(f: Friend): String {
-        val nameParts = f.name.split(" ").filter { it.isNotEmpty() }
+    private fun createInitials(name: String): String {
+        val nameParts = name.split(" ").filter { it.isNotEmpty() }
         val initials = when {
             nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
-            else -> f.name[0].toString()
+            else -> name[0].toString()
         }
         return initials
     }

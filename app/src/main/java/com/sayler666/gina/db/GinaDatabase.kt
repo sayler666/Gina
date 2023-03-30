@@ -115,6 +115,13 @@ data class DayFriends(
     val friendId: Int
 )
 
+data class FriendWithCount(
+    val friendId: Int,
+    val friendName: String,
+    val friendAvatar: ByteArray?,
+    val daysCount: Int
+)
+
 data class DayDetails(
     @Embedded val day: Day,
     @Relation(
@@ -168,8 +175,14 @@ interface DaysDao {
     @Query("SELECT * FROM friends WHERE friend_id = :id")
     fun getFriendFlow(id: Int): Flow<Friend>
 
-    @Query("SELECT * FROM friends")
-    fun getFriendsFlow(): Flow<List<Friend>>
+    @Query(
+        "SELECT friends.friend_id as friendId, friends.name as friendName," +
+                "friends.avatar as friendAvatar, " +
+                "COUNT(daysFriends.friend_id) as daysCount FROM friends " +
+                "LEFT JOIN daysFriends ON friends.friend_id = daysFriends.friend_id " +
+                "GROUP BY friends.friend_id ORDER BY friendId DESC"
+    )
+    fun getFriendsWithCountFlow(): Flow<List<FriendWithCount>>
 
     @Query("DELETE FROM daysFriends WHERE id = :id")
     suspend fun deleteFriendsForDay(id: Int): Int

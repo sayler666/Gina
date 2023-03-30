@@ -13,6 +13,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.DayDetails
+import com.sayler666.gina.db.Friend
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
@@ -26,8 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ class AddDayViewModel @Inject constructor(
         ), emptyList(), emptyList()
     )
 
-    private val allFriends = getAllFriendsUseCase.getAllFriends().stateIn(
+    private val allFriends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
         viewModelScope,
         WhileSubscribed(500),
         emptyList()
@@ -85,10 +85,8 @@ class AddDayViewModel @Inject constructor(
                 null
             )
 
-    val changesExist: StateFlow<Boolean> = _tempDay.flatMapLatest {
-        flow {
-            if (it != null) emit(it != blankDay)
-        }
+    val changesExist: StateFlow<Boolean> = _tempDay.map {
+        it != blankDay
     }.stateIn(
         viewModelScope,
         WhileSubscribed(500),
@@ -161,7 +159,9 @@ class AddDayViewModel @Inject constructor(
 
     fun friendSelect(friendId: Int, selected: Boolean) {
         _tempDay.update { day ->
-            val friendInContext = allFriends.value.find { it.id == friendId } ?: return
+            val friendInContext: Friend = allFriends.value.find { it.friendId == friendId }?.let {
+                Friend(it.friendId, it.friendName, it.friendAvatar)
+            } ?: return
             when (selected) {
                 true -> day?.copy(friends = day.friends + friendInContext)
                 false -> day?.copy(friends = day.friends.filterNot { it.id == friendId })

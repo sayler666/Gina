@@ -2,7 +2,6 @@ package com.sayler666.gina.friends.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
 import com.sayler666.gina.db.Friend
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase

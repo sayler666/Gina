@@ -2,7 +2,6 @@ package com.sayler666.gina.friends.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.dayDetails.viewmodel.FriendEntity
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +28,7 @@ class ManageFriendsViewModel @Inject constructor(
         Timber.e(exception)
     }
 
-    private val _friends = getAllFriendsUseCase.getAllFriends().stateIn(
+    private val _friends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(500),
         emptyList()
