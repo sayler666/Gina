@@ -22,7 +22,7 @@ object Versions {
     const val composeConstraintLayout = "1.0.1"
     const val accompanist = "0.30.0"
     const val coilCompose = "2.3.0"
-    const val calendarCompose = "2.2.0"
+    const val calendarCompose = "2.2.1-SNAPSHOT"
 
     const val room = "2.5.1"
     const val dataStorePreferences = "1.0.0"
