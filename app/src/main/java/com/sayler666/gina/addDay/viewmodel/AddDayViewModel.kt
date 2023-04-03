@@ -18,6 +18,7 @@ import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.imageCompressor.ImageCompressor
+import com.sayler666.gina.quotes.QuotesRepository
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -38,7 +39,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddDayViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getAllFriendsUseCase: GetAllFriendsUseCase,
+    getAllFriendsUseCase: GetAllFriendsUseCase,
+    quotesRepository: QuotesRepository,
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
@@ -52,6 +54,8 @@ class AddDayViewModel @Inject constructor(
         AddDayScreenDestination.argsFrom(savedStateHandle)
     private val date: LocalDate?
         get() = navArgs.date
+
+    val quote = quotesRepository.latestTodayQuoteFlow()
 
     private val blankDay = DayDetails(
         Day(

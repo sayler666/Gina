@@ -7,6 +7,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -36,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,14 +52,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
@@ -81,6 +91,7 @@ import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.MoodIcon
@@ -234,6 +245,7 @@ fun keyboardAsState(): State<Boolean> {
 fun ContentTextField(
     day: DayDetailsEntity,
     autoFocus: Boolean = false,
+    quote: Quote? = null,
     onContentChanged: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -242,6 +254,9 @@ fun ContentTextField(
             .padding(16.dp, 8.dp)
             .fillMaxWidth()
     ) {
+        var blurEnabled by remember { mutableStateOf(true) }
+        val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
+
         BasicTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -251,7 +266,39 @@ fun ContentTextField(
             value = day.content,
             onValueChange = { onContentChanged(it) },
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            decorationBox = { innerTextField ->
+                AnimatedVisibility(
+                    visible = day.content.isEmpty() && quote != null,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    if (quote != null) {
+                        blurEnabled = false
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .blur(blurRadius)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = quote.quote,
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = "—${quote.author}",
+                                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+                innerTextField()
+            }
         )
     }
     if (autoFocus)

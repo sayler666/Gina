@@ -1,6 +1,7 @@
 package com.sayler666.gina.db
 
 import android.app.Application
+import com.sayler666.gina.quotes.db.QuotesDatabaseProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +18,15 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabaseProvider(app: Application, databaseSettings: DatabaseSettings): DatabaseProvider =
+    fun provideDatabaseProvider(
+        app: Application,
+        databaseSettings: DatabaseSettings
+    ): DatabaseProvider =
         DatabaseProvider(app, databaseSettings)
+
+
+    @Provides
+    @Singleton
+    fun provideQuotesDatabaseProvider(app: Application): QuotesDatabaseProvider =
+        QuotesDatabaseProvider(app)
 }
