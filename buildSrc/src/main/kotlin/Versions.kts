@@ -27,6 +27,8 @@ object Versions {
     const val room = "2.5.1"
     const val dataStorePreferences = "1.0.0"
     const val okio = "3.3.0"
+    const val retrofit = "2.9.0"
+    const val moshi = "1.14.0"
 
     const val desugarJdkLibs = "2.0.2"
     const val commonsIo = "2.6"

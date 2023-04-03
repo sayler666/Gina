@@ -44,6 +44,10 @@ object Deps {
 
     val dataStorePreferences by lazy { "androidx.datastore:datastore-preferences:${Versions.dataStorePreferences}" }
     val okio by lazy { "com.squareup.okio:okio:${Versions.okio}" }
+    val retrofit by lazy { "com.squareup.retrofit2:retrofit:${Versions.retrofit}" }
+    val retrofitConverterMoshi by lazy { "com.squareup.retrofit2:converter-moshi:${Versions.retrofit}" }
+    val moshi by lazy { "com.squareup.moshi:moshi:${Versions.moshi}" }
+    val moshiKotlin by lazy { "com.squareup.moshi:moshi-kotlin:${Versions.moshi}" }
 
     val commonsIo by lazy { "commons-io:commons-io:${Versions.commonsIo}" }
     val compressor by lazy { "id.zelory:compressor:${Versions.compressor}" }

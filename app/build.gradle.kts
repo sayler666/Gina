@@ -1,7 +1,6 @@
 import ConfigData.ConfigData
 import Dependencies.Deps
 import Versions.Versions
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -56,6 +55,7 @@ android {
             signingConfig = signingConfigs[if (useReleaseKeystore) "release" else "debug"]
             isShrinkResources = true
             isMinifyEnabled = true
+            isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -134,6 +134,10 @@ dependencies {
     implementation(Deps.splashScreen)
     implementation(Deps.compressor)
     implementation(Deps.okio)
+    implementation(Deps.retrofit)
+    implementation(Deps.retrofitConverterMoshi)
+    implementation(Deps.moshi)
+    implementation(Deps.moshiKotlin)
     implementation(Deps.timber)
     testImplementation(Deps.junit)
 }

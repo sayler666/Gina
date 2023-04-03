@@ -45,6 +45,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
+import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -54,7 +55,6 @@ data class AddDayScreenNavArgs(
     val date: LocalDate? = null
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(
     navArgsDelegate = AddDayScreenNavArgs::class
@@ -75,6 +75,7 @@ fun AddDayScreen(
 
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
+    val quote: Quote? by viewModel.quote.collectAsStateWithLifecycle(null)
 
     val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
     if (navigateBack is Event.Value<Unit>) destinationsNavigator.popBackStack()
@@ -148,7 +149,11 @@ fun AddDayScreen(
                     Attachments(it, destinationsNavigator) { attachmentHash ->
                         viewModel.removeAttachment(attachmentHash)
                     }
-                    ContentTextField(it, autoFocus = true) { content ->
+                    ContentTextField(
+                        it,
+                        autoFocus = true,
+                        quote = quote
+                    ) { content ->
                         viewModel.setNewContent(content)
                     }
                 }
