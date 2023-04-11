@@ -55,7 +55,8 @@ fun SelectDatabaseScreen(
     }
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         if (permissionGranted.not()) {
@@ -75,8 +76,7 @@ fun SelectDatabaseScreen(
         } else {
             Button(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
                 onClick = {
                     databaseResult.launch(Files.selectFileIntent())

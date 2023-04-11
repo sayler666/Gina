@@ -1,5 +1,7 @@
 package com.sayler666.gina.journal.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +35,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
@@ -41,6 +45,8 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.NavGraphs
+import com.sayler666.gina.R.string
+import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.journal.viewmodel.DayEntity
@@ -62,6 +68,12 @@ fun JournalScreen(
         navController.getBackStackEntry(NavGraphs.root.route)
     }
     val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
+
+    val permissionsResult = rememberLauncherForActivityResult(StartActivityForResult()) {
+        viewModel.refreshPermissionStatus()
+    }
+
+    val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
     val days: List<DayEntity> by viewModel.days.collectAsStateWithLifecycle()
     val journalSearchState: JournalSearchState by viewModel.daysSearch.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
@@ -82,7 +94,37 @@ fun JournalScreen(
             )
         },
         content = { padding ->
-            Journal(padding, days, journalSearchState, searchText, destinationsNavigator)
+            if (permissionGranted) {
+                Journal(
+                    padding,
+                    days,
+                    journalSearchState,
+                    searchText,
+                    destinationsNavigator
+                )
+            } else {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = MaterialTheme.shapes.extraLarge,
+                        onClick = {
+                            permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent())
+                        },
+                    ) {
+                        Text(
+                            style = MaterialTheme.typography.labelLarge,
+                            text = stringResource(string.select_database_grant_permission)
+                        )
+                    }
+                }
+            }
         })
 }
 

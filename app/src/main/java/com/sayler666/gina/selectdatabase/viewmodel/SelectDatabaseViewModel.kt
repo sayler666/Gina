@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,8 +24,7 @@ class SelectDatabaseViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _permissionGranted = MutableStateFlow(Environment.isExternalStorageManager())
-    val permissionGranted: StateFlow<Boolean>
-        get() = _permissionGranted.asStateFlow()
+    val permissionGranted: StateFlow<Boolean> = _permissionGranted
 
     private val _navigateToHome = MutableStateFlow<Event<Destination>>(Empty)
     val navigateToHome: StateFlow<Event<Destination>>
