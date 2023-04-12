@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +49,11 @@ import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.journal.viewmodel.DayEntity
-import com.sayler666.gina.journal.viewmodel.JournalSearchState
+import com.sayler666.gina.journal.viewmodel.JournalState
+import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
+import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
+import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
+import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.SearchBar
@@ -73,10 +76,8 @@ fun JournalScreen(
         viewModel.refreshPermissionStatus()
     }
 
-    val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
-    val days: List<DayEntity> by viewModel.days.collectAsStateWithLifecycle()
-    val journalSearchState: JournalSearchState by viewModel.daysSearch.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
+    val state: JournalState by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -94,64 +95,39 @@ fun JournalScreen(
             )
         },
         content = { padding ->
-            if (permissionGranted) {
-                Journal(
-                    padding,
-                    days,
-                    journalSearchState,
-                    searchText,
-                    destinationsNavigator
-                )
-            } else {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        onClick = {
-                            permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent())
-                        },
-                    ) {
-                        Text(
-                            style = MaterialTheme.typography.labelLarge,
-                            text = stringResource(string.select_database_grant_permission)
-                        )
-                    }
-                }
-            }
+            Journal(
+                padding,
+                destinationsNavigator,
+                state,
+                onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) }
+            )
         })
 }
 
 @Composable
 private fun Journal(
     padding: PaddingValues,
-    days: List<DayEntity>,
-    journalSearchState: JournalSearchState,
-    searchText: MutableState<String>,
     destinationsNavigator: DestinationsNavigator,
+    journalState: JournalState,
+    onPermissionClick: () -> Unit
 ) {
     Column(
         Modifier
             .fillMaxSize()
             .padding(padding)
     ) {
-        when {
-            journalSearchState.hasResults() -> Days(
-                journalSearchState.days,
-                searchQuery = searchText.value,
+        when (journalState) {
+            is DaysState -> Days(
+                days = journalState.days,
+                searchQuery = journalState.searchQuery,
                 destinationsNavigator = destinationsNavigator
             )
-            journalSearchState.emptyResults() -> EmptySearchResult()
-            journalSearchState.noSearch() -> Days(
-                days,
-                destinationsNavigator = destinationsNavigator
+            EmptySearchState -> EmptyResult(
+                "Empty search result!",
+                "Try narrowing search criteria."
             )
+            EmptyState -> EmptyResult("No data found!", "Add some entries.")
+            PermissionNeededState -> PermissionNeeded(onPermissionClick)
         }
     }
 }
@@ -180,7 +156,6 @@ private fun Days(
                 }
             }
         }
-
     }
 }
 
@@ -242,7 +217,7 @@ fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
 }
 
 @Composable
-fun EmptySearchResult() {
+fun EmptyResult(header: String, body: String) {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -251,13 +226,39 @@ fun EmptySearchResult() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Empty search result!",
+            text = header,
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = "Try narrowing search criteria.",
+            text = body,
             style = MaterialTheme.typography.bodyMedium
         )
+    }
+}
+
+@Composable
+fun PermissionNeeded(
+    onClick: () -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            onClick = {
+                onClick()
+            },
+        ) {
+            Text(
+                style = MaterialTheme.typography.labelLarge,
+                text = stringResource(string.select_database_grant_permission)
+            )
+        }
     }
 }
 

@@ -2,29 +2,44 @@ package com.sayler666.gina.journal.viewmodel
 
 import com.sayler666.gina.core.date.toLocalDate
 import com.sayler666.gina.db.Day
+import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
+import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
+import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
-    fun mapToVm(days: List<Day>, searchQuery: String? = null): List<DayEntity> = days.map {
-        requireNotNull(it.id)
-        requireNotNull(it.date)
-        requireNotNull(it.content)
-        DayEntity(
-            id = it.id,
-            dayOfMonth = getDayOfMonth(it.date),
-            dayOfWeek = getDayOfWeek(it.date),
-            yearAndMonth = getYearAndMonth(it.date),
-            header = getYearAndMonth(it.date),
-            shortContent =
-            if (searchQuery != null) getShorContentAroundSearchQuery(
-                it.content,
-                searchQuery
-            ) else getShortContent(it.content),
-            mood = it.mood.mapToMoodOrNull()
-        )
+
+    fun toJournalState(
+        days: List<Day>,
+        searchQuery: String? = null
+    ): JournalState {
+        val daysResult = days.map {
+            requireNotNull(it.id)
+            requireNotNull(it.date)
+            requireNotNull(it.content)
+            DayEntity(
+                id = it.id,
+                dayOfMonth = getDayOfMonth(it.date),
+                dayOfWeek = getDayOfWeek(it.date),
+                yearAndMonth = getYearAndMonth(it.date),
+                header = getYearAndMonth(it.date),
+                shortContent = when (!searchQuery.isNullOrEmpty()) {
+                    true -> getShorContentAroundSearchQuery(it.content, searchQuery)
+                    else -> getShortContent(it.content)
+                },
+                mood = it.mood.mapToMoodOrNull()
+            )
+        }
+
+        return when {
+            daysResult.isEmpty() && searchQuery.isNullOrEmpty() -> EmptyState
+            daysResult.isEmpty() && !searchQuery.isNullOrEmpty() -> EmptySearchState
+            daysResult.isNotEmpty() -> DaysState(daysResult, searchQuery)
+            else -> EmptyState
+        }
     }
 
     private fun getShorContentAroundSearchQuery(content: String, searchQuery: String): String {
@@ -68,6 +83,17 @@ class DaysMapper @Inject constructor() {
     }
 }
 
+sealed class JournalState {
+    object EmptyState : JournalState()
+    object PermissionNeededState : JournalState()
+    data class DaysState(
+        val days: List<DayEntity> = emptyList(),
+        val searchQuery: String? = null
+    ) : JournalState()
+
+    object EmptySearchState : JournalState()
+}
+
 data class DayEntity(
     val id: Int,
     val dayOfMonth: String,
@@ -77,12 +103,3 @@ data class DayEntity(
     val shortContent: String,
     val mood: Mood? = null
 )
-
-data class JournalSearchState(
-    val days: List<DayEntity> = emptyList(),
-    val searchQuery: String? = null
-) {
-    fun hasResults() = days.isNotEmpty() && searchQuery != null
-    fun emptyResults() = days.isEmpty() && searchQuery != null
-    fun noSearch() = days.isEmpty() && searchQuery == null
-}

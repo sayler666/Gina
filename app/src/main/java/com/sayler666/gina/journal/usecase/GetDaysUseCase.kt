@@ -34,7 +34,10 @@ class GetDaysUseCaseImpl @Inject constructor(
     override fun getDaysFlow(searchQuery: String?): Flow<List<Day>> = flow {
         try {
             databaseProvider.getOpenedDb()?.let {
-                emitAll(it.daysDao().getDaysFlow(searchQuery = searchQuery))
+                when (searchQuery.isNullOrEmpty()) {
+                    true -> emitAll(it.daysDao().getDaysFlow())
+                    false -> emitAll(it.daysDao().getDaysFlow(searchQuery = searchQuery))
+                }
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
