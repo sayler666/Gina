@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -59,14 +60,14 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.core.date.displayText
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
-import com.sayler666.gina.insights.viewmodel.InsightsSearchState
-import com.sayler666.gina.insights.viewmodel.InsightsState
+import com.sayler666.gina.insights.viewmodel.InsightState
+import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodChartData
 import com.sayler666.gina.insights.viewmodel.MoodLevel
 import com.sayler666.gina.insights.viewmodel.Zero
-import com.sayler666.gina.journal.ui.EmptySearchResult
+import com.sayler666.gina.journal.ui.EmptyResult
 import com.sayler666.gina.ui.SearchBar
 import com.sayler666.gina.ui.mapToMoodIcon
 import java.time.LocalDate
@@ -80,10 +81,9 @@ import java.time.YearMonth
 fun InsightsScreen(
     viewModel: InsightsViewModel = hiltViewModel()
 ) {
-    val stateSearch: InsightsSearchState by viewModel.insightsStateSearch.collectAsStateWithLifecycle()
-    val state: InsightsState? by viewModel.insightsState.collectAsStateWithLifecycle()
+    val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
-    val scrollState = rememberScrollState()
+
 
     Scaffold(
         topBar = {
@@ -101,43 +101,60 @@ fun InsightsScreen(
             )
         },
         content = { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(scrollState)
-            ) {
-                when {
-                    stateSearch.hasResults() -> stateSearch.days?.Render()
-                    stateSearch.emptyResults() -> EmptySearchResult()
-                    stateSearch.noSearch() -> state?.Render()
-                }
-                Spacer(modifier = Modifier.height(35.dp))
-            }
+            Insights(padding, state)
         })
 }
 
 @Composable
-fun InsightsState.Render() {
-    Summary(this)
-    HeatMapCalendar(
-        this.contributionHeatMapData,
-        "Contributions",
-        "Less",
-        "More",
-        arrayOf(*ContributionLevel.values())
-    )
-    HeatMapCalendar(
-        this.moodHeatMapData,
-        "Moods",
-        "Worse",
-        "Better",
-        arrayOf(*MoodLevel.values())
-    )
-    DoughnutChart(this.moodChartData)
+private fun Insights(
+    padding: PaddingValues,
+    state: InsightState
+) {
+    when (state) {
+        is DataState -> Render(state, padding)
+        InsightState.EmptySearchState -> EmptyResult(
+            "Empty search result!",
+            "Try narrowing search criteria."
+        )
+        InsightState.EmptyState -> EmptyResult(
+            "No data found!",
+            "Add some entries."
+        )
+        InsightState.PermissionNeededState -> {}
+    }
 }
 
 @Composable
-private fun Summary(it: InsightsState) {
+fun Render(state: DataState, padding: PaddingValues) {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .verticalScroll(scrollState)
+    ) {
+        Summary(state)
+        HeatMapCalendar(
+            state.contributionHeatMapData,
+            "Contributions",
+            "Less",
+            "More",
+            arrayOf(*ContributionLevel.values())
+        )
+        HeatMapCalendar(
+            state.moodHeatMapData,
+            "Moods",
+            "Worse",
+            "Better",
+            arrayOf(*MoodLevel.values())
+        )
+        DoughnutChart(state.moodChartData)
+        Spacer(modifier = Modifier.height(34.dp))
+    }
+}
+
+@Composable
+private fun Summary(it: DataState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

@@ -9,6 +9,9 @@ import com.sayler666.gina.insights.viewmodel.ContributionLevel.Four
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.One
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Three
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Two
+import com.sayler666.gina.insights.viewmodel.InsightState.DataState
+import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
+import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.AWESOME
 import com.sayler666.gina.ui.Mood.BAD
@@ -23,8 +26,13 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class InsightsMapper @Inject constructor() {
-    fun toInsightsState(days: List<Day>): InsightsState {
-        return InsightsState(
+    fun toInsightsState(
+        days: List<Day>,
+        searchQuery: String? = null
+    ): InsightState = when {
+        days.isEmpty() && searchQuery.isNullOrEmpty() -> EmptyState
+        days.isEmpty() && !searchQuery.isNullOrEmpty() -> EmptySearchState
+        days.isNotEmpty() -> DataState(
             totalEntries = days.size,
             currentStreak = calculateCurrentStreak(days),
             longestStreak = calculateLongestStreak(days),
@@ -33,6 +41,7 @@ class InsightsMapper @Inject constructor() {
             moodHeatMapData = generateMoodHeatMapData(days),
             moodChartData = generateMoodChartData(days)
         )
+        else -> EmptyState
     }
 
     private fun generateMoodChartData(days: List<Day>): List<MoodChartData> {
@@ -165,23 +174,21 @@ class InsightsMapper @Inject constructor() {
     }
 }
 
-data class InsightsState(
-    val totalEntries: Int,
-    val currentStreak: Int,
-    val longestStreak: Int,
-    val totalMoods: Int,
-    val contributionHeatMapData: Map<LocalDate, Level>,
-    val moodHeatMapData: Map<LocalDate, Level>,
-    val moodChartData: List<MoodChartData>
-)
+sealed class InsightState {
+    object EmptyState : InsightState()
+    object PermissionNeededState : InsightState()
+    data class DataState(
+        val totalEntries: Int,
+        val currentStreak: Int,
+        val longestStreak: Int,
+        val totalMoods: Int,
+        val contributionHeatMapData: Map<LocalDate, Level>,
+        val moodHeatMapData: Map<LocalDate, Level>,
+        val moodChartData: List<MoodChartData>,
+        val searchQuery: String? = null
+    ) : InsightState()
 
-data class InsightsSearchState(
-    val days: InsightsState? = null,
-    val searchQuery: String? = null
-) {
-    fun hasResults() = days?.contributionHeatMapData?.isNotEmpty() == true && searchQuery != null
-    fun emptyResults() = days?.contributionHeatMapData?.isEmpty() == true && searchQuery != null
-    fun noSearch() = days?.contributionHeatMapData?.isEmpty() == true && searchQuery == null
+    object EmptySearchState : InsightState()
 }
 
 interface Level {
