@@ -63,7 +63,7 @@ import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.mapToMoodIconOrNull
+import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.delay
 
 
@@ -109,7 +109,7 @@ fun DayDetailsScreen(
                     }
                 },
                 actions = {
-                    day?.mood?.mapToMoodIconOrNull()?.let { icon ->
+                    day?.mood?.mapToMoodIcon()?.let { icon ->
                         Icon(
                             rememberVectorPainter(image = icon.icon),
                             tint = icon.color,
@@ -157,10 +157,12 @@ fun DayDetailsScreen(
                         viewModel.goToNextDay()
                         return@onKeyEvent true
                     }
+
                     VolumeDown -> {
                         viewModel.goToPreviousDay()
                         return@onKeyEvent true
                     }
+
                     else -> return@onKeyEvent false
                 }
             }
@@ -206,6 +208,7 @@ private fun AttachmentsRow(
                             )
                         }
                     )
+
                     is NonImage -> FilePreview(
                         attachment,
                         onClick = {

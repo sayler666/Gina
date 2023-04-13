@@ -3,6 +3,7 @@ package com.sayler666.gina.journal.usecase
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.Day
+import com.sayler666.gina.ui.Mood
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -13,15 +14,15 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface GetDaysUseCase {
-    fun getDaysFlow(): Flow<List<Day>>
-    fun getDaysFlow(searchQuery: String? = null): Flow<List<Day>>
+    fun getAllDaysFlow(): Flow<List<Day>>
+    fun getFilteredDaysFlow(searchQuery: String = "", moods: List<Mood>): Flow<List<Day>>
 }
 
 class GetDaysUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetDaysUseCase {
-    override fun getDaysFlow(): Flow<List<Day>> = flow {
+    override fun getAllDaysFlow(): Flow<List<Day>> = flow {
         try {
             databaseProvider.getOpenedDb()?.let {
                 emitAll(it.daysDao().getDaysFlow())
@@ -31,16 +32,15 @@ class GetDaysUseCaseImpl @Inject constructor(
         }
     }.flowOn(dispatcher)
 
-    override fun getDaysFlow(searchQuery: String?): Flow<List<Day>> = flow {
-        try {
-            databaseProvider.getOpenedDb()?.let {
-                when (searchQuery.isNullOrEmpty()) {
-                    true -> emitAll(it.daysDao().getDaysFlow())
-                    false -> emitAll(it.daysDao().getDaysFlow(searchQuery = searchQuery))
+    override fun getFilteredDaysFlow(searchQuery: String, moods: List<Mood>): Flow<List<Day>> =
+        flow {
+            try {
+                databaseProvider.getOpenedDb()?.let {
+                    val moodsInt = moods.map { it.numberValue }.toIntArray()
+                    emitAll(it.daysDao().getDaysWithFiltersFlow(searchQuery, *moodsInt))
                 }
+            } catch (e: SQLException) {
+                Timber.e(e, "Database error")
             }
-        } catch (e: SQLException) {
-            Timber.e(e, "Database error")
-        }
-    }.flowOn(dispatcher)
+        }.flowOn(dispatcher)
 }

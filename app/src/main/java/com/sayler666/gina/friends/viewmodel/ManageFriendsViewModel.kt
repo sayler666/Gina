@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -30,7 +30,7 @@ class ManageFriendsViewModel @Inject constructor(
 
     private val _friends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(500),
+        WhileSubscribed(500),
         emptyList()
     )
 
@@ -42,7 +42,7 @@ class ManageFriendsViewModel @Inject constructor(
         friendsMapper.mapToFriends(friends, friendsSearchQuery)
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(500),
+        WhileSubscribed(500),
         emptyList()
     )
 

@@ -1,17 +1,20 @@
 package com.sayler666.gina.insights.viewmodel
 
-import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
-import com.sayler666.gina.insights.viewmodel.InsightState.PermissionNeededState
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
+import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,11 +27,23 @@ class InsightsViewModel @Inject constructor(
     private val insightsMapper: InsightsMapper
 ) : ViewModel() {
 
-    private val _searchQuery = MutableStateFlow<String?>(null)
-
-    private val _state = MutableStateFlow(
-        if (Environment.isExternalStorageManager()) EmptyState else PermissionNeededState
+    private val _searchQuery = MutableStateFlow("")
+    private val _moodFilters = MutableStateFlow(Mood.values().asList())
+    val moodFilters: StateFlow<List<Mood>> = _moodFilters.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(500),
+        Mood.values().asList()
     )
+
+    val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
+        moods.size != Mood.values().size
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(500),
+        false
+    )
+
+    private val _state = MutableStateFlow<InsightState>(EmptyState)
     val state = _state
 
     init {
@@ -38,22 +53,27 @@ class InsightsViewModel @Inject constructor(
     private fun initDb() {
         viewModelScope.launch { databaseProvider.openSavedDB() }
         viewModelScope.launch {
-            _searchQuery.flatMapLatest { searchQuery ->
+            combine(_moodFilters, _searchQuery) { moods, search ->
+                moods to search
+            }.flatMapLatest { (moods, search) ->
                 getDaysUseCase
-                    .getDaysFlow(searchQuery)
-                    .map { insightsMapper.toInsightsState(it, searchQuery) }
+                    .getFilteredDaysFlow(search, moods)
+                    .map { insightsMapper.toInsightsState(it, search, moods) }
             }.collect {
                 _state.tryEmit(it)
             }
         }
     }
 
-    fun refreshPermissionStatus() {
-        if (Environment.isExternalStorageManager()) initDb()
-    }
-
-    fun searchQuery(searchQuery: String?) {
+    fun searchQuery(searchQuery: String) {
         _searchQuery.update { searchQuery }
     }
 
+    fun updateMoodFilters(moods: List<Mood>) {
+        _moodFilters.update { moods }
+    }
+
+    fun resetFilters() {
+        _moodFilters.update { Mood.values().asList() }
+    }
 }
