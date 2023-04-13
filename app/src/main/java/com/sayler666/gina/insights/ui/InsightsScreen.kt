@@ -68,7 +68,8 @@ import com.sayler666.gina.insights.viewmodel.MoodChartData
 import com.sayler666.gina.insights.viewmodel.MoodLevel
 import com.sayler666.gina.insights.viewmodel.Zero
 import com.sayler666.gina.journal.ui.EmptyResult
-import com.sayler666.gina.ui.SearchBar
+import com.sayler666.gina.ui.FiltersBar
+import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.mapToMoodIcon
 import java.time.LocalDate
 import java.time.YearMonth
@@ -83,11 +84,12 @@ fun InsightsScreen(
 ) {
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
-
+    val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
+    val filtersActive: Boolean by viewModel.filtersActive.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            SearchBar(
+            FiltersBar(
                 title = "Insights",
                 searchText = searchText.value,
                 onSearchTextChanged = {
@@ -95,9 +97,17 @@ fun InsightsScreen(
                     viewModel.searchQuery(searchText.value)
                 },
                 onClearClick = {
-                    viewModel.searchQuery(null)
+                    viewModel.searchQuery("")
                     searchText.value = ""
-                }
+                },
+                moodFilters = moodsFilters,
+                onMoodFiltersUpdate = { moods ->
+                    viewModel.updateMoodFilters(moods)
+                },
+                onResetFiltersClicked = {
+                    viewModel.resetFilters()
+                },
+                filtersActive
             )
         },
         content = { padding ->
@@ -116,11 +126,11 @@ private fun Insights(
             "Empty search result!",
             "Try narrowing search criteria."
         )
+
         InsightState.EmptyState -> EmptyResult(
             "No data found!",
             "Add some entries."
         )
-        InsightState.PermissionNeededState -> {}
     }
 }
 

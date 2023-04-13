@@ -10,7 +10,7 @@ import com.sayler666.gina.db.FriendWithCount
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
+import com.sayler666.gina.ui.Mood.Companion.mapToMood
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale.getDefault
@@ -35,7 +35,7 @@ class DayDetailsMapper @Inject constructor(
             localDate = getLocalDate(day.day.date),
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
-            mood = day.day.mood.mapToMoodOrNull(),
+            mood = day.day.mood.mapToMood(),
             friendsAll = friendsMapper.mapToDayFriends(day.friends, allFriends, friendsSearchQuery)
         )
     }
@@ -67,6 +67,7 @@ class DayDetailsMapper @Inject constructor(
                     byte = it.content,
                     mimeType = it.mimeType
                 )
+
                 else -> NonImage(
                     id = it.id,
                     byte = it.content,

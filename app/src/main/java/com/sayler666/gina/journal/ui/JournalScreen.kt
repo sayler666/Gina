@@ -56,8 +56,9 @@ import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.SearchBar
-import com.sayler666.gina.ui.mapToMoodIconOrNull
+import com.sayler666.gina.ui.FiltersBar
+import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.mapToMoodIcon
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
@@ -76,12 +77,14 @@ fun JournalScreen(
         viewModel.refreshPermissionStatus()
     }
 
-    val searchText = rememberSaveable { mutableStateOf("") }
     val state: JournalState by viewModel.state.collectAsStateWithLifecycle()
+    val searchText = rememberSaveable { mutableStateOf("") }
+    val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
+    val filtersActive: Boolean by viewModel.filtersActive.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            SearchBar(
+            FiltersBar(
                 title = "Gina",
                 searchText = searchText.value,
                 onSearchTextChanged = {
@@ -89,9 +92,17 @@ fun JournalScreen(
                     viewModel.searchQuery(searchText.value)
                 },
                 onClearClick = {
-                    viewModel.searchQuery(null)
+                    viewModel.searchQuery("")
                     searchText.value = ""
-                }
+                },
+                moodFilters = moodsFilters,
+                onMoodFiltersUpdate = { moods ->
+                    viewModel.updateMoodFilters(moods)
+                },
+                onResetFiltersClicked = {
+                    viewModel.resetFilters()
+                },
+                filtersActive
             )
         },
         content = { padding ->
@@ -122,10 +133,12 @@ private fun Journal(
                 searchQuery = journalState.searchQuery,
                 destinationsNavigator = destinationsNavigator
             )
+
             EmptySearchState -> EmptyResult(
                 "Empty search result!",
                 "Try narrowing search criteria."
             )
+
             EmptyState -> EmptyResult("No data found!", "Add some entries.")
             PermissionNeededState -> PermissionNeeded(onPermissionClick)
         }
@@ -170,7 +183,7 @@ fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
         ),
         onClick = onClick
     ) {
-        val icon = day.mood.mapToMoodIconOrNull()
+        val icon = day.mood.mapToMoodIcon()
         Column(
             Modifier
                 .padding(8.dp)
@@ -178,7 +191,7 @@ fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
         ) {
             Row(Modifier.fillMaxWidth()) {
                 DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
-                icon?.let {
+                icon.let {
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
                         painter = rememberVectorPainter(

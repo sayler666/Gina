@@ -6,7 +6,7 @@ import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
+import com.sayler666.gina.ui.Mood.Companion.mapToMood
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -14,7 +14,8 @@ class DaysMapper @Inject constructor() {
 
     fun toJournalState(
         days: List<Day>,
-        searchQuery: String? = null
+        searchQuery: String,
+        moods: List<Mood>
     ): JournalState {
         val daysResult = days.map {
             requireNotNull(it.id)
@@ -26,17 +27,23 @@ class DaysMapper @Inject constructor() {
                 dayOfWeek = getDayOfWeek(it.date),
                 yearAndMonth = getYearAndMonth(it.date),
                 header = getYearAndMonth(it.date),
-                shortContent = when (!searchQuery.isNullOrEmpty()) {
+                shortContent = when (searchQuery.isNotEmpty()) {
                     true -> getShorContentAroundSearchQuery(it.content, searchQuery)
                     else -> getShortContent(it.content)
                 },
-                mood = it.mood.mapToMoodOrNull()
+                mood = it.mood.mapToMood()
             )
         }
 
         return when {
-            daysResult.isEmpty() && searchQuery.isNullOrEmpty() -> EmptyState
-            daysResult.isEmpty() && !searchQuery.isNullOrEmpty() -> EmptySearchState
+            daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
+                Mood.values().toList()
+            )) -> EmptyState
+
+            daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
+                Mood.values().toList()
+            )) -> EmptySearchState
+
             daysResult.isNotEmpty() -> DaysState(daysResult, searchQuery)
             else -> EmptyState
         }
@@ -59,24 +66,16 @@ class DaysMapper @Inject constructor() {
 
     private fun getShortContent(content: String): String = content
         .substring(0..minOf(content.length - 1, shortContentMaxLength)).trimEnd()
-        .let {
-            if (content.length > it.length) it.plus("…") else it
-        }
+        .let { if (content.length > it.length) it.plus("…") else it }
 
     private fun getDayOfMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("dd")
-        )
+        .format(DateTimeFormatter.ofPattern("dd"))
 
     private fun getDayOfWeek(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("EEEE")
-        )
+        .format(DateTimeFormatter.ofPattern("EEEE"))
 
     private fun getYearAndMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("yyyy, MMMM")
-        )
+        .format(DateTimeFormatter.ofPattern("yyyy, MMMM"))
 
     companion object {
         private const val shortContentMaxLength = 120

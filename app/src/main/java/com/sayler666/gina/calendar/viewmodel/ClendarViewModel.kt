@@ -19,7 +19,7 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
 
     val days = getDaysUseCase
-        .getDaysFlow()
+        .getAllDaysFlow()
         .map {
             daysMapper.mapToVm(it)
         }.stateIn(

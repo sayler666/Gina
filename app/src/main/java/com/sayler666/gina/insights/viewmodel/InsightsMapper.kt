@@ -15,7 +15,7 @@ import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
 import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.Mood.AWESOME
 import com.sayler666.gina.ui.Mood.BAD
-import com.sayler666.gina.ui.Mood.Companion.mapToMoodOrNull
+import com.sayler666.gina.ui.Mood.Companion.mapToMood
 import com.sayler666.gina.ui.Mood.GOOD
 import com.sayler666.gina.ui.Mood.LOW
 import com.sayler666.gina.ui.Mood.NEUTRAL
@@ -28,10 +28,17 @@ import javax.inject.Inject
 class InsightsMapper @Inject constructor() {
     fun toInsightsState(
         days: List<Day>,
-        searchQuery: String? = null
+        searchQuery: String,
+        moods: List<Mood>
     ): InsightState = when {
-        days.isEmpty() && searchQuery.isNullOrEmpty() -> EmptyState
-        days.isEmpty() && !searchQuery.isNullOrEmpty() -> EmptySearchState
+        days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
+            Mood.values().toList()
+        )) -> EmptyState
+
+        days.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
+            Mood.values().toList()
+        )) -> EmptySearchState
+
         days.isNotEmpty() -> DataState(
             totalEntries = days.size,
             currentStreak = calculateCurrentStreak(days),
@@ -41,11 +48,12 @@ class InsightsMapper @Inject constructor() {
             moodHeatMapData = generateMoodHeatMapData(days),
             moodChartData = generateMoodChartData(days)
         )
+
         else -> EmptyState
     }
 
     private fun generateMoodChartData(days: List<Day>): List<MoodChartData> {
-        val moods = days.mapNotNull { it.mood.mapToMoodOrNull() }
+        val moods = days.map { it.mood.mapToMood() }
 
         val awesomeCount = moods.count { it == AWESOME }.toFloat()
         val superbCount = moods.count { it == SUPERB }.toFloat()
@@ -176,7 +184,6 @@ class InsightsMapper @Inject constructor() {
 
 sealed class InsightState {
     object EmptyState : InsightState()
-    object PermissionNeededState : InsightState()
     data class DataState(
         val totalEntries: Int,
         val currentStreak: Int,

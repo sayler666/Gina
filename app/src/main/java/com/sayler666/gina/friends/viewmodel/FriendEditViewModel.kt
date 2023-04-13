@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -41,7 +41,7 @@ class FriendEditViewModel @Inject constructor(
             .map(friendsMapper::mapToFriend)
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(500),
+                WhileSubscribed(500),
                 null
             )
 

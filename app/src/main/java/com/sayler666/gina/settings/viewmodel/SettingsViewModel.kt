@@ -7,7 +7,7 @@ import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
 import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -30,7 +30,7 @@ class SettingsViewModel @Inject constructor(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(500),
+                WhileSubscribed(500),
                 null
             )
 
@@ -43,7 +43,7 @@ class SettingsViewModel @Inject constructor(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(500),
+                WhileSubscribed(500),
                 null
             )
 
