@@ -43,7 +43,7 @@ class InsightsMapper @Inject constructor() {
             totalEntries = days.size,
             currentStreak = calculateCurrentStreak(days),
             longestStreak = calculateLongestStreak(days),
-            totalMoods = days.count { it.mood != null },
+            totalMoods = days.count { it.mood != Int.MIN_VALUE },
             contributionHeatMapData = generateContributionHeatMapData(days),
             moodHeatMapData = generateMoodHeatMapData(days),
             moodChartData = generateMoodChartData(days)

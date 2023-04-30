@@ -32,7 +32,7 @@ fun CalendarScreen(
 
     if (days.isNotEmpty()) {
         Box(Modifier.fillMaxSize()) {
-            Calendar(
+            CalendarVertical(
                 days,
                 onDayClick = { day ->
                     destinationsNavigator.navigate(

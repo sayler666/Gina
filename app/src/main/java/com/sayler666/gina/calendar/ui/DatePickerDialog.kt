@@ -21,7 +21,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
 import java.time.LocalDate
-import java.util.*
 
 @Composable
 fun DatePickerDialog(
@@ -41,7 +40,7 @@ fun DatePickerDialog(
                 shape = MaterialTheme.shapes.large,
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Calendar(
+                CalendarHorizontal(
                     days,
                     selectable = true,
                     selectedDate = initialDate,
