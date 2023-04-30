@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sayler666.gina.core.date.displayText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,6 +49,10 @@ fun YearMonthSwitcherPopup(
 ) {
     val viewModel = YearMonthSwitcherViewModel(currentYearMonth)
     val date: LocalDate by viewModel.date.collectAsStateWithLifecycle()
+
+    LaunchedEffect(currentYearMonth) {
+        viewModel.updateDate(currentYearMonth)
+    }
 
     if (showPopup) Popup(
         onDismissRequest = { onDismiss() },
@@ -201,6 +205,10 @@ internal class YearMonthSwitcherViewModel(currentYearMonth: YearMonth) : ViewMod
 
     fun minusYear() {
         _date.value = _date.value.minusYears(1)
+    }
+
+    fun updateDate(currentYearMonth: YearMonth) {
+        _date.value = LocalDate.of(currentYearMonth.year, currentYearMonth.month, 1)
     }
 
 }
