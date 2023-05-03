@@ -58,7 +58,6 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
                             }
                         }
                 }
-
             }
         }
 }

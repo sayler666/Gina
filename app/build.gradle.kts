@@ -14,6 +14,7 @@ plugins {
 val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
 
 android {
+    namespace = "com.sayler666.gina"
 
     signingConfigs {
         create("release") {
@@ -64,15 +65,15 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
 
         // For AGP 4.1+
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(17)
     }
 
     composeOptions {
@@ -81,6 +82,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     kapt {

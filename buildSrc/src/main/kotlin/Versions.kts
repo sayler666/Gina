@@ -36,5 +36,5 @@ object Versions {
 
     const val timber = "4.7.1"
     const val jUnit = "4.12"
-    const val gradle = "7.4.2"
+    const val gradle = "8.0.1"
 }

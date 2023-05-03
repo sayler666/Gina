@@ -31,11 +31,7 @@ class JournalViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
     private val _moodFilters = MutableStateFlow(Mood.values().asList())
-    val moodFilters: StateFlow<List<Mood>> = _moodFilters.stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        Mood.values().asList()
-    )
+    val moodFilters: StateFlow<List<Mood>> = _moodFilters
 
     val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
         moods.size != Mood.values().size
