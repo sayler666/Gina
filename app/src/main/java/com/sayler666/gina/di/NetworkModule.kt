@@ -39,7 +39,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideMovieService(retrofit: Retrofit): ZenQuotesService =
+    fun provideZenQuotesService(retrofit: Retrofit): ZenQuotesService =
         retrofit.create(ZenQuotesService::class.java)
 
 }
