@@ -32,29 +32,34 @@ class ImageCompressor @Inject constructor(
             val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             Timber.d("Compress: Original image res: ${original.width}/${original.height}, size: ${bytes.size} bytes")
 
-            val file = withContext(Dispatchers.IO) {
-                File.createTempFile("file", ".tmp")
+            if (compressorSettings.compressionEnabled) {
+                val file = withContext(Dispatchers.IO) {
+                    File.createTempFile("file", ".tmp")
+                }
+
+                val fos = FileOutputStream(file)
+                fos.write(bytes)
+                fos.close()
+
+                val compressedBytes = Compressor.compress(app, file) {
+                    resolution(compressorSettings.width, compressorSettings.height)
+                    quality(compressorSettings.quality)
+                    size(compressorSettings.size)
+                }.readBytes()
+
+                val compressed =
+                    BitmapFactory.decodeByteArray(compressedBytes, 0, compressedBytes.size)
+                Timber.d("Compress: Compressed image res: ${compressed.width}/${compressed.height}, size: ${compressedBytes.size} bytes")
+                compressedBytes
+            } else {
+                bytes
             }
-
-            val fos = FileOutputStream(file)
-            fos.write(bytes)
-            fos.close()
-
-            val compressedBytes = Compressor.compress(app, file) {
-                resolution(compressorSettings.width, compressorSettings.height)
-                quality(compressorSettings.quality)
-                size(compressorSettings.size)
-            }.readBytes()
-
-            val compressed = BitmapFactory.decodeByteArray(compressedBytes, 0, compressedBytes.size)
-            Timber.d("Compress: Compressed image res: ${compressed.width}/${compressed.height}, size: ${compressedBytes.size} bytes")
-
-            compressedBytes
         }
     }
 
     @Serializable
     data class CompressorSettings(
+        val compressionEnabled: Boolean = true,
         val width: Int = IMAGE_WIDTH,
         val height: Int = IMAGE_HEIGHT,
         val quality: Int = IMAGE_QUALITY,
