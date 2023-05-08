@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -91,7 +92,8 @@ fun SettingsScreen(
                 ImageCompressSettingsSection(
                     imageCompressorSettings,
                     onSetImageQuality = viewModel::setNewImageQuality,
-                    onSetImageSize = viewModel::setNewImageSize
+                    onSetImageSize = viewModel::setNewImageSize,
+                    onImageCompressionToggled = viewModel::toggleImageCompression
                 )
             }
         })
@@ -134,12 +136,13 @@ private fun ImageCompressSettingsSection(
     imageCompressorSettings: CompressorSettings?,
     onSetImageQuality: (Int) -> Unit,
     onSetImageSize: (Long) -> Unit,
+    onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
     imageCompressorSettings?.let {
         SettingsButton(
             header = "Image optimization",
-            body = "Quality: ${it.quality}%, Size: ${it.size / 1000}KB",
+            body = if (imageCompressorSettings.compressionEnabled) "Quality: ${it.quality}%, Size: ${it.size / 1000}KB" else "Disabled",
             icon = Filled.PhotoSizeSelectLarge,
             onClick = { showImageCompressSettingsDialog.value = true }
         )
@@ -148,7 +151,8 @@ private fun ImageCompressSettingsSection(
             imageCompressorSettings = imageCompressorSettings,
             onDismiss = { showImageCompressSettingsDialog.value = false },
             onSetImageQuality = onSetImageQuality,
-            onSetImageSize = onSetImageSize
+            onSetImageSize = onSetImageSize,
+            onImageCompressionToggled = onImageCompressionToggled
         )
     }
 }
@@ -207,12 +211,28 @@ fun ImageCompressSettingsDialog(
     onDismiss: () -> Unit,
     onSetImageQuality: (Int) -> Unit,
     onSetImageSize: (Long) -> Unit,
+    onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     if (showDialog) {
         imageCompressorSettings?.let {
             Dialog(onDismissRequest = { onDismiss() }) {
                 Card(Modifier.padding(8.dp)) {
                     Column {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Compression enabled:",
+                                style = MaterialTheme.typography.labelLarge
+                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Switch(checked = imageCompressorSettings.compressionEnabled,
+                                onCheckedChange = {
+                                    onImageCompressionToggled(it)
+                                })
+                        }
                         var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
                         Row(modifier = Modifier.padding(8.dp)) {
                             Text(
@@ -230,13 +250,13 @@ fun ImageCompressSettingsDialog(
                             value = qualitySliderPosition,
                             valueRange = 1f..100f,
                             steps = 100,
+                            enabled = imageCompressorSettings.compressionEnabled,
                             onValueChange = { value: Float ->
                                 qualitySliderPosition = value
                             },
                             onValueChangeFinished = {
                                 onSetImageQuality(qualitySliderPosition.toInt())
                             })
-
                         var sizeSliderPosition by remember { mutableStateOf(it.size.toFloat()) }
                         Row(modifier = Modifier.padding(8.dp)) {
                             Text(
@@ -254,6 +274,7 @@ fun ImageCompressSettingsDialog(
                             value = sizeSliderPosition,
                             valueRange = 1f..500_000f,
                             steps = 100,
+                            enabled = imageCompressorSettings.compressionEnabled,
                             onValueChange = { value: Float ->
                                 sizeSliderPosition = value
                             },

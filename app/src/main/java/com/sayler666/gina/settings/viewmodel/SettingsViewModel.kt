@@ -16,36 +16,27 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val setting: Settings,
-    private val databaseProvider: DatabaseProvider
+    private val setting: Settings, private val databaseProvider: DatabaseProvider
 ) : ViewModel() {
 
     private val _tempImageCompressorSettings: MutableStateFlow<CompressorSettings> =
         MutableStateFlow(CompressorSettings())
     val imageCompressorSettings: StateFlow<CompressorSettings?>
-        get() = setting.getImageCompressorSettingsFlow()
-            .map {
-                _tempImageCompressorSettings.value = it
-                it
-            }
-            .stateIn(
-                viewModelScope,
-                WhileSubscribed(500),
-                null
-            )
+        get() = setting.getImageCompressorSettingsFlow().map {
+            _tempImageCompressorSettings.value = it
+            it
+        }.stateIn(
+            viewModelScope, WhileSubscribed(500), null
+        )
 
     private val _databasePath: MutableStateFlow<String?> = MutableStateFlow(null)
     val databasePath: StateFlow<String?>
-        get() = setting.getDatabasePathFlow()
-            .map {
-                _databasePath.value = it
-                it
-            }
-            .stateIn(
-                viewModelScope,
-                WhileSubscribed(500),
-                null
-            )
+        get() = setting.getDatabasePathFlow().map {
+            _databasePath.value = it
+            it
+        }.stateIn(
+            viewModelScope, WhileSubscribed(500), null
+        )
 
     fun setNewImageQuality(quality: Int) {
         val settings = _tempImageCompressorSettings.value
@@ -66,6 +57,13 @@ class SettingsViewModel @Inject constructor(
     fun openDatabase(path: String) {
         viewModelScope.launch {
             databaseProvider.openDB(path)
+        }
+    }
+
+    fun toggleImageCompression(enabled: Boolean) {
+        val settings = _tempImageCompressorSettings.value
+        viewModelScope.launch {
+            setting.saveImageCompressorSettings(settings.copy(compressionEnabled = enabled))
         }
     }
 }
