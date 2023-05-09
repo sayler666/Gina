@@ -46,7 +46,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.gina.core.file.Files
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
-import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
+import com.sayler666.gina.imageCompressor.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -58,7 +58,7 @@ fun SettingsScreen(
     destinationsNavigator: DestinationsNavigator,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val imageCompressorSettings: CompressorSettings? by viewModel.imageCompressorSettings.collectAsStateWithLifecycle()
+    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -90,7 +90,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 ImageCompressSettingsSection(
-                    imageCompressorSettings,
+                    imageOptimizationSettings,
                     onSetImageQuality = viewModel::setNewImageQuality,
                     onSetImageSize = viewModel::setNewImageSize,
                     onImageCompressionToggled = viewModel::toggleImageCompression
@@ -133,22 +133,22 @@ private fun FriendsSettingsSections(
 
 @Composable
 private fun ImageCompressSettingsSection(
-    imageCompressorSettings: CompressorSettings?,
+    imageOptimizationSettings: OptimizationSettings?,
     onSetImageQuality: (Int) -> Unit,
     onSetImageSize: (Long) -> Unit,
     onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-    imageCompressorSettings?.let {
+    imageOptimizationSettings?.let {
         SettingsButton(
             header = "Image optimization",
-            body = if (imageCompressorSettings.compressionEnabled) "Quality: ${it.quality}%, Size: ${it.size / 1000}KB" else "Disabled",
+            body = if (imageOptimizationSettings.compressionEnabled) "Quality: ${it.quality}%, Size: ${it.size / 1000}KB" else "Disabled",
             icon = Filled.PhotoSizeSelectLarge,
             onClick = { showImageCompressSettingsDialog.value = true }
         )
         ImageCompressSettingsDialog(
             showDialog = showImageCompressSettingsDialog.value,
-            imageCompressorSettings = imageCompressorSettings,
+            imageOptimizationSettings = imageOptimizationSettings,
             onDismiss = { showImageCompressSettingsDialog.value = false },
             onSetImageQuality = onSetImageQuality,
             onSetImageSize = onSetImageSize,
@@ -207,14 +207,14 @@ private fun SettingsButton(
 @Composable
 fun ImageCompressSettingsDialog(
     showDialog: Boolean,
-    imageCompressorSettings: CompressorSettings?,
+    imageOptimizationSettings: OptimizationSettings?,
     onDismiss: () -> Unit,
     onSetImageQuality: (Int) -> Unit,
     onSetImageSize: (Long) -> Unit,
     onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     if (showDialog) {
-        imageCompressorSettings?.let {
+        imageOptimizationSettings?.let {
             Dialog(onDismissRequest = { onDismiss() }) {
                 Card(Modifier.padding(8.dp)) {
                     Column {
@@ -223,12 +223,12 @@ fun ImageCompressSettingsDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Compression enabled:",
+                                text = "Image Optimization:",
                                 style = MaterialTheme.typography.labelLarge
                                     .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            Switch(checked = imageCompressorSettings.compressionEnabled,
+                            Switch(checked = imageOptimizationSettings.compressionEnabled,
                                 onCheckedChange = {
                                     onImageCompressionToggled(it)
                                 })
@@ -250,7 +250,7 @@ fun ImageCompressSettingsDialog(
                             value = qualitySliderPosition,
                             valueRange = 1f..100f,
                             steps = 100,
-                            enabled = imageCompressorSettings.compressionEnabled,
+                            enabled = imageOptimizationSettings.compressionEnabled,
                             onValueChange = { value: Float ->
                                 qualitySliderPosition = value
                             },
@@ -274,7 +274,7 @@ fun ImageCompressSettingsDialog(
                             value = sizeSliderPosition,
                             valueRange = 1f..500_000f,
                             steps = 100,
-                            enabled = imageCompressorSettings.compressionEnabled,
+                            enabled = imageOptimizationSettings.compressionEnabled,
                             onValueChange = { value: Float ->
                                 sizeSliderPosition = value
                             },

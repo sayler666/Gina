@@ -19,7 +19,7 @@ import com.sayler666.gina.db.Friend
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
-import com.sayler666.gina.imageCompressor.ImageCompressor
+import com.sayler666.gina.imageCompressor.ImageOptimization
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -48,7 +48,7 @@ class DayDetailsEditViewModel @Inject constructor(
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
-    private val imageCompressor: ImageCompressor
+    private val imageOptimization: ImageOptimization
 ) : ViewModel() {
 
     init {
@@ -154,7 +154,7 @@ class DayDetailsEditViewModel @Inject constructor(
             attachments.forEach { (content, mimeType) ->
                 launch(SupervisorJob() + exceptionHandler) {
                     val bytes = when {
-                        mimeType.isImageMimeType() -> imageCompressor.compressImage(content)
+                        mimeType.isImageMimeType() -> imageOptimization.compressImage(content)
                         else -> content
                     }
 
