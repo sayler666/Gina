@@ -1,12 +1,12 @@
 package com.sayler666.gina.quotes.api.model
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class Quote(
-    @Json(name = "q")
+    @SerialName("q")
     val quote: String,
-    @Json(name = "a")
+    @SerialName("a")
     val author: String
 )
