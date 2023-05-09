@@ -12,7 +12,7 @@ object ImageCompressorModule {
 
     @Provides
     @Singleton
-    fun provideImageCompressorSettings(settings: ImageCompressorSettingsImpl): ImageCompressorSettings =
+    fun provideImageCompressorSettings(settings: ImageOptimizationSettingsImpl): ImageOptimizationSettings =
         settings
 
 }

@@ -3,7 +3,7 @@ package com.sayler666.gina.settings.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.imageCompressor.ImageCompressor.CompressorSettings
+import com.sayler666.gina.imageCompressor.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,11 +19,11 @@ class SettingsViewModel @Inject constructor(
     private val setting: Settings, private val databaseProvider: DatabaseProvider
 ) : ViewModel() {
 
-    private val _tempImageCompressorSettings: MutableStateFlow<CompressorSettings> =
-        MutableStateFlow(CompressorSettings())
-    val imageCompressorSettings: StateFlow<CompressorSettings?>
+    private val _tempImageOptimizationSettings: MutableStateFlow<OptimizationSettings> =
+        MutableStateFlow(OptimizationSettings())
+    val imageOptimizationSettings: StateFlow<OptimizationSettings?>
         get() = setting.getImageCompressorSettingsFlow().map {
-            _tempImageCompressorSettings.value = it
+            _tempImageOptimizationSettings.value = it
             it
         }.stateIn(
             viewModelScope, WhileSubscribed(500), null
@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
         )
 
     fun setNewImageQuality(quality: Int) {
-        val settings = _tempImageCompressorSettings.value
+        val settings = _tempImageOptimizationSettings.value
 
         viewModelScope.launch {
             setting.saveImageCompressorSettings(settings.copy(quality = quality))
@@ -47,7 +47,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setNewImageSize(size: Long) {
-        val settings = _tempImageCompressorSettings.value
+        val settings = _tempImageOptimizationSettings.value
 
         viewModelScope.launch {
             setting.saveImageCompressorSettings(settings.copy(size = size))
@@ -61,7 +61,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun toggleImageCompression(enabled: Boolean) {
-        val settings = _tempImageCompressorSettings.value
+        val settings = _tempImageOptimizationSettings.value
         viewModelScope.launch {
             setting.saveImageCompressorSettings(settings.copy(compressionEnabled = enabled))
         }
