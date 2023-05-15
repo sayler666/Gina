@@ -34,6 +34,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -189,8 +190,11 @@ private fun Filters(
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = { scope.launch { openBottomSheet = false } },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
-            Row(horizontalArrangement = Arrangement.SpaceAround) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
                 CenterAlignedTopAppBar(navigationIcon = {
                     IconButton(onClick = {
                         onResetFiltersClicked()
@@ -209,7 +213,10 @@ private fun Filters(
                     }) {
                         Icon(Rounded.Check, contentDescription = "Save")
                     }
-                })
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+                )
             }
             MoodFilter(moodFilters, onMoodsSelected)
         }
