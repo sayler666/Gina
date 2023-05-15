@@ -25,7 +25,6 @@ android {
         }
     }
 
-    buildToolsVersion = ConfigData.buildToolsVersion
     compileSdkVersion = ConfigData.compileSdkVersion
 
     defaultConfig {
