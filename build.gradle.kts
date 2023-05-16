@@ -1,24 +1,8 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath(Dependencies.Deps.classpathGradle)
-        classpath(Dependencies.Deps.classpathKotlinGradle)
-        classpath(Dependencies.Deps.classpathHilt)
-        classpath(Dependencies.Deps.classpathKotlinSerialization)
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-    }
-}
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
+plugins {
+    alias(libs.plugins.android) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.android.hilt) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kapt) apply false
 }

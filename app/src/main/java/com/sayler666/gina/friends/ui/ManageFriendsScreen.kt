@@ -44,7 +44,7 @@ fun ManageFriendsScreen(
         topBar = {
             TopAppBar(title = { Text("Friends") })
         },
-        content = { padding ->
+        content = {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

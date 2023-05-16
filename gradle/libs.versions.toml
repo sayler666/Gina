@@ -1,0 +1,85 @@
+[versions]
+kotlin = "1.8.10"
+hilt = "2.44.2"
+hilt-navigation = "1.0.0"
+desugar-jdk-libs = "2.0.3"
+androidx-appcompat = "1.6.1"
+navigation-ui-ktx = "2.5.3"
+activity-compose = "1.7.1"
+compose-ui = "1.4.3"
+lifecycle = "2.6.1"
+core-splashscreen = "1.0.1"
+constraintlayout-compose = "1.0.1"
+compose-material3 = "1.1.0"
+compose-material2 = "1.4.3"
+compose-navigation = "2.5.3"
+composecompiler = "1.4.4"
+accompanist-systemuicontroller = "0.30.0"
+coil-compose = "2.3.0"
+compose-destination = "1.8.38-beta"
+calendar-compose = "2.2.1-SNAPSHOT"
+timber = "5.0.1"
+room = "2.5.1"
+datastore-preferences = "1.0.0"
+commons-io = "2.11.0"
+compressor = "3.0.1"
+okio = "3.3.0"
+okhttp3 = "4.11.0"
+retrofit = "2.9.0"
+retrofit-serialization-converter = "1.0.0"
+junit = "4.13.2"
+kotlin-serialization-json = "1.5.0"
+agp = "8.1.0-beta02"
+ksp = "1.8.10-1.0.9"
+kapt = "1.8.10"
+
+[libraries]
+kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization-json" }
+dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-ui" }
+androidx-compose-ui-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose-ui" }
+androidx-compose-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayout-compose" }
+androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose-ui" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }
+androidx-compose-material2 = { group = "androidx.compose.material", name = "material", version.ref = "compose-material2" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-compiler = { group = "androidx.lifecycle", name = "lifecycle-compiler", version.ref = "lifecycle" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-preferences" }
+room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemuicontroller" }
+compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "compose-destination" }
+compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "compose-destination" }
+calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "calendar-compose" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+compressor = { group = "id.zelory", name = "compressor", version.ref = "compressor" }
+okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
+okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-serialization-converter = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofit-serialization-converter" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+[plugins]
+android = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+
+[bundles]

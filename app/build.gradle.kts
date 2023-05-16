@@ -1,20 +1,18 @@
 import ConfigData.ConfigData
-import Dependencies.Deps
-import Versions.Versions
 
 plugins {
-    id("com.android.application")
-    kotlin("android")
-    kotlin("kapt")
-    id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp") version "1.8.10-1.0.9"
-    id("kotlinx-serialization")
+    alias(libs.plugins.android)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.android.hilt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kapt)
 }
 
 val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
 
 android {
-    namespace = "com.sayler666.gina"
+    namespace = ConfigData.applicationId
 
     signingConfigs {
         create("release") {
@@ -34,9 +32,6 @@ android {
         minSdk = ConfigData.minSdk
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // Required when setting minSdkVersion to 20 or lower
-        multiDexEnabled = true
     }
 
     buildTypes {
@@ -75,7 +70,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.composeKotlinCompiler
+        kotlinCompilerExtensionVersion = libs.versions.composecompiler.get()
     }
 
     buildFeatures {
@@ -99,44 +94,42 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(Deps.desugarJdkLibs)
-    implementation(Deps.hilt)
-    implementation(Deps.hiltNavigationCompose)
-    kapt(Deps.hiltCompiler)
-    implementation(Deps.kotlin)
-    implementation(Deps.kotlinSerializationJson)
-    implementation(Deps.appCompat)
-    implementation(Deps.activityCompose)
-    implementation(Deps.composeUi)
-    implementation(Deps.composeUiToolingPreview)
-    implementation(Deps.lifecycle)
-    implementation(Deps.lifecycleRuntimeCompose)
-    implementation(Deps.lifecycleViewModelCompose)
-    implementation(Deps.lifecycleRuntime)
-    implementation(Deps.lifecycleCompiler)
-    implementation(Deps.timber)
-    implementation(Deps.composeMaterial3)
-    implementation(Deps.composeMaterial2)
-    implementation(Deps.navigationKtx)
-    implementation(Deps.composeNavigation)
-    implementation(Deps.composeConstraintLayout)
-    implementation(Deps.accompanistSystemUi)
-    implementation(Deps.composeDestination)
-    implementation(Deps.coilCompose)
-    implementation(Deps.composeIcons)
-    ksp(Deps.composeDestinationKsp)
-    implementation(Deps.room)
-    kapt(Deps.roomCompiler)
-    implementation(Deps.roomKtx)
-    implementation(Deps.dataStorePreferences)
-    implementation(Deps.commonsIo)
-    implementation(Deps.calendarCompose)
-    implementation(Deps.splashScreen)
-    implementation(Deps.compressor)
-    implementation(Deps.okio)
-    implementation(Deps.okHttpLoggingInterceptor)
-    implementation(Deps.retrofitConverterKotlinxSerialization)
-    implementation(Deps.retrofit)
-    implementation(Deps.timber)
-    testImplementation(Deps.junit)
+    implementation(libs.kotlin.serialization.json)
+    kapt(libs.dagger.hilt.compiler)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.dagger.hilt)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.preview)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.compiler)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material2)
+    implementation(libs.androidx.compose.constraintlayout)
+    implementation(libs.androidx.compose.material.icons)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.coil.compose)
+    implementation(libs.compose.destinations.core)
+    ksp(libs.compose.destinations.ksp)
+    implementation(libs.calendar.compose)
+    implementation(libs.timber)
+    implementation(libs.room)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.commons.io)
+    implementation(libs.compressor)
+    implementation(libs.okio)
+    implementation(libs.okhttp3.logging.interceptor)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization.converter)
+    testImplementation(libs.junit)
 }
