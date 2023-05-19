@@ -1,4 +1,4 @@
-package com.sayler666.gina.core.file
+package com.sayler666.core.file
 
 import android.app.Activity
 import android.content.Context

@@ -1,6 +1,7 @@
-package com.sayler666.gina
+package com.sayler666.gina.ginaApp
 
 import android.app.Application
+import com.sayler666.gina.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

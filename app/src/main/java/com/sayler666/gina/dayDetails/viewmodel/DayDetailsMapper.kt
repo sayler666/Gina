@@ -1,7 +1,7 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
-import com.sayler666.gina.core.date.toLocalDate
-import com.sayler666.gina.core.file.isImageMimeType
+import com.sayler666.core.date.toLocalDate
+import com.sayler666.core.file.isImageMimeType
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.db.Attachment

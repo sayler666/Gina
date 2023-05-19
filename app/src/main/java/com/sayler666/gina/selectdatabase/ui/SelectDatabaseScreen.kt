@@ -20,11 +20,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.file.Files
+import com.sayler666.core.flow.Event
+import com.sayler666.core.flow.Event.Value
 import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
-import com.sayler666.gina.core.file.Files
-import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.core.flow.Event.Value
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination
@@ -48,7 +48,7 @@ fun SelectDatabaseScreen(
         viewModel.refreshPermissionStatus()
     }
 
-    if ((navigate as? Value<Destination>)?.getValue() == JournalScreenDestination) {
+    if ((navigate as? Value<Destination>)?.invoke() == JournalScreenDestination) {
         destinationsNavigator.navigate(JournalScreenDestination, builder = {
             popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
         })

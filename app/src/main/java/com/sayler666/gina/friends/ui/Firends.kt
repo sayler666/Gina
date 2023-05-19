@@ -62,7 +62,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
-import com.sayler666.gina.core.file.Files
+import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.dialog.ConfirmationDialog

@@ -1,6 +1,6 @@
 package com.sayler666.gina.quotes
 
-import com.sayler666.gina.core.date.toEpochMilliseconds
+import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.gina.quotes.api.ZenQuotesService
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.quotes.db.QuotesDatabaseProvider

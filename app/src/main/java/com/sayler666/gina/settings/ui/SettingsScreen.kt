@@ -44,9 +44,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.gina.core.file.Files
+import com.sayler666.core.file.Files
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
-import com.sayler666.gina.imageCompressor.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

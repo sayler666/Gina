@@ -74,12 +74,12 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.compose.conditional
+import com.sayler666.core.file.Files
+import com.sayler666.core.file.Files.openFileIntent
+import com.sayler666.core.file.handleSelectedFiles
+import com.sayler666.core.flow.Event
 import com.sayler666.gina.calendar.ui.DatePickerDialog
-import com.sayler666.gina.core.compose.conditional
-import com.sayler666.gina.core.file.Files
-import com.sayler666.gina.core.file.Files.openFileIntent
-import com.sayler666.gina.core.file.handleSelectedFiles
-import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.ui.FilePreview
 import com.sayler666.gina.dayDetails.ui.ImagePreview
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
@@ -275,9 +275,11 @@ fun ContentTextField(
                 ) {
                     if (quote != null) {
                         blurEnabled = false
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .blur(blurRadius)) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .blur(blurRadius)
+                        ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
                                 text = quote.quote,
@@ -329,6 +331,7 @@ fun Attachments(
                         onRemoveClicked = {
                             onRemoveAttachment(attachment.byte.hashCode())
                         })
+
                     is NonImage -> FilePreview(
                         attachment,
                         onClick = {
@@ -472,6 +475,7 @@ fun Friends(
                     )
                 }
         }
+
         false -> IconButton(onClick = { showFriendsPopup.value = true }) {
             Icon(
                 painter = rememberVectorPainter(image = Filled.People),

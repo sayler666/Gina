@@ -1,6 +1,6 @@
 package com.sayler666.gina.calendar.viewmodel
 
-import com.sayler666.gina.core.date.toLocalDate
+import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.db.Day
 import java.time.LocalDate
 import javax.inject.Inject
