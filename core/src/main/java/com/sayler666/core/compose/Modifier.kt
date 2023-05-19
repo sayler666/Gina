@@ -1,4 +1,4 @@
-package com.sayler666.gina.core.compose
+package com.sayler666.core.compose
 
 import androidx.compose.ui.Modifier
 

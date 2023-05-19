@@ -94,6 +94,7 @@ android {
 }
 
 dependencies {
+    api(project(":core"))
     implementation(libs.kotlin.serialization.json)
     kapt(libs.dagger.hilt.compiler)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -125,9 +126,6 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.commons.io)
-    implementation(libs.compressor)
-    implementation(libs.okio)
     implementation(libs.okhttp3.logging.interceptor)
     implementation(libs.retrofit)
     implementation(libs.retrofit.serialization.converter)

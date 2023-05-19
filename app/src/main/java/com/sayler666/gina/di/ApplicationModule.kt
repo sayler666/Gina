@@ -1,7 +1,7 @@
 package com.sayler666.gina.di
 
 import android.app.Application
-import com.sayler666.gina.GinaApplication
+import com.sayler666.gina.ginaApp.GinaApplication
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -34,10 +34,10 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.file.handleSelectedFiles
+import com.sayler666.core.flow.Event
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
-import com.sayler666.gina.core.file.handleSelectedFiles
-import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
 import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField

@@ -1,12 +1,12 @@
-package com.sayler666.gina.core.flow
+package com.sayler666.core.flow
 
-import com.sayler666.gina.core.flow.Event.Value
+import com.sayler666.core.flow.Event.Value
 
 sealed class Event<out T : Any> {
 
     data class Value<out T : Any>(private var data: T?) : Event<T>() {
         private var handled = false
-        fun getValue(): T? {
+        operator fun invoke(): T? {
             if (handled) return null
             handled = true
             return data
@@ -17,5 +17,5 @@ sealed class Event<out T : Any> {
 }
 
 fun <T : Any> Event<T>.withValue(block: (T) -> Unit) {
-    if (this is Value) getValue()?.let { block(it) }
+    if (this is Value) this()?.let { block(it) }
 }

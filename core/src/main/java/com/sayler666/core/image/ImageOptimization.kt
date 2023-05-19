@@ -1,9 +1,9 @@
-package com.sayler666.gina.imageCompressor
+package com.sayler666.core.image
 
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeByteArray
-import com.sayler666.gina.BuildConfig
+import id.zelory.compressor.BuildConfig
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.quality
 import id.zelory.compressor.constraint.resolution

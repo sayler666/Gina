@@ -2,8 +2,8 @@ package com.sayler666.gina.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.imageCompressor.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.settings.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

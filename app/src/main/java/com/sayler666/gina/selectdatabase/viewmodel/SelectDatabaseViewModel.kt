@@ -3,9 +3,9 @@ package com.sayler666.gina.selectdatabase.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.core.flow.Event.Empty
-import com.sayler666.gina.core.flow.Event.Value
+import com.sayler666.core.flow.Event
+import com.sayler666.core.flow.Event.Empty
+import com.sayler666.core.flow.Event.Value
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination

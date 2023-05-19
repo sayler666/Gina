@@ -1,6 +1,6 @@
 package com.sayler666.gina.journal.viewmodel
 
-import com.sayler666.gina.core.date.toLocalDate
+import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState

@@ -1,11 +1,11 @@
-package com.sayler666.gina.imageCompressor
+package com.sayler666.core.image
 
 import android.app.Application
 import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
-import com.sayler666.gina.imageCompressor.ImageOptimization.OptimizationSettings
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

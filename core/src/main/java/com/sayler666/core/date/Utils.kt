@@ -1,4 +1,4 @@
-package com.sayler666.gina.core.date
+package com.sayler666.core.date
 
 import java.time.Instant
 import java.time.LocalDate

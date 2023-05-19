@@ -1,8 +1,8 @@
 package com.sayler666.gina.insights.viewmodel
 
 import androidx.compose.ui.graphics.Color
-import com.sayler666.gina.core.date.toLocalDate
-import com.sayler666.gina.core.list.mutate
+import com.sayler666.core.collections.mutate
+import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Five
 import com.sayler666.gina.insights.viewmodel.ContributionLevel.Four

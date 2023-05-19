@@ -54,9 +54,9 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.gina.core.file.Files
-import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.core.flow.withValue
+import com.sayler666.core.file.Files
+import com.sayler666.core.flow.Event
+import com.sayler666.core.flow.withValue
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity

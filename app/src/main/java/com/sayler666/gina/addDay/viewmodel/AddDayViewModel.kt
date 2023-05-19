@@ -3,11 +3,12 @@ package com.sayler666.gina.addDay.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.core.date.toEpochMilliseconds
+import com.sayler666.core.file.isImageMimeType
+import com.sayler666.core.flow.Event
+import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
-import com.sayler666.gina.core.date.toEpochMilliseconds
-import com.sayler666.gina.core.file.isImageMimeType
-import com.sayler666.gina.core.flow.Event
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
 import com.sayler666.gina.db.Attachment
@@ -17,7 +18,6 @@ import com.sayler666.gina.db.Friend
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
-import com.sayler666.gina.imageCompressor.ImageOptimization
 import com.sayler666.gina.quotes.QuotesRepository
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel

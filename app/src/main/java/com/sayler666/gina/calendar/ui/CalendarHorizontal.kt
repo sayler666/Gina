@@ -40,8 +40,8 @@ import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
+import com.sayler666.core.compose.conditional
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
-import com.sayler666.gina.core.compose.conditional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch

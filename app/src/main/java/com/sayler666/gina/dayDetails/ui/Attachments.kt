@@ -33,7 +33,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.gina.core.file.Files
+import com.sayler666.core.file.Files
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity
 import com.sayler666.gina.ui.FullScreenDialog
 import com.sayler666.gina.ui.ZoomableBox

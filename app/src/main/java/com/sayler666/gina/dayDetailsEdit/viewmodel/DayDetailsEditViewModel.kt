@@ -3,9 +3,10 @@ package com.sayler666.gina.dayDetailsEdit.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.core.date.toEpochMilliseconds
-import com.sayler666.gina.core.file.isImageMimeType
-import com.sayler666.gina.core.flow.Event
+import com.sayler666.core.date.toEpochMilliseconds
+import com.sayler666.core.file.isImageMimeType
+import com.sayler666.core.flow.Event
+import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
@@ -19,7 +20,6 @@ import com.sayler666.gina.db.Friend
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
-import com.sayler666.gina.imageCompressor.ImageOptimization
 import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler

@@ -1,4 +1,4 @@
-package com.sayler666.gina
+package com.sayler666.gina.ginaApp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,7 +9,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.sayler666.gina.ginaApp.GinaApp
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay

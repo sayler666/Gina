@@ -3,8 +3,8 @@ package com.sayler666.gina.dayDetails.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.core.flow.Event
-import com.sayler666.gina.core.flow.Event.Value
+import com.sayler666.core.flow.Event
+import com.sayler666.core.flow.Event.Value
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase

@@ -32,6 +32,10 @@ kotlin-serialization-json = "1.5.1"
 agp = "8.1.0-beta03"
 ksp = "1.8.10-1.0.9"
 kapt = "1.8.10"
+core-ktx = "1.9.0"
+androidx-test-ext-junit = "1.1.5"
+espresso-core = "3.5.1"
+material = "1.8.0"
 
 [libraries]
 kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization-json" }
@@ -54,6 +58,7 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-compiler = { group = "androidx.lifecycle", name = "lifecycle-compiler", version.ref = "lifecycle" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-preferences" }
 room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -81,5 +86,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+com-android-library = { id = "com.android.library", version.ref = "agp" }
 
 [bundles]
