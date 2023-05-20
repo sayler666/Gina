@@ -26,12 +26,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -65,6 +69,7 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 
 
 data class DayDetailsScreenNavArgs(
@@ -80,16 +85,31 @@ fun DayDetailsScreen(
     navController: NavController,
     viewModel: DayDetailsViewModel = hiltViewModel()
 ) {
+    val requester = remember { FocusRequester() }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
+
     val goToDay: Event<Int> by viewModel.goToDayId.collectAsStateWithLifecycle()
     goToDay.withValue { dayId ->
         destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))) {
             popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
         }
     }
-    val requester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        viewModel.error.collectLatest {
+            it?.let {
+                snackbarHostState.showSnackbar(
+                    message = it,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
