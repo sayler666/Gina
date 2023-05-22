@@ -1,7 +1,9 @@
 package com.sayler666.gina.insights.viewmodel
 
 import com.sayler666.core.collections.mutate
+import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.toLocalDate
+import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
@@ -19,7 +21,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class InsightsMapper @Inject constructor() {
-    fun toInsightsState(
+    suspend fun toInsightsState(
         days: List<Day>,
         searchQuery: String,
         moods: List<Mood>
@@ -65,10 +67,14 @@ class InsightsMapper @Inject constructor() {
         }
     }
 
-    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
+    private suspend fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
         val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
 
-        val median = days.mapNotNull { it.content }.map { it.length }.sortedBy { it }.med()
+        val median = days.mapNotNull { it.content }
+            .pmap { it.getTextWithoutHtml() }
+            .map { it.length }
+            .sortedBy { it }
+            .med()
 
         val bucket1 = 0..2 * median / 3
         val bucket2 = bucket1.last + 1..bucket1.last * 2
@@ -80,7 +86,7 @@ class InsightsMapper @Inject constructor() {
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
-            heatMap[it.date.toLocalDate()] = when (it.content.length) {
+            heatMap[it.date.toLocalDate()] = when (it.content.getTextWithoutHtml().length) {
                 in bucket1 -> ContributionLevel.One
                 in bucket2 -> ContributionLevel.Two
                 in bucket3 -> ContributionLevel.Three

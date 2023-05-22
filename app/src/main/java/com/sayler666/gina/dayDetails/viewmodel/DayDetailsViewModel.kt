@@ -52,7 +52,8 @@ class DayDetailsViewModel @Inject constructor(
         )
 
     val day = getDayDetailsUseCase.getDayDetails(id).filterNotNull()
-        .onEach { day -> day.day.date?.let { date.emit(it) } }.map(dayDetailsMapper::mapToVm)
+        .onEach { day -> day.day.date?.let { date.emit(it) } }
+        .map(dayDetailsMapper::mapToVm)
         .stateIn(viewModelScope, WhileSubscribed(500), null)
 
     fun goToNextDay() {

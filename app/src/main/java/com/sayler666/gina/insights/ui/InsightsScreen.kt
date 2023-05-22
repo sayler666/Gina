@@ -188,14 +188,14 @@ private fun Loading(padding: PaddingValues) {
                     modifier = Modifier
                         .padding(bottom = 12.dp)
                         .size(width = 160.dp, height = 27.dp)
-                        .background(shimmerBrush())
+                        .background(shimmerBrush(targetValue = 1100f))
                 )
 
                 Box(
                     modifier = Modifier
                         .padding()
                         .size(width = 800.dp, height = 45.dp)
-                        .background(shimmerBrush(targetValue = 5000f))
+                        .background(shimmerBrush(targetValue = 1600f))
                 )
             }
         }
@@ -212,14 +212,14 @@ private fun Loading(padding: PaddingValues) {
                     modifier = Modifier
                         .padding(bottom = 12.dp)
                         .size(width = 160.dp, height = 27.dp)
-                        .background(shimmerBrush(targetValue = 500f))
+                        .background(shimmerBrush(targetValue = 1100f))
                 )
 
                 Box(
                     modifier = Modifier
                         .padding()
                         .size(width = 800.dp, height = 165.dp)
-                        .background(shimmerBrush(targetValue = 1400f))
+                        .background(shimmerBrush(targetValue = 1600f))
                 )
             }
         }

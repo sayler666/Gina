@@ -1,6 +1,7 @@
 package com.sayler666.gina.journal.viewmodel
 
 import com.sayler666.core.date.toLocalDate
+import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
@@ -16,10 +17,12 @@ class DaysMapper @Inject constructor() {
         searchQuery: String,
         moods: List<Mood>
     ): JournalState {
+
         val daysResult = days.map {
             requireNotNull(it.id)
             requireNotNull(it.date)
             requireNotNull(it.content)
+            val nonHtml = it.content.getTextWithoutHtml()
             DayEntity(
                 id = it.id,
                 dayOfMonth = getDayOfMonth(it.date),
@@ -27,8 +30,8 @@ class DaysMapper @Inject constructor() {
                 yearAndMonth = getYearAndMonth(it.date),
                 header = getYearAndMonth(it.date),
                 shortContent = when (searchQuery.isNotEmpty()) {
-                    true -> getShorContentAroundSearchQuery(it.content, searchQuery)
-                    else -> getShortContent(it.content)
+                    true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
+                    else -> getShortContent(nonHtml)
                 },
                 mood = it.mood
             )

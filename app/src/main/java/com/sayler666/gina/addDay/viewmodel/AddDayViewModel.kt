@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.core.file.isImageMimeType
 import com.sayler666.core.flow.Event
+import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
@@ -90,7 +91,7 @@ class AddDayViewModel @Inject constructor(
             )
 
     val changesExist: StateFlow<Boolean> = _tempDay.map {
-        it != blankDay
+        it?.copy(day = it.day.copy(content = it.day.content?.getTextWithoutHtml())) != blankDay
     }.stateIn(
         viewModelScope,
         WhileSubscribed(500),

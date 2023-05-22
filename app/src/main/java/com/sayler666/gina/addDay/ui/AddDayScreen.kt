@@ -10,6 +10,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -45,17 +49,20 @@ import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
 import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsAmountLabel
-import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
+import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
+import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
+import com.sayler666.gina.ui.richeditor.RichTextEditor
+import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mood.Mood
@@ -115,13 +122,16 @@ fun AddDayScreen(
 
     val isKeyboardOpen by keyboardAsState()
 
+    val richTextState = rememberRichTextState()
+
+    val showFormatRow = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             dayTemp?.let {
                 TopBar(
                     it,
                     onNavigateBackClicked = {
-                        handleBackPress(true, showDiscardConfirmationDialog, navController)
+                        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
                     },
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
@@ -150,7 +160,9 @@ fun AddDayScreen(
                     },
                     onFriendClicked = { id, selected ->
                         viewModel.friendSelect(id, selected)
-                    }
+                    },
+                    richTextState = richTextState,
+                    showFormatRow = showFormatRow
                 )
             }
         },
@@ -186,13 +198,15 @@ fun AddDayScreen(
                         AttachmentsAmountLabel(day.attachments)
                     }
 
-                    ContentTextField(
-                        day,
+                    RichTextEditor(
+                        richTextState,
+                        text = day.content,
                         autoFocus = autofocusOnContentText.value,
-                        quote = quote
-                    ) { content ->
-                        viewModel.setNewContent(content)
-                    }
+                        quote = quote,
+                        onContentChanged = { content ->
+                            viewModel.setNewContent(content)
+                        }
+                    )
                 }
             }
         })
@@ -237,27 +251,41 @@ private fun BottomBar(
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit
+    onFriendClicked: (Int, Boolean) -> Unit,
+    richTextState: RichTextState,
+    showFormatRow: MutableState<Boolean>
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-        actions = {
-            Attachments(addAttachmentLauncher)
 
-            Friends(
-                currentDay.friendsSelected,
-                onSearchChanged,
-                onAddNewFriend,
-                onFriendClicked,
-                currentDay
-            )
+    Column {
+        RichTextStyleRow(
+            modifier = Modifier.fillMaxWidth(),
+            state = richTextState,
+            showFormatRow = showFormatRow
+        )
+        BottomAppBar(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            actions = {
+                Attachments(addAttachmentLauncher)
 
-            Mood(currentDay, showMoodPopup, scope, onMoodChanged)
-        },
-        floatingActionButton = { SaveFab { onSaveChanges() } }
-    )
+                Friends(
+                    currentDay.friendsSelected,
+                    onSearchChanged,
+                    onAddNewFriend,
+                    onFriendClicked,
+                    currentDay
+                )
+
+                Mood(currentDay, showMoodPopup, scope, onMoodChanged)
+
+                VerticalDivider()
+
+                TextFormat(showFormatRow)
+            },
+            floatingActionButton = { SaveFab { onSaveChanges() } }
+        )
+    }
 
     LaunchedEffect(key1 = scope, block = {
         delay(300)
