@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
     implementation(libs.calendar.compose)
+    implementation(libs.richeditor.compose)
     implementation(libs.timber)
     implementation(libs.room)
     ksp(libs.room.compiler)

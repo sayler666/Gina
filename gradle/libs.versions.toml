@@ -32,6 +32,9 @@ ksp = "1.8.10-1.0.9"
 kapt = "1.8.10"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
+material = "1.8.0"
+richeditor-compose = "1.0.0-beta02"
+jsoup = "1.14.3"
 
 [libraries]
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
@@ -70,7 +73,8 @@ okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-serialization-converter = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofit-serialization-converter" }
-
+richeditor-compose = { group = "com.mohamedrejeb.richeditor", name = "richeditor-compose", version.ref = "richeditor-compose" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]

@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit.serialization.converter)
+    implementation(libs.jsoup)
     implementation(libs.commons.io)
     implementation(libs.okio)
     implementation(libs.timber)

@@ -7,11 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -23,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
@@ -31,6 +27,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,26 +50,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.core.compose.conditional
 import com.sayler666.core.file.Files
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleSelectedFiles
@@ -90,11 +81,12 @@ import com.sayler666.gina.destinations.FullImageDialogDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
-import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
+import com.sayler666.gina.ui.richeditor.RichTextEditor
+import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -166,6 +158,10 @@ fun DayDetailsEditScreen(
 
     val isKeyboardOpen by keyboardAsState()
 
+    val richTextState = rememberRichTextState()
+
+    val showFormatRow = remember { mutableStateOf(false) }
+
     currentDay?.let { day ->
         Scaffold(topBar = {
             TopBar(day, onNavigateBackClicked = {
@@ -176,7 +172,8 @@ fun DayDetailsEditScreen(
                 showDatePickerPopup.value = true
             })
         }, bottomBar = {
-            BottomBar(day,
+            BottomBar(
+                day,
                 showDeleteConfirmationDialog,
                 addAttachmentLauncher,
                 onSaveChanges = { viewModel.saveChanges() },
@@ -189,7 +186,10 @@ fun DayDetailsEditScreen(
                 },
                 onFriendClicked = { id, selected ->
                     viewModel.friendSelect(id, selected)
-                })
+                },
+                richTextState = richTextState,
+                showFormatRow = showFormatRow
+            )
         }, content = { scaffoldPadding ->
             Column(
                 Modifier
@@ -218,9 +218,13 @@ fun DayDetailsEditScreen(
                         AttachmentsAmountLabel(day.attachments)
                     }
 
-                    ContentTextField(day) { content ->
-                        viewModel.setNewContent(content)
-                    }
+                    RichTextEditor(
+                        richTextState = richTextState,
+                        text = day.content,
+                        onContentChanged = { content ->
+                            viewModel.setNewContent(content)
+                        }
+                    )
                 }
             }
         })
@@ -237,71 +241,6 @@ fun AttachmentsAmountLabel(
             .copy(color = MaterialTheme.colorScheme.primary),
         modifier = Modifier.padding(start = 16.dp)
     )
-}
-
-@Composable
-fun ContentTextField(
-    day: DayDetailsEntity,
-    autoFocus: Boolean = false,
-    quote: Quote? = null,
-    onContentChanged: (String) -> Unit
-) {
-    val focusRequester = remember { FocusRequester() }
-    Row(
-        modifier = Modifier
-            .padding(16.dp, 8.dp)
-            .fillMaxWidth()
-    ) {
-        var blurEnabled by remember { mutableStateOf(true) }
-        val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
-
-        BasicTextField(modifier = Modifier
-            .fillMaxWidth()
-            .conditional(autoFocus) {
-                focusRequester(focusRequester)
-            },
-            value = day.content,
-            onValueChange = { onContentChanged(it) },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            decorationBox = { innerTextField ->
-                AnimatedVisibility(
-                    visible = day.content.isEmpty() && quote != null,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    if (quote != null) {
-                        blurEnabled = false
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .blur(blurRadius)
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = quote.quote,
-                                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "—${quote.author}",
-                                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
-                innerTextField()
-            })
-    }
-    if (autoFocus) LaunchedEffect(Unit, block = {
-        focusRequester.requestFocus()
-    })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -378,29 +317,49 @@ private fun BottomBar(
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit
+    onFriendClicked: (Int, Boolean) -> Unit,
+    richTextState: RichTextState,
+    showFormatRow: MutableState<Boolean>
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-        actions = {
-            Delete(showDeleteConfirmationDialog)
+    Column {
+        RichTextStyleRow(
+            modifier = Modifier.fillMaxWidth(),
+            state = richTextState,
+            showFormatRow = showFormatRow
+        )
+        BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            actions = {
+                Delete(showDeleteConfirmationDialog)
 
-            VerticalDivider()
+                VerticalDivider()
 
-            Attachments(addAttachmentLauncher)
+                Attachments(addAttachmentLauncher)
 
-            Friends(
-                currentDay.friendsSelected,
-                onSearchChanged,
-                onAddNewFriend,
-                onFriendClicked,
-                currentDay
-            )
+                Friends(
+                    currentDay.friendsSelected,
+                    onSearchChanged,
+                    onAddNewFriend,
+                    onFriendClicked,
+                    currentDay
+                )
 
-            Mood(currentDay, showMoodPopup, scope, onMoodChanged)
-        },
-        floatingActionButton = { SaveFab { onSaveChanges() } })
+                Mood(currentDay, showMoodPopup, scope, onMoodChanged)
+
+                VerticalDivider()
+
+                TextFormat(showFormatRow)
+            },
+            floatingActionButton = { SaveFab { onSaveChanges() } })
+    }
+}
+
+@Composable
+fun TextFormat(showFormat: MutableState<Boolean>) {
+    IconButton(onClick = { showFormat.value = !showFormat.value }) {
+        Icon(Filled.TextFormat, null)
+    }
 }
 
 @Composable

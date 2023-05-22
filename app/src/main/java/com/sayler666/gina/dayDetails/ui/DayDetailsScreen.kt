@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -31,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -72,6 +74,7 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
+import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import mood.ui.mapToMoodIcon
@@ -204,15 +207,18 @@ fun DayDetailsScreen(
 
 @Composable
 private fun Text(it: DayDetailsEntity) {
-    Row(modifier = Modifier.padding(16.dp, 8.dp)) {
-        Text(
-            text = it.content,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
+    val richTextState = rememberRichTextState()
+    richTextState.setTextOrHtml(it.content)
+
+    RichText(
+        state = richTextState,
+        modifier = Modifier
+            .padding(16.dp, 8.dp)
+            .fillMaxWidth()
+    )
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AttachmentsRow(
     day: DayDetailsEntity,
