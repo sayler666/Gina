@@ -70,8 +70,6 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)
-    implementation(libs.core.ktx)
-    implementation(libs.androidx.appcompat)
     implementation(libs.compressor)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.datastore.preferences)

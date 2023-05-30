@@ -100,7 +100,6 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui)
