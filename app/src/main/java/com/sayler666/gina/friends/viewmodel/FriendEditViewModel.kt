@@ -75,7 +75,7 @@ class FriendEditViewModel @Inject constructor(
 
     fun changeAvatar(avatar: ByteArray) {
         viewModelScope.launch {
-            val compressedAvatar = imageOptimization.compressImage(avatar)
+            val compressedAvatar = imageOptimization.optimizeImage(avatar)
             _friend.update { it?.copy(avatar = compressedAvatar) }
         }
     }

@@ -21,7 +21,7 @@ timber = "5.0.1"
 room = "2.5.1"
 datastore-preferences = "1.0.0"
 commons-io = "2.11.0"
-compressor = "3.0.1"
+exifinterface = "1.3.6"
 okio = "3.3.0"
 okhttp3 = "4.11.0"
 retrofit = "2.9.0"
@@ -35,6 +35,7 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 
 [libraries]
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization-json" }
 dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
@@ -66,7 +67,6 @@ compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations",
 calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "calendar-compose" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
-compressor = { group = "id.zelory", name = "compressor", version.ref = "compressor" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

@@ -133,7 +133,7 @@ class AddDayViewModel @Inject constructor(
             attachments.forEach { (content, mimeType) ->
                 launch(SupervisorJob() + exceptionHandler) {
                     val bytes = when {
-                        mimeType.isImageMimeType() -> imageOptimization.compressImage(content)
+                        mimeType.isImageMimeType() -> imageOptimization.optimizeImage(content)
                         else -> content
                     }
 

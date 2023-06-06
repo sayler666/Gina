@@ -92,7 +92,6 @@ fun SettingsScreen(
                 ImageCompressSettingsSection(
                     imageOptimizationSettings,
                     onSetImageQuality = viewModel::setNewImageQuality,
-                    onSetImageSize = viewModel::setNewImageSize,
                     onImageCompressionToggled = viewModel::toggleImageCompression
                 )
             }
@@ -135,14 +134,13 @@ private fun FriendsSettingsSections(
 private fun ImageCompressSettingsSection(
     imageOptimizationSettings: OptimizationSettings?,
     onSetImageQuality: (Int) -> Unit,
-    onSetImageSize: (Long) -> Unit,
     onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
     imageOptimizationSettings?.let {
         SettingsButton(
             header = "Image optimization",
-            body = if (imageOptimizationSettings.compressionEnabled) "Quality: ${it.quality}%, Size: ${it.size / 1000}KB" else "Disabled",
+            body = if (imageOptimizationSettings.compressionEnabled) "Quality: ${it.quality}%" else "Disabled",
             icon = Filled.PhotoSizeSelectLarge,
             onClick = { showImageCompressSettingsDialog.value = true }
         )
@@ -151,7 +149,6 @@ private fun ImageCompressSettingsSection(
             imageOptimizationSettings = imageOptimizationSettings,
             onDismiss = { showImageCompressSettingsDialog.value = false },
             onSetImageQuality = onSetImageQuality,
-            onSetImageSize = onSetImageSize,
             onImageCompressionToggled = onImageCompressionToggled
         )
     }
@@ -210,7 +207,6 @@ fun ImageCompressSettingsDialog(
     imageOptimizationSettings: OptimizationSettings?,
     onDismiss: () -> Unit,
     onSetImageQuality: (Int) -> Unit,
-    onSetImageSize: (Long) -> Unit,
     onImageCompressionToggled: (Boolean) -> Unit,
 ) {
     if (showDialog) {
@@ -256,30 +252,6 @@ fun ImageCompressSettingsDialog(
                             },
                             onValueChangeFinished = {
                                 onSetImageQuality(qualitySliderPosition.toInt())
-                            })
-                        var sizeSliderPosition by remember { mutableStateOf(it.size.toFloat()) }
-                        Row(modifier = Modifier.padding(8.dp)) {
-                            Text(
-                                text = "Size:",
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            )
-                            Text(
-                                text = " ${sizeSliderPosition.toInt() / 1000}KB",
-                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W500)
-                            )
-                        }
-                        Slider(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            value = sizeSliderPosition,
-                            valueRange = 1f..500_000f,
-                            steps = 100,
-                            enabled = imageOptimizationSettings.compressionEnabled,
-                            onValueChange = { value: Float ->
-                                sizeSliderPosition = value
-                            },
-                            onValueChangeFinished = {
-                                onSetImageSize(sizeSliderPosition.toLong())
                             })
                     }
                 }

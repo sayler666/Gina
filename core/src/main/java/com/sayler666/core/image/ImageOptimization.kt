@@ -1,12 +1,10 @@
 package com.sayler666.core.image
 
-import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.decodeByteArray
-import id.zelory.compressor.BuildConfig
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.quality
-import id.zelory.compressor.constraint.resolution
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
+import com.sayler666.gina.core.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -18,11 +16,10 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 class ImageOptimization @Inject constructor(
-    private val app: Application,
     private val imageOptimizationSettings: ImageOptimizationSettings
 ) {
 
-    suspend fun compressImage(
+    suspend fun optimizeImage(
         bytes: ByteArray
     ): ByteArray = withContext(Dispatchers.IO) {
         val compressorSettings = imageOptimizationSettings.getImageCompressorSettingsFlow()
@@ -35,8 +32,7 @@ class ImageOptimization @Inject constructor(
         }
 
         if (compressorSettings.compressionEnabled) {
-            val resized = resize(bytes, compressorSettings)
-            compress(resized, compressorSettings)
+            resize(bytes, compressorSettings)
         } else {
             bytes
         }
@@ -46,18 +42,30 @@ class ImageOptimization @Inject constructor(
         bytes: ByteArray,
         compressorSettings: OptimizationSettings
     ): ByteArray = withContext(Dispatchers.IO) {
+        val fileTmp = File.createTempFile("file", ".tmp")
+        FileOutputStream(fileTmp).use { fos ->
+            fos.write(bytes)
+            fos.close()
+        }
+
+        val orientation = with(ExifInterface(fileTmp.absolutePath)) {
+            fileTmp.delete()
+            getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
+        }
+
         val original = decodeByteArray(bytes, 0, bytes.size)
         val (width, height) = original.width to original.height
         val ratio = width.toFloat() / height.toFloat()
-        val newWidth = (compressorSettings.height * ratio).toInt()
-        val resized = Bitmap.createScaledBitmap(original, newWidth, compressorSettings.height, true)
+        val dstWidth = (compressorSettings.height * ratio).toInt()
+
+        val resized = createScaledBitmap(original, dstWidth, compressorSettings.height, orientation)
 
         return@withContext ByteArrayOutputStream().use { stream ->
             resized.compress(Bitmap.CompressFormat.JPEG, compressorSettings.quality, stream)
             val resizedBytes = stream.toByteArray()
             if (BuildConfig.DEBUG) {
                 val resizedImage = decodeByteArray(resizedBytes, 0, resizedBytes.size)
-                Timber.d("ImageOptimization: Resized image res: ${resizedImage.width}/${resizedImage.height}, size: ${resizedImage.byteCount} bytes")
+                Timber.d("ImageOptimization: Resized image res: ${resizedImage.width}/${resizedImage.height}, size: ${resizedBytes.size} bytes")
                 resizedImage.recycle()
             }
             original.recycle()
@@ -66,29 +74,26 @@ class ImageOptimization @Inject constructor(
         }
     }
 
-    private suspend fun compress(
-        bytes: ByteArray,
-        optimizationSettings: OptimizationSettings
-    ): ByteArray = withContext(Dispatchers.IO) {
-        val file = File.createTempFile("file", ".tmp")
-
-        FileOutputStream(file).use { fos ->
-            fos.write(bytes)
-            fos.close()
+    private fun createScaledBitmap(
+        src: Bitmap,
+        dstWidth: Int,
+        dstHeight: Int,
+        orientation: Int
+    ): Bitmap {
+        val m = Matrix()
+        val width = src.width
+        val height = src.height
+        if (width != dstWidth || height != dstHeight) {
+            val sx = dstWidth / width.toFloat()
+            val sy = dstHeight / height.toFloat()
+            m.setScale(sx, sy)
         }
-
-        val compressedBytes = Compressor.compress(app, file) {
-            resolution(optimizationSettings.width, optimizationSettings.height)
-            quality(optimizationSettings.quality)
-        }.readBytes()
-
-        if (BuildConfig.DEBUG) {
-            val compressedBitmap = decodeByteArray(compressedBytes, 0, compressedBytes.size)
-            Timber.d("ImageOptimization: Compressed image res: ${compressedBitmap.width}/${compressedBitmap.height}, size: ${compressedBytes.size} bytes")
-            compressedBitmap.recycle()
+        when (orientation) {
+            6 -> m.postRotate(90f)
+            3 -> m.postRotate(180f)
+            8 -> m.postRotate(270f)
         }
-        file.delete()
-        compressedBytes
+        return Bitmap.createBitmap(src, 0, 0, width, height, m, true)
     }
 
     @Serializable
@@ -96,14 +101,12 @@ class ImageOptimization @Inject constructor(
         val compressionEnabled: Boolean = true,
         val width: Int = IMAGE_WIDTH,
         val height: Int = IMAGE_HEIGHT,
-        val quality: Int = IMAGE_QUALITY,
-        val size: Long = IMAGE_SIZE
+        val quality: Int = IMAGE_QUALITY
     )
 
     companion object {
         const val IMAGE_WIDTH = 1920
         const val IMAGE_HEIGHT = 1080
         const val IMAGE_QUALITY = 50
-        const val IMAGE_SIZE = 200_000L
     }
 }
