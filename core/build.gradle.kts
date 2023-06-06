@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = ConfigData.applicationId
+    namespace = ConfigData.applicationId + ".core"
     compileSdkVersion = ConfigData.compileSdkVersion
 
     defaultConfig {
@@ -45,6 +45,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -70,7 +71,7 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)
-    implementation(libs.compressor)
+    implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit.serialization.converter)

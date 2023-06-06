@@ -46,14 +46,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setNewImageSize(size: Long) {
-        val settings = _tempImageOptimizationSettings.value
-
-        viewModelScope.launch {
-            setting.saveImageCompressorSettings(settings.copy(size = size))
-        }
-    }
-
     fun openDatabase(path: String) {
         viewModelScope.launch {
             databaseProvider.openDB(path)
