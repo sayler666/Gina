@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -212,7 +214,7 @@ fun ImageCompressSettingsDialog(
     if (showDialog) {
         imageOptimizationSettings?.let {
             Dialog(onDismissRequest = { onDismiss() }) {
-                Card(Modifier.padding(8.dp)) {
+                Card(Modifier.padding(28.dp)) {
                     Column {
                         Row(
                             modifier = Modifier.padding(8.dp),
@@ -246,6 +248,9 @@ fun ImageCompressSettingsDialog(
                             value = qualitySliderPosition,
                             valueRange = 1f..100f,
                             steps = 100,
+                            colors = SliderDefaults.colors(
+                                activeTickColor = Color.Transparent
+                            ),
                             enabled = imageOptimizationSettings.compressionEnabled,
                             onValueChange = { value: Float ->
                                 qualitySliderPosition = value
