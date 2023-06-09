@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -74,10 +73,6 @@ fun BottomNavigationBar(navController: NavController) {
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value
         ?: NavGraphs.root.startAppDestination
 
-    val selectedIconColor = MaterialTheme.colorScheme.primary
-    val unselectedIconColor = MaterialTheme.colorScheme.onSurface
-    val indicatorColor = MaterialTheme.colorScheme.primaryContainer
-
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier
@@ -87,11 +82,6 @@ fun BottomNavigationBar(navController: NavController) {
         BottomDestinations.values().forEachIndexed { index, dest ->
             if (index == 0) Spacer(modifier = Modifier.width(8.dp))
             NavigationBarItem(
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = selectedIconColor,
-                    unselectedIconColor = unselectedIconColor,
-                    indicatorColor = indicatorColor
-                ),
                 icon = {
                     Icon(
                         if (currentDestination == dest.destination) dest.iconSelected else dest.icon,

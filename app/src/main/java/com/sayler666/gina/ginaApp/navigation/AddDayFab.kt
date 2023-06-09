@@ -16,7 +16,7 @@ import com.sayler666.gina.R
 import com.sayler666.gina.destinations.AddDayScreenDestination
 
 @Composable
-fun AddDayFab(navController: NavHostController) {
+fun DayFab(navController: NavHostController) {
     FloatingActionButton(
         containerColor = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
@@ -29,7 +29,6 @@ fun AddDayFab(navController: NavHostController) {
         Icon(
             painter = painterResource(R.drawable.feather_icon),
             contentDescription = "Add new entry",
-            tint = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier
                 .size(65.dp)
                 .padding(12.dp)

@@ -214,8 +214,8 @@ fun ImageCompressSettingsDialog(
     if (showDialog) {
         imageOptimizationSettings?.let {
             Dialog(onDismissRequest = { onDismiss() }) {
-                Card(Modifier.padding(28.dp)) {
-                    Column {
+                Card(Modifier.padding(0.dp)) {
+                    Column(Modifier.padding(horizontal = 8.dp)) {
                         Row(
                             modifier = Modifier.padding(8.dp),
                             verticalAlignment = Alignment.CenterVertically

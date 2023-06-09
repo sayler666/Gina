@@ -24,14 +24,13 @@ import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
-import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
+import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.theme.GinaTheme
-import timber.log.Timber
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -52,7 +51,7 @@ fun GinaApp(vm: GinaMainViewModel) {
                 Modifier.imePadding(),
                 backgroundColor = MaterialTheme.colorScheme.background,
                 floatingActionButton = {
-                    if (destination.shouldShowScaffoldElements) AddDayFab(navController)
+                    if (destination.shouldShowScaffoldElements) DayFab(navController)
                 },
                 floatingActionButtonPosition = FabPosition.Center,
                 isFloatingActionButtonDocked = true,
@@ -91,5 +90,6 @@ private val Destination.shouldShowScaffoldElements
         is CalendarScreenDestination,
         is InsightsScreenDestination,
         is SettingsScreenDestination -> true
+
         else -> false
     }

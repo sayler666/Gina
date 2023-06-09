@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.sayler666.core.collections.mutate
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
 import kotlinx.coroutines.launch
@@ -235,11 +236,8 @@ fun MoodFilter(
                 checked = checked,
                 onCheckedChange = {
                     checked = !checked
-                    val newMoods = if (checked) {
-                        moodFilters.toMutableList().also { it.add(mood) }
-                    } else {
-                        moodFilters.toMutableList().also { it.remove(mood) }
-                    }
+                    val newMoods =
+                        moodFilters.mutate { if (checked) it.add(mood) else it.remove(mood) }
                     onSelectMood(newMoods)
                 },
                 colors = IconButtonDefaults.iconToggleButtonColors(),
@@ -247,7 +245,7 @@ fun MoodFilter(
                 val moodIcon = mood.mapToMoodIcon()
                 Icon(
                     painter = rememberVectorPainter(image = moodIcon.icon),
-                    tint = if (checked) moodIcon.color else MaterialTheme.colorScheme.outlineVariant,
+                    tint = if (checked) moodIcon.color else MaterialTheme.colorScheme.outline,
                     contentDescription = null,
                 )
             }
