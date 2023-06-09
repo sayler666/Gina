@@ -1,14 +1,8 @@
 package com.sayler666.gina.insights.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import com.sayler666.core.collections.mutate
 import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.db.Day
-import com.sayler666.gina.insights.viewmodel.ContributionLevel.Five
-import com.sayler666.gina.insights.viewmodel.ContributionLevel.Four
-import com.sayler666.gina.insights.viewmodel.ContributionLevel.One
-import com.sayler666.gina.insights.viewmodel.ContributionLevel.Three
-import com.sayler666.gina.insights.viewmodel.ContributionLevel.Two
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
@@ -20,7 +14,6 @@ import com.sayler666.gina.ui.Mood.GOOD
 import com.sayler666.gina.ui.Mood.LOW
 import com.sayler666.gina.ui.Mood.NEUTRAL
 import com.sayler666.gina.ui.Mood.SUPERB
-import com.sayler666.gina.ui.mapToMoodIcon
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
@@ -72,8 +65,8 @@ class InsightsMapper @Inject constructor() {
         }
     }
 
-    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
-        val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
+    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, Level> {
+        val heatMap = mutableMapOf<LocalDate, Level>()
 
         val median = days.mapNotNull { it.content }.map { it.length }.sortedBy { it }.med()
 
@@ -88,11 +81,11 @@ class InsightsMapper @Inject constructor() {
             requireNotNull(it.date)
             requireNotNull(it.content)
             val level = when (it.content.length) {
-                in bucket1 -> One
-                in bucket2 -> Two
-                in bucket3 -> Three
-                in bucket4 -> Four
-                else -> Five
+                in bucket1 -> Level.One
+                in bucket2 -> Level.Two
+                in bucket3 -> Level.Three
+                in bucket4 -> Level.Four
+                else -> Level.Five
             }
             heatMap[it.date.toLocalDate()] = level
         }
@@ -114,13 +107,13 @@ class InsightsMapper @Inject constructor() {
             requireNotNull(it.content)
             val currentDayDate = it.date.toLocalDate()
             heatMap[currentDayDate] = when (it.mood) {
-                -2 -> MoodLevel.One
-                -1 -> MoodLevel.Two
-                0 -> MoodLevel.Three
-                1 -> MoodLevel.Four
-                2 -> MoodLevel.Five
-                3 -> MoodLevel.Six
-                else -> Zero
+                -2 -> Level.One
+                -1 -> Level.Two
+                0 -> Level.Three
+                1 -> Level.Four
+                2 -> Level.Five
+                3 -> Level.Six
+                else -> Level.Zero
             }
         }
         return heatMap
@@ -198,32 +191,17 @@ sealed class InsightState {
     object EmptySearchState : InsightState()
 }
 
-interface Level {
-    val color: Color
-}
-
-object Zero : Level {
-    override val color: Color = Color(0xFF333836)
-}
-
 data class MoodChartData(
     val value: Float,
     val mood: Mood
 )
 
-enum class MoodLevel(override val color: Color) : Level {
-    One(BAD.mapToMoodIcon().color),
-    Two(LOW.mapToMoodIcon().color),
-    Three(NEUTRAL.mapToMoodIcon().color),
-    Four(GOOD.mapToMoodIcon().color),
-    Five(SUPERB.mapToMoodIcon().color),
-    Six(AWESOME.mapToMoodIcon().color)
-}
-
-enum class ContributionLevel(override val color: Color) : Level {
-    One(Color(0xFF0A4640)),
-    Two(Color(0xFF0B6158)),
-    Three(Color(0xFF279186)),
-    Four(Color(0xFF37CEC1)),
-    Five(Color(0xFF4FFCE8)),
+enum class Level {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
 }

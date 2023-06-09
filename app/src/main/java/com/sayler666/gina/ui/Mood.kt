@@ -87,41 +87,41 @@ enum class Mood(val numberValue: Int) {
     }
 }
 
-
+@Composable
 fun Mood?.mapToMoodIcon(): MoodIcon = when (this) {
     BAD -> MoodIcon(
         icon = Filled.SentimentVeryDissatisfied,
-        color = Color(0xFFFF0000)
+        color = MaterialTheme.colorScheme.secondary
     )
 
     LOW -> MoodIcon(
         icon = Filled.SentimentDissatisfied,
-        color = Color(0xFFD36E2A)
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f)
     )
 
     NEUTRAL -> MoodIcon(
         icon = Filled.SentimentNeutral,
-        color = Color(0xFFFFFFFF)
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
     )
 
     GOOD -> MoodIcon(
         icon = Filled.SentimentSatisfied,
-        color = Color(0xFFE3E91E)
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
     )
 
     SUPERB -> MoodIcon(
         icon = Filled.SentimentVerySatisfied,
-        color = Color(0xFF1CCF24)
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
     )
 
     AWESOME -> MoodIcon(
         icon = Filled.AutoAwesome,
-        color = Color(0xFF12F8F8)
+        color = MaterialTheme.colorScheme.primary
     )
 
     else -> MoodIcon(
         icon = Outlined.Help,
-        color = Color(0xFF899390)
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 

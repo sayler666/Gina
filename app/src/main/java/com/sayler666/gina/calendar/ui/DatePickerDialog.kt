@@ -36,7 +36,6 @@ fun DatePickerDialog(
     if (showPopup) {
         Dialog(onDismissRequest = { onDismiss() }) {
             Card(
-                modifier = Modifier.padding(16.dp),
                 shape = MaterialTheme.shapes.large,
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {

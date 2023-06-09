@@ -59,14 +59,11 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.calendar.ui.displayText
-import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodChartData
-import com.sayler666.gina.insights.viewmodel.MoodLevel
-import com.sayler666.gina.insights.viewmodel.Zero
 import com.sayler666.gina.journal.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.Mood
@@ -149,14 +146,16 @@ fun Render(state: DataState, padding: PaddingValues) {
             "Contributions",
             "Less",
             "More",
-            arrayOf(*ContributionLevel.values())
+            arrayOf(*Level.values()).copyOfRange(1, Level.values().size - 1),
+            colorF = { level -> contributionLevelColor(level) }
         )
         HeatMapCalendar(
             state.moodHeatMapData,
             "Moods",
             "Worse",
             "Better",
-            arrayOf(*MoodLevel.values())
+            arrayOf(*Level.values()).copyOfRange(1, Level.values().size),
+            colorF = { level -> moodLevelColor(level) }
         )
         DoughnutChart(state.moodChartData)
         Spacer(modifier = Modifier.height(34.dp))
@@ -242,7 +241,8 @@ private fun HeatMapCalendar(
     title: String,
     legendLeft: String,
     legendRight: String,
-    legend: Array<Level>
+    legend: Array<Level>,
+    colorF: @Composable (Level) -> Color
 ) {
     val endDate = remember { LocalDate.now() }
     val startDate = remember { heatMapData.keys.last() }
@@ -276,7 +276,7 @@ private fun HeatMapCalendar(
                         startDate = startDate,
                         endDate = endDate,
                         week = week,
-                        level = heatMapData[day.date] ?: Zero,
+                        color = colorF(heatMapData[day.date] ?: Level.Zero)
                     ) { clicked ->
                         Toast.makeText(context, clicked.toString(), Toast.LENGTH_SHORT).show()
                     }
@@ -296,7 +296,7 @@ private fun HeatMapCalendar(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
-                legend.forEach { LevelBox(it.color) }
+                legend.forEach { LevelBox(colorF(it)) }
                 Text(
                     legendRight,
                     Modifier.padding(start = 2.dp),
@@ -314,18 +314,40 @@ private fun Day(
     startDate: LocalDate,
     endDate: LocalDate,
     week: HeatMapWeek,
-    level: Level,
+    color: Color,
     onClick: (LocalDate) -> Unit,
 ) {
     val weekDates = week.days.map { it.date }
     if (day.date in startDate..endDate) {
-        LevelBox(level.color) { onClick(day.date) }
+        LevelBox(color) { onClick(day.date) }
     } else if (weekDates.contains(startDate)) {
-        LevelBox(Zero.color)
+        LevelBox(color)
     }
 }
 
 private val daySize = 18.dp
+
+@Composable
+private fun contributionLevelColor(level: Level): Color = when (level) {
+    Level.Zero -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+    Level.One -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.32f)
+    Level.Two -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.49f)
+    Level.Three -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.66f)
+    Level.Four -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.83f)
+    Level.Five -> MaterialTheme.colorScheme.tertiary
+    Level.Six -> MaterialTheme.colorScheme.tertiary
+}
+
+@Composable
+private fun moodLevelColor(level: Level): Color = when (level) {
+    Level.Zero -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+    Level.One -> MaterialTheme.colorScheme.secondary
+    Level.Two -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f)
+    Level.Three -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+    Level.Four -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+    Level.Five -> MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+    Level.Six -> MaterialTheme.colorScheme.primary
+}
 
 @Composable
 private fun LevelBox(color: Color, onClick: (() -> Unit)? = null) {
@@ -430,13 +452,17 @@ fun DoughnutChart(
                         .height(size + 10.dp)
                         .padding(top = 5.dp)
                 ) {
+                    val colors = mutableListOf<Color>()
+                    for (i in values.indices) {
+                        colors.add(i, values[i].mood.mapToMoodIcon().color)
+                    }
                     Canvas(
                         modifier = Modifier.size(size = size)
                     ) {
                         var startAngle = -90f
                         for (i in values.indices) {
                             drawArc(
-                                color = values[i].mood.mapToMoodIcon().color,
+                                color = colors[i],
                                 startAngle = startAngle,
                                 sweepAngle = sweepAngles[i],
                                 useCenter = false,

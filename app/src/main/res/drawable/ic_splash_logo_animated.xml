@@ -420,7 +420,7 @@
         <aapt:attr name="android:animation">
             <set android:ordering="together">
                 <objectAnimator
-                    android:duration="1301"
+                    android:duration="1801"
                     android:propertyName="translateX"
                     android:startOffset="0"
                     android:valueFrom="0"

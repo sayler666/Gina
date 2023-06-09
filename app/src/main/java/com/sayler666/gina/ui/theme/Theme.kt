@@ -3,8 +3,11 @@ package com.sayler666.gina.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -74,9 +77,9 @@ private val DarkColors = darkColorScheme(
 @Composable
 fun GinaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
-        DarkColors // dynamicDarkColorScheme(LocalContext.current)
+        dynamicDarkColorScheme(LocalContext.current)
     } else {
-        LightColors // dynamicLightColorScheme(LocalContext.current)
+        dynamicLightColorScheme(LocalContext.current)
     }
 
     MaterialTheme(

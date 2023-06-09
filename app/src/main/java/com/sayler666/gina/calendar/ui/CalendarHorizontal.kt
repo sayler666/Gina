@@ -91,6 +91,7 @@ fun CalendarHorizontal(
                 }
             })
         HorizontalCalendar(
+            modifier = Modifier.padding(8.dp),
             state = state,
             monthHeader = { WeekDaysHeader(daysOfWeek) },
             dayContent = { calendarDay ->
