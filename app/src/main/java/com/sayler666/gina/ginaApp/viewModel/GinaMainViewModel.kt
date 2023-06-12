@@ -3,6 +3,7 @@ package com.sayler666.gina.ginaApp.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.settings.Settings
+import com.sayler666.gina.settings.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -21,4 +22,10 @@ class GinaMainViewModel @Inject constructor(
             WhileSubscribed(5000),
             null
         )
+
+    val theme: StateFlow<Theme> = settings.getThemeFlow().stateIn(
+        viewModelScope,
+        WhileSubscribed(5000),
+        Theme.default()
+    )
 }

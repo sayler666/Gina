@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,15 +60,30 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.calendar.ui.displayText
+import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodChartData
+import com.sayler666.gina.insights.viewmodel.MoodLevel
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Awesome
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Bad
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Good
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Low
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Neutral
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Superb
+import com.sayler666.gina.insights.viewmodel.MoodLevel.Zero
 import com.sayler666.gina.journal.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.Mood
+import com.sayler666.gina.ui.awesomeColor
+import com.sayler666.gina.ui.badColor
+import com.sayler666.gina.ui.goodColor
+import com.sayler666.gina.ui.lowColor
 import com.sayler666.gina.ui.mapToMoodIcon
+import com.sayler666.gina.ui.neutralColor
+import com.sayler666.gina.ui.superbColor
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -146,16 +162,19 @@ fun Render(state: DataState, padding: PaddingValues) {
             "Contributions",
             "Less",
             "More",
-            arrayOf(*Level.values()).copyOfRange(1, Level.values().size - 1),
-            colorF = { level -> contributionLevelColor(level) }
+            arrayOf<Level>(*ContributionLevel.values()).copyOfRange(
+                1,
+                ContributionLevel.values().size
+            ),
+            colorProvider = { level -> contributionLevelColor(level as ContributionLevel) }
         )
         HeatMapCalendar(
             state.moodHeatMapData,
             "Moods",
             "Worse",
             "Better",
-            arrayOf(*Level.values()).copyOfRange(1, Level.values().size),
-            colorF = { level -> moodLevelColor(level) }
+            arrayOf<Level>(*MoodLevel.values()).copyOfRange(1, MoodLevel.values().size),
+            colorProvider = { level -> moodLevelColor(level as MoodLevel) }
         )
         DoughnutChart(state.moodChartData)
         Spacer(modifier = Modifier.height(34.dp))
@@ -174,7 +193,7 @@ private fun Summary(it: DataState) {
                 text = "Summary",
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    .copy(color = colorScheme.onPrimaryContainer)
             )
             Row(
                 Modifier
@@ -242,7 +261,7 @@ private fun HeatMapCalendar(
     legendLeft: String,
     legendRight: String,
     legend: Array<Level>,
-    colorF: @Composable (Level) -> Color
+    colorProvider: @Composable (Level) -> Color
 ) {
     val endDate = remember { LocalDate.now() }
     val startDate = remember { heatMapData.keys.last() }
@@ -264,7 +283,7 @@ private fun HeatMapCalendar(
                 text = title,
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                    .copy(color = colorScheme.onPrimaryContainer),
             )
             HeatMapCalendar(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -276,7 +295,7 @@ private fun HeatMapCalendar(
                         startDate = startDate,
                         endDate = endDate,
                         week = week,
-                        color = colorF(heatMapData[day.date] ?: Level.Zero)
+                        color = heatMapData[day.date]?.let { colorProvider(it) } ?: zeroLevelColor()
                     ) { clicked ->
                         Toast.makeText(context, clicked.toString(), Toast.LENGTH_SHORT).show()
                     }
@@ -294,14 +313,14 @@ private fun HeatMapCalendar(
                     legendLeft,
                     Modifier.padding(end = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = colorScheme.outline,
                 )
-                legend.forEach { LevelBox(colorF(it)) }
+                legend.forEach { LevelBox(colorProvider(it)) }
                 Text(
                     legendRight,
                     Modifier.padding(start = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
+                    color = colorScheme.outline
                 )
             }
         }
@@ -328,25 +347,27 @@ private fun Day(
 private val daySize = 18.dp
 
 @Composable
-private fun contributionLevelColor(level: Level): Color = when (level) {
-    Level.Zero -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
-    Level.One -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.32f)
-    Level.Two -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.49f)
-    Level.Three -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.66f)
-    Level.Four -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.83f)
-    Level.Five -> MaterialTheme.colorScheme.tertiary
-    Level.Six -> MaterialTheme.colorScheme.tertiary
+private fun zeroLevelColor() = colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+
+@Composable
+private fun contributionLevelColor(level: ContributionLevel): Color = when (level) {
+    ContributionLevel.Zero -> zeroLevelColor()
+    ContributionLevel.One -> colorScheme.tertiary.copy(alpha = 0.32f)
+    ContributionLevel.Two -> colorScheme.tertiary.copy(alpha = 0.49f)
+    ContributionLevel.Three -> colorScheme.tertiary.copy(alpha = 0.66f)
+    ContributionLevel.Four -> colorScheme.tertiary.copy(alpha = 0.83f)
+    ContributionLevel.Five -> colorScheme.tertiary
 }
 
 @Composable
-private fun moodLevelColor(level: Level): Color = when (level) {
-    Level.Zero -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
-    Level.One -> MaterialTheme.colorScheme.secondary
-    Level.Two -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f)
-    Level.Three -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
-    Level.Four -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-    Level.Five -> MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
-    Level.Six -> MaterialTheme.colorScheme.primary
+private fun moodLevelColor(level: MoodLevel): Color = when (level) {
+    Zero -> zeroLevelColor()
+    Bad -> badColor()
+    Low -> lowColor()
+    Neutral -> neutralColor()
+    Good -> goodColor()
+    Superb -> superbColor()
+    Awesome -> awesomeColor()
 }
 
 @Composable
@@ -437,7 +458,7 @@ fun DoughnutChart(
                 text = "Moods graph",
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    .copy(color = colorScheme.onPrimaryContainer)
             )
             Row(
                 Modifier

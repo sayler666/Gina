@@ -35,11 +35,12 @@ import com.sayler666.gina.ui.theme.GinaTheme
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(vm: GinaMainViewModel) {
-    GinaTheme {
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    GinaTheme(theme) {
         val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
         if (rememberedDatabase != null) {
-            StatusBarColor()
-            NavigationBarColor()
+            StatusBarColor(theme = theme)
+            NavigationBarColor(theme = theme)
             val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
             else JournalScreenDestination
 
