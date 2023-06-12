@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.settings.Settings
+import com.sayler666.gina.settings.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -16,7 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val setting: Settings, private val databaseProvider: DatabaseProvider
+    private val setting: Settings,
+    private val databaseProvider: DatabaseProvider,
+    private val themeMapper: ThemeMapper
 ) : ViewModel() {
 
     private val _tempImageOptimizationSettings: MutableStateFlow<OptimizationSettings> =
@@ -37,6 +40,19 @@ class SettingsViewModel @Inject constructor(
         }.stateIn(
             viewModelScope, WhileSubscribed(500), null
         )
+
+    val themes: StateFlow<List<ThemeItem>>
+        get() = setting.getThemeFlow().map { activeTheme ->
+            themeMapper.mapToVM(activeTheme)
+        }.stateIn(
+            viewModelScope, WhileSubscribed(500), emptyList()
+        )
+
+    fun setTheme(theme: Theme) {
+        viewModelScope.launch {
+            setting.saveTheme(theme)
+        }
+    }
 
     fun setNewImageQuality(quality: Int) {
         val settings = _tempImageOptimizationSettings.value

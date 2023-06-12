@@ -8,6 +8,11 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.settings.Theme.AutoDarkLight
+import com.sayler666.gina.settings.Theme.Dark
+import com.sayler666.gina.settings.Theme.Dynamic
+import com.sayler666.gina.settings.Theme.Light
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -75,12 +80,23 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun GinaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        dynamicDarkColorScheme(LocalContext.current)
-    } else {
-        dynamicLightColorScheme(LocalContext.current)
+fun GinaTheme(
+    theme: Theme,
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = when (theme) {
+        AutoDarkLight -> if (darkTheme) DarkColors else LightColors
+        Dynamic -> if (darkTheme) {
+            dynamicDarkColorScheme(LocalContext.current)
+        } else {
+            dynamicLightColorScheme(LocalContext.current)
+        }
+
+        Dark -> DarkColors
+        Light -> LightColors
     }
+
 
     MaterialTheme(
         colorScheme = colors,

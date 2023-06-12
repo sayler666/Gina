@@ -16,6 +16,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -91,39 +92,57 @@ enum class Mood(val numberValue: Int) {
 fun Mood?.mapToMoodIcon(): MoodIcon = when (this) {
     BAD -> MoodIcon(
         icon = Filled.SentimentVeryDissatisfied,
-        color = MaterialTheme.colorScheme.secondary
+        color = badColor()
     )
 
     LOW -> MoodIcon(
         icon = Filled.SentimentDissatisfied,
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f)
+        color = lowColor()
     )
 
     NEUTRAL -> MoodIcon(
         icon = Filled.SentimentNeutral,
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+        color = neutralColor()
     )
 
     GOOD -> MoodIcon(
         icon = Filled.SentimentSatisfied,
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        color = goodColor()
     )
 
     SUPERB -> MoodIcon(
         icon = Filled.SentimentVerySatisfied,
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+        color = superbColor()
     )
 
     AWESOME -> MoodIcon(
         icon = Filled.AutoAwesome,
-        color = MaterialTheme.colorScheme.primary
+        color = awesomeColor()
     )
 
     else -> MoodIcon(
         icon = Outlined.Help,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = colorScheme.onSurfaceVariant
     )
 }
+
+@Composable
+fun badColor() = colorScheme.secondary
+
+@Composable
+fun lowColor() = colorScheme.secondary.copy(alpha = 0.75f)
+
+@Composable
+fun neutralColor() = colorScheme.secondary.copy(alpha = 0.5f)
+
+@Composable
+fun goodColor() = colorScheme.primary.copy(alpha = 0.5f)
+
+@Composable
+fun superbColor() = colorScheme.primary.copy(alpha = 0.75f)
+
+@Composable
+fun awesomeColor() = colorScheme.primary
 
 data class MoodIcon(
     val icon: ImageVector,

@@ -6,5 +6,8 @@ import javax.inject.Inject
 
 class Settings @Inject constructor(
     databaseSettings: DatabaseSettings,
-    imageOptimizationSettings: ImageOptimizationSettings
-) : DatabaseSettings by databaseSettings, ImageOptimizationSettings by imageOptimizationSettings
+    imageOptimizationSettings: ImageOptimizationSettings,
+    appSettings: AppSettings
+) : DatabaseSettings by databaseSettings,
+    ImageOptimizationSettings by imageOptimizationSettings,
+    AppSettings by appSettings

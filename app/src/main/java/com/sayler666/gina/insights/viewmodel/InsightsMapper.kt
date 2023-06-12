@@ -65,8 +65,8 @@ class InsightsMapper @Inject constructor() {
         }
     }
 
-    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, Level> {
-        val heatMap = mutableMapOf<LocalDate, Level>()
+    private fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
+        val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
 
         val median = days.mapNotNull { it.content }.map { it.length }.sortedBy { it }.med()
 
@@ -80,14 +80,13 @@ class InsightsMapper @Inject constructor() {
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
-            val level = when (it.content.length) {
-                in bucket1 -> Level.One
-                in bucket2 -> Level.Two
-                in bucket3 -> Level.Three
-                in bucket4 -> Level.Four
-                else -> Level.Five
+            heatMap[it.date.toLocalDate()] = when (it.content.length) {
+                in bucket1 -> ContributionLevel.One
+                in bucket2 -> ContributionLevel.Two
+                in bucket3 -> ContributionLevel.Three
+                in bucket4 -> ContributionLevel.Four
+                else -> ContributionLevel.Five
             }
-            heatMap[it.date.toLocalDate()] = level
         }
         return heatMap
     }
@@ -100,20 +99,20 @@ class InsightsMapper @Inject constructor() {
             it[it.size / 2]
     }
 
-    private fun generateMoodHeatMapData(days: List<Day>): Map<LocalDate, Level> {
-        val heatMap = mutableMapOf<LocalDate, Level>()
+    private fun generateMoodHeatMapData(days: List<Day>): Map<LocalDate, MoodLevel> {
+        val heatMap = mutableMapOf<LocalDate, MoodLevel>()
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
             val currentDayDate = it.date.toLocalDate()
             heatMap[currentDayDate] = when (it.mood) {
-                -2 -> Level.One
-                -1 -> Level.Two
-                0 -> Level.Three
-                1 -> Level.Four
-                2 -> Level.Five
-                3 -> Level.Six
-                else -> Level.Zero
+                -2 -> MoodLevel.Bad
+                -1 -> MoodLevel.Low
+                0 -> MoodLevel.Neutral
+                1 -> MoodLevel.Good
+                2 -> MoodLevel.Superb
+                3 -> MoodLevel.Awesome
+                else -> MoodLevel.Zero
             }
         }
         return heatMap
@@ -182,8 +181,8 @@ sealed class InsightState {
         val currentStreak: Int,
         val longestStreak: Int,
         val totalMoods: Int,
-        val contributionHeatMapData: Map<LocalDate, Level>,
-        val moodHeatMapData: Map<LocalDate, Level>,
+        val contributionHeatMapData: Map<LocalDate, ContributionLevel>,
+        val moodHeatMapData: Map<LocalDate, MoodLevel>,
         val moodChartData: List<MoodChartData>,
         val searchQuery: String? = null
     ) : InsightState()
@@ -196,12 +195,23 @@ data class MoodChartData(
     val mood: Mood
 )
 
-enum class Level {
+interface Level
+
+enum class ContributionLevel : Level {
     Zero,
     One,
     Two,
     Three,
     Four,
     Five,
-    Six,
+}
+
+enum class MoodLevel : Level {
+    Zero,
+    Bad,
+    Low,
+    Neutral,
+    Good,
+    Superb,
+    Awesome,
 }

@@ -2,6 +2,8 @@ package com.sayler666.gina.di
 
 import android.app.Application
 import com.sayler666.gina.ginaApp.GinaApplication
+import com.sayler666.gina.settings.AppSettings
+import com.sayler666.gina.settings.AppSettingsImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +29,8 @@ class ApplicationModule {
     @Singleton
     fun provideExternalScope(application: GinaApplication): CoroutineScope =
         application.applicationScope
+
+    @Provides
+    @Singleton
+    fun provideAppSettings(appSettingsImpl: AppSettingsImpl): AppSettings = appSettingsImpl
 }
