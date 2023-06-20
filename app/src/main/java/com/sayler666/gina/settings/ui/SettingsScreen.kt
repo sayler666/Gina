@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -218,9 +220,9 @@ private fun ThemesBottomSheet(
     if (openBottomSheet) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
             onDismissRequest = { onDismiss() },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceAround
@@ -238,7 +240,7 @@ private fun ThemesBottomSheet(
                         Icon(Rounded.Close, contentDescription = "Close")
                     }
                 }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                 )
                 )
             }
@@ -282,7 +284,9 @@ private fun SettingsButton(
             .clickable {
                 onClick()
             },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

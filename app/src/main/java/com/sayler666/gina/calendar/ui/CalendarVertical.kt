@@ -172,8 +172,8 @@ private fun MonthHeader(calendarMonth: CalendarMonth) {
         Text(
             textAlign = TextAlign.Center,
             text = calendarMonth.yearMonth.displayText(),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

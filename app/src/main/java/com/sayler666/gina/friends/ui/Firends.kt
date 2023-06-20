@@ -88,7 +88,7 @@ fun FriendsPicker(
                     .padding(8.dp)
                     .heightIn(100.dp, 350.dp),
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 FriendsList(
                     friends,
@@ -200,7 +200,7 @@ fun FriendEdit(
                     modifier = Modifier
                         .padding(8.dp),
                     shape = MaterialTheme.shapes.large,
-                    elevation = CardDefaults.cardElevation(8.dp)
+                    elevation = CardDefaults.cardElevation(2.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

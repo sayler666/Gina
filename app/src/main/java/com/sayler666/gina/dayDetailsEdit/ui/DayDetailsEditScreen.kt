@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -409,7 +410,7 @@ private fun BottomBar(
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         actions = {
             Delete(showDeleteConfirmationDialog)
 

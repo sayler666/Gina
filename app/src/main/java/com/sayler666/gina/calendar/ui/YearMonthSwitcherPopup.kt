@@ -77,7 +77,7 @@ fun YearMonthSwitcherPopup(
                         interactionSource = MutableInteractionSource()
                     ),
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.Bottom) {
@@ -110,21 +110,21 @@ fun YearMonthSwitcherPopup(
                                 text = date.dayOfMonth.toString(),
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.weight(0.33f)
                             )
                         Text(
                             text = date.month.displayText(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(0.33f)
                         )
                         Text(
                             text = date.year.toString(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(0.33f)
                         )
                     }

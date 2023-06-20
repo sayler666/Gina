@@ -42,7 +42,8 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
             Card(
                 modifier = Modifier.padding(16.dp),
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(10.dp),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
             ) {
                 Row {
                     Mood.valuesWithoutEmpty()

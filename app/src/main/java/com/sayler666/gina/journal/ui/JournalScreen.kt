@@ -177,9 +177,8 @@ private fun Days(
 fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
     Card(
         shape = RectangleShape,
-        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f),
+            containerColor = MaterialTheme.colorScheme.background,
         ),
         onClick = onClick
     ) {
@@ -284,8 +283,9 @@ private fun DateHeader(header: String) {
     ) {
         Text(
             modifier = Modifier.padding(start = 8.dp, top = 5.dp, bottom = 8.dp),
-            style = MaterialTheme.typography.titleMedium,
-            text = header
+            style = MaterialTheme.typography.labelMedium,
+            text = header,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

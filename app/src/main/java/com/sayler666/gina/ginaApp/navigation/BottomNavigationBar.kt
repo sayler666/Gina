@@ -74,7 +74,7 @@ fun BottomNavigationBar(navController: NavController) {
         ?: NavGraphs.root.startAppDestination
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        containerColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .navigationBarsPadding()
             .height(80.dp)

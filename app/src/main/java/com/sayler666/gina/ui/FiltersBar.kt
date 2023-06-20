@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -189,9 +190,9 @@ private fun Filters(
     if (openBottomSheet) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
             onDismissRequest = { scope.launch { openBottomSheet = false } },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceAround
@@ -215,7 +216,7 @@ private fun Filters(
                         Icon(Rounded.Check, contentDescription = "Save")
                     }
                 }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                 )
                 )
             }
