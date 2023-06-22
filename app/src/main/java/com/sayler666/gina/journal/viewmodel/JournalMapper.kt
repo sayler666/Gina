@@ -5,8 +5,8 @@ import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
-import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.Mood.Companion.mapToMood
+import mood.Mood
+import mood.Mood.Companion.mapToMood
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 

@@ -8,6 +8,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -57,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
@@ -94,15 +96,15 @@ import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.MoodIcon
-import com.sayler666.gina.ui.MoodPicker
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
-import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import mood.Mood
+import mood.MoodIcon
+import mood.MoodPicker
+import mood.mapToMoodIcon
 
 
 data class DayDetailsEditScreenNavArgs(
@@ -137,8 +139,7 @@ fun DayDetailsEditScreen(
 
     val navigateToList: Event<Unit> by viewModel.navigateToList.collectAsStateWithLifecycle()
     if (navigateToList is Event.Value<Unit>) destinationsNavigator.popBackStack(
-        route = DayDetailsScreenDestination,
-        inclusive = true
+        route = DayDetailsScreenDestination, inclusive = true
     )
 
     // dialogs
@@ -167,71 +168,58 @@ fun DayDetailsEditScreen(
     })
     val isKeyboardOpen by keyboardAsState() // true or false
     currentDay?.let { day ->
-        Scaffold(
-            topBar = {
-                TopBar(
-                    day,
-                    onNavigateBackClicked = {
-                        handleBackPress(
-                            changesExist,
-                            showDiscardConfirmationDialog,
-                            navController
-                        )
-                    },
-                    onChangeDateClicked = {
-                        showDatePickerPopup.value = true
-                    }
+        Scaffold(topBar = {
+            TopBar(day, onNavigateBackClicked = {
+                handleBackPress(
+                    changesExist, showDiscardConfirmationDialog, navController
                 )
-            },
-            bottomBar = {
-                BottomBar(
-                    day,
-                    showDeleteConfirmationDialog,
-                    addAttachmentLauncher,
-                    onSaveChanges = { viewModel.saveChanges() },
-                    onMoodChanged = { mood -> viewModel.setNewMood(mood) },
-                    onSearchChanged = { search ->
-                        viewModel.searchFriend(search)
+            }, onChangeDateClicked = {
+                showDatePickerPopup.value = true
+            })
+        }, bottomBar = {
+            BottomBar(day,
+                showDeleteConfirmationDialog,
+                addAttachmentLauncher,
+                onSaveChanges = { viewModel.saveChanges() },
+                onMoodChanged = { mood -> viewModel.setNewMood(mood) },
+                onSearchChanged = { search ->
+                    viewModel.searchFriend(search)
+                },
+                onAddNewFriend = { newFriend ->
+                    viewModel.addNewFriend(newFriend)
+                },
+                onFriendClicked = { id, selected ->
+                    viewModel.friendSelect(id, selected)
+                })
+        }, content = { scaffoldPadding ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding)
+            ) {
+                DatePickerDialog(showDatePickerPopup.value,
+                    initialDate = day.localDate,
+                    onDismiss = {
+                        showDatePickerPopup.value = false
                     },
-                    onAddNewFriend = { newFriend ->
-                        viewModel.addNewFriend(newFriend)
-                    },
-                    onFriendClicked = { id, selected ->
-                        viewModel.friendSelect(id, selected)
+                    onDateChanged = { date ->
+                        viewModel.setNewDate(date)
+                    })
+                Column {
+                    AnimatedVisibility(
+                        visible = !isKeyboardOpen
+                    ) {
+                        Attachments(day, destinationsNavigator) { attachmentHash ->
+                            viewModel.removeAttachment(attachmentHash)
+                        }
                     }
-                )
-            },
-            content = { scaffoldPadding ->
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(scaffoldPadding)
-                ) {
-                    DatePickerDialog(
-                        showDatePickerPopup.value,
-                        initialDate = day.localDate,
-                        onDismiss = {
-                            showDatePickerPopup.value = false
-                        },
-                        onDateChanged = { date ->
-                            viewModel.setNewDate(date)
-                        }
-                    )
-                    Column {
-                        AnimatedVisibility(
-                            visible = !isKeyboardOpen
-                        ) {
-                            Attachments(day, destinationsNavigator) { attachmentHash ->
-                                viewModel.removeAttachment(attachmentHash)
-                            }
-                        }
 
-                        ContentTextField(day) { content ->
-                            viewModel.setNewContent(content)
-                        }
+                    ContentTextField(day) { content ->
+                        viewModel.setNewContent(content)
                     }
                 }
-            })
+            }
+        })
 
     }
 }
@@ -258,12 +246,11 @@ fun ContentTextField(
         var blurEnabled by remember { mutableStateOf(true) }
         val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
 
-        BasicTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .conditional(autoFocus) {
-                    focusRequester(focusRequester)
-                },
+        BasicTextField(modifier = Modifier
+            .fillMaxWidth()
+            .conditional(autoFocus) {
+                focusRequester(focusRequester)
+            },
             value = day.content,
             onValueChange = { onContentChanged(it) },
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -301,13 +288,11 @@ fun ContentTextField(
                     }
                 }
                 innerTextField()
-            }
-        )
+            })
     }
-    if (autoFocus)
-        LaunchedEffect(Unit, block = {
-            focusRequester.requestFocus()
-        })
+    if (autoFocus) LaunchedEffect(Unit, block = {
+        focusRequester.requestFocus()
+    })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -318,80 +303,59 @@ fun Attachments(
     onRemoveAttachment: (Int) -> Unit
 ) {
     val context = LocalContext.current
-    if (day.attachments.isNotEmpty())
-        FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
-            day.attachments.forEach { attachment ->
-                when (attachment) {
-                    is Image -> ImagePreview(
-                        attachment,
-                        onClick = {
-                            destinationsNavigator.navigate(
-                                FullImageDestination(attachment.byte, attachment.mimeType)
-                            )
-                        },
-                        onRemoveClicked = {
-                            onRemoveAttachment(attachment.byte.hashCode())
-                        })
+    if (day.attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
+        day.attachments.forEach { attachment ->
+            when (attachment) {
+                is Image -> ImagePreview(attachment, onClick = {
+                    destinationsNavigator.navigate(
+                        FullImageDestination(attachment.byte, attachment.mimeType)
+                    )
+                }, onRemoveClicked = {
+                    onRemoveAttachment(attachment.byte.hashCode())
+                })
 
-                    is NonImage -> FilePreview(
-                        attachment,
-                        onClick = {
-                            openFileIntent(
-                                context,
-                                attachment.byte,
-                                attachment.mimeType
-                            )
-                        },
-                        onRemoveClicked = {
-                            onRemoveAttachment(attachment.byte.hashCode())
-                        })
-                }
+                is NonImage -> FilePreview(attachment, onClick = {
+                    openFileIntent(
+                        context, attachment.byte, attachment.mimeType
+                    )
+                }, onRemoveClicked = {
+                    onRemoveAttachment(attachment.byte.hashCode())
+                })
             }
         }
+    }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopBar(
-    day: DayDetailsEntity,
-    onNavigateBackClicked: () -> Unit,
-    onChangeDateClicked: () -> Unit
+    day: DayDetailsEntity, onNavigateBackClicked: () -> Unit, onChangeDateClicked: () -> Unit
 ) {
-    TopAppBar(
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    onChangeDateClicked()
-                }) {
-                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
-                Icon(
-                    Filled.ArrowDropDown,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    contentDescription = null
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onNavigateBackClicked() }
-            ) {
-                Icon(Filled.ArrowBack, null)
-            }
-        })
+    TopAppBar(title = {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
+            onChangeDateClicked()
+        }) {
+            DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
+            Icon(
+                Filled.ArrowDropDown,
+                tint = MaterialTheme.colorScheme.tertiary,
+                contentDescription = null
+            )
+        }
+    }, navigationIcon = {
+        IconButton(onClick = { onNavigateBackClicked() }) {
+            Icon(Filled.ArrowBack, null)
+        }
+    })
 }
 
 @Composable
 fun SaveFab(onSaveButtonClicked: () -> Unit) {
-    FloatingActionButton(
-        shape = MaterialTheme.shapes.large,
+    FloatingActionButton(shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.primary,
-        onClick = { onSaveButtonClicked() }
-    ) {
+        onClick = { onSaveButtonClicked() }) {
         Icon(
-            Filled.Save,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.surfaceVariant
+            Filled.Save, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }
@@ -409,8 +373,7 @@ private fun BottomBar(
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+    BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         actions = {
             Delete(showDeleteConfirmationDialog)
 
@@ -428,8 +391,7 @@ private fun BottomBar(
 
             Mood(currentDay, showMoodPopup, scope, onMoodChanged)
         },
-        floatingActionButton = { SaveFab { onSaveChanges() } }
-    )
+        floatingActionButton = { SaveFab { onSaveChanges() } })
 }
 
 @Composable
@@ -459,22 +421,21 @@ fun Friends(
     val showFriendsPopup = remember { mutableStateOf(false) }
 
     when (friends.isNotEmpty()) {
-        true -> Box(modifier = Modifier.clickable(
-            indication = rememberRipple(bounded = false),
-            interactionSource = remember {
-                MutableInteractionSource()
+        true -> Box(modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+            .clickable(indication = rememberRipple(bounded = false),
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }) { showFriendsPopup.value = true }) {
+            friends.take(2).forEachIndexed { i, friend ->
+                FriendIcon(
+                    friend = friend,
+                    size = 32.dp,
+                    modifier = Modifier
+                        .offset(i * 8.dp)
+                        .zIndex(-i.toFloat())
+                )
             }
-        ) { showFriendsPopup.value = true }) {
-            friends.take(2)
-                .forEachIndexed { i, friend ->
-                    FriendIcon(
-                        friend = friend,
-                        size = 32.dp,
-                        modifier = Modifier
-                            .offset(i * 5.dp)
-                            .zIndex(-i.toFloat())
-                    )
-                }
         }
 
         false -> IconButton(onClick = { showFriendsPopup.value = true }) {
@@ -513,9 +474,30 @@ fun Mood(
     scope: CoroutineScope,
     onMoodChanged: (Mood) -> Unit
 ) {
+    var initialization by remember {
+        mutableStateOf(true)
+    }
     val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
+    var size by remember {
+        mutableStateOf(1f)
+    }
+    val sizeAnimation by animateFloatAsState(
+        targetValue = size, animationSpec = tween(durationMillis = 200), label = "Mood icon scale"
+    )
+
+    LaunchedEffect(key1 = currentDay.mood, block = {
+        if (!initialization) {
+            delay(50)
+            size = 1.7f
+            delay(200)
+            size = 1f
+        }
+        initialization = false
+    })
+
     IconButton(onClick = { showMoodPopup.value = true }) {
         Icon(
+            modifier = Modifier.scale(scale = sizeAnimation),
             painter = rememberVectorPainter(image = moodIcon.icon),
             tint = moodIcon.color,
             contentDescription = null,
@@ -529,8 +511,7 @@ fun Mood(
                 showMoodPopup.value = false
             }
             onMoodChanged(mood)
-        }
-    )
+        })
 }
 
 fun handleBackPress(

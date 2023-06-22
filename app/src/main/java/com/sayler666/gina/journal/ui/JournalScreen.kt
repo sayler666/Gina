@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,8 +57,8 @@ import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.FiltersBar
-import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.mapToMoodIcon
+import mood.Mood
+import mood.mapToMoodIcon
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
@@ -154,16 +154,19 @@ private fun Days(
 ) {
     val grouped = days.groupBy { it.header }
     LazyColumn(contentPadding = PaddingValues(bottom = 34.dp)) {
-        grouped.forEach { (header, day) ->
+        grouped.forEach { (header, days) ->
             stickyHeader {
                 DateHeader(header)
             }
 
-            items(day) { d ->
-                Day(d, searchQuery) {
+            itemsIndexed(
+                items = days,
+                key = { _, item -> item.id }
+            ) { i, dayEntity ->
+                Day(modifier = Modifier.animateItemPlacement(), dayEntity, searchQuery) {
                     destinationsNavigator.navigate(
                         DayDetailsScreenDestination(
-                            DayDetailsScreenNavArgs(d.id)
+                            DayDetailsScreenNavArgs(dayEntity.id)
                         )
                     )
                 }
@@ -174,8 +177,14 @@ private fun Days(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Day(day: DayEntity, searchQuery: String? = null, onClick: () -> Unit) {
+fun Day(
+    modifier: Modifier = Modifier,
+    day: DayEntity,
+    searchQuery: String? = null,
+    onClick: () -> Unit
+) {
     Card(
+        modifier = modifier,
         shape = RectangleShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,

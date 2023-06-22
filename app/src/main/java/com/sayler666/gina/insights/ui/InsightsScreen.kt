@@ -77,14 +77,14 @@ import com.sayler666.gina.insights.viewmodel.MoodLevel.Superb
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Zero
 import com.sayler666.gina.journal.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
-import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.awesomeColor
-import com.sayler666.gina.ui.badColor
-import com.sayler666.gina.ui.goodColor
-import com.sayler666.gina.ui.lowColor
-import com.sayler666.gina.ui.mapToMoodIcon
-import com.sayler666.gina.ui.neutralColor
-import com.sayler666.gina.ui.superbColor
+import mood.Mood
+import mood.awesomeColor
+import mood.badColor
+import mood.goodColor
+import mood.lowColor
+import mood.mapToMoodIcon
+import mood.neutralColor
+import mood.superbColor
 import java.time.LocalDate
 import java.time.YearMonth
 

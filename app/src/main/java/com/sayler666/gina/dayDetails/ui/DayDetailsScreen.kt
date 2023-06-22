@@ -69,9 +69,9 @@ import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.mapToMoodIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import mood.mapToMoodIcon
 
 
 data class DayDetailsScreenNavArgs(

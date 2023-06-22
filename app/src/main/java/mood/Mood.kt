@@ -1,5 +1,10 @@
-package com.sayler666.gina.ui
+package mood
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
@@ -25,19 +30,23 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import com.sayler666.gina.ui.Mood.AWESOME
-import com.sayler666.gina.ui.Mood.BAD
-import com.sayler666.gina.ui.Mood.GOOD
-import com.sayler666.gina.ui.Mood.LOW
-import com.sayler666.gina.ui.Mood.NEUTRAL
-import com.sayler666.gina.ui.Mood.SUPERB
+import mood.Mood.AWESOME
+import mood.Mood.BAD
+import mood.Mood.GOOD
+import mood.Mood.LOW
+import mood.Mood.NEUTRAL
+import mood.Mood.SUPERB
 
 @Composable
 fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -> Unit) {
-    if (showPopup)
-        Popup(
-            offset = IntOffset(0, -160),
-            onDismissRequest = { onDismiss() },
+    Popup(
+        offset = IntOffset(0, -160),
+        onDismissRequest = { onDismiss() },
+    ) {
+        AnimatedVisibility(
+            visible = showPopup,
+            enter = fadeIn() + slideInHorizontally(),
+            exit = fadeOut() + slideOutHorizontally()
         ) {
             Card(
                 modifier = Modifier.padding(16.dp),
@@ -62,6 +71,7 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
                 }
             }
         }
+    }
 }
 
 enum class Mood(val numberValue: Int) {

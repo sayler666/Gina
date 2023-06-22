@@ -19,7 +19,6 @@ import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.quotes.QuotesRepository
-import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +31,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mood.Mood
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
