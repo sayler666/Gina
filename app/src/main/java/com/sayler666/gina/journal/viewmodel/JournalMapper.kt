@@ -6,7 +6,6 @@ import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import mood.Mood
-import mood.Mood.Companion.mapToMood
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -31,7 +30,7 @@ class DaysMapper @Inject constructor() {
                     true -> getShorContentAroundSearchQuery(it.content, searchQuery)
                     else -> getShortContent(it.content)
                 },
-                mood = it.mood.mapToMood()
+                mood = it.mood
             )
         }
 

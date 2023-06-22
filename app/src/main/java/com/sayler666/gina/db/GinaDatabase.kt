@@ -1,7 +1,9 @@
 package com.sayler666.gina.db
 
 import androidx.room.*
+import com.sayler666.gina.db.converter.MoodConverter
 import kotlinx.coroutines.flow.Flow
+import mood.Mood
 
 
 @Database(
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
     version = 1,
     exportSchema = false
 )
+@TypeConverters(MoodConverter::class)
 abstract class GinaDatabase : RoomDatabase() {
     abstract fun daysDao(): DaysDao
 }
@@ -26,7 +29,7 @@ data class Day(
     val id: Int?,
 
     @ColumnInfo(name = "mood", typeAffinity = ColumnInfo.INTEGER)
-    val mood: Int?,
+    val mood: Mood?,
 )
 
 @Entity(
@@ -143,7 +146,7 @@ interface DaysDao {
     fun getDaysFlow(): Flow<List<Day>>
 
     @Query("SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' AND mood IN (:moods) ORDER by date DESC")
-    fun getDaysWithFiltersFlow(searchQuery: String?, vararg moods: Int): Flow<List<Day>>
+    fun getDaysWithFiltersFlow(searchQuery: String?, vararg moods: Mood): Flow<List<Day>>
 
     @Transaction
     @Query("SELECT * FROM days WHERE id = :id")

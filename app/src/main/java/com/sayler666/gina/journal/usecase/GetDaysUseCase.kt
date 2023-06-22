@@ -36,8 +36,9 @@ class GetDaysUseCaseImpl @Inject constructor(
         flow {
             try {
                 databaseProvider.getOpenedDb()?.let {
-                    val moodsInt = moods.map { it.numberValue }.toIntArray()
-                    emitAll(it.daysDao().getDaysWithFiltersFlow(searchQuery, *moodsInt))
+                    emitAll(
+                        it.daysDao().getDaysWithFiltersFlow(searchQuery, *moods.toTypedArray())
+                    )
                 }
             } catch (e: SQLException) {
                 Timber.e(e, "Database error")

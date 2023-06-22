@@ -9,7 +9,7 @@ import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
 import mood.Mood
 import mood.Mood.AWESOME
 import mood.Mood.BAD
-import mood.Mood.Companion.mapToMood
+import mood.Mood.EMPTY
 import mood.Mood.GOOD
 import mood.Mood.LOW
 import mood.Mood.NEUTRAL
@@ -36,7 +36,7 @@ class InsightsMapper @Inject constructor() {
             totalEntries = days.size,
             currentStreak = calculateCurrentStreak(days),
             longestStreak = calculateLongestStreak(days),
-            totalMoods = days.count { it.mood != Int.MIN_VALUE },
+            totalMoods = days.count { it.mood != EMPTY },
             contributionHeatMapData = generateContributionHeatMapData(days),
             moodHeatMapData = generateMoodHeatMapData(days),
             moodChartData = generateMoodChartData(days)
@@ -46,7 +46,7 @@ class InsightsMapper @Inject constructor() {
     }
 
     private fun generateMoodChartData(days: List<Day>): List<MoodChartData> {
-        val moods = days.map { it.mood.mapToMood() }
+        val moods = days.map { it.mood }
 
         val awesomeCount = moods.count { it == AWESOME }.toFloat()
         val superbCount = moods.count { it == SUPERB }.toFloat()
@@ -106,12 +106,12 @@ class InsightsMapper @Inject constructor() {
             requireNotNull(it.content)
             val currentDayDate = it.date.toLocalDate()
             heatMap[currentDayDate] = when (it.mood) {
-                -2 -> MoodLevel.Bad
-                -1 -> MoodLevel.Low
-                0 -> MoodLevel.Neutral
-                1 -> MoodLevel.Good
-                2 -> MoodLevel.Superb
-                3 -> MoodLevel.Awesome
+                BAD -> MoodLevel.Bad
+                LOW -> MoodLevel.Low
+                NEUTRAL -> MoodLevel.Neutral
+                GOOD -> MoodLevel.Good
+                SUPERB -> MoodLevel.Superb
+                AWESOME -> MoodLevel.Awesome
                 else -> MoodLevel.Zero
             }
         }
