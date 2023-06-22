@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -71,7 +70,7 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ui.DayTitle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import mood.mapToMoodIcon
+import mood.ui.mapToMoodIcon
 
 
 data class DayDetailsScreenNavArgs(
@@ -89,7 +88,6 @@ fun DayDetailsScreen(
 ) {
     val requester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
 
     val goToDay: Event<Int> by viewModel.goToDayId.collectAsStateWithLifecycle()

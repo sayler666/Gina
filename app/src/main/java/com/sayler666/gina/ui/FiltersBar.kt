@@ -62,7 +62,7 @@ import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
 import kotlinx.coroutines.launch
 import mood.Mood
-import mood.mapToMoodIcon
+import mood.ui.mapToMoodIcon
 
 
 @OptIn(ExperimentalMaterial3Api::class)
