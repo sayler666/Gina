@@ -37,7 +37,8 @@ fun DatePickerDialog(
         Dialog(onDismissRequest = { onDismiss() }) {
             Card(
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(2.dp)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 CalendarHorizontal(
                     days,

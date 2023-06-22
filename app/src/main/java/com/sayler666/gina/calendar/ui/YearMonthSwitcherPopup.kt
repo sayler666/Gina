@@ -77,7 +77,8 @@ fun YearMonthSwitcherPopup(
                         interactionSource = MutableInteractionSource()
                     ),
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(2.dp)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.Bottom) {

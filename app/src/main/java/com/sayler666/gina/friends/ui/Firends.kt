@@ -6,6 +6,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,9 +29,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
@@ -37,6 +40,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -88,7 +92,8 @@ fun FriendsPicker(
                     .padding(8.dp)
                     .heightIn(100.dp, 350.dp),
                 shape = MaterialTheme.shapes.large,
-                elevation = CardDefaults.cardElevation(2.dp)
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 FriendsList(
                     friends,
@@ -200,7 +205,8 @@ fun FriendEdit(
                     modifier = Modifier
                         .padding(8.dp),
                     shape = MaterialTheme.shapes.large,
-                    elevation = CardDefaults.cardElevation(2.dp)
+                    colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(2.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -215,7 +221,7 @@ fun FriendEdit(
                             Icon(
                                 Filled.Edit,
                                 null,
-                                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                tint = colorScheme.secondary.copy(alpha = 0.8f),
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .combinedClickable(
@@ -252,14 +258,14 @@ fun FriendEdit(
                         IconButton(onClick = {
                             showDeleteConfirmationDialog.value = true
                         }) {
-                            Icon(Filled.Delete, null, tint = MaterialTheme.colorScheme.error)
+                            Icon(Filled.Delete, null, tint = colorScheme.error)
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
                             viewModel.updateFriend()
                             onDismiss()
                         }) {
-                            Icon(Filled.Save, null, tint = MaterialTheme.colorScheme.primary)
+                            Icon(Filled.Save, null, tint = colorScheme.primary)
                         }
 
                         ConfirmationDialog(
@@ -292,13 +298,24 @@ private fun SearchTextField(
         value = searchValue,
         onValueChange = onValueChanged,
         colors = secondaryTextColors(),
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = searchValue.isNotBlank(), enter = fadeIn(), exit = fadeOut()
+            ) {
+                IconButton(onClick = {
+                    onDone(searchValue)
+                }) {
+                    Icon(
+                        imageVector = Filled.AddCircle,
+                        contentDescription = null,
+                        tint = colorScheme.secondary
+                    )
+                }
+            }
+        },
         placeholder = { Text(text = "Search or add new friend...") },
         maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = {
-            onDone(searchValue)
-        })
+        singleLine = true
     )
 }
 
@@ -340,7 +357,7 @@ fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier, size: Dp = 3
     Box(
         modifier = modifier
             .shadow(elevation = 3.dp, shape = CircleShape)
-            .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+            .background(colorScheme.primary, shape = CircleShape)
             .size(size),
         contentAlignment = Alignment.Center
     ) {
@@ -357,7 +374,7 @@ fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier, size: Dp = 3
                 text = friend.initials,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.labelMedium
-                    .copy(color = MaterialTheme.colorScheme.background, fontSize = 15.sp)
+                    .copy(color = colorScheme.background, fontSize = 17.sp)
             )
         }
     }

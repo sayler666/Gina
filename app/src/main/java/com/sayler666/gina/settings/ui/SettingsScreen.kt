@@ -53,9 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -173,7 +171,7 @@ private fun ImageCompressSettingsSection(
             icon = Filled.PhotoSizeSelectLarge,
             onClick = { showImageCompressSettingsDialog.value = true }
         )
-        ImageCompressSettingsDialog(
+        ImageCompressBottomSheet(
             showDialog = showImageCompressSettingsDialog.value,
             imageOptimizationSettings = imageOptimizationSettings,
             onDismiss = { showImageCompressSettingsDialog.value = false },
@@ -247,19 +245,20 @@ private fun ThemesBottomSheet(
 
             themes.forEach { theme ->
                 Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clickable {
-                            onSelectTheme(theme.theme)
-                        },
+                    modifier = Modifier.clickable {
+                        onSelectTheme(theme.theme)
+                    },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        stringResource(id = theme.name),
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = stringResource(id = theme.name),
                         style = MaterialTheme.typography.labelLarge
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    RadioButton(selected = theme.selected,
+                    RadioButton(
+                        modifier = Modifier.padding(end = 8.dp),
+                        selected = theme.selected,
                         onClick = {
                             onSelectTheme(theme.theme)
                         }
@@ -320,62 +319,87 @@ private fun SettingsButton(
 }
 
 @Composable
-fun ImageCompressSettingsDialog(
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ImageCompressBottomSheet(
     showDialog: Boolean,
     imageOptimizationSettings: OptimizationSettings?,
     onDismiss: () -> Unit,
     onSetImageQuality: (Int) -> Unit,
     onImageCompressionToggled: (Boolean) -> Unit,
 ) {
-    if (showDialog) {
-        imageOptimizationSettings?.let {
-            Dialog(onDismissRequest = { onDismiss() }) {
-                Card(Modifier.padding(0.dp)) {
-                    Column(Modifier.padding(horizontal = 8.dp)) {
-                        Row(
-                            modifier = Modifier.padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Image Optimization:",
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Switch(checked = imageOptimizationSettings.compressionEnabled,
-                                onCheckedChange = {
-                                    onImageCompressionToggled(it)
-                                })
+    val scope = rememberCoroutineScope()
+    imageOptimizationSettings?.let {
+        if (showDialog) {
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ModalBottomSheet(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                sheetState = sheetState,
+                onDismissRequest = { onDismiss() },
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    CenterAlignedTopAppBar(title = {
+                        Text("Image optimization")
+                    }, actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                sheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!sheetState.isVisible) onDismiss()
+                            }
+                        }) {
+                            Icon(Rounded.Close, contentDescription = "Close")
                         }
-                        var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
-                        Row(modifier = Modifier.padding(8.dp)) {
-                            Text(
-                                text = "Quality:",
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            )
-                            Text(
-                                text = " ${qualitySliderPosition.toInt()}%",
-                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W900)
-                            )
-                        }
-                        Slider(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            value = qualitySliderPosition,
-                            valueRange = 1f..100f,
-                            steps = 100,
-                            colors = SliderDefaults.colors(
-                                activeTickColor = Color.Transparent
-                            ),
-                            enabled = imageOptimizationSettings.compressionEnabled,
-                            onValueChange = { value: Float ->
-                                qualitySliderPosition = value
-                            },
-                            onValueChangeFinished = {
-                                onSetImageQuality(qualitySliderPosition.toInt())
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                    )
+                    )
+                }
+                Column(Modifier.padding(horizontal = 8.dp)) {
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Enable optimization:",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Switch(checked = imageOptimizationSettings.compressionEnabled,
+                            onCheckedChange = {
+                                onImageCompressionToggled(it)
                             })
                     }
+                    var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
+                    Row(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = "Quality:",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Text(
+                            text = " ${qualitySliderPosition.toInt()}%",
+                            style = MaterialTheme.typography.labelLarge
+                                .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        )
+                    }
+                    Slider(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        value = qualitySliderPosition,
+                        valueRange = 1f..100f,
+                        steps = 100,
+                        colors = SliderDefaults.colors(
+                            activeTickColor = Color.Transparent
+                        ),
+                        enabled = imageOptimizationSettings.compressionEnabled,
+                        onValueChange = { value: Float ->
+                            qualitySliderPosition = value
+                        },
+                        onValueChangeFinished = {
+                            onSetImageQuality(qualitySliderPosition.toInt())
+                        })
                 }
+
             }
         }
     }
