@@ -62,7 +62,7 @@ class AddDayViewModel @Inject constructor(
             id = null,
             date = (date?.atStartOfDay()?.toLocalDate() ?: LocalDate.now()).toEpochMilliseconds(),
             content = "",
-            mood = 0
+            mood = Mood.EMPTY
         ), emptyList(), emptyList()
     )
 
@@ -114,7 +114,7 @@ class AddDayViewModel @Inject constructor(
 
     fun setNewMood(mood: Mood) {
         val currentDay = _tempDay.value ?: return
-        _tempDay.value = currentDay.copy(day = currentDay.day.copy(mood = mood.numberValue))
+        _tempDay.value = currentDay.copy(day = currentDay.day.copy(mood = mood))
     }
 
     fun removeAttachment(byteHashCode: Int) {

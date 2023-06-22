@@ -102,9 +102,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mood.Mood
-import mood.MoodIcon
-import mood.MoodPicker
-import mood.mapToMoodIcon
+import mood.ui.MoodIcon
+import mood.ui.MoodPicker
+import mood.ui.mapToMoodIcon
 
 
 data class DayDetailsEditScreenNavArgs(
