@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,8 +50,10 @@ import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.Mood
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import mood.Mood
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -96,7 +99,11 @@ fun AddDayScreen(
     BackHandler(onBack = {
         handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
     })
+    val autofocusOnContentText = remember {
+        mutableStateOf(false)
+    }
 
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             dayTemp?.let {
@@ -117,7 +124,13 @@ fun AddDayScreen(
                     it,
                     addAttachmentLauncher,
                     onSaveChanges = { viewModel.saveChanges() },
-                    onMoodChanged = { mood -> viewModel.setNewMood(mood) },
+                    onMoodChanged = { mood ->
+                        viewModel.setNewMood(mood)
+                        scope.launch {
+                            delay(250)
+                            autofocusOnContentText.value = true
+                        }
+                    },
                     onSearchChanged = { search ->
                         viewModel.searchFriend(search)
                     },
@@ -153,7 +166,7 @@ fun AddDayScreen(
                     }
                     ContentTextField(
                         it,
-                        autoFocus = true,
+                        autoFocus = autofocusOnContentText.value,
                         quote = quote
                     ) { content ->
                         viewModel.setNewContent(content)
@@ -204,7 +217,7 @@ private fun BottomBar(
     onAddNewFriend: (String) -> Unit,
     onFriendClicked: (Int, Boolean) -> Unit
 ) {
-    val showPopup = remember { mutableStateOf(true) }
+    val showMoodPopup = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
@@ -219,10 +232,15 @@ private fun BottomBar(
                 currentDay
             )
 
-            Mood(currentDay, showPopup, scope, onMoodChanged)
+            Mood(currentDay, showMoodPopup, scope, onMoodChanged)
         },
         floatingActionButton = { SaveFab { onSaveChanges() } }
     )
+
+    LaunchedEffect(key1 = scope, block = {
+        delay(300)
+        showMoodPopup.value = true
+    })
 }
 
 

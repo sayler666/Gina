@@ -9,8 +9,8 @@ import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.FriendWithCount
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
-import com.sayler666.gina.ui.Mood
-import com.sayler666.gina.ui.Mood.Companion.mapToMood
+import mood.Mood
+import mood.Mood.Companion.mapToMood
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale.getDefault

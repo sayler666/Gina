@@ -3,13 +3,13 @@ package com.sayler666.gina.journal.usecase
 import android.database.SQLException
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.Day
-import com.sayler666.gina.ui.Mood
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import mood.Mood
 import timber.log.Timber
 import javax.inject.Inject
 

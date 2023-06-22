@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.gina.ui.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mood.Mood
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
