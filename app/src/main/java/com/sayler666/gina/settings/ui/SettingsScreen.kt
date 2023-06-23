@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
@@ -222,47 +223,51 @@ private fun ThemesBottomSheet(
             sheetState = sheetState,
             onDismissRequest = { onDismiss() },
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround
+            Column(
+                modifier = Modifier.systemBarsPadding()
             ) {
-                CenterAlignedTopAppBar(title = {
-                    Text("Theme")
-                }, actions = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            sheetState.hide()
-                        }.invokeOnCompletion {
-                            if (!sheetState.isVisible) onDismiss()
-                        }
-                    }) {
-                        Icon(Rounded.Close, contentDescription = "Close")
-                    }
-                }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                )
-                )
-            }
-
-            themes.forEach { theme ->
                 Row(
-                    modifier = Modifier.clickable {
-                        onSelectTheme(theme.theme)
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Text(
-                        modifier = Modifier.padding(start = 16.dp),
-                        text = stringResource(id = theme.name),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    RadioButton(
-                        modifier = Modifier.padding(end = 8.dp),
-                        selected = theme.selected,
-                        onClick = {
-                            onSelectTheme(theme.theme)
+                    CenterAlignedTopAppBar(title = {
+                        Text("Theme")
+                    }, actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                sheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!sheetState.isVisible) onDismiss()
+                            }
+                        }) {
+                            Icon(Rounded.Close, contentDescription = "Close")
                         }
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
+                    )
+                }
+
+                themes.forEach { theme ->
+                    Row(
+                        modifier = Modifier.clickable {
+                            onSelectTheme(theme.theme)
+                        },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = theme.name),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        RadioButton(
+                            modifier = Modifier.padding(end = 8.dp),
+                            selected = theme.selected,
+                            onClick = {
+                                onSelectTheme(theme.theme)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -336,70 +341,73 @@ private fun ImageCompressBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = { onDismiss() },
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
+                Column(
+                    modifier = Modifier.systemBarsPadding()
                 ) {
-                    CenterAlignedTopAppBar(title = {
-                        Text("Image optimization")
-                    }, actions = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                sheetState.hide()
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) onDismiss()
-                            }
-                        }) {
-                            Icon(Rounded.Close, contentDescription = "Close")
-                        }
-                    }, colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                    )
-                    )
-                }
-                Column(Modifier.padding(horizontal = 8.dp)) {
                     Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        Text(
-                            text = "Enable optimization:",
-                            style = MaterialTheme.typography.labelLarge
+                        CenterAlignedTopAppBar(title = {
+                            Text("Image optimization")
+                        }, actions = {
+                            IconButton(onClick = {
+                                scope.launch {
+                                    sheetState.hide()
+                                }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) onDismiss()
+                                }
+                            }) {
+                                Icon(Rounded.Close, contentDescription = "Close")
+                            }
+                        }, colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                         )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Switch(checked = imageOptimizationSettings.compressionEnabled,
-                            onCheckedChange = {
-                                onImageCompressionToggled(it)
+                        )
+                    }
+                    Column(Modifier.padding(horizontal = 8.dp)) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Enable optimization:",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Switch(checked = imageOptimizationSettings.compressionEnabled,
+                                onCheckedChange = {
+                                    onImageCompressionToggled(it)
+                                })
+                        }
+                        var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
+                        Row(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = "Quality:",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                            Text(
+                                text = " ${qualitySliderPosition.toInt()}%",
+                                style = MaterialTheme.typography.labelLarge
+                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            )
+                        }
+                        Slider(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            value = qualitySliderPosition,
+                            valueRange = 1f..100f,
+                            steps = 100,
+                            colors = SliderDefaults.colors(
+                                activeTickColor = Color.Transparent
+                            ),
+                            enabled = imageOptimizationSettings.compressionEnabled,
+                            onValueChange = { value: Float ->
+                                qualitySliderPosition = value
+                            },
+                            onValueChangeFinished = {
+                                onSetImageQuality(qualitySliderPosition.toInt())
                             })
                     }
-                    var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
-                    Row(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "Quality:",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(
-                            text = " ${qualitySliderPosition.toInt()}%",
-                            style = MaterialTheme.typography.labelLarge
-                                .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        )
-                    }
-                    Slider(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        value = qualitySliderPosition,
-                        valueRange = 1f..100f,
-                        steps = 100,
-                        colors = SliderDefaults.colors(
-                            activeTickColor = Color.Transparent
-                        ),
-                        enabled = imageOptimizationSettings.compressionEnabled,
-                        onValueChange = { value: Float ->
-                            qualitySliderPosition = value
-                        },
-                        onValueChangeFinished = {
-                            onSetImageQuality(qualitySliderPosition.toInt())
-                        })
                 }
-
             }
         }
     }

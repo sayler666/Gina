@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +20,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         var showSplash = savedInstanceState?.getBoolean(SPLASH_KEY) ?: true
         installSplashScreen().setKeepOnScreenCondition { showSplash }
@@ -36,7 +34,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            GinaApp(vm)
+            GinaApp(vm, this)
         }
     }
 

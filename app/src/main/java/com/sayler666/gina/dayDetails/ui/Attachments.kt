@@ -1,6 +1,5 @@
 package com.sayler666.gina.dayDetails.ui
 
-import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -12,15 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Card
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Modifier
@@ -53,10 +54,10 @@ fun FilePreview(
                 onClick = { onClick() },
                 onLongClick = { onRemoveClicked?.invoke() }
             ),
-        elevation = 8.dp,
-        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Box(Modifier.padding(8.dp)) {
+        Box(Modifier.padding(8.dp).fillMaxSize()) {
             Icon(
                 imageVector = Icons.Outlined.FileOpen,
                 tint = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -88,10 +89,11 @@ fun ImagePreview(
                 onClick = { onClick() },
                 onLongClick = { onRemoveClicked?.invoke() }
             ),
-        elevation = 8.dp,
-        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Image(
+            modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             painter = rememberAsyncImagePainter(attachment.byte),
             contentDescription = "",
@@ -100,7 +102,6 @@ fun ImagePreview(
 }
 
 
-@SuppressLint("UnrememberedMutableState")
 @Destination(style = FullScreenDialog::class)
 @Composable
 fun FullImage(
@@ -151,7 +152,7 @@ fun FullImage(
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                 },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
                 IconButton(onClick = {
                     destinationsNavigator.popBackStack()

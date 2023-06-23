@@ -9,8 +9,7 @@ compose-ui = "1.4.3"
 lifecycle = "2.6.1"
 core-splashscreen = "1.0.1"
 constraintlayout-compose = "1.0.1"
-compose-material3 = "1.1.0"
-compose-material2 = "1.4.3"
+compose-material3 = "1.1.1"
 compose-navigation = "2.5.3"
 composecompiler = "1.4.4"
 accompanist-systemuicontroller = "0.30.0"
@@ -28,7 +27,7 @@ retrofit = "2.9.0"
 retrofit-serialization-converter = "1.0.0"
 junit = "4.13.2"
 kotlin-serialization-json = "1.5.1"
-agp = "8.1.0-beta05"
+agp = "8.1.0-rc01"
 ksp = "1.8.10-1.0.9"
 kapt = "1.8.10"
 androidx-test-ext-junit = "1.1.5"
@@ -47,7 +46,6 @@ androidx-compose-ui-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayout-compose" }
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose-ui" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }
-androidx-compose-material2 = { group = "androidx.compose.material", name = "material", version.ref = "compose-material2" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }

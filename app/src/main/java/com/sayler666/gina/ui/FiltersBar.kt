@@ -7,11 +7,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -77,9 +80,16 @@ fun FiltersBar(
     moodFilters: List<Mood> = emptyList(),
     onMoodFiltersUpdate: (List<Mood>) -> Unit = {},
     onResetFiltersClicked: () -> Unit,
-    filtersActive: Boolean
+    filtersActive: Boolean,
+    onSearchVisibilityChanged: (Boolean) -> Unit
 ) {
     val showSearch = rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = showSearch, block = {
+        snapshotFlow { showSearch.value }.collect { isVisible ->
+            onSearchVisibilityChanged(isVisible)
+        }
+    })
 
     TopAppBar(title = { if (showSearch.value.not()) Text(title) }, navigationIcon = {}, actions = {
         SearchField(showSearch, searchText, onSearchTextChanged, onClearClick)
@@ -194,35 +204,39 @@ private fun Filters(
         ModalBottomSheet(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
-            onDismissRequest = { scope.launch { openBottomSheet = false } },
+            onDismissRequest = { scope.launch { openBottomSheet = false } }
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround
+            Column(
+                modifier = Modifier.systemBarsPadding()
             ) {
-                CenterAlignedTopAppBar(navigationIcon = {
-                    IconButton(onClick = {
-                        onResetFiltersClicked()
-                    }) {
-                        Icon(Rounded.FilterListOff, contentDescription = "Reset filters")
-                    }
-                }, title = {
-                    Text("Filters")
-                }, actions = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            sheetState.hide()
-                        }.invokeOnCompletion {
-                            if (!sheetState.isVisible) openBottomSheet = false
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    CenterAlignedTopAppBar(navigationIcon = {
+                        IconButton(onClick = {
+                            onResetFiltersClicked()
+                        }) {
+                            Icon(Rounded.FilterListOff, contentDescription = "Reset filters")
                         }
-                    }) {
-                        Icon(Rounded.Check, contentDescription = "Save")
-                    }
-                }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                )
-                )
+                    }, title = {
+                        Text("Filters")
+                    }, actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                sheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!sheetState.isVisible) openBottomSheet = false
+                            }
+                        }) {
+                            Icon(Rounded.Check, contentDescription = "Save")
+                        }
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                    )
+                    )
+                }
+                MoodFilter(moodFilters, onMoodsSelected)
             }
-            MoodFilter(moodFilters, onMoodsSelected)
         }
     }
 }
