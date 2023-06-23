@@ -20,6 +20,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -69,13 +70,17 @@ enum class BottomDestinations(
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(
+    modifier: Modifier = Modifier,
+    color: Color,
+    navController: NavController
+) {
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value
         ?: NavGraphs.root.startAppDestination
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier
+        containerColor = color,
+        modifier = modifier
             .navigationBarsPadding()
             .height(80.dp)
     ) {
@@ -103,8 +108,6 @@ fun BottomNavigationBar(navController: NavController) {
                 },
                 selected = currentDestination == dest.destination,
             )
-            if (index == 1) Spacer(modifier = Modifier.width(55.dp))
-            if (index == 3) Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }

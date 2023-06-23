@@ -67,7 +67,9 @@ import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.FullImageDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.NavigationBarColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import mood.ui.mapToMoodIcon
@@ -84,12 +86,14 @@ data class DayDetailsScreenNavArgs(
 fun DayDetailsScreen(
     destinationsNavigator: DestinationsNavigator,
     navController: NavController,
-    viewModel: DayDetailsViewModel = hiltViewModel()
+    viewModel: DayDetailsViewModel = hiltViewModel(),
+    vm: GinaMainViewModel = hiltViewModel(),
 ) {
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    NavigationBarColor(theme = theme)
     val requester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
-
     val goToDay: Event<Int> by viewModel.goToDayId.collectAsStateWithLifecycle()
     goToDay.withValue { dayId ->
         destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))) {

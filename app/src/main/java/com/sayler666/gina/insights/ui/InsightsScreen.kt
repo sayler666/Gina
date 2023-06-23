@@ -61,6 +61,7 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.gina.calendar.ui.displayText
+import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
@@ -94,7 +95,8 @@ import java.time.YearMonth
 @com.ramcosta.composedestinations.annotation.Destination
 @Composable
 fun InsightsScreen(
-    viewModel: InsightsViewModel = hiltViewModel()
+    viewModel: InsightsViewModel = hiltViewModel(),
+    bottomBarViewModel: BottomNavigationBarViewModel
 ) {
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
@@ -121,7 +123,13 @@ fun InsightsScreen(
                 onResetFiltersClicked = {
                     viewModel.resetFilters()
                 },
-                filtersActive
+                filtersActive,
+                onSearchVisibilityChanged = { show ->
+                    when (show) {
+                        true -> bottomBarViewModel.lockHide()
+                        false -> bottomBarViewModel.unlockAndShow()
+                    }
+                }
             )
         },
         content = { padding ->

@@ -28,7 +28,7 @@ fun NavigationBarColor(
     theme: Theme?
 ) {
     val systemUiController = rememberSystemUiController()
-    DisposableEffect(systemUiController, theme) {
+    DisposableEffect(systemUiController, theme, color) {
         systemUiController.setNavigationBarColor(
             color = color,
             darkIcons = color.luminance() > 0.5f

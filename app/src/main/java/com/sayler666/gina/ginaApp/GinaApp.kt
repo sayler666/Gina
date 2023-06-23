@@ -1,21 +1,32 @@
 package com.sayler666.gina.ginaApp
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.FabPosition
-import androidx.compose.material.Scaffold
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.dependency
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.CalendarScreenDestination
@@ -26,6 +37,10 @@ import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
+import com.sayler666.gina.ginaApp.viewModel.BottomBarState
+import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Hidden
+import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Shown
+import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
@@ -34,13 +49,13 @@ import com.sayler666.gina.ui.theme.GinaTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun GinaApp(vm: GinaMainViewModel) {
+fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     GinaTheme(theme) {
         val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
+
         if (rememberedDatabase != null) {
             StatusBarColor(theme = theme)
-            NavigationBarColor(theme = theme)
             val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
             else JournalScreenDestination
 
@@ -48,41 +63,80 @@ fun GinaApp(vm: GinaMainViewModel) {
             val destination: Destination = navController.appCurrentDestinationAsState().value
                 ?: NavGraphs.root.startAppDestination
 
+            val bottomBarVm: BottomNavigationBarViewModel = hiltViewModel(activity)
+            val bottomBarState: BottomBarState by bottomBarVm.state.collectAsStateWithLifecycle()
+
+            val bottomBarStateTransition =
+                updateTransition(bottomBarState, label = "BottomBar state")
+
+            val (bottomBarColor, bottomBarOffset) = bottomBarAnimations(bottomBarStateTransition)
+
+            NavigationBarColor(theme = theme, color = bottomBarColor)
             Scaffold(
                 Modifier.imePadding(),
-                backgroundColor = MaterialTheme.colorScheme.background,
+                containerColor = colorScheme.background,
                 floatingActionButton = {
-                    if (destination.shouldShowScaffoldElements) DayFab(navController)
+                    if (destination.shouldShowScaffoldElements)
+                        DayFab(
+                            modifier = Modifier.offset(y = bottomBarOffset),
+                            navController = navController
+                        )
                 },
-                floatingActionButtonPosition = FabPosition.Center,
-                isFloatingActionButtonDocked = true,
+                floatingActionButtonPosition = FabPosition.End,
                 bottomBar = {
-                    if (destination.shouldShowScaffoldElements) BottomNavigationBar(
-                        navController
-                    )
+                    if (destination.shouldShowScaffoldElements)
+                        BottomNavigationBar(
+                            modifier = Modifier.offset(y = bottomBarOffset),
+                            color = bottomBarColor,
+                            navController = navController
+                        )
                 },
                 content = { scaffoldPadding ->
-                    var bottomP = scaffoldPadding.calculateBottomPadding()
-                    bottomP = if (bottomP >= 80.dp) bottomP - 48.dp else bottomP
-                    Box(
+                    val calculatedBP = scaffoldPadding.calculateBottomPadding() - bottomBarOffset
+
+                    Column(
                         modifier = Modifier
-                            .padding(bottom = bottomP)
+                            .fillMaxSize()
+                            .padding(bottom = if (calculatedBP < 0.dp) 0.dp else calculatedBP),
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
-                            DestinationsNavHost(
-                                navGraph = NavGraphs.root,
-                                startRoute = startRoute,
-                                navController = navController,
-                                // engine = rememberAnimatedNavHostEngine()
-                            )
-                        }
+                        DestinationsNavHost(
+                            navGraph = NavGraphs.root,
+                            startRoute = startRoute,
+                            navController = navController,
+                            dependenciesContainerBuilder = {
+                                dependency(hiltViewModel<BottomNavigationBarViewModel>(activity))
+                            }
+                            // engine = rememberAnimatedNavHostEngine()
+                        )
                     }
                 })
         }
     }
+}
+
+@Composable
+private fun bottomBarAnimations(
+    bottomBarStateTransition: Transition<BottomBarState>
+): Pair<Color, Dp> {
+    val bottomBarColor by bottomBarStateTransition
+        .animateColor(
+            label = "BottomBar color",
+            transitionSpec = { tween(durationMillis = 150) }) { state ->
+            when (state) {
+                Hidden -> colorScheme.surface
+                Shown -> colorScheme.surfaceColorAtElevation(3.dp)
+            }
+        }
+    val bottomBarOffset by bottomBarStateTransition
+        .animateDp(
+            label = "BottomBar offset",
+            transitionSpec = { tween(durationMillis = 150) }) { state ->
+            when (state) {
+                Hidden -> 80.dp
+                Shown -> 0.dp
+            }
+        }
+    return bottomBarColor to bottomBarOffset
 }
 
 private val Destination.shouldShowScaffoldElements

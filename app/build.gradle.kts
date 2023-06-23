@@ -36,6 +36,7 @@ android {
 
     buildTypes {
         debug {
+            isDebuggable = true
             signingConfig = signingConfigs["debug"]
             isShrinkResources = false
             isMinifyEnabled = false
@@ -111,7 +112,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.compiler)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material2)
     implementation(libs.androidx.compose.constraintlayout)
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.navigation.compose)

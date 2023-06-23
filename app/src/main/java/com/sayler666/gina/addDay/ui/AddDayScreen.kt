@@ -48,8 +48,10 @@ import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
+import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -68,10 +70,13 @@ data class AddDayScreenNavArgs(
 fun AddDayScreen(
     destinationsNavigator: DestinationsNavigator,
     navController: NavController,
-    viewModel: AddDayViewModel = hiltViewModel()
+    viewModel: AddDayViewModel = hiltViewModel(),
+    vm: GinaMainViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    NavigationBarColor(theme = theme)
 
+    val context = LocalContext.current
     val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
         handleSelectedFiles(it, context) { attachments ->
             viewModel.addAttachments(attachments)

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,8 +33,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -48,6 +53,7 @@ import com.sayler666.gina.R.string
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.journal.viewmodel.DayEntity
 import com.sayler666.gina.journal.viewmodel.JournalState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
@@ -66,13 +72,13 @@ import mood.ui.mapToMoodIcon
 @Composable
 fun JournalScreen(
     destinationsNavigator: DestinationsNavigator,
-    navController: NavController
+    navController: NavController,
+    bottomBarViewModel: BottomNavigationBarViewModel
 ) {
     val backStackEntry = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(NavGraphs.root.route)
     }
     val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
-
     val permissionsResult = rememberLauncherForActivityResult(StartActivityForResult()) {
         viewModel.refreshPermissionStatus()
     }
@@ -102,7 +108,13 @@ fun JournalScreen(
                 onResetFiltersClicked = {
                     viewModel.resetFilters()
                 },
-                filtersActive
+                filtersActive,
+                onSearchVisibilityChanged = { show ->
+                    when (show) {
+                        true -> bottomBarViewModel.lockHide()
+                        false -> bottomBarViewModel.unlockAndShow()
+                    }
+                }
             )
         },
         content = { padding ->
@@ -110,7 +122,13 @@ fun JournalScreen(
                 padding,
                 destinationsNavigator,
                 state,
-                onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) }
+                onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
+                onScrollStarted = {
+                    bottomBarViewModel.hide()
+                },
+                onScrollEnded = {
+                    bottomBarViewModel.show()
+                }
             )
         })
 }
@@ -120,7 +138,9 @@ private fun Journal(
     padding: PaddingValues,
     destinationsNavigator: DestinationsNavigator,
     journalState: JournalState,
-    onPermissionClick: () -> Unit
+    onPermissionClick: () -> Unit,
+    onScrollStarted: () -> Unit,
+    onScrollEnded: () -> Unit
 ) {
     Column(
         Modifier
@@ -131,7 +151,13 @@ private fun Journal(
             is DaysState -> Days(
                 days = journalState.days,
                 searchQuery = journalState.searchQuery,
-                destinationsNavigator = destinationsNavigator
+                destinationsNavigator = destinationsNavigator,
+                onScrollStarted = {
+                    onScrollStarted()
+                },
+                onScrollEnded = {
+                    onScrollEnded()
+                }
             )
 
             EmptySearchState -> EmptyResult(
@@ -150,10 +176,26 @@ private fun Journal(
 private fun Days(
     days: List<DayEntity>,
     searchQuery: String? = null,
-    destinationsNavigator: DestinationsNavigator
+    destinationsNavigator: DestinationsNavigator,
+    onScrollStarted: () -> Unit,
+    onScrollEnded: () -> Unit
 ) {
     val grouped = days.groupBy { it.header }
-    LazyColumn(contentPadding = PaddingValues(bottom = 34.dp)) {
+    val listState = rememberLazyListState()
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                if (delta > 30) onScrollEnded()
+                if (delta < -20) onScrollStarted()
+                return Offset.Zero
+            }
+        }
+    }
+    LazyColumn(
+        Modifier.nestedScroll(nestedScrollConnection),
+        contentPadding = PaddingValues(bottom = 34.dp), state = listState
+    ) {
         grouped.forEach { (header, days) ->
             stickyHeader {
                 DateHeader(header)
