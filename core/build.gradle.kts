@@ -20,14 +20,24 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    val fileProviderName = "fileProvider"
     buildTypes {
         debug {
             signingConfig = signingConfigs["debug"]
             isShrinkResources = false
             isMinifyEnabled = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+
+            val fileProviderAuthority = "${ConfigData.applicationId}.core.debug.$fileProviderName"
+            manifestPlaceholders["fileProviderAuthority"] = fileProviderAuthority
+            buildConfigField(
+                "String",
+                "FILE_PROVIDER_AUTHORITY",
+                "\"$fileProviderAuthority\""
             )
         }
         release {
@@ -35,6 +45,14 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+
+            val fileProviderAuthority = "${ConfigData.applicationId}.core.$fileProviderName"
+            manifestPlaceholders["fileProviderAuthority"] = fileProviderAuthority
+            buildConfigField(
+                "String",
+                "FILE_PROVIDER_AUTHORITY",
+                "\"$fileProviderAuthority\""
             )
         }
     }

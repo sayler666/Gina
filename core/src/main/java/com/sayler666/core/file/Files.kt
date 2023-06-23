@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.activity.result.ActivityResult
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import com.sayler666.gina.core.BuildConfig
 import okio.BufferedSink
 import okio.buffer
 import okio.sink
@@ -25,15 +26,14 @@ object Files {
     fun openFileIntent(
         context: Context,
         bytes: ByteArray,
-        mimeType: String,
-        authority: String = "com.sayler666.gina.provider"
+        mimeType: String
     ) {
         val file = File(context.filesDir.toString() + File.separator + "shared_file")
         val sink: BufferedSink = file.sink().buffer()
         sink.write(bytes)
         sink.close()
 
-        val fileUri = FileProvider.getUriForFile(context, authority, file)
+        val fileUri = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITY, file)
         val intent = ShareCompat.IntentBuilder(context)
             .setStream(fileUri)
             .setType(mimeType)
