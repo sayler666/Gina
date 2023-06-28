@@ -6,6 +6,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
+import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsAmountLabel
 import com.sayler666.gina.dayDetailsEdit.ui.ContentTextField
 import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
@@ -53,6 +55,7 @@ import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
+import com.sayler666.gina.ui.keyboardAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mood.Mood
@@ -109,6 +112,9 @@ fun AddDayScreen(
     }
 
     val scope = rememberCoroutineScope()
+
+    val isKeyboardOpen by keyboardAsState()
+
     Scaffold(
         topBar = {
             dayTemp?.let {
@@ -165,12 +171,23 @@ fun AddDayScreen(
                 modifier = Modifier
                     .padding(padding)
             ) {
-                dayTemp?.let {
-                    Attachments(it, destinationsNavigator) { attachmentHash ->
-                        viewModel.removeAttachment(attachmentHash)
+                dayTemp?.let { day ->
+
+                    AnimatedVisibility(
+                        visible = !isKeyboardOpen
+                    ) {
+                        Attachments(day, destinationsNavigator) { attachmentHash ->
+                            viewModel.removeAttachment(attachmentHash)
+                        }
                     }
+                    AnimatedVisibility(
+                        visible = isKeyboardOpen
+                    ) {
+                        AttachmentsAmountLabel(day.attachments)
+                    }
+
                     ContentTextField(
-                        it,
+                        day,
                         autoFocus = autofocusOnContentText.value,
                         quote = quote
                     ) { content ->

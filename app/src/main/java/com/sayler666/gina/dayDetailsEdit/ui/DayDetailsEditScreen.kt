@@ -19,10 +19,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -47,12 +45,10 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,7 +60,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -85,6 +80,7 @@ import com.sayler666.core.flow.Event
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.ui.FilePreview
 import com.sayler666.gina.dayDetails.ui.ImagePreview
+import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
@@ -98,6 +94,7 @@ import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
+import com.sayler666.gina.ui.keyboardAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -166,7 +163,9 @@ fun DayDetailsEditScreen(
     BackHandler(onBack = {
         handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
     })
-    val isKeyboardOpen by keyboardAsState() // true or false
+
+    val isKeyboardOpen by keyboardAsState()
+
     currentDay?.let { day ->
         Scaffold(topBar = {
             TopBar(day, onNavigateBackClicked = {
@@ -213,6 +212,11 @@ fun DayDetailsEditScreen(
                             viewModel.removeAttachment(attachmentHash)
                         }
                     }
+                    AnimatedVisibility(
+                        visible = isKeyboardOpen
+                    ) {
+                        AttachmentsAmountLabel(day.attachments)
+                    }
 
                     ContentTextField(day) { content ->
                         viewModel.setNewContent(content)
@@ -220,14 +224,19 @@ fun DayDetailsEditScreen(
                 }
             }
         })
-
     }
 }
 
 @Composable
-fun keyboardAsState(): State<Boolean> {
-    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    return rememberUpdatedState(isImeVisible)
+fun AttachmentsAmountLabel(
+    attachments: List<AttachmentEntity>
+) {
+    Text(
+        text = "Attachments: ${attachments.size}",
+        style = MaterialTheme.typography.labelSmall
+            .copy(color = MaterialTheme.colorScheme.primary),
+        modifier = Modifier.padding(start = 16.dp)
+    )
 }
 
 @Composable
