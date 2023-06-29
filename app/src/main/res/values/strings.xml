@@ -8,9 +8,8 @@
     <string name="insights_label">Insights</string>
     <string name="settings_label">Settings</string>
 
-    <string name="theme_auto">System default</string>
+    <string name="theme_firewatch">Firewatch</string>
     <string name="theme_dynamic">Dynamic</string>
-    <string name="theme_dark">Dark</string>
-    <string name="theme_light">Light</string>
+    <string name="theme_legacy">Legacy</string>
 
 </resources>

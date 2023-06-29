@@ -1,83 +1,21 @@
 package com.sayler666.gina.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.sayler666.gina.BuildConfig
 import com.sayler666.gina.settings.Theme
-import com.sayler666.gina.settings.Theme.AutoDarkLight
-import com.sayler666.gina.settings.Theme.Dark
 import com.sayler666.gina.settings.Theme.Dynamic
-import com.sayler666.gina.settings.Theme.Light
+import com.sayler666.gina.settings.Theme.Firewatch
+import com.sayler666.gina.settings.Theme.Legacy
+import timber.log.Timber
+import android.graphics.Color as AndroidColor
 
-private val LightColors = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer,
-    onPrimaryContainer = md_theme_light_onPrimaryContainer,
-    secondary = md_theme_light_secondary,
-    onSecondary = md_theme_light_onSecondary,
-    secondaryContainer = md_theme_light_secondaryContainer,
-    onSecondaryContainer = md_theme_light_onSecondaryContainer,
-    tertiary = md_theme_light_tertiary,
-    onTertiary = md_theme_light_onTertiary,
-    tertiaryContainer = md_theme_light_tertiaryContainer,
-    onTertiaryContainer = md_theme_light_onTertiaryContainer,
-    error = md_theme_light_error,
-    errorContainer = md_theme_light_errorContainer,
-    onError = md_theme_light_onError,
-    onErrorContainer = md_theme_light_onErrorContainer,
-    background = md_theme_light_background,
-    onBackground = md_theme_light_onBackground,
-    surface = md_theme_light_surface,
-    onSurface = md_theme_light_onSurface,
-    surfaceVariant = md_theme_light_surfaceVariant,
-    onSurfaceVariant = md_theme_light_onSurfaceVariant,
-    outline = md_theme_light_outline,
-    inverseOnSurface = md_theme_light_inverseOnSurface,
-    inverseSurface = md_theme_light_inverseSurface,
-    inversePrimary = md_theme_light_inversePrimary,
-    surfaceTint = md_theme_light_surfaceTint,
-    outlineVariant = md_theme_light_outlineVariant,
-    scrim = md_theme_light_scrim,
-)
-
-
-private val DarkColors = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    secondary = md_theme_dark_secondary,
-    onSecondary = md_theme_dark_onSecondary,
-    secondaryContainer = md_theme_dark_secondaryContainer,
-    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    error = md_theme_dark_error,
-    errorContainer = md_theme_dark_errorContainer,
-    onError = md_theme_dark_onError,
-    onErrorContainer = md_theme_dark_onErrorContainer,
-    background = md_theme_dark_background,
-    onBackground = md_theme_dark_onBackground,
-    surface = md_theme_dark_surface,
-    onSurface = md_theme_dark_onSurface,
-    surfaceVariant = md_theme_dark_surfaceVariant,
-    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
-    outline = md_theme_dark_outline,
-    inverseOnSurface = md_theme_dark_inverseOnSurface,
-    inverseSurface = md_theme_dark_inverseSurface,
-    inversePrimary = md_theme_dark_inversePrimary,
-    surfaceTint = md_theme_dark_surfaceTint,
-    outlineVariant = md_theme_dark_outlineVariant,
-    scrim = md_theme_dark_scrim,
-)
 
 @Composable
 fun GinaTheme(
@@ -85,18 +23,21 @@ fun GinaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = when (theme) {
-        AutoDarkLight -> if (darkTheme) DarkColors else LightColors
+    val colors: ColorScheme = when (theme) {
+        Firewatch -> if (darkTheme) FirewatchColors.DarkColors else FirewatchColors.LightColors
         Dynamic -> if (darkTheme) {
             dynamicDarkColorScheme(LocalContext.current)
         } else {
             dynamicLightColorScheme(LocalContext.current)
         }
 
-        Dark -> DarkColors
-        Light -> LightColors
+        Legacy -> if (darkTheme) LegacyColors.DarkColors else LegacyColors.LightColors
     }
 
+    // Log current colors values
+    if (BuildConfig.DEBUG) {
+        LogColors(colors)
+    }
 
     MaterialTheme(
         colorScheme = colors,
@@ -104,4 +45,39 @@ fun GinaTheme(
         shapes = Shapes,
         content = content
     )
+}
+
+private fun LogColors(colors: ColorScheme) {
+    fun Color.toHex() = Integer.toHexString(AndroidColor.rgb(red, green, blue))
+
+    Timber.d("Theme: $colors")
+    Timber.d("Color primary: ${colors.primary.toHex()}")
+    Timber.d("Color onPrimary: ${colors.onPrimary.toHex()}")
+    Timber.d("Color primaryContainer: ${colors.primaryContainer.toHex()}")
+    Timber.d("Color onPrimaryContainer: ${colors.onPrimaryContainer.toHex()}")
+    Timber.d("Color secondary: ${colors.secondary.toHex()}")
+    Timber.d("Color onSecondary: ${colors.onSecondary.toHex()}")
+    Timber.d("Color secondaryContainer: ${colors.secondaryContainer.toHex()}")
+    Timber.d("Color onSecondaryContainer: ${colors.onSecondaryContainer.toHex()}")
+    Timber.d("Color tertiary: ${colors.tertiary.toHex()}")
+    Timber.d("Color onTertiary: ${colors.onTertiary.toHex()}")
+    Timber.d("Color tertiaryContainer: ${colors.tertiaryContainer.toHex()}")
+    Timber.d("Color onTertiaryContainer: ${colors.onTertiaryContainer.toHex()}")
+    Timber.d("Color error: ${colors.error.toHex()}")
+    Timber.d("Color errorContainer: ${colors.errorContainer.toHex()}")
+    Timber.d("Color onError: ${colors.onError.toHex()}")
+    Timber.d("Color onErrorContainer: ${colors.onErrorContainer.toHex()}")
+    Timber.d("Color background: ${colors.background.toHex()}")
+    Timber.d("Color onBackground: ${colors.onBackground.toHex()}")
+    Timber.d("Color surface: ${colors.surface.toHex()}")
+    Timber.d("Color onSurface: ${colors.onSurface.toHex()}")
+    Timber.d("Color surfaceVariant: ${colors.surfaceVariant.toHex()}")
+    Timber.d("Color onSurfaceVariant: ${colors.onSurfaceVariant.toHex()}")
+    Timber.d("Color outline: ${colors.outline.toHex()}")
+    Timber.d("Color inverseOnSurface: ${colors.inverseOnSurface.toHex()}")
+    Timber.d("Color inverseSurface: ${colors.inverseSurface.toHex()}")
+    Timber.d("Color inversePrimary: ${colors.inversePrimary.toHex()}")
+    Timber.d("Color surfaceTint: ${colors.surfaceTint.toHex()}")
+    Timber.d("Color outlineVariant: ${colors.outlineVariant.toHex()}")
+    Timber.d("Color scrim: ${colors.scrim.toHex()}")
 }
