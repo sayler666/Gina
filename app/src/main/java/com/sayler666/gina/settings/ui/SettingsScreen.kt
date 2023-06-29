@@ -63,9 +63,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
+import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.settings.viewmodel.ThemeItem
+import com.sayler666.gina.ui.NavigationBarColor
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -75,8 +77,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     destinationsNavigator: DestinationsNavigator,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    vm: GinaMainViewModel = hiltViewModel(),
 ) {
+
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    NavigationBarColor(theme = theme)
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
     val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()

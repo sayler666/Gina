@@ -41,10 +41,9 @@ class AppSettingsImpl @Inject constructor(private val app: Application) : AppSet
 }
 
 enum class Theme {
-    AutoDarkLight,
+    Firewatch,
     Dynamic,
-    Dark,
-    Light;
+    Legacy;
 
     companion object {
         fun default(): Theme = Dynamic

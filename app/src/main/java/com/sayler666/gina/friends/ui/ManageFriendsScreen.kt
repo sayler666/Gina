@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -22,14 +23,20 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
+import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
+import com.sayler666.gina.ui.NavigationBarColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun ManageFriendsScreen(
-    navController: NavController
+    navController: NavController,
+    vm: GinaMainViewModel = hiltViewModel(),
 ) {
+    val theme by vm.theme.collectAsStateWithLifecycle()
+    NavigationBarColor(theme = theme, color = MaterialTheme.colorScheme.surface)
+
     val backStackEntry = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(NavGraphs.root.route)
     }
