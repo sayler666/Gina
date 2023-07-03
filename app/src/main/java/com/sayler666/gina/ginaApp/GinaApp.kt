@@ -31,6 +31,7 @@ import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.CalendarScreenDestination
 import com.sayler666.gina.destinations.Destination
+import com.sayler666.gina.destinations.GalleryScreenDestination
 import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
@@ -144,6 +145,7 @@ private val Destination.shouldShowScaffoldElements
         is JournalScreenDestination,
         is CalendarScreenDestination,
         is InsightsScreenDestination,
+        is GalleryScreenDestination,
         is SettingsScreenDestination -> true
 
         else -> false

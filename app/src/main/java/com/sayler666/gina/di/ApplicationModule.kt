@@ -1,6 +1,7 @@
 package com.sayler666.gina.di
 
 import android.app.Application
+import android.content.Context
 import com.sayler666.gina.ginaApp.GinaApplication
 import com.sayler666.gina.settings.AppSettings
 import com.sayler666.gina.settings.AppSettingsImpl
@@ -20,6 +21,11 @@ class ApplicationModule {
     @Singleton
     fun provideGinaApplication(application: Application): GinaApplication =
         application as GinaApplication
+
+    @Provides
+    @Singleton
+    fun provideContext(application: Application): Context =
+        application
 
     @Provides
     @Singleton

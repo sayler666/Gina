@@ -211,4 +211,33 @@ class DayDetailsEditViewModel @Inject constructor(
             }
         }
     }
+
+    fun optimizeAttachment(attachmentHash: Int) {
+        val currentDay = _tempDay.value ?: return
+        val toOptimize = currentDay.attachments.first { it.content.hashCode() == attachmentHash }
+        val newAttachments = currentDay.attachments
+            .toMutableList()
+            .also { attachments ->
+                attachments.removeIf {
+                    val same = it.content.hashCode() == attachmentHash
+
+                    // mark for deletion only if attachment already stored in DB (has nonnull dayId)
+                    if (it.dayId != null && same) _attachmentsToDelete.value.add(it)
+                    return@removeIf same
+                }
+            }
+        viewModelScope.launch {
+            val bytes = imageOptimization.optimizeImage(toOptimize.content!!)
+            val newAttachment = Attachment(
+                dayId = null,
+                content = bytes,
+                mimeType = toOptimize.mimeType,
+                id = null
+            )
+
+            _tempDay.update {
+                it?.copy(attachments = newAttachments + newAttachment)
+            }
+        }
+    }
 }

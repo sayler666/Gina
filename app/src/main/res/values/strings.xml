@@ -7,6 +7,7 @@
     <string name="calendar_label">Calendar</string>
     <string name="insights_label">Insights</string>
     <string name="settings_label">Settings</string>
+    <string name="gallery_label">Gallery</string>
 
     <string name="theme_firewatch">Firewatch</string>
     <string name="theme_dynamic">Dynamic</string>

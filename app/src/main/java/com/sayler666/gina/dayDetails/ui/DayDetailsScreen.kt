@@ -58,13 +58,15 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
 import com.sayler666.core.flow.Event
 import com.sayler666.core.flow.withValue
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
+import com.sayler666.gina.attachments.ui.FilePreview
+import com.sayler666.gina.attachments.ui.ImagePreview
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.FullImageDestination
+import com.sayler666.gina.destinations.FullImageDialogDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
@@ -225,8 +227,8 @@ private fun AttachmentsRow(
                         attachment,
                         onClick = {
                             destinationsNavigator.navigate(
-                                FullImageDestination(
-                                    attachment.byte,
+                                FullImageDialogDestination(
+                                    attachment.bytes,
                                     attachment.mimeType
                                 )
                             )
@@ -238,7 +240,7 @@ private fun AttachmentsRow(
                         onClick = {
                             Files.openFileIntent(
                                 context,
-                                attachment.byte,
+                                attachment.bytes,
                                 attachment.mimeType
                             )
                         }
