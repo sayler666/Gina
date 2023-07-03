@@ -76,7 +76,7 @@ import com.sayler666.gina.insights.viewmodel.MoodLevel.Low
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Neutral
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Superb
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Zero
-import com.sayler666.gina.journal.ui.EmptyResult
+import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import mood.Mood
 import mood.ui.awesomeColor

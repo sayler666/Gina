@@ -20,6 +20,8 @@ import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCaseImpl
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCaseImpl
+import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
+import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepositoryImpl
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
 import dagger.Binds
@@ -35,6 +37,9 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun provideGetDayDetailsUseCase(useCase: GetDayDetailsUseCaseImpl): GetDayDetailsUseCase
+
+    @Binds
+    abstract fun provideImageAttachmentsRepository(useCase: ImageAttachmentsRepositoryImpl): ImageAttachmentsRepository
 
     @Binds
     abstract fun provideGetNextPreviousDayDetailsUseCase(useCase: GetNextPreviousDayUseCaseUseCaseImpl): GetNextPreviousDayUseCase

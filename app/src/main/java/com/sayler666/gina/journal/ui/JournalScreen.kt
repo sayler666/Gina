@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -62,6 +61,7 @@ import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import mood.Mood
 import mood.ui.mapToMoodIcon
@@ -236,7 +236,7 @@ fun Day(
         val icon = day.mood.mapToMoodIcon()
         Column(
             Modifier
-                .padding(8.dp)
+                .padding(start = 14.dp, end = 14.dp, bottom = 6.dp)
                 .fillMaxWidth()
         ) {
             Row(Modifier.fillMaxWidth()) {
@@ -280,26 +280,6 @@ fun Day(
 }
 
 @Composable
-fun EmptyResult(header: String, body: String) {
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = header,
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = body,
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
 fun PermissionNeeded(
     onClick: () -> Unit
 ) {
@@ -333,7 +313,7 @@ private fun DateHeader(header: String) {
             .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
     ) {
         Text(
-            modifier = Modifier.padding(start = 8.dp, top = 5.dp, bottom = 8.dp),
+            modifier = Modifier.padding(start = 14.dp, top = 5.dp, bottom = 8.dp),
             style = MaterialTheme.typography.labelMedium,
             text = header,
             color = MaterialTheme.colorScheme.primary

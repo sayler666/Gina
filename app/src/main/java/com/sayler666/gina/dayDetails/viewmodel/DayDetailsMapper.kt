@@ -1,9 +1,8 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
 import com.sayler666.core.date.toLocalDate
-import com.sayler666.core.file.isImageMimeType
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
+import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.FriendWithCount
@@ -12,12 +11,12 @@ import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import mood.Mood
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale.getDefault
 import javax.inject.Inject
 
 
 class DayDetailsMapper @Inject constructor(
-    private val friendsMapper: FriendsMapper
+    private val friendsMapper: FriendsMapper,
+    private val attachmentMapper: AttachmentMapper
 ) {
     fun mapToVm(
         day: DayDetails,
@@ -57,24 +56,7 @@ class DayDetailsMapper @Inject constructor(
         )
 
     private fun mapAttachments(attachments: List<Attachment>): List<AttachmentEntity> =
-        attachments.map {
-            requireNotNull(it.content)
-            requireNotNull(it.mimeType)
-            when {
-                it.mimeType.isImageMimeType() -> Image(
-                    id = it.id,
-                    byte = it.content,
-                    mimeType = it.mimeType
-                )
-
-                else -> NonImage(
-                    id = it.id,
-                    byte = it.content,
-                    mimeType = it.mimeType,
-                    displayName = it.mimeType.substringAfter("/").uppercase(getDefault())
-                )
-            }
-        }
+        attachments.map(attachmentMapper::mapToAttachmentEntity)
 }
 
 data class DayDetailsEntity(
@@ -92,63 +74,3 @@ data class DayDetailsEntity(
         get() = friendsAll.filter { it.selected }
 }
 
-sealed class AttachmentEntity(
-    open val id: Int?,
-    open val byte: ByteArray,
-    open val mimeType: String
-) {
-    data class Image(
-        override val id: Int? = null,
-        override val byte: ByteArray,
-        override val mimeType: String
-    ) : AttachmentEntity(id, byte, mimeType) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Image
-
-            if (id != other.id) return false
-            if (!byte.contentEquals(other.byte)) return false
-            if (mimeType != other.mimeType) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id ?: 0
-            result = 31 * result + byte.contentHashCode()
-            result = 31 * result + mimeType.hashCode()
-            return result
-        }
-    }
-
-    data class NonImage(
-        override val id: Int? = null,
-        override val byte: ByteArray,
-        override val mimeType: String,
-        val displayName: String
-    ) : AttachmentEntity(id, byte, mimeType) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as NonImage
-
-            if (id != other.id) return false
-            if (!byte.contentEquals(other.byte)) return false
-            if (mimeType != other.mimeType) return false
-            if (displayName != other.displayName) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id ?: 0
-            result = 31 * result + byte.contentHashCode()
-            result = 31 * result + mimeType.hashCode()
-            result = 31 * result + displayName.hashCode()
-            return result
-        }
-    }
-}

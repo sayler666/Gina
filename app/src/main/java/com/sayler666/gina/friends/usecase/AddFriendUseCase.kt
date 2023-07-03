@@ -13,7 +13,7 @@ class AddFriendUseCaseImpl @Inject constructor(
     private val databaseProvider: DatabaseProvider
 ) : AddFriendUseCase {
     override suspend fun addFriend(name: String) {
-        if(name.isBlank()) return
+        if (name.isBlank()) return
         databaseProvider.withDaysDao {
             addFriend(Friend(name = name, avatar = null))
         }

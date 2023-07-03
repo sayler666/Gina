@@ -145,12 +145,25 @@ interface DaysDao {
     @Query("SELECT * FROM days ORDER by date DESC")
     fun getDaysFlow(): Flow<List<Day>>
 
-    @Query("SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' AND mood IN (:moods) ORDER by date DESC")
+    @Query(
+        "SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' " +
+                "AND mood IN (:moods) ORDER by date DESC"
+    )
     fun getDaysWithFiltersFlow(searchQuery: String?, vararg moods: Mood): Flow<List<Day>>
 
     @Transaction
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayDetails>
+
+    @Query("SELECT * FROM attachments WHERE id = :id")
+    suspend fun getImage(id: Int): Attachment
+
+    @Query(
+        "SELECT attachments.id FROM attachments " +
+                "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
+                "ORDER BY days.date DESC, attachments.id DESC LIMIT :offset, 100"
+    )
+    suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
 
     @Transaction
     @Query("SELECT id FROM days WHERE date > :date ORDER BY date ASC LIMIT 1")

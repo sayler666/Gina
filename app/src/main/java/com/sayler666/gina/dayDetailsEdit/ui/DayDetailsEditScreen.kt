@@ -77,16 +77,16 @@ import com.sayler666.core.file.Files
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleSelectedFiles
 import com.sayler666.core.flow.Event
+import com.sayler666.gina.attachments.ui.FilePreview
+import com.sayler666.gina.attachments.ui.ImagePreview
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.calendar.ui.DatePickerDialog
-import com.sayler666.gina.dayDetails.ui.FilePreview
-import com.sayler666.gina.dayDetails.ui.ImagePreview
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.dayDetails.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.FullImageDestination
+import com.sayler666.gina.destinations.FullImageDialogDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
@@ -317,18 +317,18 @@ fun Attachments(
             when (attachment) {
                 is Image -> ImagePreview(attachment, onClick = {
                     destinationsNavigator.navigate(
-                        FullImageDestination(attachment.byte, attachment.mimeType)
+                        FullImageDialogDestination(attachment.bytes, attachment.mimeType)
                     )
                 }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.byte.hashCode())
+                    onRemoveAttachment(attachment.bytes.hashCode())
                 })
 
                 is NonImage -> FilePreview(attachment, onClick = {
                     openFileIntent(
-                        context, attachment.byte, attachment.mimeType
+                        context, attachment.bytes, attachment.mimeType
                     )
                 }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.byte.hashCode())
+                    onRemoveAttachment(attachment.bytes.hashCode())
                 })
             }
         }

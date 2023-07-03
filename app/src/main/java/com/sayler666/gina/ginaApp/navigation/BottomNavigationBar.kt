@@ -8,10 +8,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.twotone.AutoStories
 import androidx.compose.material.icons.twotone.CalendarMonth
 import androidx.compose.material.icons.twotone.Insights
+import androidx.compose.material.icons.twotone.PhotoLibrary
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.CalendarScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.DirectionDestination
+import com.sayler666.gina.destinations.GalleryScreenDestination
 import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
@@ -54,6 +57,12 @@ enum class BottomDestinations(
         Icons.TwoTone.CalendarMonth,
         Icons.Filled.CalendarMonth,
         R.string.calendar_label
+    ),
+    Gallery(
+        GalleryScreenDestination,
+        Icons.TwoTone.PhotoLibrary,
+        Icons.Filled.PhotoLibrary,
+        R.string.gallery_label
     ),
     Insights(
         InsightsScreenDestination,
@@ -84,8 +93,8 @@ fun BottomNavigationBar(
             .navigationBarsPadding()
             .height(80.dp)
     ) {
+        Spacer(Modifier.width(5.dp))
         BottomDestinations.values().forEachIndexed { index, dest ->
-            if (index == 0) Spacer(modifier = Modifier.width(8.dp))
             NavigationBarItem(
                 icon = {
                     Icon(
@@ -109,5 +118,6 @@ fun BottomNavigationBar(
                 selected = currentDestination == dest.destination,
             )
         }
+        Spacer(Modifier.width(5.dp))
     }
 }
