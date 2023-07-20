@@ -3,7 +3,7 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
+import com.sayler666.gina.insights.viewmodel.InsightState.*
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +40,7 @@ class InsightsViewModel @Inject constructor(
         false
     )
 
-    private val _state = MutableStateFlow<InsightState>(EmptyState)
+    private val _state = MutableStateFlow<InsightState>(LoadingState)
     val state = _state
 
     init {
@@ -56,9 +56,7 @@ class InsightsViewModel @Inject constructor(
                 getDaysUseCase
                     .getFilteredDaysFlow(search, moods)
                     .map { insightsMapper.toInsightsState(it, search, moods) }
-            }.collect {
-                _state.tryEmit(it)
-            }
+            }.collect(_state::tryEmit)
         }
     }
 

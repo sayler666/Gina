@@ -175,6 +175,7 @@ class InsightsMapper @Inject constructor() {
 }
 
 sealed class InsightState {
+    object LoadingState : InsightState()
     object EmptyState : InsightState()
     data class DataState(
         val totalEntries: Int,

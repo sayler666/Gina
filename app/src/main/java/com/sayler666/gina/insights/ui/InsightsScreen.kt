@@ -1,7 +1,10 @@
 package com.sayler666.gina.insights.ui
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,6 +63,7 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
+import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.calendar.ui.displayText
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
@@ -143,7 +147,7 @@ private fun Insights(
     state: InsightState
 ) {
     when (state) {
-        is DataState -> Render(state, padding)
+        is DataState -> Insights(state, padding)
         InsightState.EmptySearchState -> EmptyResult(
             "Empty search result!",
             "Try narrowing search criteria."
@@ -153,11 +157,77 @@ private fun Insights(
             "No data found!",
             "Add some entries."
         )
+
+        InsightState.LoadingState -> {}
+    }
+    AnimatedVisibility(
+        visible = state is InsightState.LoadingState,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        Loading(padding)
     }
 }
 
 @Composable
-fun Render(state: DataState, padding: PaddingValues) {
+private fun Loading(padding: PaddingValues) {
+    Column(
+        Modifier
+            .padding(padding)
+            .fillMaxSize()
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            elevation = CardDefaults.cardElevation(1.dp),
+        ) {
+            Column(Modifier.padding(12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .size(width = 160.dp, height = 27.dp)
+                        .background(shimmerBrush())
+                )
+
+                Box(
+                    modifier = Modifier
+                        .padding()
+                        .size(width = 800.dp, height = 45.dp)
+                        .background(shimmerBrush(targetValue = 5000f))
+                )
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            elevation = CardDefaults.cardElevation(1.dp),
+        ) {
+            Column(Modifier.padding(12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .size(width = 160.dp, height = 27.dp)
+                        .background(shimmerBrush(targetValue = 500f))
+                )
+
+                Box(
+                    modifier = Modifier
+                        .padding()
+                        .size(width = 800.dp, height = 165.dp)
+                        .background(shimmerBrush(targetValue = 1400f))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Insights(state: DataState, padding: PaddingValues) {
     val scrollState = rememberScrollState()
     Column(
         Modifier
