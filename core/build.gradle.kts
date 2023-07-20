@@ -91,6 +91,8 @@ dependencies {
     implementation(libs.dagger.hilt)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit.serialization.converter)
     implementation(libs.commons.io)

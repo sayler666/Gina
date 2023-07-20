@@ -29,6 +29,7 @@ class GalleryMapper @Inject constructor() {
 }
 
 sealed class GalleryState {
+    object LoadingState : GalleryState()
     object EmptyState : GalleryState()
     data class DataState(
         val images: List<Image>,

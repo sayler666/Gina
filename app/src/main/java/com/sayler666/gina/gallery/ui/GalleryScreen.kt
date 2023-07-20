@@ -1,8 +1,12 @@
 package com.sayler666.gina.gallery.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -34,11 +38,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.destinations.FullImageDialogDestination
 import com.sayler666.gina.gallery.viewModel.GalleryState
-import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
-import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
-import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
+import com.sayler666.gina.gallery.viewModel.GalleryState.*
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ui.EmptyResult
@@ -83,6 +86,7 @@ fun GalleryScreen(
         })
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Gallery(
     padding: PaddingValues,
@@ -98,7 +102,9 @@ private fun Gallery(
             .padding(padding)
     ) {
         when (state) {
-            is DataState -> DataState(
+            LoadingState -> LoadingGrid()
+
+            is DataState -> ImagesGrid(
                 state = state,
                 fetchNextPage = fetchNextPage,
                 onScrollStarted = onScrollStarted,
@@ -107,17 +113,35 @@ private fun Gallery(
             )
 
             EmptySearchState -> EmptyResult(
-                "Empty search result!",
-                "Try narrowing search criteria."
+                header = "Empty search result!",
+                body = "Try narrowing search criteria."
             )
 
-            EmptyState -> EmptyResult("No data found!", "Add some attachments.")
+            EmptyState -> EmptyResult(
+                header = "No data found!",
+                body = "Add some attachments."
+            )
         }
     }
 }
 
 @Composable
-fun DataState(
+@OptIn(ExperimentalLayoutApi::class)
+private fun LoadingGrid() {
+    FlowRow(Modifier.fillMaxSize()) {
+        repeat(28) {
+            Box(
+                Modifier
+                    .size(90.dp)
+                    .padding(start = 1.dp, bottom = 1.dp)
+                    .background(shimmerBrush(true))
+            )
+        }
+    }
+}
+
+@Composable
+fun ImagesGrid(
     state: DataState,
     fetchNextPage: () -> Unit,
     onScrollStarted: () -> Unit,
@@ -142,7 +166,6 @@ fun DataState(
             }
         }
     }
-
     LazyVerticalGrid(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = gridState,
@@ -150,13 +173,14 @@ fun DataState(
         contentPadding = PaddingValues(bottom = 90.dp)
     ) {
         items(state.images) { image ->
+
             Image(
                 modifier = Modifier
                     .size(90.dp)
                     .padding(start = 1.dp, bottom = 1.dp)
                     .clickable { image.id?.let { openImage(it) } },
                 contentScale = ContentScale.Crop,
-                painter = rememberAsyncImagePainter(image.bytes),
+                painter = rememberAsyncImagePainter(model = image.bytes),
                 contentDescription = "",
             )
         }
