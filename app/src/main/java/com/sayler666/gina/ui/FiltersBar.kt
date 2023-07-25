@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -207,12 +208,11 @@ private fun Filters(
             onDismissRequest = { scope.launch { openBottomSheet = false } }
         ) {
             Column(
-                modifier = Modifier.systemBarsPadding()
+                modifier = Modifier.navigationBarsPadding()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    CenterAlignedTopAppBar(navigationIcon = {
+                CenterAlignedTopAppBar(
+                    windowInsets = WindowInsets(bottom = 0.dp),
+                    navigationIcon = {
                         IconButton(onClick = {
                             onResetFiltersClicked()
                         }) {
@@ -233,8 +233,7 @@ private fun Filters(
                     }, colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
-                    )
-                }
+                )
                 MoodFilter(moodFilters, onMoodsSelected)
             }
         }

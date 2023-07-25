@@ -5,15 +5,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
@@ -230,12 +230,11 @@ private fun ThemesBottomSheet(
             onDismissRequest = { onDismiss() },
         ) {
             Column(
-                modifier = Modifier.systemBarsPadding()
+                modifier = Modifier.navigationBarsPadding()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    CenterAlignedTopAppBar(title = {
+                CenterAlignedTopAppBar(
+                    windowInsets = WindowInsets(bottom = 0.dp),
+                    title = {
                         Text("Theme")
                     }, actions = {
                         IconButton(onClick = {
@@ -250,8 +249,7 @@ private fun ThemesBottomSheet(
                     }, colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
-                    )
-                }
+                )
 
                 themes.forEach { theme ->
                     Row(
@@ -348,12 +346,11 @@ private fun ImageCompressBottomSheet(
                 onDismissRequest = { onDismiss() },
             ) {
                 Column(
-                    modifier = Modifier.systemBarsPadding()
+                    modifier = Modifier.navigationBarsPadding()
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        CenterAlignedTopAppBar(title = {
+                    CenterAlignedTopAppBar(
+                        windowInsets = WindowInsets(bottom = 0.dp),
+                        title = {
                             Text("Image optimization")
                         }, actions = {
                             IconButton(onClick = {
@@ -368,8 +365,7 @@ private fun ImageCompressBottomSheet(
                         }, colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                         )
-                        )
-                    }
+                    )
                     Column(Modifier.padding(horizontal = 8.dp)) {
                         Row(
                             modifier = Modifier.padding(8.dp),

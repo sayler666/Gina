@@ -1,10 +1,5 @@
 package com.sayler666.gina.friends.ui
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -14,8 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -26,7 +19,6 @@ import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.NavigationBarColor
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
@@ -51,39 +43,31 @@ fun ManageFriendsScreen(
         topBar = {
             TopAppBar(title = { Text("Friends") })
         },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .safeContentPadding()
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 8.dp)
-                    .padding(top = 46.dp)
-            ) {
-                FriendsList(
-                    friends = friends,
-                    selectable = false,
-                    onFriendClicked = { id, _ ->
-                        friendIdToEdit.value = id
-                        showFriendEditPopup.value = true
-                    },
-                    onAddNewFriend = {
-                        searchQuery.value = ""
-                        viewModel.searchFriend("")
-                        viewModel.addNewFriend(it)
-                    },
-                    onSearchChanged = {
-                        searchQuery.value = it
-                        viewModel.searchFriend(it)
-                    },
-                    searchValue = searchQuery.value
-                )
+        content = { padding ->
+            FriendsList(
+                padding = padding,
+                friends = friends,
+                selectable = false,
+                onFriendClicked = { id, _ ->
+                    friendIdToEdit.value = id
+                    showFriendEditPopup.value = true
+                },
+                onAddNewFriend = {
+                    searchQuery.value = ""
+                    viewModel.searchFriend("")
+                    viewModel.addNewFriend(it)
+                },
+                onSearchChanged = {
+                    searchQuery.value = it
+                    viewModel.searchFriend(it)
+                },
+                searchValue = searchQuery.value
+            )
 
-                if (friendIdToEdit.value != null && showFriendEditPopup.value) FriendEdit(
-                    showFriendEditPopup.value,
-                    friendIdToEdit.value!!,
-                    onDismiss = { showFriendEditPopup.value = false }
-                )
-            }
+            if (friendIdToEdit.value != null && showFriendEditPopup.value) FriendEdit(
+                showFriendEditPopup.value,
+                friendIdToEdit.value!!,
+                onDismiss = { showFriendEditPopup.value = false }
+            )
         })
 }
