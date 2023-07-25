@@ -96,12 +96,12 @@ fun FriendsPicker(
                 elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 FriendsList(
-                    friends,
-                    selectable,
-                    onFriendClicked,
-                    searchValue,
-                    onSearchChanged,
-                    onAddNewFriend
+                    friends = friends,
+                    selectable = selectable,
+                    onFriendClicked = onFriendClicked,
+                    searchValue = searchValue,
+                    onSearchChanged = onSearchChanged,
+                    onAddNewFriend = onAddNewFriend
                 )
             }
         }
@@ -109,6 +109,7 @@ fun FriendsPicker(
 
 @Composable
 fun FriendsList(
+    padding: PaddingValues = PaddingValues(0.dp),
     friends: List<FriendEntity>,
     selectable: Boolean,
     onFriendClicked: (Int, Boolean) -> Unit,
@@ -119,6 +120,7 @@ fun FriendsList(
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
+            .padding(padding)
     ) {
         val (list, textField) = createRefs()
         LazyColumn(modifier = Modifier
