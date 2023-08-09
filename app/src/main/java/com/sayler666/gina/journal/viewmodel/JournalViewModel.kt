@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
-import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
+import com.sayler666.gina.journal.viewmodel.JournalState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,9 +41,9 @@ class JournalViewModel @Inject constructor(
     )
 
     private val _state = MutableStateFlow(
-        if (Environment.isExternalStorageManager()) EmptyState else PermissionNeededState
+        if (Environment.isExternalStorageManager()) LoadingState else PermissionNeededState
     )
-    val state = _state
+    val state: StateFlow<JournalState> = _state
 
     init {
         initDb()
@@ -59,9 +58,7 @@ class JournalViewModel @Inject constructor(
                 getDaysUseCase
                     .getFilteredDaysFlow(search, moods)
                     .map { daysMapper.toJournalState(it, search, moods) }
-            }.collect {
-                _state.tryEmit(it)
-            }
+            }.collect(_state::tryEmit)
         }
     }
 

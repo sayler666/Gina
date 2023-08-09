@@ -2,10 +2,14 @@ package com.sayler666.gina.journal.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -47,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R.string
 import com.sayler666.gina.core.permission.Permissions
@@ -58,6 +63,7 @@ import com.sayler666.gina.journal.viewmodel.JournalState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
+import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
@@ -137,7 +143,7 @@ fun JournalScreen(
 private fun Journal(
     padding: PaddingValues,
     destinationsNavigator: DestinationsNavigator,
-    journalState: JournalState,
+    state: JournalState,
     onPermissionClick: () -> Unit,
     onScrollStarted: () -> Unit,
     onScrollEnded: () -> Unit
@@ -147,10 +153,10 @@ private fun Journal(
             .fillMaxSize()
             .padding(padding)
     ) {
-        when (journalState) {
+        when (state) {
             is DaysState -> Days(
-                days = journalState.days,
-                searchQuery = journalState.searchQuery,
+                days = state.days,
+                searchQuery = state.searchQuery,
                 destinationsNavigator = destinationsNavigator,
                 onScrollStarted = {
                     onScrollStarted()
@@ -167,6 +173,42 @@ private fun Journal(
 
             EmptyState -> EmptyResult("No data found!", "Add some entries.")
             PermissionNeededState -> PermissionNeeded(onPermissionClick)
+            LoadingState -> {}
+        }
+        AnimatedVisibility(
+            visible = state is LoadingState,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Loading()
+        }
+    }
+}
+
+@Composable
+fun Loading() {
+    Column(Modifier.fillMaxSize()) {
+        repeat(3) {
+            Column(Modifier.padding(12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .size(width = 140.dp, height = 30.dp)
+                        .background(shimmerBrush(targetValue = 1100f))
+                )
+
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .size(width = 800.dp, height = 20.dp)
+                        .background(shimmerBrush(targetValue = 1600f))
+                )
+                Box(
+                    modifier = Modifier
+                        .size(width = 800.dp, height = 20.dp)
+                        .background(shimmerBrush(targetValue = 1600f))
+                )
+            }
         }
     }
 }
