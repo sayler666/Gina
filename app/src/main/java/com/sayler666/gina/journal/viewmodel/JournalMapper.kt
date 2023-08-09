@@ -1,5 +1,6 @@
 package com.sayler666.gina.journal.viewmodel
 
+import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.toLocalDate
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.Day
@@ -12,13 +13,13 @@ import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
 
-    fun toJournalState(
+    suspend fun toJournalState(
         days: List<Day>,
         searchQuery: String,
         moods: List<Mood>
     ): JournalState {
 
-        val daysResult = days.map {
+        val daysResult = days.pmap {
             requireNotNull(it.id)
             requireNotNull(it.date)
             requireNotNull(it.content)
@@ -85,6 +86,7 @@ class DaysMapper @Inject constructor() {
 }
 
 sealed class JournalState {
+    object LoadingState : JournalState()
     object EmptyState : JournalState()
     object PermissionNeededState : JournalState()
     data class DaysState(
