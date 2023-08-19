@@ -1,9 +1,6 @@
 package com.sayler666.gina.ginaApp.navigation
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -15,17 +12,13 @@ import androidx.compose.material.icons.twotone.CalendarMonth
 import androidx.compose.material.icons.twotone.Insights
 import androidx.compose.material.icons.twotone.PhotoLibrary
 import androidx.compose.material.icons.twotone.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sayler666.gina.NavGraphs
@@ -39,6 +32,8 @@ import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.startAppDestination
+import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
+import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 
 enum class BottomDestinations(
     val destination: DirectionDestination,
@@ -87,37 +82,39 @@ fun BottomNavigationBar(
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value
         ?: NavGraphs.root.startAppDestination
 
-    NavigationBar(
-        containerColor = color,
-        modifier = modifier
-            .navigationBarsPadding()
-            .height(80.dp)
+    val selectedIndex = remember(currentDestination) {
+        val index = BottomDestinations.values().indexOfFirst {
+            currentDestination == it.destination
+        }
+        if (index in 0 until BottomDestinations.values().size) {
+            index
+        } else {
+            0
+        }
+    }
+
+    AnimatedNavigationBar(
+        modifier = modifier,
+        selectedIndex = selectedIndex,
+        barColor = color,
+        ballColor = MaterialTheme.colorScheme.secondaryContainer,
+        menuItemsSize = BottomDestinations.values().size
     ) {
-        Spacer(Modifier.width(5.dp))
-        BottomDestinations.values().forEachIndexed { index, dest ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        if (currentDestination == dest.destination) dest.iconSelected else dest.icon,
-                        contentDescription = null,
-                    )
-                },
-                label = {
-                    Text(
-                        stringResource(id = dest.label),
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                },
+        BottomDestinations.values().forEach {
+            DropletButton(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(1f),
+                isSelected = currentDestination == it.destination,
+                icon = if (currentDestination == it.destination) it.iconSelected else it.icon,
                 onClick = {
-                    navController.navigate(dest.destination) {
+                    navController.navigate(it.destination) {
                         launchSingleTop = true
                         restoreState = true
                         popUpTo(JournalScreenDestination.route)
                     }
-                },
-                selected = currentDestination == dest.destination,
+                }
             )
         }
-        Spacer(Modifier.width(5.dp))
     }
 }
