@@ -13,8 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,7 +33,7 @@ import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.BottomBarState
-import com.sayler666.gina.ginaApp.viewModel.BottomBarState.*
+import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Shown
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
@@ -89,7 +87,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                         BottomNavigationBar(
                             modifier = Modifier
                                 .offset(y = bottomBarAnimInfoState.yOffset)
-                                .height(65.dp),
+                                .height(70.dp),
                             color = bottomBarAnimInfoState.color,
                             navController = navController,
                         )
