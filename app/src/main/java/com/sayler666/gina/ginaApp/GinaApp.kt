@@ -1,13 +1,9 @@
 package com.sayler666.gina.ginaApp
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -17,9 +13,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -39,13 +35,13 @@ import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.BottomBarState
-import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Hidden
-import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Shown
+import com.sayler666.gina.ginaApp.viewModel.BottomBarState.*
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
+import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -67,19 +63,23 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
             val bottomBarVm: BottomNavigationBarViewModel = hiltViewModel(activity)
             val bottomBarState: BottomBarState by bottomBarVm.state.collectAsStateWithLifecycle()
 
-            val bottomBarStateTransition =
-                updateTransition(bottomBarState, label = "BottomBar state")
+            val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
+                maxOffset = 70.dp,
+                visibleColor = colorScheme.surfaceColorAtElevation(3.dp),
+                hiddenColor = colorScheme.surface
+            )
+            val bottomBarAnimInfoState by bottomBarVisibilityAnimation.animateAsState(
+                visible = bottomBarState == Shown
+            )
 
-            val (bottomBarColor, bottomBarOffset) = bottomBarAnimations(bottomBarStateTransition)
-
-            NavigationBarColor(theme = theme, color = bottomBarColor)
+            NavigationBarColor(theme = theme, color = bottomBarAnimInfoState.color)
             Scaffold(
                 Modifier.imePadding(),
                 containerColor = colorScheme.background,
                 floatingActionButton = {
                     if (destination.shouldShowScaffoldElements)
                         DayFab(
-                            modifier = Modifier.offset(y = bottomBarOffset),
+                            modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
                             navController = navController
                         )
                 },
@@ -87,13 +87,16 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                 bottomBar = {
                     if (destination.shouldShowScaffoldElements)
                         BottomNavigationBar(
-                            modifier = Modifier.offset(y = bottomBarOffset),
-                            color = bottomBarColor,
-                            navController = navController
+                            modifier = Modifier
+                                .offset(y = bottomBarAnimInfoState.yOffset)
+                                .height(65.dp),
+                            color = bottomBarAnimInfoState.color,
+                            navController = navController,
                         )
                 },
                 content = { scaffoldPadding ->
-                    val calculatedBP = scaffoldPadding.calculateBottomPadding() - bottomBarOffset
+                    val calculatedBP =
+                        scaffoldPadding.calculateBottomPadding() - bottomBarAnimInfoState.yOffset
 
                     Column(
                         modifier = Modifier
@@ -113,31 +116,6 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                 })
         }
     }
-}
-
-@Composable
-private fun bottomBarAnimations(
-    bottomBarStateTransition: Transition<BottomBarState>
-): Pair<Color, Dp> {
-    val bottomBarColor by bottomBarStateTransition
-        .animateColor(
-            label = "BottomBar color",
-            transitionSpec = { tween(durationMillis = 150) }) { state ->
-            when (state) {
-                Hidden -> colorScheme.surface
-                Shown -> colorScheme.surfaceColorAtElevation(3.dp)
-            }
-        }
-    val bottomBarOffset by bottomBarStateTransition
-        .animateDp(
-            label = "BottomBar offset",
-            transitionSpec = { tween(durationMillis = 150) }) { state ->
-            when (state) {
-                Hidden -> 80.dp
-                Shown -> 0.dp
-            }
-        }
-    return bottomBarColor to bottomBarOffset
 }
 
 private val Destination.shouldShowScaffoldElements
