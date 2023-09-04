@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -92,17 +91,27 @@ fun FiltersBar(
         }
     })
 
-    TopAppBar(title = { if (showSearch.value.not()) Text(title) }, navigationIcon = {}, actions = {
-        SearchField(showSearch, searchText, onSearchTextChanged, onClearClick)
+    TopAppBar(
+        title = {
+            if (showSearch.value.not()) Text(title)
 
-        Filters(
-            filtersActive,
-            moodFilters,
-            onResetFiltersClicked = onResetFiltersClicked,
-            onMoodsSelected = onMoodFiltersUpdate
-        )
-    })
-
+            SearchField(showSearch, searchText, onSearchTextChanged, onClearClick)
+        },
+        navigationIcon = {},
+        actions = {
+            if (showSearch.value.not()) IconButton(onClick = { showSearch.value = true }) {
+                Icon(
+                    imageVector = Filled.Search,
+                    contentDescription = null
+                )
+            }
+            Filters(
+                filtersActive,
+                moodFilters,
+                onResetFiltersClicked = onResetFiltersClicked,
+                onMoodsSelected = onMoodFiltersUpdate
+            )
+        })
 }
 
 @ExperimentalComposeUiApi
@@ -119,15 +128,8 @@ private fun SearchField(
     val focusManager = LocalFocusManager.current
     val keyboardDismissed = rememberSaveable { mutableStateOf(false) }
 
-    if (showSearch.value.not()) IconButton(onClick = { showSearch.value = true }) {
-        Icon(
-            imageVector = Filled.Search,
-            contentDescription = null
-        )
-    }
-
     if (showSearch.value) OutlinedTextField(modifier = Modifier
-        .wrapContentWidth()
+        .fillMaxWidth()
         .padding(start = 0.dp, end = 1.dp)
         .defaultTextFieldBorder()
         .onFocusChanged { focusState ->
@@ -137,6 +139,7 @@ private fun SearchField(
         value = searchText,
         onValueChange = onSearchTextChanged,
         colors = secondaryTextColors(),
+        textStyle = MaterialTheme.typography.titleMedium,
         trailingIcon = {
             AnimatedVisibility(
                 visible = showSearch.value, enter = fadeIn(), exit = fadeOut()
