@@ -20,7 +20,6 @@ enum class Mood(val numberValue: Int) {
             else -> EMPTY
         }
 
-        fun valuesWithoutEmpty() = Mood.values().toMutableList()
-            .also { it.remove(EMPTY) }
+        fun valuesWithoutEmpty() = entries.filter { it != EMPTY }
     }
 }

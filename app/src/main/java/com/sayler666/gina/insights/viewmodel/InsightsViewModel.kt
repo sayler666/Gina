@@ -3,7 +3,7 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
-import com.sayler666.gina.insights.viewmodel.InsightState.*
+import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,12 +28,12 @@ class InsightsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _moodFilters = MutableStateFlow(Mood.values().asList())
+    private val _moodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
     val moodFilters: StateFlow<List<Mood>>
         get() = _moodFilters
 
     val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
-        moods.size != Mood.values().size
+        moods.size != Mood.entries.size
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(500),
@@ -69,6 +69,6 @@ class InsightsViewModel @Inject constructor(
     }
 
     fun resetFilters() {
-        _moodFilters.update { Mood.values().asList() }
+        _moodFilters.update { Mood.entries }
     }
 }

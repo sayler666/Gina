@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.gina.journal.viewmodel.JournalState.*
+import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
+import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,11 +30,11 @@ class JournalViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _moodFilters = MutableStateFlow(Mood.values().asList())
+    private val _moodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
     val moodFilters: StateFlow<List<Mood>> = _moodFilters
 
     val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
-        moods.size != Mood.values().size
+        moods.size != Mood.entries.size
     }.stateIn(
         viewModelScope,
         WhileSubscribed(500),
@@ -75,6 +76,6 @@ class JournalViewModel @Inject constructor(
     }
 
     fun resetFilters() {
-        _moodFilters.update { Mood.values().asList() }
+        _moodFilters.update { Mood.entries }
     }
 }

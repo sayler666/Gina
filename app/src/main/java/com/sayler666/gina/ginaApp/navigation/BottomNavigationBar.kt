@@ -83,10 +83,10 @@ fun BottomNavigationBar(
         ?: NavGraphs.root.startAppDestination
 
     val selectedIndex = remember(currentDestination) {
-        val index = BottomDestinations.values().indexOfFirst {
+        val index = BottomDestinations.entries.toTypedArray().indexOfFirst {
             currentDestination == it.destination
         }
-        if (index in 0 until BottomDestinations.values().size) {
+        if (index in 0 until BottomDestinations.entries.size) {
             index
         } else {
             0
@@ -98,9 +98,9 @@ fun BottomNavigationBar(
         selectedIndex = selectedIndex,
         barColor = color,
         ballColor = MaterialTheme.colorScheme.secondaryContainer,
-        menuItemsSize = BottomDestinations.values().size
+        menuItemsSize = BottomDestinations.entries.size
     ) {
-        BottomDestinations.values().forEach {
+        BottomDestinations.entries.forEach {
             DropletButton(
                 modifier = Modifier
                     .fillMaxSize()

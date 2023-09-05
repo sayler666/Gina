@@ -241,9 +241,9 @@ fun Insights(state: DataState, padding: PaddingValues) {
             "Contributions",
             "Less",
             "More",
-            arrayOf<Level>(*ContributionLevel.values()).copyOfRange(
+            arrayOf<Level>(*ContributionLevel.entries.toTypedArray()).copyOfRange(
                 1,
-                ContributionLevel.values().size
+                ContributionLevel.entries.size
             ),
             colorProvider = { level -> contributionLevelColor(level as ContributionLevel) }
         )
@@ -252,7 +252,10 @@ fun Insights(state: DataState, padding: PaddingValues) {
             "Moods",
             "Worse",
             "Better",
-            arrayOf<Level>(*MoodLevel.values()).copyOfRange(1, MoodLevel.values().size),
+            arrayOf<Level>(*MoodLevel.entries.toTypedArray()).copyOfRange(
+                1,
+                MoodLevel.entries.size
+            ),
             colorProvider = { level -> moodLevelColor(level as MoodLevel) }
         )
         DoughnutChart(state.moodChartData)

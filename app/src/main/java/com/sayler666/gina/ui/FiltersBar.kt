@@ -249,7 +249,7 @@ fun MoodFilter(
     onSelectMood: (List<Mood>) -> Unit
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Mood.values().forEach { mood ->
+        Mood.entries.forEach { mood ->
             var checked = moodFilters.any { it == mood }
             IconToggleButton(
                 checked = checked,

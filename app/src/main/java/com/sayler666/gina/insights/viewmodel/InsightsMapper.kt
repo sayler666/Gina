@@ -26,13 +26,11 @@ class InsightsMapper @Inject constructor() {
         searchQuery: String,
         moods: List<Mood>
     ): InsightState = when {
-        days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
-            Mood.values().toList()
-        )) -> EmptyState
+        days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries))
+        -> EmptyState
 
-        days.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
-            Mood.values().toList()
-        )) -> EmptySearchState
+        days.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(Mood.entries))
+        -> EmptySearchState
 
         days.isNotEmpty() -> DataState(
             totalEntries = days.size,

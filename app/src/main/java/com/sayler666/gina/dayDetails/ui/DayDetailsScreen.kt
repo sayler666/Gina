@@ -38,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -84,7 +83,7 @@ data class DayDetailsScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
 @Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
 @Composable
@@ -117,87 +116,83 @@ fun DayDetailsScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    day?.let { day ->
+    day?.let { day ->
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
                         }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack() }
-                    ) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                actions = {
-                    day?.mood?.mapToMoodIcon()?.let { icon ->
-                        Icon(
-                            rememberVectorPainter(image = icon.icon),
-                            tint = icon.color,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                    IconButton(onClick = {
-                        day?.id?.let {
-                            destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { navController.popBackStack() }
+                        ) {
+                            Icon(Icons.Filled.ArrowBack, contentDescription = null)
                         }
-                    }) {
-                        Icon(Icons.Filled.Edit, null)
-                    }
-                })
-        },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                day?.let {
-                    AttachmentsRow(it, destinationsNavigator)
-                    Text(it)
+                    },
+                    actions = {
+                        day.mood?.mapToMoodIcon()?.let { icon ->
+                            Icon(
+                                rememberVectorPainter(image = icon.icon),
+                                tint = icon.color,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        IconButton(onClick = {
+                            day.id?.let {
+                                destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
+                            }
+                        }) {
+                            Icon(Icons.Filled.Edit, null)
+                        }
+                    })
+            },
+            content = { padding ->
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    AttachmentsRow(day, destinationsNavigator)
+                    Text(day)
                 }
-            }
-        },
-        bottomBar = {
-            day?.friendsSelected?.let { friends ->
-                if (friends.isNotEmpty())
+            },
+            bottomBar = {
+                if (day.friendsSelected.isNotEmpty())
                     BottomAppBar(
                         modifier = Modifier
                             .navigationBarsPadding()
                             .wrapContentHeight(),
                         containerColor = MaterialTheme.colorScheme.surface,
-                        content = { FriendsRow(friends) }
+                        content = { FriendsRow(day.friendsSelected) }
                     )
-            }
-        },
-        modifier = Modifier
-            .onKeyEvent {
-                when (it.key) {
-                    VolumeUp -> {
-                        viewModel.goToNextDay()
-                        return@onKeyEvent true
-                    }
+            },
+            modifier = Modifier
+                .onKeyEvent {
+                    when (it.key) {
+                        VolumeUp -> {
+                            viewModel.goToNextDay()
+                            return@onKeyEvent true
+                        }
 
-                    VolumeDown -> {
-                        viewModel.goToPreviousDay()
-                        return@onKeyEvent true
-                    }
+                        VolumeDown -> {
+                            viewModel.goToPreviousDay()
+                            return@onKeyEvent true
+                        }
 
-                    else -> return@onKeyEvent false
+                        else -> return@onKeyEvent false
+                    }
                 }
-            }
-            .focusRequester(requester)
-            .focusable()
-    )
+                .focusRequester(requester)
+                .focusable()
+        )
+    }
 
     LaunchedEffect(Unit) {
         delay(300)
