@@ -43,7 +43,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.handleSelectedFiles
-import com.sayler666.core.flow.Event
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
@@ -64,6 +63,7 @@ import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import mood.Mood
 import java.time.LocalDate
@@ -88,51 +88,36 @@ fun AddDayScreen(
 
     val context = LocalContext.current
     val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context) { attachments ->
-            viewModel.addAttachments(attachments)
-        }
+        handleSelectedFiles(it, context) { attachments -> viewModel.addAttachments(attachments) }
     }
 
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
     val quote: Quote? by viewModel.quote.collectAsStateWithLifecycle(null)
 
-    val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
-    if (navigateBack is Event.Value<Unit>) destinationsNavigator.popBackStack()
-
-    // dialogs
-    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
-    ConfirmationDialog(
-        title = "Discard changes",
-        text = "Do you really want to discard changes?",
-        confirmButtonText = "Discard",
-        dismissButtonText = "Cancel",
-        showDialog = showDiscardConfirmationDialog
-    ) { navController.popBackStack() }
-    val showDatePickerPopup = remember { mutableStateOf(false) }
-
-    BackHandler(onBack = {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
-    })
-    val autofocusOnContentText = remember {
-        mutableStateOf(false)
+    LaunchedEffect(Unit) {
+        viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
     }
 
-    val scope = rememberCoroutineScope()
+    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
+    val showDatePickerPopup = remember { mutableStateOf(false) }
 
+    val autofocusOnContentText = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     val isKeyboardOpen by keyboardAsState()
-
     val richTextState = rememberRichTextState()
-
     val showFormatRow = remember { mutableStateOf(false) }
+
+    fun onBackPress() {
+        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
+    }
+    BackHandler(onBack = ::onBackPress)
     Scaffold(
         topBar = {
             dayTemp?.let {
                 TopBar(
-                    it,
-                    onNavigateBackClicked = {
-                        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
-                    },
+                    day = it,
+                    onNavigateBackClicked = ::onBackPress,
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
                     }
@@ -147,7 +132,7 @@ fun AddDayScreen(
                     onSaveChanges = { viewModel.saveChanges() },
                     onMoodChanged = { mood ->
                         viewModel.setNewMood(mood)
-                        scope.launch {
+                        coroutineScope.launch {
                             delay(250)
                             autofocusOnContentText.value = true
                         }
@@ -210,6 +195,19 @@ fun AddDayScreen(
                 }
             }
         })
+}
+
+@Composable
+private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {
+    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
+    ConfirmationDialog(
+        title = "Discard changes",
+        text = "Do you really want to discard changes?",
+        confirmButtonText = "Discard",
+        dismissButtonText = "Cancel",
+        showDialog = showDiscardConfirmationDialog
+    ) { navController.popBackStack() }
+    return showDiscardConfirmationDialog
 }
 
 @Composable
