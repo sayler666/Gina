@@ -8,27 +8,25 @@ import com.sayler666.gina.settings.Theme.Legacy
 import javax.inject.Inject
 
 class ThemeMapper @Inject constructor() {
-    fun mapToVM(activeTheme: Theme): List<ThemeItem> {
-        return Theme.values().map { theme ->
-            when (theme) {
-                Firewatch -> ThemeItem(
-                    theme,
-                    string.theme_firewatch,
-                    theme == activeTheme
-                )
+    fun mapToVM(activeTheme: Theme): List<ThemeItem> = Theme.entries.map { theme ->
+        when (theme) {
+            Firewatch -> ThemeItem(
+                theme,
+                string.theme_firewatch,
+                theme == activeTheme
+            )
 
-                Dynamic -> ThemeItem(
-                    theme,
-                    string.theme_dynamic,
-                    theme == activeTheme
-                )
+            Dynamic -> ThemeItem(
+                theme,
+                string.theme_dynamic,
+                theme == activeTheme
+            )
 
-                Legacy -> ThemeItem(
-                    theme,
-                    string.theme_legacy,
-                    theme == activeTheme
-                )
-            }
+            Legacy -> ThemeItem(
+                theme,
+                string.theme_legacy,
+                theme == activeTheme
+            )
         }
     }
 }

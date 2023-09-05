@@ -41,7 +41,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.destinations.FullImageDialogDestination
 import com.sayler666.gina.gallery.viewModel.GalleryState
-import com.sayler666.gina.gallery.viewModel.GalleryState.*
+import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
+import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
+import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
+import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ui.EmptyResult
@@ -86,7 +89,6 @@ fun GalleryScreen(
         })
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Gallery(
     padding: PaddingValues,

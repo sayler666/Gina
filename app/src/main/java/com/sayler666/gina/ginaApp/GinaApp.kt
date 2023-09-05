@@ -1,6 +1,9 @@
 package com.sayler666.gina.ginaApp
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -13,13 +16,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
@@ -42,7 +50,7 @@ import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
     val theme by vm.theme.collectAsStateWithLifecycle()
@@ -54,9 +62,17 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
             val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
             else JournalScreenDestination
 
-            val navController = rememberAnimatedNavController()
+            val navController = rememberNavController()
             val destination: Destination = navController.appCurrentDestinationAsState().value
                 ?: NavGraphs.root.startAppDestination
+
+            val navHostEngine = rememberAnimatedNavHostEngine(
+                navHostContentAlignment = Alignment.BottomCenter,
+                rootDefaultAnimations = RootNavGraphDefaultAnimations(
+                    enterTransition = { fadeIn(animationSpec = tween(500)) },
+                    exitTransition = { fadeOut(animationSpec = tween(500)) }
+                )
+            )
 
             val bottomBarVm: BottomNavigationBarViewModel = hiltViewModel(activity)
             val bottomBarState: BottomBarState by bottomBarVm.state.collectAsStateWithLifecycle()
@@ -89,7 +105,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                                 .offset(y = bottomBarAnimInfoState.yOffset)
                                 .height(70.dp),
                             color = bottomBarAnimInfoState.color,
-                            navController = navController,
+                            navController = navController
                         )
                 },
                 content = { scaffoldPadding ->
@@ -99,7 +115,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = if (calculatedBP < 0.dp) 0.dp else calculatedBP),
+                            .padding(bottom = if (calculatedBP < 0.dp) 0.dp else calculatedBP)
                     ) {
                         DestinationsNavHost(
                             navGraph = NavGraphs.root,
@@ -107,8 +123,8 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                             navController = navController,
                             dependenciesContainerBuilder = {
                                 dependency(hiltViewModel<BottomNavigationBarViewModel>(activity))
-                            }
-                            // engine = rememberAnimatedNavHostEngine()
+                            },
+                            engine = navHostEngine
                         )
                     }
                 })

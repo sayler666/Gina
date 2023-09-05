@@ -40,11 +40,11 @@ class DaysMapper @Inject constructor() {
 
         return when {
             daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
-                Mood.values().toList()
+                Mood.entries
             )) -> EmptyState
 
             daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
-                Mood.values().toList()
+                Mood.entries
             )) -> EmptySearchState
 
             daysResult.isNotEmpty() -> DaysState(daysResult, searchQuery)

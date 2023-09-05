@@ -4,9 +4,9 @@ import ConfigData.ConfigData
 plugins {
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.android.hilt)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kapt)
 }
 
 android {
@@ -58,7 +58,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composecompiler.get()
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     buildFeatures {
@@ -75,17 +75,10 @@ android {
         jvmToolchain(17)
     }
 
-    kapt {
-        correctErrorTypes = true
-    }
-
-    hilt {
-        enableAggregatingTask = true
-    }
 }
 
 dependencies {
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
     implementation(libs.kotlin.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)

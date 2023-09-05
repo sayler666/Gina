@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.android.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kapt)
 }
 
 val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
@@ -71,35 +70,22 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composecompiler.get()
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
-    kapt {
-        correctErrorTypes = true
-    }
-
-    hilt {
-        enableAggregatingTask = true
-    }
-
-    applicationVariants.all {
-        addJavaSourceFoldersToModel(
-            File(buildDir, "generated/ksp/$name/kotlin")
-        )
-    }
 }
 
 dependencies {
     api(project(":core"))
     implementation(libs.kotlin.serialization.json)
-    kapt(libs.dagger.hilt.compiler)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)
+    ksp(libs.dagger.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity.compose)
