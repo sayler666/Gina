@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.core.file.isImageMimeType
-import com.sayler666.core.flow.Event
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
@@ -23,9 +22,11 @@ import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -108,13 +109,11 @@ class DayDetailsEditViewModel @Inject constructor(
         false
     )
 
-    private val _navigateBack: MutableStateFlow<Event<Unit>> = MutableStateFlow(Event.Empty)
-    val navigateBack: StateFlow<Event<Unit>>
-        get() = _navigateBack
+    private val _navigateBack = MutableSharedFlow<Unit>()
+    val navigateBack = _navigateBack.asSharedFlow()
 
-    private val _navigateToList: MutableStateFlow<Event<Unit>> = MutableStateFlow(Event.Empty)
-    val navigateToList: StateFlow<Event<Unit>>
-        get() = _navigateToList
+    private val _navigateToList = MutableSharedFlow<Unit>()
+    val navigateToList = _navigateToList.asSharedFlow()
 
     fun setNewContent(newContent: String) {
         val temp = _tempDay.value ?: return
@@ -198,7 +197,7 @@ class DayDetailsEditViewModel @Inject constructor(
         _tempDay.value?.let {
             viewModelScope.launch {
                 editDayUseCase.updateDay(it, attachmentsToDelete = _attachmentsToDelete.value)
-                _navigateBack.tryEmit(Event.Value(Unit))
+                _navigateBack.emit(Unit)
             }
         }
     }
@@ -207,11 +206,12 @@ class DayDetailsEditViewModel @Inject constructor(
         _tempDay.value?.let {
             viewModelScope.launch {
                 deleteDayUseCase.deleteDay(it)
-                _navigateToList.tryEmit(Event.Value(Unit))
+                _navigateToList.emit(Unit)
             }
         }
     }
 
+    // used to optimize attachment size
     fun optimizeAttachment(attachmentHash: Int) {
         val currentDay = _tempDay.value ?: return
         val toOptimize = currentDay.attachments.first { it.content.hashCode() == attachmentHash }

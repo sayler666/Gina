@@ -54,11 +54,8 @@ import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
-import com.sayler666.core.flow.Event
-import com.sayler666.core.flow.withValue
 import com.sayler666.gina.attachments.ui.FilePreview
 import com.sayler666.gina.attachments.ui.ImagePreview
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
@@ -84,7 +81,6 @@ data class DayDetailsScreenNavArgs(
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RootNavGraph
 @Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
 @Composable
 fun DayDetailsScreen(
@@ -98,101 +94,115 @@ fun DayDetailsScreen(
     val requester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
-    val goToDay: Event<Int> by viewModel.goToDayId.collectAsStateWithLifecycle()
-    goToDay.withValue { dayId ->
-        destinationsNavigator.navigate(DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))) {
-            popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
+
+    LaunchedEffect(Unit) {
+        viewModel.goToDayId.collectLatest {
+            it?.let { dayId ->
+                destinationsNavigator.navigate(
+                    DayDetailsScreenDestination(
+                        DayDetailsScreenNavArgs(
+                            dayId
+                        )
+                    )
+                ) {
+                    popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
+                }
+            }
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.error.collectLatest {
-            it?.let {
+            it?.let { message ->
                 snackbarHostState.showSnackbar(
-                    message = it,
+                    message = message,
                     duration = SnackbarDuration.Short
                 )
             }
         }
     }
 
-    day?.let { day ->
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        day?.let {
+                            DayTitle(it.dayOfMonth, it.dayOfWeek, it.yearAndMonth)
                         }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { navController.popBackStack() }
-                        ) {
-                            Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { navController.popBackStack() }
+                    ) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    day?.mood?.mapToMoodIcon()?.let { icon ->
+                        Icon(
+                            rememberVectorPainter(image = icon.icon),
+                            tint = icon.color,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    IconButton(onClick = {
+                        day?.id?.let {
+                            destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
                         }
-                    },
-                    actions = {
-                        day.mood?.mapToMoodIcon()?.let { icon ->
-                            Icon(
-                                rememberVectorPainter(image = icon.icon),
-                                tint = icon.color,
-                                contentDescription = null
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                        IconButton(onClick = {
-                            day.id?.let {
-                                destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
-                            }
-                        }) {
-                            Icon(Icons.Filled.Edit, null)
-                        }
-                    })
-            },
-            content = { padding ->
-                Column(
-                    modifier = Modifier
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    AttachmentsRow(day, destinationsNavigator)
-                    Text(day)
+                    }) {
+                        Icon(Icons.Filled.Edit, null)
+                    }
+                })
+        },
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                day?.let {
+                    AttachmentsRow(it, destinationsNavigator)
+                    Text(it)
                 }
-            },
-            bottomBar = {
-                if (day.friendsSelected.isNotEmpty())
+            }
+        },
+        bottomBar = {
+            day?.let {
+                if (it.friendsSelected.isNotEmpty())
                     BottomAppBar(
                         modifier = Modifier
                             .navigationBarsPadding()
                             .wrapContentHeight(),
                         containerColor = MaterialTheme.colorScheme.surface,
-                        content = { FriendsRow(day.friendsSelected) }
+                        content = { FriendsRow(it.friendsSelected) }
                     )
-            },
-            modifier = Modifier
-                .onKeyEvent {
-                    when (it.key) {
-                        VolumeUp -> {
-                            viewModel.goToNextDay()
-                            return@onKeyEvent true
-                        }
-
-                        VolumeDown -> {
-                            viewModel.goToPreviousDay()
-                            return@onKeyEvent true
-                        }
-
-                        else -> return@onKeyEvent false
+            }
+        },
+        modifier = Modifier
+            .onKeyEvent {
+                when (it.key) {
+                    VolumeUp -> {
+                        viewModel.goToNextDay()
+                        return@onKeyEvent true
                     }
+
+                    VolumeDown -> {
+                        viewModel.goToPreviousDay()
+                        return@onKeyEvent true
+                    }
+
+                    else -> return@onKeyEvent false
                 }
-                .focusRequester(requester)
-                .focusable()
-        )
-    }
+            }
+            .focusRequester(requester)
+            .focusable()
+    )
 
     LaunchedEffect(Unit) {
         delay(300)

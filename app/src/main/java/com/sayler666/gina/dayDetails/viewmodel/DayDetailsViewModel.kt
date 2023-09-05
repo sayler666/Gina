@@ -3,8 +3,6 @@ package com.sayler666.gina.dayDetails.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.core.flow.Event
-import com.sayler666.core.flow.Event.Value
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
@@ -14,7 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -45,11 +42,9 @@ class DayDetailsViewModel @Inject constructor(
     val error = _error.asSharedFlow()
 
     private val date = MutableStateFlow<Long>(-1)
-    private val _goToDayId = MutableStateFlow<Int?>(null)
-    val goToDayId: StateFlow<Event<Int>>
-        get() = _goToDayId.filterNotNull().map(::Value).stateIn(
-            viewModelScope, WhileSubscribed(500), Event.Empty
-        )
+
+    private val _goToDayId = MutableSharedFlow<Int?>()
+    val goToDayId = _goToDayId.asSharedFlow()
 
     val day = getDayDetailsUseCase.getDayDetails(id).filterNotNull()
         .onEach { day -> day.day.date?.let { date.emit(it) } }

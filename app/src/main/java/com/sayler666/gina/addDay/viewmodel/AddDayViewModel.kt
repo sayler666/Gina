@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.core.file.isImageMimeType
-import com.sayler666.core.flow.Event
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
@@ -23,9 +22,11 @@ import com.sayler666.gina.quotes.QuotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -97,10 +98,8 @@ class AddDayViewModel @Inject constructor(
         WhileSubscribed(500),
         false
     )
-
-    private val _navigateBack: MutableStateFlow<Event<Unit>> = MutableStateFlow(Event.Empty)
-    val navigateBack: StateFlow<Event<Unit>>
-        get() = _navigateBack
+    private val _navigateBack = MutableSharedFlow<Unit>()
+    val navigateBack = _navigateBack.asSharedFlow()
 
     fun setNewContent(newContent: String) {
         val temp = _tempDay.value ?: return
@@ -178,7 +177,7 @@ class AddDayViewModel @Inject constructor(
         _tempDay.value?.let {
             viewModelScope.launch {
                 addDayUseCase.addDay(it)
-                _navigateBack.tryEmit(Event.Value(Unit))
+                _navigateBack.emit(Unit)
             }
         }
     }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -30,7 +31,7 @@ class InsightsViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     private val _moodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
     val moodFilters: StateFlow<List<Mood>>
-        get() = _moodFilters
+        get() = _moodFilters.asStateFlow()
 
     val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
         moods.size != Mood.entries.size

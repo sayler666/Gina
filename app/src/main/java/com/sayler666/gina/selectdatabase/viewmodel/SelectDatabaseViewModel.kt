@@ -3,18 +3,14 @@ package com.sayler666.gina.selectdatabase.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.core.flow.Event
-import com.sayler666.core.flow.Event.Empty
-import com.sayler666.core.flow.Event.Value
 import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,10 +22,8 @@ class SelectDatabaseViewModel @Inject constructor(
     private val _permissionGranted = MutableStateFlow(Environment.isExternalStorageManager())
     val permissionGranted: StateFlow<Boolean> = _permissionGranted
 
-    private val _navigateToHome = MutableStateFlow<Event<Destination>>(Empty)
-    val navigateToHome: StateFlow<Event<Destination>>
-        get() = _navigateToHome.filterNotNull()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Empty)
+    private val _navigateToHome = MutableSharedFlow<Destination>()
+    val navigateToHome = _navigateToHome.asSharedFlow()
 
     fun refreshPermissionStatus() {
         _permissionGranted.value = Environment.isExternalStorageManager()
@@ -37,9 +31,7 @@ class SelectDatabaseViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            if (databaseProvider.openDB(path)) _navigateToHome.tryEmit(
-                Value(JournalScreenDestination)
-            )
+            if (databaseProvider.openDB(path)) _navigateToHome.emit(JournalScreenDestination)
         }
     }
 }

@@ -30,8 +30,8 @@ fun CalendarScreen(
     val viewModel: CalendarViewModel = hiltViewModel(backStackEntry)
     val days: List<CalendarDayEntity> by viewModel.days.collectAsStateWithLifecycle()
 
-    if (days.isNotEmpty()) {
-        Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize()) {
+        if (days.isNotEmpty()) {
             CalendarVertical(
                 days,
                 onDayClick = { day ->

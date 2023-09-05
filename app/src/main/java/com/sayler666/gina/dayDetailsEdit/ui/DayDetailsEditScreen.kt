@@ -67,7 +67,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleSelectedFiles
-import com.sayler666.core.flow.Event
 import com.sayler666.gina.attachments.ui.FilePreview
 import com.sayler666.gina.attachments.ui.ImagePreview
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
@@ -89,6 +88,7 @@ import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import mood.Mood
 import mood.ui.MoodIcon
@@ -101,9 +101,7 @@ data class DayDetailsEditScreenNavArgs(
 )
 
 @RootNavGraph
-@Destination(
-    navArgsDelegate = DayDetailsEditScreenNavArgs::class
-)
+@Destination(navArgsDelegate = DayDetailsEditScreenNavArgs::class)
 @Composable
 fun DayDetailsEditScreen(
     destinationsNavigator: DestinationsNavigator,
@@ -113,9 +111,7 @@ fun DayDetailsEditScreen(
     val context = LocalContext.current
 
     val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context) { attachments ->
-            viewModel.addAttachments(attachments)
-        }
+        handleSelectedFiles(it, context) { attachments -> viewModel.addAttachments(attachments) }
     }
 
     val dayStored: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
@@ -123,87 +119,73 @@ fun DayDetailsEditScreen(
     val currentDay = dayTemp ?: dayStored
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
-    val navigateBack: Event<Unit> by viewModel.navigateBack.collectAsStateWithLifecycle()
-    if (navigateBack is Event.Value<Unit>) destinationsNavigator.popBackStack()
+    LaunchedEffect(Unit) {
+        viewModel.navigateToList.collectLatest {
+            destinationsNavigator.popBackStack(
+                route = DayDetailsScreenDestination,
+                inclusive = true
+            )
+        }
+    }
 
-    val navigateToList: Event<Unit> by viewModel.navigateToList.collectAsStateWithLifecycle()
-    if (navigateToList is Event.Value<Unit>) destinationsNavigator.popBackStack(
-        route = DayDetailsScreenDestination, inclusive = true
-    )
+    LaunchedEffect(Unit) {
+        viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
+    }
 
-    // dialogs
-    val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
-    ConfirmationDialog(
-        title = "Remove day",
-        text = "Do you really want to remove this day?",
-        confirmButtonText = "Remove",
-        dismissButtonText = "Cancel",
-        showDialog = showDeleteConfirmationDialog,
-    ) { viewModel.removeDay() }
-
-    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
-    ConfirmationDialog(
-        title = "Discard changes",
-        text = "Do you really want to discard changes?",
-        confirmButtonText = "Discard",
-        dismissButtonText = "Cancel",
-        showDialog = showDiscardConfirmationDialog,
-    ) { navController.popBackStack() }
+    val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
+    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
 
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
-    BackHandler(onBack = {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
-    })
-
     val isKeyboardOpen by keyboardAsState()
-
     val richTextState = rememberRichTextState()
-
     val showFormatRow = remember { mutableStateOf(false) }
 
-    currentDay?.let { day ->
-        Scaffold(topBar = {
-            TopBar(day, onNavigateBackClicked = {
-                handleBackPress(
-                    changesExist, showDiscardConfirmationDialog, navController
-                )
-            }, onChangeDateClicked = {
-                showDatePickerPopup.value = true
-            })
-        }, bottomBar = {
+    fun onBackPress() {
+        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
+    }
+    BackHandler(onBack = ::onBackPress)
+
+    Scaffold(topBar = {
+        currentDay?.let { day ->
+            TopBar(
+                day = day,
+                onNavigateBackClicked = ::onBackPress,
+                onChangeDateClicked = {
+                    showDatePickerPopup.value = true
+                }
+            )
+        }
+    }, bottomBar = {
+        currentDay?.let { day ->
             BottomBar(
                 day,
                 showDeleteConfirmationDialog,
                 addAttachmentLauncher,
-                onSaveChanges = { viewModel.saveChanges() },
-                onMoodChanged = { mood -> viewModel.setNewMood(mood) },
-                onSearchChanged = { search ->
-                    viewModel.searchFriend(search)
-                },
-                onAddNewFriend = { newFriend ->
-                    viewModel.addNewFriend(newFriend)
-                },
-                onFriendClicked = { id, selected ->
-                    viewModel.friendSelect(id, selected)
-                },
+                onSaveChanges = viewModel::saveChanges,
+                onMoodChanged = viewModel::setNewMood,
+                onSearchChanged = viewModel::searchFriend,
+                onAddNewFriend = viewModel::addNewFriend,
+                onFriendClicked = viewModel::friendSelect,
                 richTextState = richTextState,
                 showFormatRow = showFormatRow
             )
-        }, content = { scaffoldPadding ->
+        }
+    }, content = { scaffoldPadding ->
+        currentDay?.let { day ->
             Column(
                 Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding)
             ) {
-                DatePickerDialog(showDatePickerPopup.value,
+                DatePickerDialog(
+                    showDatePickerPopup.value,
                     initialDate = day.localDate,
                     onDismiss = {
                         showDatePickerPopup.value = false
                     },
-                    onDateChanged = { date ->
-                        viewModel.setNewDate(date)
-                    })
+                    onDateChanged = viewModel::setNewDate
+                )
                 Column {
                     AnimatedVisibility(
                         visible = !isKeyboardOpen
@@ -217,18 +199,41 @@ fun DayDetailsEditScreen(
                     ) {
                         AttachmentsAmountLabel(day.attachments)
                     }
-
                     RichTextEditor(
                         richTextState = richTextState,
                         text = day.content,
-                        onContentChanged = { content ->
-                            viewModel.setNewContent(content)
-                        }
+                        onContentChanged = viewModel::setNewContent
                     )
                 }
             }
-        })
-    }
+        }
+    })
+}
+
+@Composable
+private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {
+    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
+    ConfirmationDialog(
+        title = "Discard changes",
+        text = "Do you really want to discard changes?",
+        confirmButtonText = "Discard",
+        dismissButtonText = "Cancel",
+        showDialog = showDiscardConfirmationDialog,
+    ) { navController.popBackStack() }
+    return showDiscardConfirmationDialog
+}
+
+@Composable
+private fun rememberConfirmationDialog(viewModel: DayDetailsEditViewModel): MutableState<Boolean> {
+    val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
+    ConfirmationDialog(
+        title = "Remove day",
+        text = "Do you really want to remove this day?",
+        confirmButtonText = "Remove",
+        dismissButtonText = "Cancel",
+        showDialog = showDeleteConfirmationDialog,
+    ) { viewModel.removeDay() }
+    return showDeleteConfirmationDialog
 }
 
 @Composable
@@ -237,8 +242,7 @@ fun AttachmentsAmountLabel(
 ) {
     Text(
         text = "Attachments: ${attachments.size}",
-        style = MaterialTheme.typography.labelSmall
-            .copy(color = MaterialTheme.colorScheme.primary),
+        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary),
         modifier = Modifier.padding(start = 16.dp)
     )
 }
@@ -299,9 +303,11 @@ private fun TopBar(
 
 @Composable
 fun SaveFab(onSaveButtonClicked: () -> Unit) {
-    FloatingActionButton(shape = MaterialTheme.shapes.large,
+    FloatingActionButton(
+        shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.primary,
-        onClick = { onSaveButtonClicked() }) {
+        onClick = onSaveButtonClicked
+    ) {
         Icon(
             Filled.Save, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -329,7 +335,8 @@ private fun BottomBar(
             state = richTextState,
             showFormatRow = showFormatRow
         )
-        BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+        BottomAppBar(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
                 Delete(showDeleteConfirmationDialog)
 
@@ -391,7 +398,8 @@ fun Friends(
     when (friends.isNotEmpty()) {
         true -> Box(modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
-            .clickable(indication = rememberRipple(bounded = false),
+            .clickable(
+                indication = rememberRipple(bounded = false),
                 interactionSource = remember {
                     MutableInteractionSource()
                 }) { showFriendsPopup.value = true }) {
@@ -428,9 +436,7 @@ fun Friends(
             searchQuery.value = ""
             onSearchChanged(searchQuery.value)
         },
-        onFriendClicked = { id, selected ->
-            onFriendClicked(id, selected)
-        },
+        onFriendClicked = onFriendClicked,
         friends = currentDay.friendsAll
     )
 }
@@ -475,7 +481,7 @@ fun Mood(
         onDismiss = { showMoodPopup.value = false },
         onSelectMood = { mood ->
             scope.launch {
-                delay(120)
+                delay(60)
                 showMoodPopup.value = false
             }
             onMoodChanged(mood)
