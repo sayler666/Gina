@@ -14,12 +14,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils.blendARGB
+import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 
 @Stable
 class VerticalBottomBarAnimation(
     private val animationSpec: FiniteAnimationSpec<Float> = tween(150),
     private val initialOffset: Dp = 0.dp,
-    private val maxOffset: Dp = 70.dp,
+    private val maxOffset: Dp = BOTTOM_NAV_HEIGHT,
     private val visibleColor: Color,
     private val hiddenColor: Color
 ) : BottomBarAnimation {

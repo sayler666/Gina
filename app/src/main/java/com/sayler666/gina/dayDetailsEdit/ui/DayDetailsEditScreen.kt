@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
@@ -146,68 +147,70 @@ fun DayDetailsEditScreen(
     }
     BackHandler(onBack = ::onBackPress)
 
-    Scaffold(topBar = {
-        currentDay?.let { day ->
-            TopBar(
-                day = day,
-                onNavigateBackClicked = ::onBackPress,
-                onChangeDateClicked = {
-                    showDatePickerPopup.value = true
-                }
-            )
-        }
-    }, bottomBar = {
-        currentDay?.let { day ->
-            BottomBar(
-                day,
-                showDeleteConfirmationDialog,
-                addAttachmentLauncher,
-                onSaveChanges = viewModel::saveChanges,
-                onMoodChanged = viewModel::setNewMood,
-                onSearchChanged = viewModel::searchFriend,
-                onAddNewFriend = viewModel::addNewFriend,
-                onFriendClicked = viewModel::friendSelect,
-                richTextState = richTextState,
-                showFormatRow = showFormatRow
-            )
-        }
-    }, content = { scaffoldPadding ->
-        currentDay?.let { day ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding)
-            ) {
-                DatePickerDialog(
-                    showDatePickerPopup.value,
-                    initialDate = day.localDate,
-                    onDismiss = {
-                        showDatePickerPopup.value = false
-                    },
-                    onDateChanged = viewModel::setNewDate
+    Scaffold(
+        Modifier.imePadding(),
+        topBar = {
+            currentDay?.let { day ->
+                TopBar(
+                    day = day,
+                    onNavigateBackClicked = ::onBackPress,
+                    onChangeDateClicked = {
+                        showDatePickerPopup.value = true
+                    }
                 )
-                Column {
-                    AnimatedVisibility(
-                        visible = !isKeyboardOpen
-                    ) {
-                        Attachments(day, destinationsNavigator) { attachmentHash ->
-                            viewModel.removeAttachment(attachmentHash)
-                        }
-                    }
-                    AnimatedVisibility(
-                        visible = isKeyboardOpen && day.attachments.isNotEmpty()
-                    ) {
-                        AttachmentsAmountLabel(day.attachments)
-                    }
-                    RichTextEditor(
-                        richTextState = richTextState,
-                        text = day.content,
-                        onContentChanged = viewModel::setNewContent
+            }
+        }, bottomBar = {
+            currentDay?.let { day ->
+                BottomBar(
+                    day,
+                    showDeleteConfirmationDialog,
+                    addAttachmentLauncher,
+                    onSaveChanges = viewModel::saveChanges,
+                    onMoodChanged = viewModel::setNewMood,
+                    onSearchChanged = viewModel::searchFriend,
+                    onAddNewFriend = viewModel::addNewFriend,
+                    onFriendClicked = viewModel::friendSelect,
+                    richTextState = richTextState,
+                    showFormatRow = showFormatRow
+                )
+            }
+        }, content = { scaffoldPadding ->
+            currentDay?.let { day ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(scaffoldPadding)
+                ) {
+                    DatePickerDialog(
+                        showDatePickerPopup.value,
+                        initialDate = day.localDate,
+                        onDismiss = {
+                            showDatePickerPopup.value = false
+                        },
+                        onDateChanged = viewModel::setNewDate
                     )
+                    Column {
+                        AnimatedVisibility(
+                            visible = !isKeyboardOpen
+                        ) {
+                            Attachments(day, destinationsNavigator) { attachmentHash ->
+                                viewModel.removeAttachment(attachmentHash)
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = isKeyboardOpen && day.attachments.isNotEmpty()
+                        ) {
+                            AttachmentsAmountLabel(day.attachments)
+                        }
+                        RichTextEditor(
+                            richTextState = richTextState,
+                            text = day.content,
+                            onContentChanged = viewModel::setNewContent
+                        )
+                    }
                 }
             }
-        }
-    })
+        })
 }
 
 @Composable

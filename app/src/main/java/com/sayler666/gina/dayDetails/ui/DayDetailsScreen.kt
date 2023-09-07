@@ -10,11 +10,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -80,14 +79,14 @@ data class DayDetailsScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
 @Composable
 fun DayDetailsScreen(
     destinationsNavigator: DestinationsNavigator,
     navController: NavController,
     viewModel: DayDetailsViewModel = hiltViewModel(),
-    vm: GinaMainViewModel = hiltViewModel(),
+    vm: GinaMainViewModel = hiltViewModel()
 ) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
@@ -163,6 +162,7 @@ fun DayDetailsScreen(
         content = { padding ->
             Column(
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -176,9 +176,6 @@ fun DayDetailsScreen(
             day?.let {
                 if (it.friendsSelected.isNotEmpty())
                     BottomAppBar(
-                        modifier = Modifier
-                            .navigationBarsPadding()
-                            .wrapContentHeight(),
                         containerColor = MaterialTheme.colorScheme.surface,
                         content = { FriendsRow(it.friendsSelected) }
                     )

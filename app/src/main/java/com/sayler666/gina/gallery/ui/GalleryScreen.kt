@@ -47,7 +47,9 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
+import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.NavigationBarColor
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,10 +59,12 @@ import kotlinx.coroutines.flow.collectLatest
 fun GalleryScreen(
     destinationsNavigator: DestinationsNavigator,
     viewModel: GalleryViewModel = hiltViewModel(),
-    bottomBarViewModel: BottomNavigationBarViewModel
+    bottomBarViewModel: BottomNavigationBarViewModel,
+    ginaVM: GinaMainViewModel = hiltViewModel()
 ) {
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
-
+    val theme by ginaVM.theme.collectAsStateWithLifecycle()
+    NavigationBarColor(theme = theme)
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
             it.let { attachment ->
@@ -172,7 +176,7 @@ fun ImagesGrid(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = gridState,
         columns = GridCells.Adaptive(minSize = 90.dp),
-        contentPadding = PaddingValues(bottom = 90.dp)
+//        contentPadding = PaddingValues(bottom = 90.dp)
     ) {
         items(state.images) { image ->
 
