@@ -1,21 +1,26 @@
 package com.sayler666.gina.ginaApp
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
@@ -50,7 +54,10 @@ import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
-@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(
+    ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class,
+)
 @Composable
 fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
     val theme by vm.theme.collectAsStateWithLifecycle()
@@ -78,7 +85,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
             val bottomBarState: BottomBarState by bottomBarVm.state.collectAsStateWithLifecycle()
 
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
-                maxOffset = 70.dp,
+                maxOffset = BOTTOM_NAV_HEIGHT,
                 visibleColor = colorScheme.surfaceColorAtElevation(3.dp),
                 hiddenColor = colorScheme.surface
             )
@@ -88,12 +95,13 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
 
             NavigationBarColor(theme = theme, color = bottomBarAnimInfoState.color)
             Scaffold(
-                Modifier.imePadding(),
+                Modifier.fillMaxSize(),
                 containerColor = colorScheme.background,
                 floatingActionButton = {
                     if (destination.shouldShowScaffoldElements)
                         DayFab(
-                            modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
+                            modifier = Modifier
+                                .offset(y = bottomBarAnimInfoState.yOffset),
                             navController = navController
                         )
                 },
@@ -102,20 +110,27 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                     if (destination.shouldShowScaffoldElements)
                         BottomNavigationBar(
                             modifier = Modifier
+                                .windowInsetsPadding(WindowInsets.navigationBars)
                                 .offset(y = bottomBarAnimInfoState.yOffset)
-                                .height(70.dp),
+                                .height(BOTTOM_NAV_HEIGHT),
                             color = bottomBarAnimInfoState.color,
                             navController = navController
                         )
                 },
-                content = { scaffoldPadding ->
-                    val calculatedBP =
-                        scaffoldPadding.calculateBottomPadding() - bottomBarAnimInfoState.yOffset
-
+                content = {
+                    val isBottomNavVisible = remember(destination.shouldShowScaffoldElements) {
+                        destination.shouldShowScaffoldElements
+                    }
+                    val padding by remember(bottomBarAnimInfoState.yOffset, isBottomNavVisible) {
+                        derivedStateOf {
+                            if (isBottomNavVisible) BOTTOM_NAV_HEIGHT - bottomBarAnimInfoState.yOffset
+                            else 0.dp
+                        }
+                    }
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = if (calculatedBP < 0.dp) 0.dp else calculatedBP)
+                            .padding(bottom = padding)
                     ) {
                         DestinationsNavHost(
                             navGraph = NavGraphs.root,
@@ -131,6 +146,9 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
         }
     }
 }
+
+
+val BOTTOM_NAV_HEIGHT = 70.dp
 
 private val Destination.shouldShowScaffoldElements
     get() = when (this) {

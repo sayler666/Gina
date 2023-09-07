@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -173,8 +174,9 @@ private fun Insights(
 private fun Loading(padding: PaddingValues) {
     Column(
         Modifier
-            .padding(padding)
             .fillMaxSize()
+            .padding(top = padding.calculateTopPadding())
+            .imePadding()
     ) {
         Card(
             modifier = Modifier
@@ -232,8 +234,9 @@ fun Insights(state: DataState, padding: PaddingValues) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(padding)
             .verticalScroll(scrollState)
+            .padding(padding)
+            .imePadding()
     ) {
         Summary(state)
         HeatMapCalendar(

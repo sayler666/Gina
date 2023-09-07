@@ -22,6 +22,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
@@ -44,12 +48,15 @@ import java.time.YearMonth
 
 @Composable
 fun CalendarVertical(
+    padding: PaddingValues,
     days: List<CalendarDayEntity>,
     onDayClick: (CalendarDayEntity) -> Unit,
     onEmptyDayClick: (LocalDate) -> Unit,
     selectable: Boolean = false,
     selectedDate: LocalDate? = null,
-    firstVisible: LocalDate? = null
+    firstVisible: LocalDate? = null,
+    onScrollBottom: () -> Unit,
+    onScrollTop: () -> Unit
 ) {
     val daysOfWeek = remember { daysOfWeek() }
     val today = remember { LocalDate.now() }
@@ -85,9 +92,20 @@ fun CalendarVertical(
                 }
             })
         WeekDaysHeader(daysOfWeek)
+        val nestedScrollConnection = remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    val delta = available.y
+                    if (delta > 30) onScrollTop()
+                    if (delta < -20) onScrollBottom()
+                    return Offset.Zero
+                }
+            }
+        }
         VerticalCalendar(
+            modifier = Modifier.nestedScroll(nestedScrollConnection),
             state = state,
-            contentPadding = PaddingValues(bottom = 100.dp),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
             monthHeader = { MonthHeader(it) },
             dayContent = { calendarDay ->
                 val dayEntity = days.firstOrNull { it.date == calendarDay.date }

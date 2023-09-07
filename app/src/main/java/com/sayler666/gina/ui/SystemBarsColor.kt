@@ -31,7 +31,8 @@ fun NavigationBarColor(
     DisposableEffect(systemUiController, theme, color) {
         systemUiController.setNavigationBarColor(
             color = color,
-            darkIcons = color.luminance() > 0.5f
+            darkIcons = color.luminance() > 0.5f,
+            navigationBarContrastEnforced = false
         )
         onDispose {}
     }
