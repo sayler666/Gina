@@ -1,6 +1,21 @@
 package com.sayler666.gina.db
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Insert
+import androidx.room.Junction
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+import androidx.room.TypeConverters
+import androidx.room.Update
 import com.sayler666.gina.db.converter.MoodConverter
 import kotlinx.coroutines.flow.Flow
 import mood.Mood
@@ -42,7 +57,7 @@ data class Day(
 )
 data class Attachment(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id", typeAffinity = ColumnInfo.INTEGER)
+    @ColumnInfo(name = "attachment_id", typeAffinity = ColumnInfo.INTEGER)
     val id: Int?,
 
     @ColumnInfo(name = "days_id", typeAffinity = ColumnInfo.INTEGER)
@@ -66,9 +81,7 @@ data class Attachment(
             if (other.content == null) return false
             if (!content.contentEquals(other.content)) return false
         } else if (other.content != null) return false
-        if (mimeType != other.mimeType) return false
-
-        return true
+        return mimeType == other.mimeType
     }
 
     override fun hashCode(): Int {
@@ -140,6 +153,11 @@ data class DayDetails(
     val friends: List<Friend>
 )
 
+data class AttachmentWithDay(
+    @Embedded val attachment: Attachment,
+    @Embedded val day: Day
+)
+
 @Dao
 interface DaysDao {
     @Query("SELECT * FROM days ORDER by date DESC")
@@ -155,13 +173,21 @@ interface DaysDao {
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayDetails>
 
-    @Query("SELECT * FROM attachments WHERE id = :id")
+    @Query("SELECT * FROM attachments WHERE attachment_id = :id")
     suspend fun getImage(id: Int): Attachment
 
+    @Transaction
     @Query(
-        "SELECT attachments.id FROM attachments " +
+        "SELECT * FROM attachments " +
+                "JOIN days ON attachments.days_id = days.id " +
+                "WHERE attachments.attachment_id = :imageId"
+    )
+    suspend fun getAttachmentDay(imageId: Int): AttachmentWithDay
+
+    @Query(
+        "SELECT attachments.attachment_id FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
-                "ORDER BY days.date DESC, attachments.id DESC LIMIT :offset, 100"
+                "ORDER BY days.date DESC, attachments.attachment_id DESC LIMIT :offset, 100"
     )
     suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
 

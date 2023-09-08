@@ -68,8 +68,9 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleMultipleVisualMedia
-import com.sayler666.gina.attachments.ui.FilePreview
-import com.sayler666.gina.attachments.ui.ImagePreview
+import com.sayler666.gina.attachments.ui.FileThumbnail
+import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
+import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
@@ -77,7 +78,7 @@ import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.FullImageDialogDestination
+import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
@@ -275,15 +276,22 @@ fun Attachments(
     if (day.attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
         day.attachments.forEach { attachment ->
             when (attachment) {
-                is Image -> ImagePreview(attachment, onClick = {
-                    destinationsNavigator.navigate(
-                        FullImageDialogDestination(attachment.bytes, attachment.mimeType)
-                    )
+                is Image -> ImageThumbnail(attachment, onClick = {
+                    attachment.bytes.let { image ->
+                        destinationsNavigator.navigate(
+                            ImagePreviewTmpScreenDestination(
+                                ImagePreviewTmpScreenNavArgs(
+                                    image = image,
+                                    mimeType = attachment.mimeType
+                                )
+                            )
+                        )
+                    }
                 }, onRemoveClicked = {
                     onRemoveAttachment(attachment.bytes.hashCode())
                 })
 
-                is NonImage -> FilePreview(attachment, onClick = {
+                is NonImage -> FileThumbnail(attachment, onClick = {
                     openFileIntent(
                         context, attachment.bytes, attachment.mimeType
                     )
@@ -297,25 +305,34 @@ fun Attachments(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(
-    day: DayDetailsEntity, onNavigateBackClicked: () -> Unit, onChangeDateClicked: () -> Unit
+fun TopBar(
+    day: DayDetailsEntity,
+    onNavigateBackClicked: () -> Unit,
+    onChangeDateClicked: () -> Unit
 ) {
-    TopAppBar(title = {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-            onChangeDateClicked()
-        }) {
-            DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
-            Icon(
-                Filled.ArrowDropDown,
-                tint = MaterialTheme.colorScheme.tertiary,
-                contentDescription = null
-            )
-        }
-    }, navigationIcon = {
-        IconButton(onClick = { onNavigateBackClicked() }) {
-            Icon(Filled.ArrowBack, null)
-        }
-    })
+    TopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    onChangeDateClicked()
+                }
+            ) {
+                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
+                Icon(
+                    Filled.ArrowDropDown,
+                    tint = MaterialTheme.colorScheme.primary,
+                    contentDescription = null
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = { onNavigateBackClicked() }
+            ) {
+                Icon(Filled.ArrowBack, null)
+            }
+        })
 }
 
 @Composable

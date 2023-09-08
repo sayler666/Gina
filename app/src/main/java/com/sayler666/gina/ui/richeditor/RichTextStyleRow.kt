@@ -1,10 +1,6 @@
 package com.sayler666.gina.ui.richeditor
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -39,6 +35,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.richeditor.model.RichTextState
+import com.sayler666.core.compose.slideInVertically
+import com.sayler666.core.compose.slideOutVertically
 
 @Composable
 fun RichTextStyleRow(
@@ -48,14 +46,8 @@ fun RichTextStyleRow(
 ) {
     AnimatedVisibility(
         visible = showFormatRow.value,
-        enter = slideInVertically(
-            initialOffsetY = { it },
-            animationSpec = tween(durationMillis = 80, easing = FastOutLinearInEasing)
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = tween(durationMillis = 80, easing = FastOutLinearInEasing)
-        )
+        enter = slideInVertically(),
+        exit = slideOutVertically()
     ) {
         Row(
             Modifier

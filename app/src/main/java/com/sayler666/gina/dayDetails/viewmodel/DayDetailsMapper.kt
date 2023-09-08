@@ -1,5 +1,8 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
+import com.sayler666.core.date.getDayOfMonth
+import com.sayler666.core.date.getDayOfWeek
+import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
@@ -10,7 +13,6 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import mood.Mood
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 
@@ -30,30 +32,13 @@ class DayDetailsMapper @Inject constructor(
             dayOfMonth = getDayOfMonth(day.day.date),
             dayOfWeek = getDayOfWeek(day.day.date),
             yearAndMonth = getYearAndMonth(day.day.date),
-            localDate = getLocalDate(day.day.date),
+            localDate = day.day.date.toLocalDate(),
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood,
             friendsAll = friendsMapper.mapToDayFriends(day.friends, allFriends, friendsSearchQuery)
         )
     }
-
-    private fun getLocalDate(timestamp: Long) = timestamp.toLocalDate()
-
-    private fun getDayOfMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("dd")
-        )
-
-    private fun getDayOfWeek(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("EEEE")
-        )
-
-    private fun getYearAndMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(
-            DateTimeFormatter.ofPattern("yyyy, MMMM")
-        )
 
     private fun mapAttachments(attachments: List<Attachment>): List<AttachmentEntity> =
         attachments.map(attachmentMapper::mapToAttachmentEntity)

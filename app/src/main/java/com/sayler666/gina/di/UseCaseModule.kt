@@ -2,6 +2,8 @@ package com.sayler666.gina.di
 
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.addDay.usecase.AddDayUseCaseImpl
+import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
+import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCaseImpl
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCaseImpl
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
@@ -67,4 +69,8 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun deleteFriendUseCase(useCase: DeleteFriendUseCaseImpl): DeleteFriendUseCase
+
+    @Binds
+    abstract fun provideGetAttachmentWithDayUseCase(useCase: GetAttachmentWithDayUseCaseImpl): GetAttachmentWithDayUseCase
+
 }

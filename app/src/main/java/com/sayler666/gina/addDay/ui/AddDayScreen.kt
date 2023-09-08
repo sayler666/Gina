@@ -5,22 +5,13 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.PickVisualMediaRequest.Builder
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -50,11 +40,11 @@ import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
+import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.quotes.db.Quote
-import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -141,15 +131,9 @@ fun AddDayScreen(
                             autofocusOnContentText.value = true
                         }
                     },
-                    onSearchChanged = { search ->
-                        viewModel.searchFriend(search)
-                    },
-                    onAddNewFriend = { newFriend ->
-                        viewModel.addNewFriend(newFriend)
-                    },
-                    onFriendClicked = { id, selected ->
-                        viewModel.friendSelect(id, selected)
-                    },
+                    onSearchChanged = viewModel::searchFriend,
+                    onAddNewFriend = viewModel::addNewFriend,
+                    onFriendClicked = viewModel::friendSelect,
                     richTextState = richTextState,
                     showFormatRow = showFormatRow
                 )
@@ -163,9 +147,7 @@ fun AddDayScreen(
                     onDismiss = {
                         showDatePickerPopup.value = false
                     },
-                    onDateChanged = { date ->
-                        viewModel.setNewDate(date)
-                    }
+                    onDateChanged = viewModel::setNewDate
                 )
             }
             Column(
@@ -212,37 +194,6 @@ private fun rememberDiscardDialog(navController: NavController): MutableState<Bo
         showDialog = showDiscardConfirmationDialog
     ) { navController.popBackStack() }
     return showDiscardConfirmationDialog
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(
-    day: DayDetailsEntity,
-    onNavigateBackClicked: () -> Unit,
-    onChangeDateClicked: () -> Unit,
-) {
-    TopAppBar(
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    onChangeDateClicked()
-                }) {
-                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
-                Icon(
-                    Filled.ArrowDropDown,
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    contentDescription = null
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onNavigateBackClicked() }
-            ) {
-                Icon(Filled.ArrowBack, null)
-            }
-        })
 }
 
 @Composable

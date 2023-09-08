@@ -9,9 +9,11 @@ import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -44,7 +46,7 @@ class JournalViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         if (Environment.isExternalStorageManager()) LoadingState else PermissionNeededState
     )
-    val state: StateFlow<JournalState> = _state
+    val state: StateFlow<JournalState> = _state.asStateFlow()
 
     init {
         initDb()

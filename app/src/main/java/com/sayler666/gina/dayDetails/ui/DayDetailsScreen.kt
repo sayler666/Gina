@@ -55,15 +55,16 @@ import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
-import com.sayler666.gina.attachments.ui.FilePreview
-import com.sayler666.gina.attachments.ui.ImagePreview
+import com.sayler666.gina.attachments.ui.FileThumbnail
+import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
+import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.FullImageDialogDestination
+import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
@@ -79,7 +80,7 @@ data class DayDetailsScreenNavArgs(
     val dayId: Int
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
 @Composable
 fun DayDetailsScreen(
@@ -231,19 +232,23 @@ private fun AttachmentsRow(
         FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
             day.attachments.forEach { attachment ->
                 when (attachment) {
-                    is Image -> ImagePreview(
+                    is Image -> ImageThumbnail(
                         attachment,
                         onClick = {
-                            destinationsNavigator.navigate(
-                                FullImageDialogDestination(
-                                    attachment.bytes,
-                                    attachment.mimeType
+                            attachment.id?.let {
+                                destinationsNavigator.navigate(
+                                    ImagePreviewScreenDestination(
+                                        ImagePreviewScreenNavArgs(
+                                            it,
+                                            allowNavigationToDayDetails = false
+                                        )
+                                    )
                                 )
-                            )
+                            }
                         }
                     )
 
-                    is NonImage -> FilePreview(
+                    is NonImage -> FileThumbnail(
                         attachment,
                         onClick = {
                             Files.openFileIntent(
