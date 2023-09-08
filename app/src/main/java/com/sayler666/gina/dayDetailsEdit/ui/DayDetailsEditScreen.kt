@@ -1,11 +1,12 @@
 package com.sayler666.gina.dayDetailsEdit.ui
 
-import android.content.Intent
+import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.PickVisualMediaRequest.Builder
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -65,9 +66,8 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.core.file.Files
 import com.sayler666.core.file.Files.openFileIntent
-import com.sayler666.core.file.handleSelectedFiles
+import com.sayler666.core.file.handleMultipleVisualMedia
 import com.sayler666.gina.attachments.ui.FilePreview
 import com.sayler666.gina.attachments.ui.ImagePreview
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
@@ -110,10 +110,13 @@ fun DayDetailsEditScreen(
     viewModel: DayDetailsEditViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-
-    val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context) { attachments -> viewModel.addAttachments(attachments) }
-    }
+    val addAttachmentLauncher =
+        rememberLauncherForMultipleImages(context = context) { attachments ->
+            viewModel.addAttachments(attachments)
+        }
+    val addAttachmentRequest: PickVisualMediaRequest = Builder()
+        .setMediaType(ImageOnly)
+        .build()
 
     val dayStored: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
@@ -164,7 +167,7 @@ fun DayDetailsEditScreen(
                 BottomBar(
                     day,
                     showDeleteConfirmationDialog,
-                    addAttachmentLauncher,
+                    addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
                     onSaveChanges = viewModel::saveChanges,
                     onMoodChanged = viewModel::setNewMood,
                     onSearchChanged = viewModel::searchFriend,
@@ -212,6 +215,17 @@ fun DayDetailsEditScreen(
             }
         })
 }
+
+@Composable
+fun rememberLauncherForMultipleImages(
+    context: Context,
+    onResult: (List<Pair<ByteArray, String>>) -> Unit
+) =
+    rememberLauncherForActivityResult(PickMultipleVisualMedia()) {
+        handleMultipleVisualMedia(it, context) { attachments ->
+            onResult(attachments)
+        }
+    }
 
 @Composable
 private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {
@@ -321,7 +335,7 @@ fun SaveFab(onSaveButtonClicked: () -> Unit) {
 private fun BottomBar(
     currentDay: DayDetailsEntity,
     showDeleteConfirmationDialog: MutableState<Boolean>,
-    addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    addAttachmentAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
@@ -345,7 +359,7 @@ private fun BottomBar(
 
                 VerticalDivider()
 
-                Attachments(addAttachmentLauncher)
+                Attachments(addAttachmentAction)
 
                 Friends(
                     currentDay.friendsSelected,
@@ -380,10 +394,8 @@ private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
 }
 
 @Composable
-fun Attachments(addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
-    IconButton(onClick = {
-        addAttachmentLauncher.launch(Files.selectFileIntent())
-    }) {
+fun Attachments(addAttachmentAction: () -> Unit) {
+    IconButton(onClick = { addAttachmentAction() }) {
         Icon(Filled.AddAPhoto, null)
     }
 }

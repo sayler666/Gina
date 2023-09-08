@@ -1,11 +1,9 @@
 package com.sayler666.gina.addDay.ui
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.PickVisualMediaRequest.Builder
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -43,7 +41,6 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.core.file.handleSelectedFiles
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
@@ -54,6 +51,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
+import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.ui.DayTitle
@@ -88,9 +86,13 @@ fun AddDayScreen(
     NavigationBarColor(theme = theme)
 
     val context = LocalContext.current
-    val addAttachmentLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        handleSelectedFiles(it, context) { attachments -> viewModel.addAttachments(attachments) }
-    }
+    val addAttachmentLauncher =
+        rememberLauncherForMultipleImages(context = context) { attachments ->
+            viewModel.addAttachments(attachments)
+        }
+    val addAttachmentRequest: PickVisualMediaRequest = Builder()
+        .setMediaType(ImageOnly)
+        .build()
 
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
@@ -130,7 +132,7 @@ fun AddDayScreen(
             dayTemp?.let {
                 BottomBar(
                     it,
-                    addAttachmentLauncher,
+                    addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
                     onSaveChanges = { viewModel.saveChanges() },
                     onMoodChanged = { mood ->
                         viewModel.setNewMood(mood)
@@ -246,7 +248,7 @@ private fun TopBar(
 @Composable
 private fun BottomBar(
     currentDay: DayDetailsEntity,
-    addAttachmentLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    addAttachmentAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
@@ -267,7 +269,7 @@ private fun BottomBar(
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
-                Attachments(addAttachmentLauncher)
+                Attachments(addAttachmentAction)
 
                 Friends(
                     currentDay.friendsSelected,
