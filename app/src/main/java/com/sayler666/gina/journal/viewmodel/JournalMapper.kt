@@ -1,14 +1,15 @@
 package com.sayler666.gina.journal.viewmodel
 
 import com.sayler666.core.collections.pmap
-import com.sayler666.core.date.toLocalDate
+import com.sayler666.core.date.getDayOfMonth
+import com.sayler666.core.date.getDayOfWeek
+import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import mood.Mood
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
@@ -70,15 +71,6 @@ class DaysMapper @Inject constructor() {
     private fun getShortContent(content: String): String = content
         .substring(0..minOf(content.length - 1, shortContentMaxLength)).trimEnd()
         .let { if (content.length > it.length) it.plus("…") else it }
-
-    private fun getDayOfMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(DateTimeFormatter.ofPattern("dd"))
-
-    private fun getDayOfWeek(timestamp: Long) = timestamp.toLocalDate()
-        .format(DateTimeFormatter.ofPattern("EEEE"))
-
-    private fun getYearAndMonth(timestamp: Long) = timestamp.toLocalDate()
-        .format(DateTimeFormatter.ofPattern("yyyy, MMMM"))
 
     companion object {
         private const val shortContentMaxLength = 120

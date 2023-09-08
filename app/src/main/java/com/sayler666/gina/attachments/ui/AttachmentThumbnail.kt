@@ -2,7 +2,6 @@ package com.sayler666.gina.attachments.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,7 @@ import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FilePreview(
+fun FileThumbnail(
     attachment: AttachmentEntity.NonImage,
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null
@@ -63,7 +62,7 @@ fun FilePreview(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImagePreview(
+fun ImageThumbnail(
     attachment: AttachmentEntity.Image,
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null
@@ -71,7 +70,6 @@ fun ImagePreview(
     Card(
         Modifier
             .size(65.dp)
-            .background(MaterialTheme.colorScheme.background)
             .padding(end = 4.dp, bottom = 4.dp)
             .combinedClickable(
                 onClick = { onClick() },

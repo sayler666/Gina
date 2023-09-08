@@ -39,7 +39,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.gina.destinations.FullImageDialogDestination
+import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
+import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.gallery.viewModel.GalleryState
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
@@ -67,13 +68,9 @@ fun GalleryScreen(
     NavigationBarColor(theme = theme)
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
-            it.let { attachment ->
+            it.id?.let { imageId ->
                 destinationsNavigator.navigate(
-                    FullImageDialogDestination(
-                        attachment.bytes,
-                        attachment.mimeType,
-                        attachment.dayId
-                    )
+                    ImagePreviewScreenDestination(ImagePreviewScreenNavArgs(imageId))
                 )
             }
         }

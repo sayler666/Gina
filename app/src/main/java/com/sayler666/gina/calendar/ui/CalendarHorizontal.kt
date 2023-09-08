@@ -131,7 +131,7 @@ fun CalendarTopBar(
             Text(text = visibleMonth.yearMonth.displayText())
             Icon(
                 Filled.ArrowDropDown,
-                tint = MaterialTheme.colorScheme.tertiary,
+                tint = MaterialTheme.colorScheme.primary,
                 contentDescription = null
             )
             YearMonthSwitcherPopup(
