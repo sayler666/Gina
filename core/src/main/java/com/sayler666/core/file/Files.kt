@@ -66,6 +66,23 @@ object Files {
     }
 }
 
+fun handleMultipleVisualMedia(
+    uri: List<Uri?>,
+    context: Context,
+    applyAvatar: (List<Pair<ByteArray, String>>) -> Unit
+) {
+    fun createAttachment(uri: Uri): Pair<ByteArray, String> {
+        val (content, mimeType) = Files.readBytesAndMimeTypeFromUri(uri, context)
+        return content to mimeType
+    }
+
+    val attachmentList = mutableListOf<Pair<ByteArray, String>>()
+    uri.filterNotNull().forEach { uri ->
+        attachmentList.add(createAttachment(uri))
+    }
+    applyAvatar(attachmentList)
+}
+
 fun handleSelectedFiles(
     it: ActivityResult,
     context: Context,
