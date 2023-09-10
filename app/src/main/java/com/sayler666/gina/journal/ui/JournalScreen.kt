@@ -11,15 +11,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,12 +54,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R.string
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.journal.viewmodel.DayEntity
 import com.sayler666.gina.journal.viewmodel.JournalState
@@ -127,23 +130,19 @@ fun JournalScreen(
         },
         content = { padding ->
             Journal(
-                padding,
-                destinationsNavigator,
-                state,
+                Modifier.padding(top = padding.calculateTopPadding()),
+                destinationsNavigator = destinationsNavigator,
+                state = state,
                 onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
-                onScrollStarted = {
-                    bottomBarViewModel.hide()
-                },
-                onScrollEnded = {
-                    bottomBarViewModel.show()
-                }
+                onScrollStarted = bottomBarViewModel::hide,
+                onScrollEnded = bottomBarViewModel::show
             )
         })
 }
 
 @Composable
 private fun Journal(
-    padding: PaddingValues,
+    modifier: Modifier = Modifier,
     destinationsNavigator: DestinationsNavigator,
     state: JournalState,
     onPermissionClick: () -> Unit,
@@ -151,10 +150,8 @@ private fun Journal(
     onScrollEnded: () -> Unit
 ) {
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
-            .padding(top = padding.calculateTopPadding())
-            .navigationBarsPadding()
             .imePadding()
 
     ) {
@@ -163,12 +160,8 @@ private fun Journal(
                 days = state.days,
                 searchQuery = state.searchQuery,
                 destinationsNavigator = destinationsNavigator,
-                onScrollStarted = {
-                    onScrollStarted()
-                },
-                onScrollEnded = {
-                    onScrollEnded()
-                }
+                onScrollStarted = onScrollStarted,
+                onScrollEnded = onScrollEnded
             )
 
             EmptySearchState -> EmptyResult(
@@ -187,6 +180,7 @@ private fun Journal(
         ) {
             Loading()
         }
+
     }
 }
 
@@ -241,7 +235,6 @@ private fun Days(
     }
     LazyColumn(
         Modifier.nestedScroll(nestedScrollConnection),
-//        contentPadding = PaddingValues(bottom = 34.dp),
         state = listState
     ) {
         grouped.forEach { (header, days) ->
@@ -252,7 +245,7 @@ private fun Days(
             itemsIndexed(
                 items = days,
                 key = { _, item -> item.id }
-            ) { i, dayEntity ->
+            ) { _, dayEntity ->
                 Day(modifier = Modifier.animateItemPlacement(), dayEntity, searchQuery) {
                     destinationsNavigator.navigate(
                         DayDetailsScreenDestination(
@@ -261,6 +254,14 @@ private fun Days(
                     )
                 }
             }
+        }
+        item {
+            Spacer(
+                modifier = Modifier
+                    .windowInsetsBottomHeight(
+                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+                    )
+            )
         }
     }
 }

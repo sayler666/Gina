@@ -41,6 +41,7 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.core.compose.conditional
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
+import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -105,7 +106,7 @@ fun CalendarVertical(
         VerticalCalendar(
             modifier = Modifier.nestedScroll(nestedScrollConnection),
             state = state,
-            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + BOTTOM_NAV_HEIGHT * 2),
             monthHeader = { MonthHeader(it) },
             dayContent = { calendarDay ->
                 val dayEntity = days.firstOrNull { it.date == calendarDay.date }

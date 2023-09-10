@@ -5,5 +5,6 @@ import androidx.compose.ui.unit.Dp
 
 data class BottomBarAnimInfo(
     val color: Color,
-    val yOffset: Dp
+    val yOffset: Dp,
+    val alpha: Float
 )
