@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -47,6 +50,7 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
+import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.EmptyResult
@@ -66,6 +70,7 @@ fun GalleryScreen(
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
     val theme by ginaVM.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
+
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
             it.id?.let { imageId ->
@@ -80,7 +85,7 @@ fun GalleryScreen(
         topBar = { TopAppBar(title = { Text("Gallery") }) },
         content = { padding ->
             Gallery(
-                padding = padding,
+                modifier = Modifier.padding(top = padding.calculateTopPadding()),
                 state = state,
                 fetchNextPage = viewModel::fetchNextPage,
                 onScrollStarted = bottomBarViewModel::hide,
@@ -92,7 +97,7 @@ fun GalleryScreen(
 
 @Composable
 private fun Gallery(
-    padding: PaddingValues,
+    modifier: Modifier = Modifier,
     state: GalleryState,
     fetchNextPage: () -> Unit,
     onScrollStarted: () -> Unit,
@@ -100,9 +105,9 @@ private fun Gallery(
     openImage: (Int) -> Unit
 ) {
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
-            .padding(padding)
+            .imePadding()
     ) {
         when (state) {
             LoadingState -> LoadingGrid()
@@ -173,10 +178,8 @@ fun ImagesGrid(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = gridState,
         columns = GridCells.Adaptive(minSize = 90.dp),
-//        contentPadding = PaddingValues(bottom = 90.dp)
     ) {
         items(state.images) { image ->
-
             Image(
                 modifier = Modifier
                     .size(90.dp)
@@ -185,6 +188,12 @@ fun ImagesGrid(
                 contentScale = ContentScale.Crop,
                 painter = rememberAsyncImagePainter(model = image.bytes),
                 contentDescription = "",
+            )
+        }
+        item {
+            Spacer(
+                modifier = Modifier
+                    .windowInsetsBottomHeight(WindowInsets(bottom = BOTTOM_NAV_HEIGHT * 3))
             )
         }
     }

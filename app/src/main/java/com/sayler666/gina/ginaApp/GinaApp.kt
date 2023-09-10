@@ -11,18 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -87,7 +86,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
                 maxOffset = BOTTOM_NAV_HEIGHT,
                 visibleColor = colorScheme.surfaceColorAtElevation(3.dp),
-                hiddenColor = colorScheme.surface
+                hiddenColor = Color.Transparent
             )
             val bottomBarAnimInfoState by bottomBarVisibilityAnimation.animateAsState(
                 visible = bottomBarState == Shown
@@ -112,25 +111,15 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
                             modifier = Modifier
                                 .windowInsetsPadding(WindowInsets.navigationBars)
                                 .offset(y = bottomBarAnimInfoState.yOffset)
-                                .height(BOTTOM_NAV_HEIGHT),
+                                .height(BOTTOM_NAV_HEIGHT)
+                                .alpha(bottomBarAnimInfoState.alpha),
                             color = bottomBarAnimInfoState.color,
                             navController = navController
                         )
                 },
                 content = {
-                    val isBottomNavVisible = remember(destination.shouldShowScaffoldElements) {
-                        destination.shouldShowScaffoldElements
-                    }
-                    val padding by remember(bottomBarAnimInfoState.yOffset, isBottomNavVisible) {
-                        derivedStateOf {
-                            if (isBottomNavVisible) BOTTOM_NAV_HEIGHT - bottomBarAnimInfoState.yOffset
-                            else 0.dp
-                        }
-                    }
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = padding)
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         DestinationsNavHost(
                             navGraph = NavGraphs.root,

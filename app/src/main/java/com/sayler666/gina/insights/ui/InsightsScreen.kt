@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -64,8 +67,10 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
+import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.calendar.ui.displayText
+import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
@@ -138,44 +143,49 @@ fun InsightsScreen(
             )
         },
         content = { padding ->
-            Insights(padding, state)
+            Insights(Modifier.padding(padding), state)
         })
 }
 
 @Composable
 private fun Insights(
-    padding: PaddingValues,
+    modifier: Modifier = Modifier,
     state: InsightState
 ) {
-    when (state) {
-        is DataState -> Insights(state, padding)
-        InsightState.EmptySearchState -> EmptyResult(
-            "Empty search result!",
-            "Try narrowing search criteria."
-        )
-
-        InsightState.EmptyState -> EmptyResult(
-            "No data found!",
-            "Add some entries."
-        )
-
-        InsightState.LoadingState -> {}
-    }
-    AnimatedVisibility(
-        visible = state is InsightState.LoadingState,
-        enter = fadeIn(),
-        exit = fadeOut(),
+    Column(
+        modifier
+            .fillMaxSize()
+            .imePadding()
     ) {
-        Loading(padding)
+        when (state) {
+            is DataState -> Insights(state)
+            InsightState.EmptySearchState -> EmptyResult(
+                "Empty search result!",
+                "Try narrowing search criteria."
+            )
+
+            InsightState.EmptyState -> EmptyResult(
+                "No data found!",
+                "Add some entries."
+            )
+
+            InsightState.LoadingState -> {}
+        }
+        AnimatedVisibility(
+            visible = state is InsightState.LoadingState,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Loading()
+        }
     }
 }
 
 @Composable
-private fun Loading(padding: PaddingValues) {
+private fun Loading() {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(top = padding.calculateTopPadding())
             .imePadding()
     ) {
         Card(
@@ -229,14 +239,12 @@ private fun Loading(padding: PaddingValues) {
 }
 
 @Composable
-fun Insights(state: DataState, padding: PaddingValues) {
+fun Insights(state: DataState) {
     val scrollState = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(padding)
-            .imePadding()
     ) {
         Summary(state)
         HeatMapCalendar(
@@ -262,7 +270,11 @@ fun Insights(state: DataState, padding: PaddingValues) {
             colorProvider = { level -> moodLevelColor(level as MoodLevel) }
         )
         DoughnutChart(state.moodChartData)
-        Spacer(modifier = Modifier.height(34.dp))
+        Spacer(
+            modifier = Modifier.windowInsetsBottomHeight(
+                WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+            )
+        )
     }
 }
 

@@ -86,11 +86,7 @@ fun BottomNavigationBar(
         val index = BottomDestinations.entries.toTypedArray().indexOfFirst {
             currentDestination == it.destination
         }
-        if (index in 0 until BottomDestinations.entries.size) {
-            index
-        } else {
-            0
-        }
+        if (index in 0 until BottomDestinations.entries.size) index else 0
     }
 
     AnimatedNavigationBar(

@@ -1,8 +1,7 @@
 package com.sayler666.gina.calendar.ui
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,11 +36,7 @@ fun CalendarScreen(
 
     Scaffold(
         content = { padding ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding()
-            ) {
+            Column(Modifier.fillMaxSize()) {
                 if (days.isNotEmpty()) {
                     CalendarVertical(
                         padding,
