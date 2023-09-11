@@ -163,7 +163,8 @@ fun DayDetailsEditScreen(
                     }
                 )
             }
-        }, bottomBar = {
+        },
+        bottomBar = {
             currentDay?.let { day ->
                 BottomBar(
                     day,
@@ -178,7 +179,8 @@ fun DayDetailsEditScreen(
                     showFormatRow = showFormatRow
                 )
             }
-        }, content = { scaffoldPadding ->
+        },
+        content = { scaffoldPadding ->
             currentDay?.let { day ->
                 Column(
                     Modifier
@@ -221,12 +223,11 @@ fun DayDetailsEditScreen(
 fun rememberLauncherForMultipleImages(
     context: Context,
     onResult: (List<Pair<ByteArray, String>>) -> Unit
-) =
-    rememberLauncherForActivityResult(PickMultipleVisualMedia()) {
-        handleMultipleVisualMedia(it, context) { attachments ->
-            onResult(attachments)
-        }
+) = rememberLauncherForActivityResult(PickMultipleVisualMedia()) {
+    handleMultipleVisualMedia(it, context) { attachments ->
+        onResult(attachments)
     }
+}
 
 @Composable
 private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {

@@ -35,15 +35,14 @@ class FriendEditViewModel @Inject constructor(
     }
 
     private val _friend = MutableStateFlow<Friend?>(null)
-    val friend: StateFlow<FriendEntity?>
-        get() = _friend
-            .filterNotNull()
-            .map(friendsMapper::mapToFriend)
-            .stateIn(
-                viewModelScope,
-                WhileSubscribed(500),
-                null
-            )
+    val friend: StateFlow<FriendEntity?> = _friend
+        .filterNotNull()
+        .map(friendsMapper::mapToFriend)
+        .stateIn(
+            viewModelScope,
+            WhileSubscribed(500),
+            null
+        )
 
     fun loadFriend(id: Int) {
         viewModelScope.launch {

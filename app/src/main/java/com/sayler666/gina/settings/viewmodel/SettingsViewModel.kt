@@ -24,8 +24,8 @@ class SettingsViewModel @Inject constructor(
 
     private val _tempImageOptimizationSettings: MutableStateFlow<OptimizationSettings> =
         MutableStateFlow(OptimizationSettings())
-    val imageOptimizationSettings: StateFlow<OptimizationSettings?>
-        get() = setting.getImageCompressorSettingsFlow().map {
+    val imageOptimizationSettings: StateFlow<OptimizationSettings?> =
+        setting.getImageCompressorSettingsFlow().map {
             _tempImageOptimizationSettings.value = it
             it
         }.stateIn(
@@ -33,20 +33,18 @@ class SettingsViewModel @Inject constructor(
         )
 
     private val _databasePath: MutableStateFlow<String?> = MutableStateFlow(null)
-    val databasePath: StateFlow<String?>
-        get() = setting.getDatabasePathFlow().map {
-            _databasePath.value = it
-            it
-        }.stateIn(
-            viewModelScope, WhileSubscribed(500), null
-        )
+    val databasePath: StateFlow<String?> = setting.getDatabasePathFlow().map {
+        _databasePath.value = it
+        it
+    }.stateIn(
+        viewModelScope, WhileSubscribed(500), null
+    )
 
-    val themes: StateFlow<List<ThemeItem>>
-        get() = setting.getThemeFlow().map { activeTheme ->
-            themeMapper.mapToVM(activeTheme)
-        }.stateIn(
-            viewModelScope, WhileSubscribed(500), emptyList()
-        )
+    val themes: StateFlow<List<ThemeItem>> = setting.getThemeFlow().map { activeTheme ->
+        themeMapper.mapToVM(activeTheme)
+    }.stateIn(
+        viewModelScope, WhileSubscribed(500), emptyList()
+    )
 
     fun setTheme(theme: Theme) {
         viewModelScope.launch {

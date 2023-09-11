@@ -76,20 +76,19 @@ class AddDayViewModel @Inject constructor(
     private val friendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
 
     private val _tempDay: MutableStateFlow<DayDetails?> = MutableStateFlow(blankDay)
-    val tempDay: StateFlow<DayDetailsEntity?>
-        get() = combine(
-            _tempDay,
-            allFriends,
-            friendsSearchQuery
-        ) { day, allFriends, friendsSearchQuery ->
-            day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
-        }
-            .filterNotNull()
-            .stateIn(
-                viewModelScope,
-                WhileSubscribed(500),
-                null
-            )
+    val tempDay: StateFlow<DayDetailsEntity?> = combine(
+        _tempDay,
+        allFriends,
+        friendsSearchQuery
+    ) { day, allFriends, friendsSearchQuery ->
+        day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
+    }
+        .filterNotNull()
+        .stateIn(
+            viewModelScope,
+            WhileSubscribed(500),
+            null
+        )
 
     val changesExist: StateFlow<Boolean> = _tempDay.map {
         it?.copy(day = it.day.copy(content = it.day.content?.getTextWithoutHtml())) != blankDay
