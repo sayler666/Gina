@@ -74,20 +74,19 @@ class DayDetailsEditViewModel @Inject constructor(
         mutableListOf()
     )
     private val _tempDay: MutableStateFlow<DayDetails?> = MutableStateFlow(null)
-    val tempDay: StateFlow<DayDetailsEntity?>
-        get() = combine(
-            _tempDay,
-            allFriends,
-            friendsSearchQuery
-        ) { day, allFriends, friendsSearchQuery ->
-            day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
-        }
-            .filterNotNull()
-            .stateIn(
-                viewModelScope,
-                WhileSubscribed(500),
-                null
-            )
+    val tempDay: StateFlow<DayDetailsEntity?> = combine(
+        _tempDay,
+        allFriends,
+        friendsSearchQuery
+    ) { day, allFriends, friendsSearchQuery ->
+        day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
+    }
+        .filterNotNull()
+        .stateIn(
+            viewModelScope,
+            WhileSubscribed(500),
+            null
+        )
 
     val day = combine(getDayDetailsUseCase.getDayDetails(id), allFriends, friendsSearchQuery)
     { day, allFriends, friendsSearchQuery ->
@@ -116,6 +115,8 @@ class DayDetailsEditViewModel @Inject constructor(
     val navigateToList = _navigateToList.asSharedFlow()
 
     fun setNewContent(newContent: String) {
+        Timber.d("conten setNew (old value): ${_tempDay.value?.day?.content}")
+        Timber.d("conten setNew: $newContent")
         val temp = _tempDay.value ?: return
         _tempDay.value = temp.copy(day = temp.day.copy(content = newContent))
     }

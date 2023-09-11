@@ -30,8 +30,7 @@ class InsightsViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
     private val _moodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
-    val moodFilters: StateFlow<List<Mood>>
-        get() = _moodFilters.asStateFlow()
+    val moodFilters: StateFlow<List<Mood>> = _moodFilters.asStateFlow()
 
     val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
         moods.size != Mood.entries.size

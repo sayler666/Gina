@@ -38,8 +38,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     private val attachmentsCached = MutableStateFlow<List<Thumbnail>>(emptyList())
 
-    override val attachment: StateFlow<List<Thumbnail>>
-        get() = attachmentsCached
+    override val attachment: StateFlow<List<Thumbnail>> = attachmentsCached
 
     private var offset = 0
 

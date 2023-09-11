@@ -180,8 +180,7 @@ internal class YearMonthSwitcherViewModel(currentYearMonth: YearMonth) : ViewMod
 
     private val _date =
         MutableStateFlow(LocalDate.of(currentYearMonth.year, currentYearMonth.month, 1))
-    val date: StateFlow<LocalDate>
-        get() = _date.asStateFlow()
+    val date: StateFlow<LocalDate> = _date.asStateFlow()
 
     fun plusDay() {
         _date.value = _date.value.plusDays(1)
@@ -201,7 +200,6 @@ internal class YearMonthSwitcherViewModel(currentYearMonth: YearMonth) : ViewMod
 
     fun minusMonth() {
         _date.value = _date.value.minusMonths(1)
-
     }
 
     fun minusYear() {
