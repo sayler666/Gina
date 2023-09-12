@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.dependency
+import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
 import com.sayler666.gina.destinations.CalendarScreenDestination
@@ -75,8 +76,8 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
             val navHostEngine = rememberAnimatedNavHostEngine(
                 navHostContentAlignment = Alignment.BottomCenter,
                 rootDefaultAnimations = RootNavGraphDefaultAnimations(
-                    enterTransition = { fadeIn(animationSpec = tween(500)) },
-                    exitTransition = { fadeOut(animationSpec = tween(500)) }
+                    enterTransition = { fadeIn(animationSpec = tween(ANIMATION_DURATION)) },
+                    exitTransition = { fadeOut(animationSpec = tween(ANIMATION_DURATION)) }
                 )
             )
 
@@ -135,7 +136,6 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
         }
     }
 }
-
 
 val BOTTOM_NAV_HEIGHT = 70.dp
 
