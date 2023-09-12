@@ -8,7 +8,8 @@ import androidx.activity.result.PickVisualMediaRequest.Builder
 import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,8 +45,11 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -88,7 +92,6 @@ import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -96,6 +99,8 @@ import mood.Mood
 import mood.ui.MoodIcon
 import mood.ui.MoodPicker
 import mood.ui.mapToMoodIcon
+import kotlin.math.PI
+import kotlin.math.sin
 
 
 data class DayDetailsEditScreenNavArgs(
@@ -363,7 +368,6 @@ private fun BottomBar(
     showFormatRow: MutableState<Boolean>
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     Column {
         RichTextStyleRow(
             modifier = Modifier.fillMaxWidth(),
@@ -387,7 +391,7 @@ private fun BottomBar(
                     currentDay
                 )
 
-                Mood(currentDay, showMoodPopup, scope, onMoodChanged)
+                Mood(currentDay, showMoodPopup, onMoodChanged)
 
                 VerticalDivider()
 
@@ -478,33 +482,21 @@ fun Friends(
 fun Mood(
     currentDay: DayDetailsEntity,
     showMoodPopup: MutableState<Boolean>,
-    scope: CoroutineScope,
     onMoodChanged: (Mood) -> Unit
 ) {
-    var initialization by remember {
-        mutableStateOf(true)
-    }
+    val scope = rememberCoroutineScope()
     val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
-    var size by remember {
-        mutableStateOf(1f)
-    }
-    val sizeAnimation by animateFloatAsState(
-        targetValue = size, animationSpec = tween(durationMillis = 200), label = "Mood icon scale"
-    )
 
-    LaunchedEffect(key1 = currentDay.mood, block = {
-        if (!initialization) {
-            delay(50)
-            size = 1.7f
-            delay(200)
-            size = 1f
-        }
-        initialization = false
-    })
+    var animationActive by remember { mutableStateOf(false) }
+    val moodIconAnimParam by MoodIconAnimation().animateMoodIconAsState(
+        mood = currentDay.mood,
+        active = animationActive
+    )
 
     IconButton(onClick = { showMoodPopup.value = true }) {
         Icon(
-            modifier = Modifier.scale(scale = sizeAnimation),
+            modifier = Modifier
+                .scale(scale = moodIconAnimParam.scale),
             painter = rememberVectorPainter(image = moodIcon.icon),
             tint = moodIcon.color,
             contentDescription = null,
@@ -517,8 +509,47 @@ fun Mood(
                 delay(60)
                 showMoodPopup.value = false
             }
+            animationActive = true
             onMoodChanged(mood)
         })
+}
+
+@Stable
+data class MoodIconAnimParam(
+    val scale: Float = 1f,
+)
+
+@Stable
+class MoodIconAnimation(
+    private val animationSpec: FiniteAnimationSpec<Float> = tween(250)
+) {
+    @Composable
+    fun animateMoodIconAsState(
+        mood: Mood?,
+        active: Boolean
+    ): State<MoodIconAnimParam> {
+        val fraction = remember { Animatable(0f) }
+
+        LaunchedEffect(mood, active) {
+            if (active) {
+                fraction.snapTo(0f)
+                fraction.animateTo(1f, animationSpec)
+            }
+        }
+
+        return produceState(
+            initialValue = MoodIconAnimParam(),
+            key1 = fraction.value
+        ) {
+            this.value = this.value.copy(
+                scale = calculateScale(fraction.value),
+            )
+        }
+    }
+
+    private fun calculateScale(
+        fraction: Float,
+    ): Float = sin(PI * fraction).toFloat() * 0.7f + 1
 }
 
 fun handleBackPress(

@@ -209,7 +209,11 @@ private fun BottomBar(
     showFormatRow: MutableState<Boolean>
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        delay(300)
+        showMoodPopup.value = true
+    }
 
     Column {
         RichTextStyleRow(
@@ -230,7 +234,7 @@ private fun BottomBar(
                     currentDay
                 )
 
-                Mood(currentDay, showMoodPopup, scope, onMoodChanged)
+                Mood(currentDay, showMoodPopup, onMoodChanged)
 
                 VerticalDivider()
 
@@ -239,9 +243,4 @@ private fun BottomBar(
             floatingActionButton = { SaveFab { onSaveChanges() } }
         )
     }
-
-    LaunchedEffect(key1 = scope, block = {
-        delay(300)
-        showMoodPopup.value = true
-    })
 }
