@@ -1,6 +1,12 @@
 package com.sayler666.gina.dayDetails.ui
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,18 +49,27 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.key.Key.Companion.VolumeDown
 import androidx.compose.ui.input.key.Key.Companion.VolumeUp
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.sayler666.core.compose.ANIMATION_DURATION
+import com.sayler666.core.compose.Bottom
+import com.sayler666.core.compose.Top
+import com.sayler666.core.compose.slideInVerticallyWithFade
 import com.sayler666.core.file.Files
+import com.sayler666.gina.appDestination
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
@@ -80,8 +95,37 @@ data class DayDetailsScreenNavArgs(
     val dayId: Int
 )
 
+object DayDetailsTransitions : DestinationStyle.Animated {
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition()
+            : EnterTransition? = when (initialState.appDestination()) {
+        DayDetailsScreenDestination -> {
+            val fromDayId = initialState.arguments?.getInt(DayDetailsScreenNavArgs::dayId.name) ?: 0
+            val toDayId = targetState.arguments?.getInt(DayDetailsScreenNavArgs::dayId.name) ?: 0
+
+            when {
+                fromDayId < toDayId -> slideInVerticallyWithFade(Bottom)
+                fromDayId > toDayId -> slideInVerticallyWithFade(Top)
+                else -> fadeIn(animationSpec = tween(ANIMATION_DURATION))
+            }
+        }
+
+        else -> null
+    }
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition()
+            : ExitTransition? = when (targetState.appDestination()) {
+        DayDetailsScreenDestination -> fadeOut(animationSpec = tween(ANIMATION_DURATION))
+
+        else -> null
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination(navArgsDelegate = DayDetailsScreenNavArgs::class)
+@Destination(
+    navArgsDelegate = DayDetailsScreenNavArgs::class,
+    style = DayDetailsTransitions::class
+)
 @Composable
 fun DayDetailsScreen(
     destinationsNavigator: DestinationsNavigator,
@@ -115,92 +159,78 @@ fun DayDetailsScreen(
         viewModel.error.collectLatest {
             it?.let { message ->
                 snackbarHostState.showSnackbar(
-                    message = message,
-                    duration = SnackbarDuration.Short
+                    message = message, duration = SnackbarDuration.Short
                 )
             }
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        day?.let {
-                            DayTitle(it.dayOfMonth, it.dayOfWeek, it.yearAndMonth)
-                        }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack() }
-                    ) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                actions = {
-                    day?.mood?.mapToMoodIcon()?.let { icon ->
-                        Icon(
-                            rememberVectorPainter(image = icon.icon),
-                            tint = icon.color,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                    IconButton(onClick = {
-                        day?.id?.let {
-                            destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
-                        }
-                    }) {
-                        Icon(Icons.Filled.Edit, null)
-                    }
-                })
-        },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
+        TopAppBar(title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 day?.let {
-                    AttachmentsRow(it, destinationsNavigator)
-                    Text(it)
+                    DayTitle(it.dayOfMonth, it.dayOfWeek, it.yearAndMonth)
                 }
             }
-        },
-        bottomBar = {
+        }, navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = null)
+            }
+        }, actions = {
+            day?.mood?.mapToMoodIcon()?.let { icon ->
+                Icon(
+                    rememberVectorPainter(image = icon.icon),
+                    tint = icon.color,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            IconButton(onClick = {
+                day?.id?.let {
+                    destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
+                }
+            }) {
+                Icon(Icons.Filled.Edit, null)
+            }
+        })
+    }, content = { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+        ) {
             day?.let {
-                if (it.friendsSelected.isNotEmpty())
-                    BottomAppBar(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        content = { FriendsRow(it.friendsSelected) }
-                    )
+                AttachmentsRow(it, destinationsNavigator)
+                Text(it)
             }
-        },
-        modifier = Modifier
-            .onKeyEvent {
-                when (it.key) {
-                    VolumeUp -> {
-                        viewModel.goToNextDay()
-                        return@onKeyEvent true
-                    }
-
-                    VolumeDown -> {
-                        viewModel.goToPreviousDay()
-                        return@onKeyEvent true
-                    }
-
-                    else -> return@onKeyEvent false
+        }
+    }, bottomBar = {
+        day?.let {
+            if (it.friendsSelected.isNotEmpty()) BottomAppBar(containerColor = MaterialTheme.colorScheme.surface,
+                content = { FriendsRow(it.friendsSelected) })
+        }
+    }, modifier = Modifier
+        .onKeyEvent {
+            if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
+            when (it.key) {
+                VolumeUp -> {
+                    viewModel.goToNextDay()
+                    return@onKeyEvent true
                 }
+
+                VolumeDown -> {
+                    viewModel.goToPreviousDay()
+                    return@onKeyEvent true
+                }
+
+                else -> return@onKeyEvent false
             }
-            .focusRequester(requester)
-            .focusable()
-    )
+        }
+        .focusRequester(requester)
+        .focusable())
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -214,8 +244,7 @@ private fun Text(it: DayDetailsEntity) {
     richTextState.setTextOrHtml(it.content)
 
     RichText(
-        state = richTextState,
-        modifier = Modifier
+        state = richTextState, modifier = Modifier
             .padding(16.dp, 8.dp)
             .fillMaxWidth()
     )
@@ -232,32 +261,23 @@ private fun AttachmentsRow(
         FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
             day.attachments.forEach { attachment ->
                 when (attachment) {
-                    is Image -> ImageThumbnail(
-                        attachment,
-                        onClick = {
-                            attachment.id?.let {
-                                destinationsNavigator.navigate(
-                                    ImagePreviewScreenDestination(
-                                        ImagePreviewScreenNavArgs(
-                                            it,
-                                            allowNavigationToDayDetails = false
-                                        )
+                    is Image -> ImageThumbnail(attachment, onClick = {
+                        attachment.id?.let {
+                            destinationsNavigator.navigate(
+                                ImagePreviewScreenDestination(
+                                    ImagePreviewScreenNavArgs(
+                                        it, allowNavigationToDayDetails = false
                                     )
                                 )
-                            }
-                        }
-                    )
-
-                    is NonImage -> FileThumbnail(
-                        attachment,
-                        onClick = {
-                            Files.openFileIntent(
-                                context,
-                                attachment.bytes,
-                                attachment.mimeType
                             )
                         }
-                    )
+                    })
+
+                    is NonImage -> FileThumbnail(attachment, onClick = {
+                        Files.openFileIntent(
+                            context, attachment.bytes, attachment.mimeType
+                        )
+                    })
                 }
             }
         }
@@ -268,22 +288,18 @@ private fun AttachmentsRow(
 fun FriendsRow(friends: List<FriendEntity>) {
     val context = LocalContext.current
 
-    LazyRow(
-        contentPadding = PaddingValues(start = 16.dp),
-        content = {
-            items(friends) { friend ->
-                FriendIcon(friend = friend,
-                    size = 42.dp,
-                    modifier = Modifier
-                        .padding(end = 8.dp, top = 0.dp)
-                        .clickable(
-                            indication = rememberRipple(bounded = false),
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            Toast
-                                .makeText(context, friend.name, Toast.LENGTH_SHORT)
-                                .show()
-                        })
-            }
-        })
+    LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
+        items(friends) { friend ->
+            FriendIcon(friend = friend,
+                size = 42.dp,
+                modifier = Modifier
+                    .padding(end = 8.dp, top = 0.dp)
+                    .clickable(indication = rememberRipple(bounded = false),
+                        interactionSource = remember { MutableInteractionSource() }) {
+                        Toast
+                            .makeText(context, friend.name, Toast.LENGTH_SHORT)
+                            .show()
+                    })
+        }
+    })
 }

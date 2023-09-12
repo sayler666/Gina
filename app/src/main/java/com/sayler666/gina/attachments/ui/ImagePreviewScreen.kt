@@ -1,7 +1,15 @@
 package com.sayler666.gina.attachments.ui
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -44,9 +52,12 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.core.compose.Top
 import com.sayler666.core.compose.conditional
 import com.sayler666.core.compose.slideInVertically
@@ -54,6 +65,7 @@ import com.sayler666.core.compose.slideOutVertically
 import com.sayler666.core.file.Files
 import com.sayler666.core.image.ScaledBitmapInfo
 import com.sayler666.core.image.scaleToMinSize
+import com.sayler666.gina.appDestination
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewEntity
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewTmpEntity
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewTmpViewModel
@@ -61,19 +73,42 @@ import com.sayler666.gina.attachments.viewmodel.ImagePreviewViewModel
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewWithDayEntity
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.destinations.ImagePreviewScreenDestination
+import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
 import mood.ui.mapToMoodIcon
 
+object ImagePreviewTransitions : DestinationStyle.Animated {
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition()
+            : EnterTransition? = when (targetState.appDestination()) {
+        ImagePreviewScreenDestination -> scaleIn(animationSpec = tween(ANIMATION_DURATION)) + fadeIn()
+        ImagePreviewTmpScreenDestination -> scaleIn(animationSpec = tween(ANIMATION_DURATION)) + fadeIn()
+
+        else -> null
+    }
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition()
+            : ExitTransition? = when (initialState.appDestination()) {
+        ImagePreviewScreenDestination -> scaleOut(animationSpec = tween(ANIMATION_DURATION)) + fadeOut()
+        ImagePreviewTmpScreenDestination -> scaleOut(animationSpec = tween(ANIMATION_DURATION)) + fadeOut()
+
+        else -> null
+    }
+}
 
 data class ImagePreviewScreenNavArgs(
     val attachmentId: Int,
     val allowNavigationToDayDetails: Boolean = true
 )
 
-@Destination(navArgsDelegate = ImagePreviewScreenNavArgs::class)
+@Destination(
+    navArgsDelegate = ImagePreviewScreenNavArgs::class,
+    style = ImagePreviewTransitions::class
+)
 @Composable
 fun ImagePreviewScreen(
     destinationsNavigator: DestinationsNavigator,
@@ -120,7 +155,10 @@ data class ImagePreviewTmpScreenNavArgs(
     val mimeType: String
 )
 
-@Destination(navArgsDelegate = ImagePreviewTmpScreenNavArgs::class)
+@Destination(
+    navArgsDelegate = ImagePreviewTmpScreenNavArgs::class,
+    style = ImagePreviewTransitions::class
+)
 @Composable
 fun ImagePreviewTmpScreen(
     destinationsNavigator: DestinationsNavigator,
