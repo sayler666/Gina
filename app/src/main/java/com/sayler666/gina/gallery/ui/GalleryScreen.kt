@@ -137,10 +137,10 @@ private fun Gallery(
 @OptIn(ExperimentalLayoutApi::class)
 private fun LoadingGrid() {
     FlowRow(Modifier.fillMaxSize()) {
-        repeat(28) {
+        repeat(18) {
             Box(
                 Modifier
-                    .size(90.dp)
+                    .size(120.dp)
                     .padding(start = 1.dp, bottom = 1.dp)
                     .background(shimmerBrush(true))
             )
@@ -177,12 +177,12 @@ fun ImagesGrid(
     LazyVerticalGrid(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = gridState,
-        columns = GridCells.Adaptive(minSize = 90.dp),
+        columns = GridCells.Adaptive(minSize = 120.dp),
     ) {
         items(state.images) { image ->
             Image(
                 modifier = Modifier
-                    .size(90.dp)
+                    .size(120.dp)
                     .padding(start = 1.dp, bottom = 1.dp)
                     .clickable { image.id?.let { openImage(it) } },
                 contentScale = ContentScale.Crop,
