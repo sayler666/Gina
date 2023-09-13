@@ -63,7 +63,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     override suspend fun fetchFullImage(id: Int): Result<Attachment> = try {
         val image: Attachment? = databaseProvider.returnWithDaysDao { getImage(id) }
         image?.let { Result.success(image) }
-            ?: Result.failure(NoSuchElementException("No previous day found"))
+            ?: Result.failure(NoSuchElementException("Image with id: '$id' not found!"))
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         Result.failure(e)
@@ -77,14 +77,8 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
                     )?.let { Thumbnail(it, attachmentId) }
         }
 
-    private fun getThumbnailFromCacheIfExist(id: Int): ByteArray? {
-        val currentlyStoredFiles = context.fileList()
-        return if (currentlyStoredFiles.contains("$id.jpg")) {
-            loadFile(id)
-        } else {
-            null
-        }
-    }
+    private fun getThumbnailFromCacheIfExist(id: Int): ByteArray? =
+        if (context.fileList().contains(createCacheFileName(id))) loadFile(id) else null
 
     private suspend fun createThumbnailForId(id: Int): ByteArray? = coroutineScope {
         async {
@@ -95,23 +89,36 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
                     inJustDecodeBounds = true
                     BitmapFactory.decodeByteArray(image, 0, image.size, this)
 
-                    val imageHeight: Int = outHeight
-                    val imageWidth: Int = outWidth
-                    inSampleSize = calculateInSampleSize(imageWidth, imageHeight, 100, 100, FILL)
+                    inSampleSize = calculateInSampleSize(
+                        srcWidth = outWidth,
+                        srcHeight = outHeight,
+                        dstWidth = THUMBNAIL_SIZE,
+                        dstHeight = THUMBNAIL_SIZE,
+                        scale = FILL
+                    )
 
                     inJustDecodeBounds = false
-                    BitmapFactory.decodeByteArray(image, 0, image.size, this)
-                }.let { thumbnail ->
+                    Triple<Int, Int, Bitmap>(
+                        outWidth,
+                        outHeight,
+                        BitmapFactory.decodeByteArray(image, 0, image.size, this)
+                    )
+                }.let { (width, height, bitmap) ->
                     ByteArrayOutputStream().use { stream ->
-                        thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, stream)
                         val resizedBytes = stream.toByteArray()
                         if (BuildConfig.DEBUG) {
                             val resizedImage =
                                 BitmapFactory.decodeByteArray(resizedBytes, 0, resizedBytes.size)
-                            Timber.d("ImageRepository: Resized image res: ${resizedImage.width}/${resizedImage.height}, size: ${resizedBytes.size} bytes")
+                            Timber.d(
+                                "ImageRepository: Resized image res: " +
+                                        "${resizedImage.width}/${resizedImage.height}" +
+                                        " origin: ${width}/${height}" +
+                                        " size: ${resizedBytes.size} bytes"
+                            )
                             resizedImage.recycle()
                         }
-                        thumbnail.recycle()
+                        bitmap.recycle()
                         resizedBytes
                     }
                 }
@@ -121,9 +128,9 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     private fun saveFile(id: Int, imageBytes: ByteArray): Boolean {
         val currentlyStoredFiles = context.fileList()
-        return if (!currentlyStoredFiles.contains("$id.jpg")) {
+        return if (!currentlyStoredFiles.contains(createCacheFileName(id))) {
             try {
-                val fos = context.openFileOutput("$id.jpg", Context.MODE_PRIVATE)
+                val fos = context.openFileOutput(createCacheFileName(id), Context.MODE_PRIVATE)
                 fos.write(imageBytes)
                 fos.close()
                 true
@@ -138,12 +145,19 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     }
 
     private fun loadFile(id: Int): ByteArray? = try {
-        val fis = context.openFileInput("$id.jpg")
+        val fis = context.openFileInput(createCacheFileName(id))
         val bytes = fis.readBytes()
         fis.close()
         bytes
     } catch (e: IOException) {
         Timber.e(e, "Can't load file $id.jpg from internal storage")
         null
+    }
+
+    private fun createCacheFileName(id: Int) = "$id.jpg"
+
+    companion object {
+        const val THUMBNAIL_SIZE = 140
+        const val THUMBNAIL_QUALITY = 60
     }
 }
