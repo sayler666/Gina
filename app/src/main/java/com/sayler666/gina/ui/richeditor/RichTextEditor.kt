@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,9 +44,6 @@ fun RichTextEditor(
     quote: Quote? = null,
     onContentChanged: (String) -> Unit
 ) {
-    var blurEnabled by remember { mutableStateOf(true) }
-    val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
-
     val focusRequester = remember { FocusRequester() }
     if (autoFocus) LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
@@ -64,41 +62,71 @@ fun RichTextEditor(
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = colorScheme.onSurface),
         cursorBrush = SolidColor(colorScheme.primary),
         decorationBox = { innerTextField ->
-            AnimatedVisibility(
+            Quote(
+                quote = quote,
                 visible = richTextState.toHtml().getTextWithoutHtml()
                     .isEmpty() && quote != null,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                if (quote != null) {
-                    blurEnabled = false
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .blur(blurRadius)
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = quote.quote,
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                            fontWeight = FontWeight.Normal,
-                            color = colorScheme.onSurface.copy(alpha = 0.6f),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "—${quote.author}",
-                            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                            fontWeight = FontWeight.Normal,
-                            color = colorScheme.onSurface.copy(alpha = 0.8f),
-                            textAlign = TextAlign.Center
-                        )
+                onClick = { quote ->
+                    with(richTextState) {
+                        setHtml(quote.toHtml())
+                        removeSpanStyle(currentSpanStyle)
+                        removeParagraphStyle(currentParagraphStyle)
                     }
                 }
-            }
+            )
             innerTextField()
         }
     )
+}
+
+private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>" +
+        "<p style=\"text-align: center;\"><b>—$author</b></p>" +
+        "<p><br/></p>"
+
+@Composable
+private fun Quote(
+    quote: Quote?,
+    visible: Boolean,
+    onClick: (Quote) -> Unit
+) {
+    var blurEnabled by remember { mutableStateOf(true) }
+    val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        if (quote != null) {
+            blurEnabled = false
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .blur(blurRadius)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onClick(quote) },
+                    text = quote.quote,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    fontWeight = FontWeight.Normal,
+                    color = colorScheme.onSurface.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onClick(quote) },
+                    text = "—${quote.author}",
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    fontWeight = FontWeight.Normal,
+                    color = colorScheme.onSurface.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
 }
 
 fun RichTextState.setTextOrHtml(text: String) =
