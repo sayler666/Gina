@@ -11,7 +11,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,6 +74,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleMultipleVisualMedia
+import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
@@ -86,6 +89,7 @@ import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -142,6 +146,16 @@ fun DayDetailsEditScreen(
         viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
     }
 
+    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
+    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
+    ImageCompressBottomSheet(
+        showDialog = showImageCompressSettingsDialog.value,
+        imageOptimizationSettings = imageOptimizationSettings,
+        onDismiss = { showImageCompressSettingsDialog.value = false },
+        onSetImageQuality = viewModel::setNewImageQuality,
+        onImageCompressionToggled = viewModel::toggleImageCompression
+    )
+
     val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
     val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
 
@@ -175,6 +189,7 @@ fun DayDetailsEditScreen(
                     day,
                     showDeleteConfirmationDialog,
                     addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
+                    addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
                     onSaveChanges = viewModel::saveChanges,
                     onMoodChanged = viewModel::setNewMood,
                     onSearchChanged = viewModel::searchFriend,
@@ -359,6 +374,7 @@ private fun BottomBar(
     currentDay: DayDetailsEntity,
     showDeleteConfirmationDialog: MutableState<Boolean>,
     addAttachmentAction: () -> Unit,
+    addAttachmentLongClickAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
@@ -381,7 +397,7 @@ private fun BottomBar(
 
                 VerticalDivider()
 
-                Attachments(addAttachmentAction)
+                Attachments(addAttachmentAction, onLongClick = addAttachmentLongClickAction)
 
                 Friends(
                     currentDay.friendsSelected,
@@ -415,9 +431,22 @@ private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Attachments(addAttachmentAction: () -> Unit) {
-    IconButton(onClick = { addAttachmentAction() }) {
+fun Attachments(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .padding(start = 8.dp)
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple(bounded = false),
+                enabled = true,
+                onLongClick = { onLongClick?.invoke() },
+                onClick = onClick
+            )
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
         Icon(Filled.AddAPhoto, null)
     }
 }

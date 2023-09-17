@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.dagger.hilt)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.animation)
