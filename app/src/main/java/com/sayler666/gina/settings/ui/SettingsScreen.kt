@@ -341,7 +341,7 @@ private fun SettingsButton(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun ImageCompressBottomSheet(
+fun ImageCompressBottomSheet(
     showDialog: Boolean,
     imageOptimizationSettings: OptimizationSettings?,
     onDismiss: () -> Unit,

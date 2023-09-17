@@ -26,6 +26,8 @@ import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepositoryImpl
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
+import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
+import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModelImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -73,4 +75,7 @@ abstract class UseCaseModule {
     @Binds
     abstract fun provideGetAttachmentWithDayUseCase(useCase: GetAttachmentWithDayUseCaseImpl): GetAttachmentWithDayUseCase
 
+    // rethink
+    @Binds
+    abstract fun provideImageOptimizationViewModel(viewModel: ImageOptimizationViewModelImpl) : ImageOptimizationViewModel
 }

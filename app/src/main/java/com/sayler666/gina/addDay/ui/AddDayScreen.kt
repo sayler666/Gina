@@ -31,6 +31,7 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
@@ -45,6 +46,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.quotes.db.Quote
+import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -83,6 +85,16 @@ fun AddDayScreen(
     val addAttachmentRequest: PickVisualMediaRequest = Builder()
         .setMediaType(ImageOnly)
         .build()
+
+    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
+    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
+    ImageCompressBottomSheet(
+        showDialog = showImageCompressSettingsDialog.value,
+        imageOptimizationSettings = imageOptimizationSettings,
+        onDismiss = { showImageCompressSettingsDialog.value = false },
+        onSetImageQuality = viewModel::setNewImageQuality,
+        onImageCompressionToggled = viewModel::toggleImageCompression
+    )
 
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
@@ -123,6 +135,7 @@ fun AddDayScreen(
                 BottomBar(
                     it,
                     addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
+                    addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
                     onSaveChanges = { viewModel.saveChanges() },
                     onMoodChanged = { mood ->
                         viewModel.setNewMood(mood)
@@ -200,6 +213,7 @@ private fun rememberDiscardDialog(navController: NavController): MutableState<Bo
 private fun BottomBar(
     currentDay: DayDetailsEntity,
     addAttachmentAction: () -> Unit,
+    addAttachmentLongClickAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
     onSearchChanged: (String) -> Unit,
@@ -224,7 +238,7 @@ private fun BottomBar(
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
-                Attachments(addAttachmentAction)
+                Attachments(onClick = addAttachmentAction, onLongClick = addAttachmentLongClickAction)
 
                 Friends(
                     currentDay.friendsSelected,

@@ -19,6 +19,7 @@ import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.quotes.QuotesRepository
+import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -46,8 +47,13 @@ class AddDayViewModel @Inject constructor(
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
-    private val imageOptimization: ImageOptimization
-) : ViewModel() {
+    private val imageOptimization: ImageOptimization,
+    private val imageOptimizationViewModel: ImageOptimizationViewModel
+) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
+
+    init {
+        with(imageOptimizationViewModel) { initialize() }
+    }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         Timber.e(exception)

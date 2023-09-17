@@ -19,6 +19,7 @@ import com.sayler666.gina.db.Friend
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -49,10 +50,12 @@ class DayDetailsEditViewModel @Inject constructor(
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
-    private val imageOptimization: ImageOptimization
-) : ViewModel() {
+    private val imageOptimization: ImageOptimization,
+    private val imageOptimizationViewModel: ImageOptimizationViewModel
+) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
     init {
+        with(imageOptimizationViewModel) { initialize() }
         viewModelScope.launch { databaseProvider.openSavedDB() }
     }
 
