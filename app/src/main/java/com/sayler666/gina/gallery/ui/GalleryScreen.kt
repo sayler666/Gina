@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -178,6 +181,10 @@ fun ImagesGrid(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = gridState,
         columns = GridCells.Adaptive(minSize = 120.dp),
+        contentPadding = WindowInsets.systemBars
+            .only(WindowInsetsSides.Bottom)
+            .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT))
+            .asPaddingValues()
     ) {
         items(state.images) { image ->
             Image(
@@ -190,12 +197,7 @@ fun ImagesGrid(
                 contentDescription = "",
             )
         }
-        item {
-            Spacer(
-                modifier = Modifier
-                    .windowInsetsBottomHeight(WindowInsets(bottom = BOTTOM_NAV_HEIGHT * 3))
-            )
-        }
+
     }
 }
 
