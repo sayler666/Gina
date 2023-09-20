@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,14 +20,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImagePreviewViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     getAttachmentWithDayUseCase: GetAttachmentWithDayUseCase,
     private val imagePreviewMapper: ImagePreviewMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     init {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private val navArgs: ImagePreviewScreenNavArgs =

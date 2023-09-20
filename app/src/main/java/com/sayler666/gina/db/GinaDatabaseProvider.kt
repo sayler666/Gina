@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
-class DatabaseProvider(
+class GinaDatabaseProvider(
     private val application: Application,
     private val databaseSettings: DatabaseSettings
 ) {
@@ -54,10 +54,10 @@ class DatabaseProvider(
     fun getOpenedDb(): GinaDatabase? = INSTANCE
 }
 
-suspend fun DatabaseProvider.withDaysDao(action: suspend DaysDao.() -> Unit) {
+suspend fun GinaDatabaseProvider.withDaysDao(action: suspend DaysDao.() -> Unit) {
     getOpenedDb()?.daysDao()?.action()
 }
 
-suspend fun <T> DatabaseProvider.returnWithDaysDao(action: suspend DaysDao.() -> T): T? {
+suspend fun <T> GinaDatabaseProvider.returnWithDaysDao(action: suspend DaysDao.() -> T): T? {
     return getOpenedDb()?.daysDao()?.action()
 }

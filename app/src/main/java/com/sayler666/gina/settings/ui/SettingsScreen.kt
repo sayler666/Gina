@@ -1,66 +1,34 @@
 package com.sayler666.gina.settings.ui
 
-import android.annotation.SuppressLint
+import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -70,14 +38,12 @@ import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.reminder.viewmodel.ReminderEntity
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.settings.viewmodel.ThemeItem
 import com.sayler666.gina.ui.NavigationBarColor
-import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @RootNavGraph
 @Destination
 @Composable
@@ -89,9 +55,13 @@ fun SettingsScreen(
 
     val theme by vm.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
-    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
+    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
     val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()
+    val reminder: ReminderEntity by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
+
+    val notificationPermissionState =
+        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
 
     Scaffold(
         topBar = {
@@ -124,8 +94,10 @@ fun SettingsScreen(
                 )
                 ImageCompressSettingsSection(
                     imageOptimizationSettings,
-                    onSetImageQuality = viewModel::setNewImageQuality,
-                    onImageCompressionToggled = viewModel::toggleImageCompression
+                    onSetImageQuality = {
+                        viewModel.imageOptimizationVM.setNewImageQuality(it)
+                    },
+                    onImageCompressionToggled = viewModel.imageOptimizationVM::toggleImageCompression
                 )
                 Text(
                     text = "Personalize",
@@ -135,6 +107,16 @@ fun SettingsScreen(
                 ThemesSettingsSections(themes) { theme ->
                     viewModel.setTheme(theme)
                 }
+                ReminderSettingsSections(
+                    currentReminder = reminder,
+                    onReminderSet = { time ->
+                        viewModel.remindersVM.setReminder(time)
+                        if (!notificationPermissionState.status.isGranted) {
+                            notificationPermissionState.launchPermissionRequest()
+                        }
+                    },
+                    onReminderCancel = viewModel.remindersVM::removeReminders
+                )
                 Spacer(
                     modifier = Modifier.windowInsetsBottomHeight(
                         WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
@@ -174,255 +156,4 @@ private fun FriendsSettingsSections(
             destinationsNavigator.navigate(ManageFriendsScreenDestination)
         }
     )
-}
-
-@Composable
-private fun ImageCompressSettingsSection(
-    imageOptimizationSettings: OptimizationSettings?,
-    onSetImageQuality: (Int) -> Unit,
-    onImageCompressionToggled: (Boolean) -> Unit,
-) {
-    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-    imageOptimizationSettings?.let {
-        SettingsButton(
-            header = "Image optimization",
-            body = if (imageOptimizationSettings.compressionEnabled) "Quality: ${it.quality}%" else "Disabled",
-            icon = Filled.PhotoSizeSelectLarge,
-            onClick = { showImageCompressSettingsDialog.value = true }
-        )
-        ImageCompressBottomSheet(
-            showDialog = showImageCompressSettingsDialog.value,
-            imageOptimizationSettings = imageOptimizationSettings,
-            onDismiss = { showImageCompressSettingsDialog.value = false },
-            onSetImageQuality = onSetImageQuality,
-            onImageCompressionToggled = onImageCompressionToggled
-        )
-    }
-}
-
-@Composable
-private fun ThemesSettingsSections(
-    themes: List<ThemeItem>,
-    onThemeSelected: (Theme) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
-    val current = themes.firstOrNull { it.selected }?.name
-    SettingsButton(
-        header = "Theme",
-        body = current?.let { stringResource(id = it) } ?: "Theme",
-        icon = Filled.ColorLens,
-        onClick = {
-            openBottomSheet = true
-        }
-    )
-    ThemesBottomSheet(
-        themes,
-        openBottomSheet,
-        onDismiss = { scope.launch { openBottomSheet = false } },
-        onSelectTheme = onThemeSelected
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun ThemesBottomSheet(
-    themes: List<ThemeItem>,
-    openBottomSheet: Boolean,
-    onDismiss: () -> Unit,
-    onSelectTheme: (Theme) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-
-    if (openBottomSheet) {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-            sheetState = sheetState,
-            onDismissRequest = { onDismiss() },
-        ) {
-            Column(
-                modifier = Modifier.navigationBarsPadding()
-            ) {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(bottom = 0.dp),
-                    title = {
-                        Text("Theme")
-                    }, actions = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                sheetState.hide()
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) onDismiss()
-                            }
-                        }) {
-                            Icon(Rounded.Close, contentDescription = "Close")
-                        }
-                    }, colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                    )
-                )
-
-                themes.forEach { theme ->
-                    Row(
-                        modifier = Modifier.clickable {
-                            onSelectTheme(theme.theme)
-                        },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp),
-                            text = stringResource(id = theme.name),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        RadioButton(
-                            modifier = Modifier.padding(end = 8.dp),
-                            selected = theme.selected,
-                            onClick = {
-                                onSelectTheme(theme.theme)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsButton(
-    header: String,
-    body: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Card(
-        Modifier
-            .padding(bottom = 10.dp)
-            .fillMaxWidth()
-            .clickable {
-                onClick()
-            },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .clip(shape = CircleShape)
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                Icon(icon, null, Modifier.padding(10.dp))
-            }
-            Column(modifier = Modifier.padding(0.dp)) {
-                Text(
-                    text = header,
-                    style = MaterialTheme.typography.labelLarge
-                        .copy(color = MaterialTheme.colorScheme.onBackground)
-                )
-                Text(
-                    text = body,
-                    style = MaterialTheme.typography.labelMedium
-                        .copy(color = MaterialTheme.colorScheme.outline)
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Filled.ChevronRight, null, Modifier.padding(end = 8.dp))
-        }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ImageCompressBottomSheet(
-    showDialog: Boolean,
-    imageOptimizationSettings: OptimizationSettings?,
-    onDismiss: () -> Unit,
-    onSetImageQuality: (Int) -> Unit,
-    onImageCompressionToggled: (Boolean) -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    imageOptimizationSettings?.let {
-        if (showDialog) {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ModalBottomSheet(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-                sheetState = sheetState,
-                onDismissRequest = { onDismiss() },
-            ) {
-                Column(
-                    modifier = Modifier.navigationBarsPadding()
-                ) {
-                    CenterAlignedTopAppBar(
-                        windowInsets = WindowInsets(bottom = 0.dp),
-                        title = {
-                            Text("Image optimization")
-                        }, actions = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    sheetState.hide()
-                                }.invokeOnCompletion {
-                                    if (!sheetState.isVisible) onDismiss()
-                                }
-                            }) {
-                                Icon(Rounded.Close, contentDescription = "Close")
-                            }
-                        }, colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                        )
-                    )
-                    Column(Modifier.padding(horizontal = 8.dp)) {
-                        Row(
-                            modifier = Modifier.padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Enable optimization:",
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Switch(checked = imageOptimizationSettings.compressionEnabled,
-                                onCheckedChange = {
-                                    onImageCompressionToggled(it)
-                                })
-                        }
-                        var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
-                        Row(modifier = Modifier.padding(8.dp)) {
-                            Text(
-                                text = "Quality:",
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Text(
-                                text = " ${qualitySliderPosition.toInt()}%",
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            )
-                        }
-                        Slider(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            value = qualitySliderPosition,
-                            valueRange = 1f..100f,
-                            steps = 100,
-                            colors = SliderDefaults.colors(
-                                activeTickColor = Color.Transparent
-                            ),
-                            enabled = imageOptimizationSettings.compressionEnabled,
-                            onValueChange = { value: Float ->
-                                qualitySliderPosition = value
-                            },
-                            onValueChangeFinished = {
-                                onSetImageQuality(qualitySliderPosition.toInt())
-                            })
-                    }
-                }
-            }
-        }
-    }
 }

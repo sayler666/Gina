@@ -3,10 +3,10 @@ package com.sayler666.gina.dayDetailsEdit.usecase
 import android.database.SQLException
 import androidx.room.withTransaction
 import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.DayFriends
 import com.sayler666.gina.db.DaysDao
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withDaysDao
 import timber.log.Timber
 import javax.inject.Inject
@@ -19,15 +19,15 @@ interface EditDayUseCase {
 }
 
 class EditDayUseCaseImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider
+    private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : EditDayUseCase {
     override suspend fun updateDay(
         dayDetails: DayDetails,
         attachmentsToDelete: List<Attachment>
     ) {
         try {
-            databaseProvider.withDaysDao {
-                databaseProvider.getOpenedDb()?.withTransaction {
+            ginaDatabaseProvider.withDaysDao {
+                ginaDatabaseProvider.getOpenedDb()?.withTransaction {
                     updateDay(dayDetails.day)
                     attachments(dayDetails, attachmentsToDelete)
                     friends(dayDetails)

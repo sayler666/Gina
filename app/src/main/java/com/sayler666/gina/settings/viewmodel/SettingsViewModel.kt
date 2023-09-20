@@ -2,7 +2,8 @@ package com.sayler666.gina.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
 import com.sayler666.gina.settings.Settings
 import com.sayler666.gina.settings.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,14 +18,19 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val setting: Settings,
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val themeMapper: ThemeMapper,
-    private val imageOptimizationViewModel: ImageOptimizationViewModel
-) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
+    imageOptimizationViewModel: ImageOptimizationViewModel,
+    remindersViewModel: RemindersViewModel
+) : ViewModel() {
 
     init {
         with(imageOptimizationViewModel) { initialize() }
+        with(remindersViewModel) { initialize() }
     }
+
+    val imageOptimizationVM : ImageOptimizationViewModel = imageOptimizationViewModel
+    val remindersVM : RemindersViewModel = remindersViewModel
 
     private val _databasePath: MutableStateFlow<String?> = MutableStateFlow(null)
     val databasePath: StateFlow<String?> = setting.getDatabasePathFlow().map {
@@ -48,7 +54,7 @@ class SettingsViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            databaseProvider.openDB(path)
+            ginaDatabaseProvider.openDB(path)
         }
     }
 }

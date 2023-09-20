@@ -9,7 +9,7 @@ import coil.size.Scale.FILL
 import com.sayler666.core.collections.pmap
 import com.sayler666.gina.core.BuildConfig
 import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.returnWithDaysDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -31,7 +31,7 @@ interface ImageAttachmentsRepository {
 }
 
 class ImageAttachmentsRepositoryImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val externalScope: CoroutineScope,
     private val context: Context
 ) : ImageAttachmentsRepository {
@@ -45,7 +45,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     override fun fetchNextPage() {
         externalScope.launch {
             try {
-                databaseProvider.getOpenedDb()?.let { db ->
+                ginaDatabaseProvider.getOpenedDb()?.let { db ->
                     val thumbnails = db.daysDao().getImageAttachmentsIds(offset)
                         .mapToThumbnails().filterNotNull()
 
@@ -61,7 +61,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchFullImage(id: Int): Result<Attachment> = try {
-        val image: Attachment? = databaseProvider.returnWithDaysDao { getImage(id) }
+        val image: Attachment? = ginaDatabaseProvider.returnWithDaysDao { getImage(id) }
         image?.let { Result.success(image) }
             ?: Result.failure(NoSuchElementException("Image with id: '$id' not found!"))
     } catch (e: SQLException) {
@@ -82,7 +82,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     private suspend fun createThumbnailForId(id: Int): ByteArray? = coroutineScope {
         async {
-            databaseProvider.getOpenedDb()?.let {
+            ginaDatabaseProvider.getOpenedDb()?.let {
                 val attachment = it.daysDao().getImage(id)
                 val image = attachment.content ?: return@async null
                 BitmapFactory.Options().run {

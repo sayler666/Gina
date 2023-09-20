@@ -4,24 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
-import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.skip
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val imageAttachmentsRepository: ImageAttachmentsRepository,
     private val galleryMapper: GalleryMapper,
     private val attachmentMapper: AttachmentMapper
@@ -39,7 +35,7 @@ class GalleryViewModel @Inject constructor(
     }
 
     private fun initDb() {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private fun observerImages() {

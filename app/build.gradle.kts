@@ -102,6 +102,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.permissions)
     implementation(libs.coil.compose)
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)

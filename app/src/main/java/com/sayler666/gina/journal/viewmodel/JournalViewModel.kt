@@ -3,13 +3,12 @@ package com.sayler666.gina.journal.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +25,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class JournalViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
     private val daysMapper: DaysMapper
 ) : ViewModel() {
@@ -53,7 +52,7 @@ class JournalViewModel @Inject constructor(
     }
 
     private fun initDb() {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
             combine(_moodFilters, _searchQuery) { moods, search ->
                 moods to search

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DayDetailsViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousDayUseCase: GetNextPreviousDayUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     getDayDetailsUseCase: GetDayDetailsUseCase,
@@ -30,7 +30,7 @@ class DayDetailsViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private val navArgs: DayDetailsScreenNavArgs =

@@ -3,7 +3,7 @@ package com.sayler666.gina.selectdatabase.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SelectDatabaseViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider
+    private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : ViewModel() {
 
     private val _permissionGranted = MutableStateFlow(Environment.isExternalStorageManager())
@@ -31,7 +31,7 @@ class SelectDatabaseViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            if (databaseProvider.openDB(path)) _navigateToHome.emit(JournalScreenDestination)
+            if (ginaDatabaseProvider.openDB(path)) _navigateToHome.emit(JournalScreenDestination)
         }
     }
 }

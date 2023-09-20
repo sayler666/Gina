@@ -2,10 +2,10 @@ package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
 import androidx.room.withTransaction
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.DayFriends
 import com.sayler666.gina.db.DaysDao
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withDaysDao
 import timber.log.Timber
 import javax.inject.Inject
@@ -17,14 +17,14 @@ interface AddDayUseCase {
 }
 
 class AddDayUseCaseImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider
+    private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : AddDayUseCase {
     override suspend fun addDay(
         dayDetails: DayDetails
     ) {
         try {
-            databaseProvider.withDaysDao {
-                databaseProvider.getOpenedDb()?.withTransaction {
+            ginaDatabaseProvider.withDaysDao {
+                ginaDatabaseProvider.getOpenedDb()?.withTransaction {
                     val dayId = addDay(dayDetails.day).toInt()
                     attachments(dayDetails, dayId)
                     friends(dayDetails, dayId)
