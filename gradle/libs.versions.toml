@@ -14,6 +14,7 @@ compose-material3 = "1.1.1"
 compose-navigation = "2.7.1"
 compose-compiler = "1.5.3"
 accompanist-systemuicontroller = "0.30.0"
+accompanist-premissions = "0.32.0"
 coil-compose = "2.4.0"
 compose-destination = "1.9.52"
 calendar-compose = "2.4.0-beta01"
@@ -62,6 +63,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemuicontroller" }
+accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-premissions" }
 compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "compose-destination" }
 compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "compose-destination" }
 calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "calendar-compose" }

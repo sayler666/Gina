@@ -1,7 +1,7 @@
 package com.sayler666.gina.friends.usecase
 
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withDaysDao
 import javax.inject.Inject
 
@@ -10,11 +10,11 @@ interface AddFriendUseCase {
 }
 
 class AddFriendUseCaseImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider
+    private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : AddFriendUseCase {
     override suspend fun addFriend(name: String) {
         if (name.isBlank()) return
-        databaseProvider.withDaysDao {
+        ginaDatabaseProvider.withDaysDao {
             addFriend(Friend(name = name, avatar = null))
         }
     }

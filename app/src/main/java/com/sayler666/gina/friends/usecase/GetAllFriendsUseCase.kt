@@ -1,8 +1,8 @@
 package com.sayler666.gina.friends.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.FriendWithCount
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -18,12 +18,12 @@ interface GetAllFriendsUseCase {
 }
 
 class GetAllFriendsUseCaseImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetAllFriendsUseCase {
     override fun getAllFriendsWithCount(): Flow<List<FriendWithCount>> = flow {
         try {
-            databaseProvider.withDaysDao {
+            ginaDatabaseProvider.withDaysDao {
                 emitAll(getFriendsWithCountFlow())
             }
         } catch (e: SQLException) {

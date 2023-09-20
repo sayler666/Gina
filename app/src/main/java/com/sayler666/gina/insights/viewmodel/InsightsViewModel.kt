@@ -2,7 +2,7 @@ package com.sayler666.gina.insights.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.DatabaseProvider
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InsightsViewModel @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
     private val insightsMapper: InsightsMapper
 ) : ViewModel() {
@@ -48,7 +48,7 @@ class InsightsViewModel @Inject constructor(
     }
 
     private fun initDb() {
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
             combine(_moodFilters, _searchQuery) { moods, search ->
                 moods to search

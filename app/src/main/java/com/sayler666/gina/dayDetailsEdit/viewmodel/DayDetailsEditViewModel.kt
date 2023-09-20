@@ -13,9 +13,9 @@ import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
@@ -45,7 +45,7 @@ class DayDetailsEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getDayDetailsUseCase: GetDayDetailsUseCase,
     getAllFriendsUseCase: GetAllFriendsUseCase,
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val editDayUseCase: EditDayUseCase,
@@ -56,7 +56,7 @@ class DayDetailsEditViewModel @Inject constructor(
 
     init {
         with(imageOptimizationViewModel) { initialize() }
-        viewModelScope.launch { databaseProvider.openSavedDB() }
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->

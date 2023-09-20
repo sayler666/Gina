@@ -173,6 +173,10 @@ interface DaysDao {
     @Query("SELECT * FROM days WHERE id = :id")
     fun getDayFlow(id: Int): Flow<DayDetails>
 
+    @Transaction
+    @Query("SELECT * FROM days ORDER by date DESC LIMIT 1")
+    suspend fun getLastDay(): DayDetails
+
     @Query("SELECT * FROM attachments WHERE attachment_id = :id")
     suspend fun getImage(id: Int): Attachment
 

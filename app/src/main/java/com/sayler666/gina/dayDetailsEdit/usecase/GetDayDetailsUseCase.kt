@@ -1,8 +1,8 @@
 package com.sayler666.gina.dayDetailsEdit.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.DatabaseProvider
 import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -18,12 +18,12 @@ interface GetFriendUseCase {
 }
 
 class GetFriendUseCaseImpl @Inject constructor(
-    private val databaseProvider: DatabaseProvider,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : GetFriendUseCase {
     override fun getFriend(id: Int): Flow<Friend?> = flow {
         try {
-            databaseProvider.withDaysDao {
+            ginaDatabaseProvider.withDaysDao {
                 emitAll(getFriendFlow(id))
             }
         } catch (e: SQLException) {

@@ -12,7 +12,7 @@ fun Long.toLocalDate(): LocalDate =
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
 
-const val MILLIS_IN_DAY = 24 * 60 * 60 * 1000
+const val MILLIS_IN_DAY = 24 * 60 * 60 * 1000L
 
 fun getDayOfMonth(timestamp: Long): String = timestamp.toLocalDate()
     .format(

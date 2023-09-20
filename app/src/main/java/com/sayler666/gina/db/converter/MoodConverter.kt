@@ -7,9 +7,9 @@ import mood.Mood.Companion.mapToMood
 class MoodConverter {
 
     @TypeConverter
-    fun toZonedDateTime(moodIntValue: Int): Mood = moodIntValue.mapToMood()
+    fun toMood(moodIntValue: Int): Mood = moodIntValue.mapToMood()
 
     @TypeConverter
-    fun fromZonedDateTime(mood: Mood): Int = mood.numberValue
+    fun fromMoodToInt(mood: Mood): Int = mood.numberValue
 
 }
