@@ -1,6 +1,5 @@
 package com.sayler666.gina.reminder.usecase
 
-import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.returnWithDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,8 +23,8 @@ class TodayEntryExistUseCaseImpl @Inject constructor(
         try {
             return@withContext ginaDatabaseProvider.returnWithDaysDao {
                 val lastDay = getLastDay()
-                val lastDate = lastDay.day.date?.toLocalDate()?.atStartOfDay()
-                val todayDate = LocalDate.now().atStartOfDay()
+                val lastDate = lastDay.day.date
+                val todayDate = LocalDate.now()
                 Timber.d("TodayEntryExistUseCaseImpl: ${lastDate == todayDate}")
 
                 lastDate == todayDate

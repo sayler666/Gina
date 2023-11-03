@@ -3,7 +3,6 @@ package com.sayler666.gina.dayDetails.viewmodel
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
-import com.sayler666.core.date.toLocalDate
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.gina.db.Attachment
@@ -32,7 +31,7 @@ class DayDetailsMapper @Inject constructor(
             dayOfMonth = getDayOfMonth(day.day.date),
             dayOfWeek = getDayOfWeek(day.day.date),
             yearAndMonth = getYearAndMonth(day.day.date),
-            localDate = day.day.date.toLocalDate(),
+            localDate = day.day.date,
             content = day.day.content,
             attachments = mapAttachments(day.attachments),
             mood = day.day.mood,

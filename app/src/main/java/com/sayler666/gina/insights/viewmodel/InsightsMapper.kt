@@ -2,7 +2,6 @@ package com.sayler666.gina.insights.viewmodel
 
 import com.sayler666.core.collections.mutate
 import com.sayler666.core.collections.pmap
-import com.sayler666.core.date.toLocalDate
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
@@ -84,7 +83,7 @@ class InsightsMapper @Inject constructor() {
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
-            heatMap[it.date.toLocalDate()] = when (it.content.getTextWithoutHtml().length) {
+            heatMap[it.date] = when (it.content.getTextWithoutHtml().length) {
                 in bucket1 -> ContributionLevel.One
                 in bucket2 -> ContributionLevel.Two
                 in bucket3 -> ContributionLevel.Three
@@ -108,7 +107,7 @@ class InsightsMapper @Inject constructor() {
         days.forEach {
             requireNotNull(it.date)
             requireNotNull(it.content)
-            val currentDayDate = it.date.toLocalDate()
+            val currentDayDate = it.date
             heatMap[currentDayDate] = when (it.mood) {
                 BAD -> MoodLevel.Bad
                 LOW -> MoodLevel.Low
@@ -124,7 +123,7 @@ class InsightsMapper @Inject constructor() {
 
     private fun calculateCurrentStreak(days: List<Day>): Int {
         var currentStreak = 0
-        val currentDay = if (days.any { it.date?.toLocalDate() == LocalDate.now() }) {
+        val currentDay = if (days.any { it.date == LocalDate.now() }) {
             LocalDate.now()
         } else {
             LocalDate.now().minusDays(1)
@@ -136,7 +135,7 @@ class InsightsMapper @Inject constructor() {
         }
             .reversed()
             .forEachIndexed { i, day ->
-                when (day.date?.toLocalDate()) {
+                when (day.date) {
                     currentDay -> currentStreak++
                     currentDay.minusDays(i.toLong()) -> currentStreak++
                     else -> return@forEachIndexed
@@ -157,7 +156,7 @@ class InsightsMapper @Inject constructor() {
         }
             .reversed()
             .forEach { day ->
-                val currentDayDate = day.date?.toLocalDate()
+                val currentDayDate = day.date
                     ?: throw java.lang.IllegalStateException("No date found in day ${day.id}")
                 if (currentStreak == 0) {
                     currentStreakStartDay = currentDayDate

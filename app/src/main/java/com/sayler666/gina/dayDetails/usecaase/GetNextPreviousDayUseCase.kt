@@ -4,19 +4,20 @@ import android.database.SQLException
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.returnWithDaysDao
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 interface GetNextPreviousDayUseCase {
-    suspend fun getNextDayAfterDate(date: Long): Result<Int>
-    suspend fun getPreviousDayBeforeDate(date: Long): Result<Int>
+    suspend fun getNextDayAfterDate(localDate: LocalDate): Result<Int>
+    suspend fun getPreviousDayBeforeDate(localDate: LocalDate): Result<Int>
 }
 
 class GetNextPreviousDayUseCaseUseCaseImpl @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : GetNextPreviousDayUseCase {
-    override suspend fun getNextDayAfterDate(date: Long): Result<Int> = try {
+    override suspend fun getNextDayAfterDate(localDate: LocalDate): Result<Int> = try {
         val dayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            getNextDayIdAfter(date)
+            getNextDayIdAfter(localDate)
         }
         dayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No next day found"))
@@ -25,9 +26,9 @@ class GetNextPreviousDayUseCaseUseCaseImpl @Inject constructor(
         Result.failure(e)
     }
 
-    override suspend fun getPreviousDayBeforeDate(date: Long): Result<Int> = try {
+    override suspend fun getPreviousDayBeforeDate(localDate: LocalDate): Result<Int> = try {
         val dayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            getPreviousDayIdBefore(date)
+            getPreviousDayIdBefore(localDate)
         }
         dayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No previous day found"))

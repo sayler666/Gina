@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +42,7 @@ class DayDetailsViewModel @Inject constructor(
     private val _error = MutableSharedFlow<String?>()
     val error = _error.asSharedFlow()
 
-    private val date = MutableStateFlow<Long>(-1)
+    private val date = MutableStateFlow<LocalDate>(LocalDate.MIN)
 
     private val _goToDayId = MutableSharedFlow<Int?>()
     val goToDayId = _goToDayId.asSharedFlow()
@@ -53,7 +54,7 @@ class DayDetailsViewModel @Inject constructor(
 
     fun goToNextDay() {
         viewModelScope.launch {
-            if (date.value > 0) {
+            if (date.value > LocalDate.MIN) {
                 getNextPreviousDayUseCase.getNextDayAfterDate(date.value)
                     .onSuccess { _goToDayId.emit(it) }
                     .onFailure { _error.emit(it.message) }
@@ -63,7 +64,7 @@ class DayDetailsViewModel @Inject constructor(
 
     fun goToPreviousDay() {
         viewModelScope.launch {
-            if (date.value > 0) getNextPreviousDayUseCase.getPreviousDayBeforeDate(date.value)
+            if (date.value > LocalDate.MIN) getNextPreviousDayUseCase.getPreviousDayBeforeDate(date.value)
                 .onSuccess { _goToDayId.emit(it) }
                 .onFailure { _error.emit(it.message) }
         }

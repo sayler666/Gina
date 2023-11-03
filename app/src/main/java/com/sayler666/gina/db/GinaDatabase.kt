@@ -16,9 +16,11 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
+import com.sayler666.gina.db.converter.DateConverter
 import com.sayler666.gina.db.converter.MoodConverter
 import kotlinx.coroutines.flow.Flow
 import mood.Mood
+import java.time.LocalDate
 
 
 @Database(
@@ -26,7 +28,7 @@ import mood.Mood
     version = 1,
     exportSchema = false
 )
-@TypeConverters(MoodConverter::class)
+@TypeConverters(MoodConverter::class, DateConverter::class)
 abstract class GinaDatabase : RoomDatabase() {
     abstract fun daysDao(): DaysDao
 }
@@ -34,7 +36,7 @@ abstract class GinaDatabase : RoomDatabase() {
 @Entity(tableName = "days")
 data class Day(
     @ColumnInfo(name = "date", typeAffinity = ColumnInfo.INTEGER)
-    val date: Long?,
+    val date: LocalDate?,
 
     @ColumnInfo(name = "content", typeAffinity = ColumnInfo.TEXT)
     val content: String?,
@@ -197,11 +199,11 @@ interface DaysDao {
 
     @Transaction
     @Query("SELECT id FROM days WHERE date > :date ORDER BY date ASC LIMIT 1")
-    suspend fun getNextDayIdAfter(date: Long): Int?
+    suspend fun getNextDayIdAfter(date: LocalDate): Int?
 
     @Transaction
     @Query("SELECT id FROM days WHERE date < :date ORDER BY date DESC LIMIT 1")
-    suspend fun getPreviousDayIdBefore(date: Long): Int?
+    suspend fun getPreviousDayIdBefore(date: LocalDate): Int?
 
     @Update
     suspend fun updateDay(day: Day): Int
