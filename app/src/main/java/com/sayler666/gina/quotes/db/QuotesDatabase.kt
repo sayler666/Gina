@@ -9,13 +9,17 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.sayler666.gina.db.converter.DateConverter
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Database(
     entities = [Quote::class],
     version = 1,
     exportSchema = false
 )
+@TypeConverters(DateConverter::class)
 abstract class QuotesDatabase : RoomDatabase() {
     abstract fun quotesDao(): QuotesDao
 }
@@ -33,7 +37,7 @@ data class Quote(
     val author: String,
 
     @ColumnInfo(name = "date", typeAffinity = ColumnInfo.INTEGER)
-    val date: Long,
+    val date: LocalDate,
 )
 
 @Dao

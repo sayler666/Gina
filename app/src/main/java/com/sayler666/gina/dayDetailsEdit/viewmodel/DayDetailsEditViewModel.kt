@@ -3,7 +3,6 @@ package com.sayler666.gina.dayDetailsEdit.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.core.file.isImageMimeType
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
@@ -127,7 +126,7 @@ class DayDetailsEditViewModel @Inject constructor(
     fun setNewDate(date: LocalDate) {
         val currentDay = _tempDay.value ?: return
         _tempDay.value =
-            currentDay.copy(day = currentDay.day.copy(date = date.toEpochMilliseconds()))
+            currentDay.copy(day = currentDay.day.copy(date = date))
     }
 
     fun setNewMood(mood: Mood) {

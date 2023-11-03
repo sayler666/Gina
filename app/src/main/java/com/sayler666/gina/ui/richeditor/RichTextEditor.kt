@@ -49,6 +49,7 @@ import com.sayler666.core.compose.conditional
 import com.sayler666.core.html.containsHtml
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.quotes.db.Quote
+import java.time.LocalDate
 
 @Composable
 fun RichTextEditor(
@@ -105,7 +106,7 @@ fun QuotePreview() {
             id = null,
             quote = "Lorem ipsum et cetera, lorem et ipum, lorem et ipum.",
             author = "sayler",
-            date = 100L
+            date = LocalDate.now()
         ),
         visible = true,
         onClick = {}

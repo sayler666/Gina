@@ -1,6 +1,5 @@
 package com.sayler666.gina.quotes
 
-import com.sayler666.core.date.toEpochMilliseconds
 import com.sayler666.gina.quotes.api.ZenQuotesService
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.quotes.db.QuotesDatabaseProvider
@@ -25,8 +24,8 @@ class QuotesRepository @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
-    fun latestTodayQuoteFlow(): Flow<Quote> = flow {
-        val todayDate = LocalDate.now().toEpochMilliseconds()
+    fun latestTodayQuoteFlow(): Flow<Quote?> = flow {
+        val todayDate = LocalDate.now()
         quotesDatabaseProvider.withQuotesDao {
             getLatestQuoteFlow()
                 .collect { quote ->
@@ -42,7 +41,7 @@ class QuotesRepository @Inject constructor(
         .distinctUntilChanged()
         .flowOn(coroutineDispatcher)
 
-    private suspend fun fetchAndSaveNewQuote(todayDate: Long): Long? = try {
+    private suspend fun fetchAndSaveNewQuote(todayDate: LocalDate): Long? = try {
         val dbQuote = mapToDbModel(quotesService.fetchToday().first(), todayDate)
         val newQuoteId = quotesDatabaseProvider.returnWithQuotesDao { addQuote(dbQuote) }
         newQuoteId
@@ -51,7 +50,7 @@ class QuotesRepository @Inject constructor(
         null
     }
 
-    private fun mapToDbModel(quoteApiModel: QuoteApiModel, date: Long) =
+    private fun mapToDbModel(quoteApiModel: QuoteApiModel, date: LocalDate) =
         Quote(null, quoteApiModel.quote, quoteApiModel.author, date)
 }
 
