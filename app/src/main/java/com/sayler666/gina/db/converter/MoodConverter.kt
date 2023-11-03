@@ -1,8 +1,8 @@
 package com.sayler666.gina.db.converter
 
 import androidx.room.TypeConverter
-import mood.Mood
-import mood.Mood.Companion.mapToMood
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.Mood.Companion.mapToMood
 
 class MoodConverter {
 

@@ -5,7 +5,7 @@ import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.db.AttachmentWithDay
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import javax.inject.Inject
 
 

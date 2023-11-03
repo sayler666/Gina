@@ -88,7 +88,7 @@ import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import mood.ui.mapToMoodIcon
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 
 data class DayDetailsScreenNavArgs(

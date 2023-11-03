@@ -19,7 +19,7 @@ import androidx.room.Update
 import com.sayler666.gina.db.converter.DateConverter
 import com.sayler666.gina.db.converter.MoodConverter
 import kotlinx.coroutines.flow.Flow
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 
 

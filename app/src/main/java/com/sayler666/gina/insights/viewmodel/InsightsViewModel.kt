@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)

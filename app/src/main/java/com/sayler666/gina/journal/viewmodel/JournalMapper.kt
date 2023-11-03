@@ -9,7 +9,7 @@ import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
