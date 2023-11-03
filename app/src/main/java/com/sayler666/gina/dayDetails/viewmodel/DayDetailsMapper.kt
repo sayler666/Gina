@@ -10,7 +10,7 @@ import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.FriendWithCount
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 import javax.inject.Inject
 

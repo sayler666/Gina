@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject

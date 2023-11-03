@@ -56,7 +56,7 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(

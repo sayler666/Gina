@@ -1,4 +1,4 @@
-package mood.ui
+package com.sayler666.gina.mood.ui
 
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Outlined
@@ -13,13 +13,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import mood.Mood
-import mood.Mood.AWESOME
-import mood.Mood.BAD
-import mood.Mood.GOOD
-import mood.Mood.LOW
-import mood.Mood.NEUTRAL
-import mood.Mood.SUPERB
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.Mood.AWESOME
+import com.sayler666.gina.mood.Mood.BAD
+import com.sayler666.gina.mood.Mood.GOOD
+import com.sayler666.gina.mood.Mood.LOW
+import com.sayler666.gina.mood.Mood.NEUTRAL
+import com.sayler666.gina.mood.Mood.SUPERB
 
 data class MoodIcon(
     val icon: ImageVector,

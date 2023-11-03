@@ -1,4 +1,4 @@
-package mood
+package com.sayler666.gina.mood
 
 enum class Mood(val numberValue: Int) {
     EMPTY(Int.MIN_VALUE),

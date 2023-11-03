@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import mood.Mood
+import com.sayler666.gina.mood.Mood
 import timber.log.Timber
 import javax.inject.Inject
 

@@ -99,10 +99,10 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import mood.Mood
-import mood.ui.MoodIcon
-import mood.ui.MoodPicker
-import mood.ui.mapToMoodIcon
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.ui.MoodIcon
+import com.sayler666.gina.mood.ui.MoodPicker
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import kotlin.math.PI
 import kotlin.math.sin
 

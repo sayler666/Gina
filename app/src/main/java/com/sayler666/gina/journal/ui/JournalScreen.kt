@@ -74,8 +74,8 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
-import mood.Mood
-import mood.ui.mapToMoodIcon
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph

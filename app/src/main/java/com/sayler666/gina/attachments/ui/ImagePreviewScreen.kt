@@ -79,7 +79,7 @@ import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
-import mood.ui.mapToMoodIcon
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 object ImagePreviewTransitions : DestinationStyle.Animated {
 
