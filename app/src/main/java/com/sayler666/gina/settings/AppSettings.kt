@@ -41,8 +41,9 @@ class AppSettingsImpl @Inject constructor(private val app: Application) : AppSet
 }
 
 enum class Theme {
-    Firewatch,
     Dynamic,
+    Firewatch,
+    MountainView,
     Legacy;
 
     companion object {

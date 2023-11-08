@@ -1,12 +1,17 @@
 package com.sayler666.gina.settings.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.filled.ColorLens
@@ -30,9 +35,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.settings.viewmodel.ColorsPreview
 import com.sayler666.gina.settings.viewmodel.ThemeItem
 import kotlinx.coroutines.launch
 
@@ -98,29 +106,60 @@ private fun ThemesBottomSheet(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
                 )
-
-                themes.forEach { theme ->
-                    Row(
-                        modifier = Modifier.clickable {
-                            onSelectTheme(theme.theme)
-                        },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp),
-                            text = stringResource(id = theme.name),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        RadioButton(
-                            modifier = Modifier.padding(end = 8.dp),
-                            selected = theme.selected,
-                            onClick = {
-                                onSelectTheme(theme.theme)
-                            }
-                        )
+                Column {
+                    themes.forEach { theme ->
+                        Row(
+                            modifier = Modifier
+                                .clickable { onSelectTheme(theme.theme) }
+                                .padding(end = 8.dp, start = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            theme.colorsPreview?.let { ColorsSample(it) }
+                            Text(
+                                modifier = Modifier.padding(start = if (theme.colorsPreview != null) 8.dp else 0.dp),
+                                text = stringResource(id = theme.name),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            RadioButton(
+                                selected = theme.selected,
+                                onClick = {
+                                    onSelectTheme(theme.theme)
+                                }
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ColorsSample(color: ColorsPreview) {
+    val size = 10.dp
+    val thickness = 10.dp
+    Box(
+        Modifier
+            .width(size * 2)
+            .height(size * 2)
+            .padding(top = size / 2)
+    ) {
+        val colors = mutableListOf(color.primary, color.secondary, color.tertiary)
+
+        Canvas(
+            modifier = Modifier.size(size = size)
+        ) {
+            var startAngle = -90f
+            colors.onEach {
+                drawArc(
+                    color = it,
+                    startAngle = startAngle,
+                    sweepAngle = 120f,
+                    useCenter = false,
+                    style = Stroke(width = thickness.toPx(), cap = StrokeCap.Butt)
+                )
+                startAngle += 120f
             }
         }
     }

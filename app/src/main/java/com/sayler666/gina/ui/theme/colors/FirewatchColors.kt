@@ -1,0 +1,130 @@
+package com.sayler666.gina.ui.theme.colors
+
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Color
+
+object FirewatchColors {
+    private val light_primary = Color(0xff446829)
+    private val light_onPrimary = Color(0xffffffff)
+    private val light_primaryContainer = Color(0xffc4efa1)
+    private val light_onPrimaryContainer = Color(0xff092100)
+    private val light_secondary = Color(0xff795369)
+    private val light_onSecondary = Color(0xffffffff)
+    private val light_secondaryContainer = Color(0xffffd7ed)
+    private val light_onSecondaryContainer = Color(0xff2e1124)
+    private val light_tertiary = Color(0xff4d5d8b)
+    private val light_onTertiary = Color(0xffffffff)
+    private val light_tertiaryContainer = Color(0xffdae2ff)
+    private val light_onTertiaryContainer = Color(0xff041943)
+    private val light_error = Color(0xffb3261e)
+    private val light_errorContainer = Color(0xfff9dedc)
+    private val light_onError = Color(0xffffffff)
+    private val light_onErrorContainer = Color(0xff410e0b)
+    private val light_background = Color(0xfffdfbff)
+    private val light_onBackground = Color(0xff191b23)
+    private val light_surface = Color(0xfffdfbff)
+    private val light_onSurface = Color(0xff191b23)
+    private val light_surfaceVariant = Color(0xffdfe1f2)
+    private val light_onSurfaceVariant = Color(0xff434654)
+    private val light_outline = Color(0xff727584)
+    private val light_inverseOnSurface = Color(0xfff0f0fa)
+    private val light_inverseSurface = Color(0xff2e3038)
+    private val light_inversePrimary = Color(0xffa9d387)
+    private val light_surfaceTint = Color(0xff446829)
+    private val light_outlineVariant = Color(0xffcac4d0)
+    private val light_scrim = Color(0xff000000)
+
+    private val dark_primary = Color(0xffa9d387)
+    private val dark_onPrimary = Color(0xff173800)
+    private val dark_primaryContainer = Color(0xff2d4f13)
+    private val dark_onPrimaryContainer = Color(0xffc4efa1)
+    private val dark_secondary = Color(0xffe9b9d3)
+    private val dark_onSecondary = Color(0xff46263a)
+    private val dark_secondaryContainer = Color(0xff5f3c51)
+    private val dark_onSecondaryContainer = Color(0xffffd7ed)
+    private val dark_tertiary = Color(0xffb5c5fa)
+    private val dark_onTertiary = Color(0xff1d2f59)
+    private val dark_tertiaryContainer = Color(0xff354572)
+    private val dark_onTertiaryContainer = Color(0xffdae2ff)
+    private val dark_error = Color(0xfff2b8b5)
+    private val dark_errorContainer = Color(0xff8c1d18)
+    private val dark_onError = Color(0xff601410)
+    private val dark_onErrorContainer = Color(0xfff9dedc)
+    private val dark_background = Color(0xff191b23)
+    private val dark_onBackground = Color(0xffe1e2ec)
+    private val dark_surface = Color(0xff191b23)
+    private val dark_onSurface = Color(0xffe1e2ec)
+    private val dark_surfaceVariant = Color(0xff434654)
+    private val dark_onSurfaceVariant = Color(0xffc3c5d6)
+    private val dark_outline = Color(0xff8d90a0)
+    private val dark_inverseOnSurface = Color(0xff2e3038)
+    private val dark_inverseSurface = Color(0xffe1e2ec)
+    private val dark_inversePrimary = Color(0xff446829)
+    private val dark_surfaceTint = Color(0xffa9d387)
+    private val dark_outlineVariant = Color(0xff49454f)
+    private val dark_scrim = Color(0xff000000)
+
+    val LightColors = lightColorScheme(
+        primary = light_primary,
+        onPrimary = light_onPrimary,
+        primaryContainer = light_primaryContainer,
+        onPrimaryContainer = light_onPrimaryContainer,
+        secondary = light_secondary,
+        onSecondary = light_onSecondary,
+        secondaryContainer = light_secondaryContainer,
+        onSecondaryContainer = light_onSecondaryContainer,
+        tertiary = light_tertiary,
+        onTertiary = light_onTertiary,
+        tertiaryContainer = light_tertiaryContainer,
+        onTertiaryContainer = light_onTertiaryContainer,
+        error = light_error,
+        errorContainer = light_errorContainer,
+        onError = light_onError,
+        onErrorContainer = light_onErrorContainer,
+        background = light_background,
+        onBackground = light_onBackground,
+        surface = light_surface,
+        onSurface = light_onSurface,
+        surfaceVariant = light_surfaceVariant,
+        onSurfaceVariant = light_onSurfaceVariant,
+        outline = light_outline,
+        inverseOnSurface = light_inverseOnSurface,
+        inverseSurface = light_inverseSurface,
+        inversePrimary = light_inversePrimary,
+        surfaceTint = light_surfaceTint,
+        outlineVariant = light_outlineVariant,
+        scrim = light_scrim,
+    )
+    val DarkColors = darkColorScheme(
+        primary = dark_primary,
+        onPrimary = dark_onPrimary,
+        primaryContainer = dark_primaryContainer,
+        onPrimaryContainer = dark_onPrimaryContainer,
+        secondary = dark_secondary,
+        onSecondary = dark_onSecondary,
+        secondaryContainer = dark_secondaryContainer,
+        onSecondaryContainer = dark_onSecondaryContainer,
+        tertiary = dark_tertiary,
+        onTertiary = dark_onTertiary,
+        tertiaryContainer = dark_tertiaryContainer,
+        onTertiaryContainer = dark_onTertiaryContainer,
+        error = dark_error,
+        errorContainer = dark_errorContainer,
+        onError = dark_onError,
+        onErrorContainer = dark_onErrorContainer,
+        background = dark_background,
+        onBackground = dark_onBackground,
+        surface = dark_surface,
+        onSurface = dark_onSurface,
+        surfaceVariant = dark_surfaceVariant,
+        onSurfaceVariant = dark_onSurfaceVariant,
+        outline = dark_outline,
+        inverseOnSurface = dark_inverseOnSurface,
+        inverseSurface = dark_inverseSurface,
+        inversePrimary = dark_inversePrimary,
+        surfaceTint = dark_surfaceTint,
+        outlineVariant = dark_outlineVariant,
+        scrim = dark_scrim,
+    )
+}
