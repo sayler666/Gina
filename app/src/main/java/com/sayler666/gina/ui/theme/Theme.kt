@@ -10,9 +10,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.sayler666.gina.BuildConfig
 import com.sayler666.gina.settings.Theme
-import com.sayler666.gina.settings.Theme.Dynamic
-import com.sayler666.gina.settings.Theme.Firewatch
-import com.sayler666.gina.settings.Theme.Legacy
+import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.ui.theme.colors.FirewatchColors
+import com.sayler666.gina.ui.theme.colors.LegacyColors
+import com.sayler666.gina.ui.theme.colors.MountainViewColors
 import timber.log.Timber
 import android.graphics.Color as AndroidColor
 
@@ -25,6 +26,7 @@ fun GinaTheme(
 ) {
     val colors: ColorScheme = when (theme) {
         Firewatch -> if (darkTheme) FirewatchColors.DarkColors else FirewatchColors.LightColors
+        MountainView -> if (darkTheme) MountainViewColors.DarkColors else MountainViewColors.LightColors
         Dynamic -> if (darkTheme) {
             dynamicDarkColorScheme(LocalContext.current)
         } else {
