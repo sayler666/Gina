@@ -18,8 +18,8 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import com.sayler666.gina.db.converter.DateConverter
 import com.sayler666.gina.db.converter.MoodConverter
-import kotlinx.coroutines.flow.Flow
 import com.sayler666.gina.mood.Mood
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 
@@ -197,13 +197,11 @@ interface DaysDao {
     )
     suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
 
-    @Transaction
-    @Query("SELECT id FROM days WHERE date > :date ORDER BY date ASC LIMIT 1")
-    suspend fun getNextDayIdAfter(date: LocalDate): Int?
+    @Query("SELECT id FROM days WHERE date > :date and id != :id ORDER BY date ASC LIMIT 1")
+    suspend fun getNextDayIdAfter(date: LocalDate, id: Int): Int?
 
-    @Transaction
-    @Query("SELECT id FROM days WHERE date < :date ORDER BY date DESC LIMIT 1")
-    suspend fun getPreviousDayIdBefore(date: LocalDate): Int?
+    @Query("SELECT id FROM days WHERE date < :date and id != :id ORDER BY date DESC LIMIT 1")
+    suspend fun getPreviousDayIdBefore(date: LocalDate, id: Int): Int?
 
     @Update
     suspend fun updateDay(day: Day): Int

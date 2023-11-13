@@ -4,8 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
+import com.sayler666.gina.dayDetails.ui.Way
+import com.sayler666.gina.dayDetails.ui.Way.NEXT
+import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
+import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +22,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,21 +45,21 @@ class DayDetailsViewModel @Inject constructor(
     private val _error = MutableSharedFlow<String?>()
     val error = _error.asSharedFlow()
 
-    private val date = MutableStateFlow<LocalDate>(LocalDate.MIN)
+    private val _day = MutableStateFlow<Day?>(null)
 
-    private val _goToDayId = MutableSharedFlow<Int?>()
+    private val _goToDayId = MutableSharedFlow<Pair<Int, Way>>()
     val goToDayId = _goToDayId.asSharedFlow()
 
     val day = getDayDetailsUseCase.getDayDetails(id).filterNotNull()
-        .onEach { day -> day.day.date?.let { date.emit(it) } }
+        .onEach { day -> day.day.let { _day.emit(it) } }
         .map(dayDetailsMapper::mapToVm)
         .stateIn(viewModelScope, WhileSubscribed(500), null)
 
     fun goToNextDay() {
         viewModelScope.launch {
-            if (date.value > LocalDate.MIN) {
-                getNextPreviousDayUseCase.getNextDayAfterDate(date.value)
-                    .onSuccess { _goToDayId.emit(it) }
+            _day.value?.let {
+                getNextPreviousDayUseCase.getNextDayAfterDate(it)
+                    .onSuccess { _goToDayId.emit(it to NEXT) }
                     .onFailure { _error.emit(it.message) }
             }
         }
@@ -64,9 +67,11 @@ class DayDetailsViewModel @Inject constructor(
 
     fun goToPreviousDay() {
         viewModelScope.launch {
-            if (date.value > LocalDate.MIN) getNextPreviousDayUseCase.getPreviousDayBeforeDate(date.value)
-                .onSuccess { _goToDayId.emit(it) }
-                .onFailure { _error.emit(it.message) }
+            _day.value?.let {
+                getNextPreviousDayUseCase.getPreviousDayBeforeDate(it)
+                    .onSuccess { _goToDayId.emit(it to PREVIOUS) }
+                    .onFailure { _error.emit(it.message) }
+            }
         }
     }
 }

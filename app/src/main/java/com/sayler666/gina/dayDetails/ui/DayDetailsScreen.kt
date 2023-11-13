@@ -75,6 +75,7 @@ import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
+import com.sayler666.gina.dayDetails.ui.Way.*
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
@@ -83,30 +84,37 @@ import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 
 data class DayDetailsScreenNavArgs(
-    val dayId: Int
+    val dayId: Int,
+    val way: Way = NONE
 )
+
+enum class Way {
+    NEXT, PREVIOUS, NONE
+}
 
 object DayDetailsTransitions : DestinationStyle.Animated {
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition()
             : EnterTransition? = when (initialState.appDestination()) {
         DayDetailsScreenDestination -> {
-            val fromDayId = initialState.arguments?.getInt(DayDetailsScreenNavArgs::dayId.name) ?: 0
-            val toDayId = targetState.arguments?.getInt(DayDetailsScreenNavArgs::dayId.name) ?: 0
+            val way = targetState.arguments?.getSerializable(
+                DayDetailsScreenNavArgs::way.name,
+                Way::class.java
+            ) ?: NONE
 
-            when {
-                fromDayId < toDayId -> slideInVerticallyWithFade(Bottom)
-                fromDayId > toDayId -> slideInVerticallyWithFade(Top)
-                else -> fadeIn(animationSpec = tween(ANIMATION_DURATION))
+            when (way) {
+                NEXT -> slideInVerticallyWithFade(Bottom)
+                PREVIOUS -> slideInVerticallyWithFade(Top)
+                NONE -> fadeIn(animationSpec = tween(ANIMATION_DURATION))
             }
         }
 
@@ -140,12 +148,12 @@ fun DayDetailsScreen(
     val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(Unit) {
-        viewModel.goToDayId.collectLatest {
-            it?.let { dayId ->
+        viewModel.goToDayId.collectLatest { (id, direction) ->
+            id.let { dayId ->
                 destinationsNavigator.navigate(
                     DayDetailsScreenDestination(
                         DayDetailsScreenNavArgs(
-                            dayId
+                            dayId, direction
                         )
                     )
                 ) {
