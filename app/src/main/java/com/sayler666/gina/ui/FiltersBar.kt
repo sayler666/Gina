@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -61,11 +59,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sayler666.core.collections.mutate
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -210,11 +208,8 @@ private fun Filters(
             sheetState = sheetState,
             onDismissRequest = { scope.launch { openBottomSheet = false } }
         ) {
-            Column(
-                modifier = Modifier.navigationBarsPadding()
-            ) {
+            Column {
                 CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(bottom = 0.dp),
                     navigationIcon = {
                         IconButton(onClick = {
                             onResetFiltersClicked()

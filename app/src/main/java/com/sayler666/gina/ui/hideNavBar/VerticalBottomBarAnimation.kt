@@ -45,14 +45,14 @@ class VerticalBottomBarAnimation(
             alpha *= 1f - fraction.value
         }
 
-        LaunchedEffect(visible) {
+        LaunchedEffect(visible, visibleColor) {
             fraction.animateTo(if (visible) 0f else 1f, animationSpec)
         }
 
         return produceState(
             initialValue = BottomBarAnimInfo(visibleColor, initialOffset, initialAlpha),
             key1 = offset,
-            key2 = color,
+            key2 = visibleColor,
             key3 = fraction.value
         ) {
             measureOffset()

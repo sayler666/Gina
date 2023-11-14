@@ -3,8 +3,6 @@ package com.sayler666.gina.settings.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
@@ -79,11 +77,8 @@ fun ImageCompressBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = { onDismiss() },
             ) {
-                Column(
-                    modifier = Modifier.navigationBarsPadding()
-                ) {
+                Column {
                     CenterAlignedTopAppBar(
-                        windowInsets = WindowInsets(bottom = 0.dp),
                         title = {
                             Text("Image optimization")
                         }, actions = {
