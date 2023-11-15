@@ -8,17 +8,13 @@ import timber.log.Timber
 import javax.inject.Inject
 
 interface DeleteDayUseCase {
-    suspend fun deleteDay(
-        dayDetails: DayDetails
-    )
+    suspend fun deleteDay(dayDetails: DayDetails)
 }
 
 class DeleteDayUseCaseImpl @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : DeleteDayUseCase {
-    override suspend fun deleteDay(
-        dayDetails: DayDetails
-    ) {
+    override suspend fun deleteDay(dayDetails: DayDetails) {
         try {
             ginaDatabaseProvider.withDaysDao {
                 deleteDay(dayDetails.day)

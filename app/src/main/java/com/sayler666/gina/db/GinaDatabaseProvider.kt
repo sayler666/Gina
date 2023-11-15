@@ -3,6 +3,7 @@ package com.sayler666.gina.db
 import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
@@ -10,22 +11,23 @@ class GinaDatabaseProvider(
     private val application: Application,
     private val databaseSettings: DatabaseSettings
 ) {
-    private var INSTANCE: GinaDatabase? = null
+    private var databaseInstance: GinaDatabase? = null
 
     suspend fun openSavedDB(): Boolean {
         val savedPath = databaseSettings.getDatabasePathFlow().first()
         savedPath?.let {
             try {
-                if (INSTANCE == null) {
+                if (databaseInstance == null) {
                     synchronized(this) {
-                        INSTANCE =
+                        databaseInstance =
                             Room.databaseBuilder(application, GinaDatabase::class.java, savedPath)
                                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
                                 .build()
+                        Timber.d("GinaDatabaseProvider: Database instance created")
                     }
                 }
             } catch (e: Exception) {
-                Timber.e(e, "Error opening DB")
+                Timber.e(e, "GinaDatabaseProvider: Error opening DB")
                 return false
             }
             return true
@@ -33,17 +35,18 @@ class GinaDatabaseProvider(
         return false
     }
 
-    suspend fun openDB(path: String): Boolean {
+    suspend fun openAndRememberDB(path: String): Boolean {
         try {
-            if (INSTANCE == null) {
+            if (databaseInstance == null) {
                 synchronized(this) {
-                    INSTANCE = Room.databaseBuilder(application, GinaDatabase::class.java, path)
-                        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-                        .build()
+                    databaseInstance =
+                        Room.databaseBuilder(application, GinaDatabase::class.java, path)
+                            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                            .build()
                 }
             }
         } catch (e: Exception) {
-            Timber.e(e, "Error opening DB")
+            Timber.e(e, "GinaDatabaseProvider: Error opening DB")
             return false
         }
         // update settings
@@ -51,11 +54,17 @@ class GinaDatabaseProvider(
         return true
     }
 
-    fun getOpenedDb(): GinaDatabase? = INSTANCE
+    fun getOpenedDb(): GinaDatabase? = databaseInstance
 }
 
 suspend fun GinaDatabaseProvider.withDaysDao(action: suspend DaysDao.() -> Unit) {
     getOpenedDb()?.daysDao()?.action()
+}
+
+suspend fun GinaDatabaseProvider.transactionWithDaysDao(action: suspend DaysDao.() -> Unit) {
+    getOpenedDb()?.withTransaction {
+        getOpenedDb()?.daysDao()?.action()
+    }
 }
 
 suspend fun <T> GinaDatabaseProvider.returnWithDaysDao(action: suspend DaysDao.() -> T): T? {

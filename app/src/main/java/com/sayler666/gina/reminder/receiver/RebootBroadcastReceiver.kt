@@ -18,8 +18,11 @@ class RebootBroadcastReceiver : BroadcastReceiver() {
     lateinit var refreshAlarmsUseCase: RefreshAlarmsUseCase
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
-    override fun onReceive(context: Context?, p1: Intent?) {
-        Timber.d("RebootBroadcastReceiver", "BOOT_COMPLETED Received")
+    override fun onReceive(context: Context?, intent: Intent?) {
+        Timber.d("RebootBroadcastReceiver", "Received")
+        intent?.action?.let { action ->
+            Timber.d("RebootBroadcastReceiver", "$action received")
+        }
         CoroutineScope(Main).launch {
             refreshAlarmsUseCase()
         }

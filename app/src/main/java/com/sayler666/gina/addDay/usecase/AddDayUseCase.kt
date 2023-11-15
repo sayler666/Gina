@@ -1,12 +1,11 @@
 package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
-import androidx.room.withTransaction
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.DayFriends
 import com.sayler666.gina.db.DaysDao
 import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.withDaysDao
+import com.sayler666.gina.db.transactionWithDaysDao
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -23,19 +22,17 @@ class AddDayUseCaseImpl @Inject constructor(
         dayDetails: DayDetails
     ) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                ginaDatabaseProvider.getOpenedDb()?.withTransaction {
-                    val dayId = addDay(dayDetails.day).toInt()
-                    attachments(dayDetails, dayId)
-                    friends(dayDetails, dayId)
-                }
+            ginaDatabaseProvider.transactionWithDaysDao {
+                val dayId = addDay(dayDetails.day).toInt()
+                addAttachments(dayDetails, dayId)
+                addFriends(dayDetails, dayId)
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
     }
 
-    private suspend fun DaysDao.attachments(
+    private suspend fun DaysDao.addAttachments(
         dayDetails: DayDetails,
         dayId: Int
     ) {
@@ -44,7 +41,7 @@ class AddDayUseCaseImpl @Inject constructor(
             .let { insertAttachments(it) }
     }
 
-    private suspend fun DaysDao.friends(
+    private suspend fun DaysDao.addFriends(
         dayDetails: DayDetails,
         dayId: Int
     ) {

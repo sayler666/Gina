@@ -31,7 +31,7 @@ class SelectDatabaseViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            if (ginaDatabaseProvider.openDB(path)) _navigateToHome.emit(JournalScreenDestination)
+            if (ginaDatabaseProvider.openAndRememberDB(path)) _navigateToHome.emit(JournalScreenDestination)
         }
     }
 }

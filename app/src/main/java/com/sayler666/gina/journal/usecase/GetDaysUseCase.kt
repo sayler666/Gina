@@ -3,13 +3,14 @@ package com.sayler666.gina.journal.usecase
 import android.database.SQLException
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.withDaysDao
+import com.sayler666.gina.mood.Mood
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import com.sayler666.gina.mood.Mood
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -24,8 +25,8 @@ class GetDaysUseCaseImpl @Inject constructor(
 ) : GetDaysUseCase {
     override fun getAllDaysFlow(): Flow<List<Day>> = flow {
         try {
-            ginaDatabaseProvider.getOpenedDb()?.let {
-                emitAll(it.daysDao().getDaysFlow())
+            ginaDatabaseProvider.withDaysDao {
+                emitAll(getDaysFlow())
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
@@ -35,10 +36,8 @@ class GetDaysUseCaseImpl @Inject constructor(
     override fun getFilteredDaysFlow(searchQuery: String, moods: List<Mood>): Flow<List<Day>> =
         flow {
             try {
-                ginaDatabaseProvider.getOpenedDb()?.let {
-                    emitAll(
-                        it.daysDao().getDaysWithFiltersFlow(searchQuery, *moods.toTypedArray())
-                    )
+                ginaDatabaseProvider.withDaysDao {
+                    emitAll(getDaysWithFiltersFlow(searchQuery, *moods.toTypedArray()))
                 }
             } catch (e: SQLException) {
                 Timber.e(e, "Database error")

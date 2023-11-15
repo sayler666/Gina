@@ -1,13 +1,12 @@
 package com.sayler666.gina.dayDetailsEdit.usecase
 
 import android.database.SQLException
-import androidx.room.withTransaction
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.DayFriends
 import com.sayler666.gina.db.DaysDao
 import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.withDaysDao
+import com.sayler666.gina.db.transactionWithDaysDao
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,19 +25,17 @@ class EditDayUseCaseImpl @Inject constructor(
         attachmentsToDelete: List<Attachment>
     ) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                ginaDatabaseProvider.getOpenedDb()?.withTransaction {
-                    updateDay(dayDetails.day)
-                    attachments(dayDetails, attachmentsToDelete)
-                    friends(dayDetails)
-                }
+            ginaDatabaseProvider.transactionWithDaysDao {
+                updateDay(dayDetails.day)
+                updateAttachments(dayDetails, attachmentsToDelete)
+                updateFriends(dayDetails)
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
     }
 
-    private suspend fun DaysDao.attachments(
+    private suspend fun DaysDao.updateAttachments(
         dayDetails: DayDetails,
         attachmentsToDelete: List<Attachment>
     ) {
@@ -50,7 +47,7 @@ class EditDayUseCaseImpl @Inject constructor(
         if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete)
     }
 
-    private suspend fun DaysDao.friends(dayDetails: DayDetails) {
+    private suspend fun DaysDao.updateFriends(dayDetails: DayDetails) {
         dayDetails.day.id?.let { dayId ->
             deleteFriendsForDay(dayDetails.day.id)
             val dayFriends = dayDetails.friends.map { friend ->

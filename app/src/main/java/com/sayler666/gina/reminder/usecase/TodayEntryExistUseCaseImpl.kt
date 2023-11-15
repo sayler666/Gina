@@ -21,6 +21,7 @@ class TodayEntryExistUseCaseImpl @Inject constructor(
 
     override suspend fun invoke(): Boolean = withContext(dispatcher) {
         try {
+            ginaDatabaseProvider.openSavedDB()
             return@withContext ginaDatabaseProvider.returnWithDaysDao {
                 val lastDay = getLastDay()
                 val lastDate = lastDay.day.date
