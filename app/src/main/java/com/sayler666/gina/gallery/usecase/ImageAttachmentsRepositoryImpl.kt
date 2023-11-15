@@ -11,6 +11,7 @@ import com.sayler666.gina.core.BuildConfig
 import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.returnWithDaysDao
+import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -45,8 +46,8 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     override fun fetchNextPage() {
         externalScope.launch {
             try {
-                ginaDatabaseProvider.getOpenedDb()?.let { db ->
-                    val thumbnails = db.daysDao().getImageAttachmentsIds(offset)
+                ginaDatabaseProvider.withDaysDao {
+                    val thumbnails = getImageAttachmentsIds(offset)
                         .mapToThumbnails().filterNotNull()
 
                     val updatedState = (attachmentsCached.value + thumbnails).distinctBy { it.id }
@@ -82,9 +83,9 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     private suspend fun createThumbnailForId(id: Int): ByteArray? = coroutineScope {
         async {
-            ginaDatabaseProvider.getOpenedDb()?.let {
-                val attachment = it.daysDao().getImage(id)
-                val image = attachment.content ?: return@async null
+            ginaDatabaseProvider.returnWithDaysDao {
+                val attachment = getImage(id)
+                val image = attachment.content ?: return@returnWithDaysDao null
                 BitmapFactory.Options().run {
                     inJustDecodeBounds = true
                     BitmapFactory.decodeByteArray(image, 0, image.size, this)

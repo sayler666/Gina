@@ -54,7 +54,7 @@ class SettingsViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            ginaDatabaseProvider.openDB(path)
+            ginaDatabaseProvider.openAndRememberDB(path)
         }
     }
 }

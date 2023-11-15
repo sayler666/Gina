@@ -2,6 +2,8 @@ package com.sayler666.gina.reminder.usecase
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import com.sayler666.gina.reminder.db.RemindersDatabaseProvider
@@ -30,7 +32,7 @@ class RemoveAllRemindersUseCase @Inject constructor(
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent =
-            PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getBroadcast(context, 0, intent, FLAG_UPDATE_CURRENT or FLAG_MUTABLE)
         Timber.d("RemoveRemindersUseCase: remove all reminders (pending intents: $pendingIntent)")
         alarmManager.cancel(pendingIntent)
     }
