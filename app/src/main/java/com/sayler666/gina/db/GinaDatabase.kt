@@ -190,6 +190,14 @@ interface DaysDao {
     )
     suspend fun getAttachmentDay(imageId: Int): AttachmentWithDay
 
+    @Transaction
+    @Query(
+        "SELECT * FROM attachments JOIN days ON attachments.days_id = days.id" +
+                " WHERE strftime('%m-%d', datetime(date/1000, 'unixepoch'))" +
+                " = strftime('%m-%d',date())"
+    )
+    fun getPreviousYearsAttachments(): Flow<List<AttachmentWithDay>>
+
     @Query(
         "SELECT attachments.attachment_id FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +

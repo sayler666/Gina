@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
@@ -45,6 +48,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -57,10 +61,14 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.NavGraphs
-import com.sayler666.gina.R.string
+import com.sayler666.gina.R
+import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
+import com.sayler666.gina.attachments.ui.PreviousYearsAttachmentThumbnail
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
+import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.journal.viewmodel.DayEntity
@@ -71,11 +79,12 @@ import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
+import com.sayler666.gina.journal.viewmodel.PreviousYearsAttachment
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
@@ -135,7 +144,8 @@ fun JournalScreen(
                 state = state,
                 onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
                 onScrollStarted = bottomBarViewModel::hide,
-                onScrollEnded = bottomBarViewModel::show
+                onScrollEnded = bottomBarViewModel::show,
+                onOpenAttachment = bottomBarViewModel::hide
             )
         })
 }
@@ -147,21 +157,23 @@ private fun Journal(
     state: JournalState,
     onPermissionClick: () -> Unit,
     onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit
+    onScrollEnded: () -> Unit,
+    onOpenAttachment: () -> Unit
 ) {
     Column(
         modifier
             .fillMaxSize()
             .imePadding()
-
     ) {
         when (state) {
             is DaysState -> Days(
                 days = state.days,
+                attachments = state.previousYearsAttachments,
                 searchQuery = state.searchQuery,
                 destinationsNavigator = destinationsNavigator,
                 onScrollStarted = onScrollStarted,
-                onScrollEnded = onScrollEnded
+                onScrollEnded = onScrollEnded,
+                onOpenAttachment = onOpenAttachment
             )
 
             EmptySearchState -> EmptyResult(
@@ -216,10 +228,12 @@ fun Loading() {
 @OptIn(ExperimentalFoundationApi::class)
 private fun Days(
     days: List<DayEntity>,
+    attachments: List<PreviousYearsAttachment>,
     searchQuery: String? = null,
     destinationsNavigator: DestinationsNavigator,
     onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit
+    onScrollEnded: () -> Unit,
+    onOpenAttachment: () -> Unit
 ) {
     val grouped = days.groupBy { it.header }
     val listState = rememberLazyListState()
@@ -237,6 +251,13 @@ private fun Days(
         Modifier.nestedScroll(nestedScrollConnection),
         state = listState
     ) {
+        item {
+            PreviousYearsAttachments(
+                attachments,
+                destinationsNavigator,
+                onOpenAttachment = onOpenAttachment
+            )
+        }
         grouped.forEach { (header, days) ->
             stickyHeader {
                 DateHeader(header)
@@ -264,6 +285,41 @@ private fun Days(
             )
         }
     }
+}
+
+@Composable
+private fun PreviousYearsAttachments(
+    attachments: List<PreviousYearsAttachment>,
+    destinationsNavigator: DestinationsNavigator,
+    onOpenAttachment: () -> Unit
+) {
+    val resources = LocalContext.current.resources
+    LazyRow(contentPadding = PaddingValues(start = 14.dp, end = 14.dp), content = {
+        items(attachments) { attachment ->
+            if (attachment.attachment is AttachmentEntity.Image)
+                PreviousYearsAttachmentThumbnail(
+                    attachment.attachment,
+                    size = 120.dp,
+                    text = if (attachment.yearsAgo > 0) resources.getQuantityString(
+                        R.plurals.years_ago_label,
+                        attachment.yearsAgo,
+                        attachment.yearsAgo
+                    ) else resources.getString(R.string.today),
+                    onClick = {
+                        onOpenAttachment()
+                        attachment.attachment.id?.let {
+                            destinationsNavigator.navigate(
+                                ImagePreviewScreenDestination(
+                                    ImagePreviewScreenNavArgs(
+                                        it,
+                                        allowNavigationToDayDetails = true
+                                    )
+                                )
+                            )
+                        }
+                    })
+        }
+    })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -348,7 +404,7 @@ fun PermissionNeeded(
         ) {
             Text(
                 style = MaterialTheme.typography.labelLarge,
-                text = stringResource(string.select_database_grant_permission)
+                text = stringResource(R.string.select_database_grant_permission)
             )
         }
     }
