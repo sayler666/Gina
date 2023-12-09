@@ -5,19 +5,26 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.html.getTextWithoutHtml
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
+import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
+import com.sayler666.gina.db.AttachmentWithDay
 import com.sayler666.gina.db.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.mood.Mood
+import java.time.LocalDate
 import javax.inject.Inject
 
-class DaysMapper @Inject constructor() {
+class DaysMapper @Inject constructor(
+    private val attachmentMapper: AttachmentMapper
+) {
 
     suspend fun toJournalState(
         days: List<Day>,
         searchQuery: String,
-        moods: List<Mood>
+        moods: List<Mood>,
+        previousYearsAttachments: List<AttachmentWithDay>
     ): JournalState {
 
         val daysResult = days.pmap {
@@ -48,7 +55,12 @@ class DaysMapper @Inject constructor() {
                 Mood.entries
             )) -> EmptySearchState
 
-            daysResult.isNotEmpty() -> DaysState(daysResult, searchQuery)
+            daysResult.isNotEmpty() -> DaysState(
+                days = daysResult,
+                searchQuery = searchQuery,
+                previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments()
+            )
+
             else -> EmptyState
         }
     }
@@ -75,18 +87,32 @@ class DaysMapper @Inject constructor() {
     companion object {
         private const val shortContentMaxLength = 120
     }
+
+    private fun List<AttachmentWithDay>.toPreviousYearsAttachments(): List<PreviousYearsAttachment> {
+        val now = LocalDate.now()
+        return sortedByDescending { it.day.date }
+            .mapNotNull { attachmentWithDay ->
+                attachmentWithDay.day.date?.let {
+                    val yearsAgo = now.minusYears(it.year.toLong()).year
+                    val attachmentEntity =
+                        attachmentMapper.mapToAttachmentEntity(attachmentWithDay.attachment)
+                    PreviousYearsAttachment(attachmentEntity, yearsAgo)
+                }
+            }
+    }
 }
 
 sealed class JournalState {
-    object LoadingState : JournalState()
-    object EmptyState : JournalState()
-    object PermissionNeededState : JournalState()
+    data object LoadingState : JournalState()
+    data object EmptyState : JournalState()
+    data object PermissionNeededState : JournalState()
     data class DaysState(
         val days: List<DayEntity> = emptyList(),
-        val searchQuery: String? = null
+        val searchQuery: String? = null,
+        val previousYearsAttachments: List<PreviousYearsAttachment> = emptyList()
     ) : JournalState()
 
-    object EmptySearchState : JournalState()
+    data object EmptySearchState : JournalState()
 }
 
 data class DayEntity(
@@ -97,4 +123,9 @@ data class DayEntity(
     val header: String,
     val shortContent: String,
     val mood: Mood? = null
+)
+
+data class PreviousYearsAttachment(
+    val attachment: AttachmentEntity,
+    val yearsAgo: Int
 )

@@ -26,6 +26,8 @@ import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepositoryImpl
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
+import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
+import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCaseImpl
 import com.sayler666.gina.reminder.usecase.TodayEntryExistUseCase
 import com.sayler666.gina.reminder.usecase.TodayEntryExistUseCaseImpl
 import dagger.Binds
@@ -77,5 +79,8 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun getTodayEntryExists(useCase: TodayEntryExistUseCaseImpl): TodayEntryExistUseCase
+
+    @Binds
+    abstract fun getPreviousYearsAttachmentsUseCase(useCase: PreviousYearsAttachmentsUseCaseImpl): PreviousYearsAttachmentsUseCase
 
 }

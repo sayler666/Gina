@@ -3,10 +3,13 @@ package com.sayler666.gina.journal.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.gina.db.AttachmentWithDay
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
+import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
+import com.sayler666.gina.mood.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,15 +22,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class JournalViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
-    private val daysMapper: DaysMapper
+    private val daysMapper: DaysMapper,
+    private val previousYearsAttachmentsUseCase: PreviousYearsAttachmentsUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -47,19 +49,35 @@ class JournalViewModel @Inject constructor(
     )
     val state: StateFlow<JournalState> = _state.asStateFlow()
 
+    private val _attachments = MutableStateFlow<List<AttachmentWithDay>>(emptyList())
+
     init {
         initDb()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun initDb() {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
-            combine(_moodFilters, _searchQuery) { moods, search ->
-                moods to search
-            }.flatMapLatest { (moods, search) ->
+            previousYearsAttachmentsUseCase().collect { attachments ->
+                _attachments.value = attachments
+            }
+        }
+
+        viewModelScope.launch {
+            combine(_moodFilters, _searchQuery, _attachments) { moods, search, attachments ->
+                Triple(search, moods, attachments)
+            }.flatMapLatest { triple ->
                 getDaysUseCase
-                    .getFilteredDaysFlow(search, moods)
-                    .map { daysMapper.toJournalState(it, search, moods) }
+                    .getFilteredDaysFlow(triple.first, triple.second)
+                    .map {
+                        daysMapper.toJournalState(
+                            it,
+                            triple.first,
+                            triple.second,
+                            triple.third
+                        )
+                    }
             }.collect(_state::tryEmit)
         }
     }

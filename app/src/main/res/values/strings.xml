@@ -14,4 +14,10 @@
     <string name="theme_dynamic">Dynamic</string>
     <string name="theme_legacy">Legacy</string>
 
+    <string name="today">Today</string>
+    <plurals name="years_ago_label">
+        <item quantity="one">Last year</item>
+        <item quantity="other">%1$d years ago</item>
+    </plurals>
+
 </resources>

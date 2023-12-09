@@ -86,8 +86,6 @@ import com.sayler666.gina.insights.viewmodel.MoodLevel.Low
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Neutral
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Superb
 import com.sayler666.gina.insights.viewmodel.MoodLevel.Zero
-import com.sayler666.gina.ui.EmptyResult
-import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.mood.ui.awesomeColor
 import com.sayler666.gina.mood.ui.badColor
@@ -96,6 +94,8 @@ import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
+import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.FiltersBar
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -143,7 +143,10 @@ fun InsightsScreen(
             )
         },
         content = { padding ->
-            Insights(Modifier.padding(padding), state)
+            Insights(
+                Modifier.padding(top = padding.calculateTopPadding()),
+                state
+            )
         })
 }
 
