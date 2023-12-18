@@ -5,9 +5,9 @@ import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
-import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DayDetails
-import com.sayler666.gina.db.FriendWithCount
+import com.sayler666.gina.db.entity.Attachment
+import com.sayler666.gina.db.entity.DayDetails
+import com.sayler666.gina.db.entity.FriendWithCount
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.mood.Mood

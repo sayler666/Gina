@@ -1,7 +1,7 @@
 package com.sayler666.gina.friends.viewmodel
 
-import com.sayler666.gina.db.Friend
-import com.sayler666.gina.db.FriendWithCount
+import com.sayler666.gina.db.entity.Friend
+import com.sayler666.gina.db.entity.FriendWithCount
 import javax.inject.Inject
 
 class FriendsMapper @Inject constructor() {
@@ -17,6 +17,7 @@ class FriendsMapper @Inject constructor() {
                 mapToFriend(f)
                     .copy(selected = friendsIds.contains(f.friendId))
             }
+
             false -> dayFriends.map { f ->
                 mapToFriend(f)
                     .copy(selected = true)

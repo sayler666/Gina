@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
-import com.sayler666.gina.db.Friend
+import com.sayler666.gina.db.entity.Friend
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

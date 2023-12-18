@@ -7,8 +7,8 @@ import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
-import com.sayler666.gina.db.AttachmentWithDay
-import com.sayler666.gina.db.Day
+import com.sayler666.gina.db.entity.AttachmentWithDay
+import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState

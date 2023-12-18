@@ -1,7 +1,7 @@
 package com.sayler666.gina.attachments.viewmodel
 
 import com.sayler666.core.file.isImageMimeType
-import com.sayler666.gina.db.Attachment
+import com.sayler666.gina.db.entity.Attachment
 import java.util.Locale
 import javax.inject.Inject
 

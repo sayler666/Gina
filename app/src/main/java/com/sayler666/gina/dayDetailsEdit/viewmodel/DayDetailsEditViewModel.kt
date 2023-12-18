@@ -11,13 +11,14 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
-import com.sayler666.gina.db.Attachment
-import com.sayler666.gina.db.DayDetails
-import com.sayler666.gina.db.Friend
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.Attachment
+import com.sayler666.gina.db.entity.DayDetails
+import com.sayler666.gina.db.entity.Friend
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -33,7 +34,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject

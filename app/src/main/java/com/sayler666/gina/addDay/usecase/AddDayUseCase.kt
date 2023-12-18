@@ -1,10 +1,10 @@
 package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.DayDetails
-import com.sayler666.gina.db.DayFriends
-import com.sayler666.gina.db.DaysDao
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.dao.DaysDao
+import com.sayler666.gina.db.entity.DayDetails
+import com.sayler666.gina.db.entity.DayFriends
 import com.sayler666.gina.db.transactionWithDaysDao
 import timber.log.Timber
 import javax.inject.Inject

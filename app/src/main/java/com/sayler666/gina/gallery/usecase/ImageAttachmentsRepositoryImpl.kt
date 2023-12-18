@@ -8,8 +8,8 @@ import coil.decode.DecodeUtils.calculateInSampleSize
 import coil.size.Scale.FILL
 import com.sayler666.core.collections.pmap
 import com.sayler666.gina.core.BuildConfig
-import com.sayler666.gina.db.Attachment
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.Attachment
 import com.sayler666.gina.db.returnWithDaysDao
 import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineScope

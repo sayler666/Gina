@@ -9,8 +9,8 @@ import com.sayler666.gina.dayDetails.ui.Way.NEXT
 import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
-import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
