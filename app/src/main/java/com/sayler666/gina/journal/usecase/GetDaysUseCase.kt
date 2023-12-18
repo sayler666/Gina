@@ -1,8 +1,8 @@
 package com.sayler666.gina.journal.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.Day
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.db.withDaysDao
 import com.sayler666.gina.mood.Mood
 import kotlinx.coroutines.CoroutineDispatcher

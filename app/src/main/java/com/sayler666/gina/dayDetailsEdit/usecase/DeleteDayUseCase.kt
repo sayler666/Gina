@@ -1,8 +1,8 @@
 package com.sayler666.gina.dayDetailsEdit.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.DayDetails
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.DayDetails
 import com.sayler666.gina.db.withDaysDao
 import timber.log.Timber
 import javax.inject.Inject

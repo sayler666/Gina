@@ -3,8 +3,8 @@ package com.sayler666.gina.journal.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.AttachmentWithDay
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.entity.AttachmentWithDay
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
