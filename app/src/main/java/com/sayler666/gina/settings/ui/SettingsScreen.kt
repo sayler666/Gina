@@ -1,6 +1,7 @@
 package com.sayler666.gina.settings.ui
 
 import android.Manifest
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Column
@@ -21,8 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +45,7 @@ import com.sayler666.gina.reminder.viewmodel.ReminderEntity
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.settings.viewmodel.ThemeItem
 import com.sayler666.gina.ui.NavigationBarColor
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @RootNavGraph
@@ -55,13 +59,23 @@ fun SettingsScreen(
 
     val theme by vm.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
+    val context = LocalContext.current
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
     val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()
     val reminder: ReminderEntity by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
+    val dbCardLoader: Boolean by viewModel.showDbCardLoader.collectAsStateWithLifecycle()
 
     val notificationPermissionState =
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+
+    LaunchedEffect(Unit) {
+        viewModel.toastMessage.collectLatest {
+            it?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -84,7 +98,11 @@ fun SettingsScreen(
                     databasePath,
                     onNewDbFileSelected = { path ->
                         viewModel.openDatabase(path)
-                    }
+                    },
+                    onLongPress = {
+                        viewModel.vacuumDatabase()
+                    },
+                    loader = dbCardLoader
                 )
                 FriendsSettingsSections(destinationsNavigator)
                 Text(
@@ -129,7 +147,9 @@ fun SettingsScreen(
 @Composable
 private fun DatabaseSettingsSection(
     databasePath: String?,
-    onNewDbFileSelected: (String) -> Unit
+    onNewDbFileSelected: (String) -> Unit,
+    onLongPress: () -> Unit,
+    loader: Boolean,
 ) {
     val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
         it.data?.data?.path?.let { path -> onNewDbFileSelected(path) }
@@ -138,9 +158,9 @@ private fun DatabaseSettingsSection(
         header = "Database file",
         body = databasePath ?: "",
         icon = Filled.Book,
-        onClick = {
-            databaseResult.launch(Files.selectFileIntent())
-        }
+        onClick = { databaseResult.launch(Files.selectFileIntent()) },
+        onLongClick = onLongPress,
+        loader = loader
     )
 }
 

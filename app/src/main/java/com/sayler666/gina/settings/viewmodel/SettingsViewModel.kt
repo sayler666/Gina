@@ -3,17 +3,23 @@ package com.sayler666.gina.settings.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.db.withRawDao
 import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
 import com.sayler666.gina.settings.Settings
 import com.sayler666.gina.settings.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.measureTime
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -29,8 +35,14 @@ class SettingsViewModel @Inject constructor(
         with(remindersViewModel) { initialize() }
     }
 
-    val imageOptimizationVM : ImageOptimizationViewModel = imageOptimizationViewModel
-    val remindersVM : RemindersViewModel = remindersViewModel
+    val imageOptimizationVM: ImageOptimizationViewModel = imageOptimizationViewModel
+    val remindersVM: RemindersViewModel = remindersViewModel
+
+    private val _showDbCardLoader: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val showDbCardLoader: StateFlow<Boolean> = _showDbCardLoader.asStateFlow()
+
+    private val _toastMessage = MutableSharedFlow<String?>()
+    val toastMessage = _toastMessage.asSharedFlow()
 
     private val _databasePath: MutableStateFlow<String?> = MutableStateFlow(null)
     val databasePath: StateFlow<String?> = setting.getDatabasePathFlow().map {
@@ -55,6 +67,24 @@ class SettingsViewModel @Inject constructor(
     fun openDatabase(path: String) {
         viewModelScope.launch {
             ginaDatabaseProvider.openAndRememberDB(path)
+        }
+    }
+
+    fun vacuumDatabase() {
+        viewModelScope.launch {
+            Timber.d("Vacuum started")
+            _showDbCardLoader.value = true
+            val time = measureTime {
+                try {
+                    ginaDatabaseProvider.withRawDao { vacuum() }
+                    _toastMessage.emit("Database vacuumed!")
+                } catch (e: Throwable) {
+                    _toastMessage.emit("Error while vacuuming!")
+                    Timber.e(e)
+                }
+            }
+            _showDbCardLoader.value = false
+            Timber.d("Vacuum ended in: $time")
         }
     }
 }
