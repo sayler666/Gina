@@ -65,7 +65,7 @@ fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
         val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
 
         if (rememberedDatabase != null) {
-            StatusBarColor(theme = theme)
+            StatusBarColor(color = colorScheme.surface, theme = theme)
             val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
             else JournalScreenDestination
 
