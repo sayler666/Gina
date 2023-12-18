@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
+import com.sayler666.gina.db.dao.DaysDao
+import com.sayler666.gina.db.dao.RawDao
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
@@ -69,4 +71,8 @@ suspend fun GinaDatabaseProvider.transactionWithDaysDao(action: suspend DaysDao.
 
 suspend fun <T> GinaDatabaseProvider.returnWithDaysDao(action: suspend DaysDao.() -> T): T? {
     return getOpenedDb()?.daysDao()?.action()
+}
+
+suspend fun GinaDatabaseProvider.withRawDao(action: suspend RawDao.() -> Unit) {
+    getOpenedDb()?.rawDao()?.action()
 }
