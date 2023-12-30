@@ -95,6 +95,18 @@ interface DaysDao {
     )
     fun getFriendsWithCountFlow(): Flow<List<FriendWithCount>>
 
+    @Query(
+        "SELECT friends.friend_id as friendId, friends.name as friendName," +
+                "friends.avatar as friendAvatar, " +
+                "COUNT(daysFriends.friend_id) as daysCount FROM friends " +
+                "LEFT JOIN daysFriends ON friends.friend_id = daysFriends.friend_id " +
+                "LEFT JOIN days ON days.id = daysFriends.id " +
+                "WHERE content LIKE '%' || :searchQuery || '%' " +
+                "AND mood IN (:moods)" +
+                "GROUP BY friends.friend_id ORDER BY friendId DESC"
+    )
+    suspend fun getFriendsWithCount(searchQuery: String?, vararg moods: Mood): List<FriendWithCount>
+
     @Query("DELETE FROM daysFriends WHERE id = :id")
     suspend fun deleteFriendsForDay(id: Int): Int
 

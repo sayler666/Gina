@@ -10,25 +10,33 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EmptyResult(header: String, body: String) {
+fun EmptyResult(
+    header: String,
+    body: String,
+    headerStyle: TextStyle = MaterialTheme.typography.headlineMedium,
+    bodyStyle: TextStyle = MaterialTheme.typography.bodyMedium
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 24.dp)
+            .padding(top = 16.dp)
             .imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = header,
-            style = MaterialTheme.typography.headlineMedium
+            style = headerStyle
         )
         Text(
             text = body,
-            style = MaterialTheme.typography.bodyMedium
+            style = bodyStyle
         )
     }
 }
