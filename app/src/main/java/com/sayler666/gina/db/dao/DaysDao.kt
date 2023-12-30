@@ -50,7 +50,7 @@ interface DaysDao {
     @Transaction
     @Query(
         "SELECT * FROM attachments JOIN days ON attachments.days_id = days.id" +
-                " WHERE strftime('%m-%d', datetime(date/1000, 'unixepoch'))" +
+                " WHERE strftime('%m-%d', datetime(date/1000, 'unixepoch', 'localtime'))" +
                 " = strftime('%m-%d',date())"
     )
     fun getPreviousYearsAttachments(): Flow<List<AttachmentWithDay>>

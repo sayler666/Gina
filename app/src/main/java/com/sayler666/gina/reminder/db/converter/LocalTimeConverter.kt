@@ -11,7 +11,7 @@ class LocalTimeConverter {
         LocalTime.parse(time, DateTimeFormatter.ISO_LOCAL_TIME)
 
     @TypeConverter
-    fun fromMoodToInt(localTime: LocalTime): String =
+    fun localTimeToString(localTime: LocalTime): String =
         DateTimeFormatter.ISO_LOCAL_TIME.format(localTime)
 
 }

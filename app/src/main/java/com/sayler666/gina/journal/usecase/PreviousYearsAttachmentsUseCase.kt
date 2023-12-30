@@ -7,6 +7,7 @@ import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
@@ -23,9 +24,7 @@ class PreviousYearsAttachmentsUseCaseImpl @Inject constructor(
     override operator fun invoke(): Flow<List<AttachmentWithDay>> = flow {
         try {
             ginaDatabaseProvider.withDaysDao {
-                getPreviousYearsAttachments().collect {
-                    emit(it)
-                }
+                emitAll(getPreviousYearsAttachments())
             }
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
