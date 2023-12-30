@@ -3,7 +3,9 @@ package com.sayler666.gina.friends.usecase
 import android.database.SQLException
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.entity.FriendWithCount
+import com.sayler666.gina.db.returnWithDaysDao
 import com.sayler666.gina.db.withDaysDao
+import com.sayler666.gina.mood.Mood
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +17,10 @@ import javax.inject.Inject
 
 interface GetAllFriendsUseCase {
     fun getAllFriendsWithCount(): Flow<List<FriendWithCount>>
+    suspend fun getAllFriendsWithCount(
+        searchQuery: String,
+        moods: List<Mood>
+    ): List<FriendWithCount>
 }
 
 class GetAllFriendsUseCaseImpl @Inject constructor(
@@ -30,4 +36,16 @@ class GetAllFriendsUseCaseImpl @Inject constructor(
             Timber.e(e, "Database error")
         }
     }.flowOn(dispatcher)
+
+    override suspend fun getAllFriendsWithCount(
+        searchQuery: String,
+        moods: List<Mood>
+    ): List<FriendWithCount> = try {
+        ginaDatabaseProvider.returnWithDaysDao {
+            getFriendsWithCount(searchQuery, *moods.toTypedArray())
+        } ?: emptyList()
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        emptyList()
+    }
 }

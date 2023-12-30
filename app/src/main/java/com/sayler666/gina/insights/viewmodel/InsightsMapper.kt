@@ -4,6 +4,7 @@ import com.sayler666.core.collections.mutate
 import com.sayler666.core.collections.pmap
 import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.gina.db.entity.Day
+import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
@@ -23,7 +24,8 @@ class InsightsMapper @Inject constructor() {
     suspend fun toInsightsState(
         days: List<Day>,
         searchQuery: String,
-        moods: List<Mood>
+        moods: List<Mood>,
+        friends: List<FriendEntity>
     ): InsightState = when {
         days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries))
         -> EmptyState
@@ -38,7 +40,8 @@ class InsightsMapper @Inject constructor() {
             totalMoods = days.count { it.mood != EMPTY },
             contributionHeatMapData = generateContributionHeatMapData(days),
             moodHeatMapData = generateMoodHeatMapData(days),
-            moodChartData = generateMoodChartData(days)
+            moodChartData = generateMoodChartData(days),
+            friendsStats = friends
         )
 
         else -> EmptyState
@@ -178,8 +181,8 @@ class InsightsMapper @Inject constructor() {
 }
 
 sealed class InsightState {
-    object LoadingState : InsightState()
-    object EmptyState : InsightState()
+    data object LoadingState : InsightState()
+    data object EmptyState : InsightState()
     data class DataState(
         val totalEntries: Int,
         val currentStreak: Int,
@@ -188,10 +191,11 @@ sealed class InsightState {
         val contributionHeatMapData: Map<LocalDate, ContributionLevel>,
         val moodHeatMapData: Map<LocalDate, MoodLevel>,
         val moodChartData: List<MoodChartData>,
-        val searchQuery: String? = null
+        val searchQuery: String? = null,
+        val friendsStats: List<FriendEntity>
     ) : InsightState()
 
-    object EmptySearchState : InsightState()
+    data object EmptySearchState : InsightState()
 }
 
 data class MoodChartData(

@@ -3,12 +3,16 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
+import com.sayler666.gina.mood.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -17,7 +21,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -25,7 +28,9 @@ import javax.inject.Inject
 class InsightsViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
-    private val insightsMapper: InsightsMapper
+    private val insightsMapper: InsightsMapper,
+    private val getAllFriendsUseCase: GetAllFriendsUseCase,
+    private val friendsMapper: FriendsMapper,
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -36,12 +41,12 @@ class InsightsViewModel @Inject constructor(
         moods.size != Mood.entries.size
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(500),
+        WhileSubscribed(500),
         false
     )
 
     private val _state = MutableStateFlow<InsightState>(LoadingState)
-    val state = _state
+    val state: StateFlow<InsightState> = _state
 
     init {
         initDb()
@@ -50,12 +55,28 @@ class InsightsViewModel @Inject constructor(
     private fun initDb() {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
-            combine(_moodFilters, _searchQuery) { moods, search ->
+            combine(
+                _moodFilters,
+                _searchQuery
+            ) { moods, search ->
                 moods to search
             }.flatMapLatest { (moods, search) ->
+                val friendsDeferred = async {
+                    getAllFriendsUseCase
+                        .getAllFriendsWithCount(search, moods)
+                        .let { friendsMapper.mapToFriends(it) }
+                }
+
                 getDaysUseCase
                     .getFilteredDaysFlow(search, moods)
-                    .map { insightsMapper.toInsightsState(it, search, moods) }
+                    .map {
+                        insightsMapper.toInsightsState(
+                            it,
+                            search,
+                            moods,
+                            friendsDeferred.await()
+                        )
+                    }
             }.collect(_state::tryEmit)
         }
     }
