@@ -19,6 +19,8 @@ import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.quotes.QuotesRepository
+import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
+import com.sayler666.gina.reminder.usecase.NotificationUseCase
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -47,7 +49,8 @@ class AddDayViewModel @Inject constructor(
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
     private val imageOptimization: ImageOptimization,
-    private val imageOptimizationViewModel: ImageOptimizationViewModel
+    private val imageOptimizationViewModel: ImageOptimizationViewModel,
+    private val notificationUseCase: NotificationUseCase
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
     init {
@@ -178,6 +181,9 @@ class AddDayViewModel @Inject constructor(
     }
 
     fun saveChanges() {
+        // hide reminder notification if shown
+        notificationUseCase.hideNotificationById(REMINDER_NOTIFICATION_ID)
+
         _tempDay.value?.let {
             viewModelScope.launch {
                 addDayUseCase.addDay(it)
