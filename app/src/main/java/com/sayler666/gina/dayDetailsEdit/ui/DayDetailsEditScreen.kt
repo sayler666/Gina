@@ -67,6 +67,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.navOptions
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -86,6 +87,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
+import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
@@ -142,6 +144,18 @@ fun DayDetailsEditScreen(
         }
     }
 
+    val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
+    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
+    val showDatePickerPopup = remember { mutableStateOf(false) }
+
+    fun onBackPress() {
+        handleBackPress(
+            changesExist,
+            showDiscardConfirmationDialog,
+            navController
+        )
+    }
+
     LaunchedEffect(Unit) {
         viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
     }
@@ -156,18 +170,10 @@ fun DayDetailsEditScreen(
         onImageCompressionToggled = viewModel::toggleImageCompression
     )
 
-    val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
-    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
-
-    val showDatePickerPopup = remember { mutableStateOf(false) }
-
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
     val showFormatRow = remember { mutableStateOf(false) }
 
-    fun onBackPress() {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
-    }
     BackHandler(onBack = ::onBackPress)
 
     Scaffold(

@@ -35,6 +35,7 @@ import com.ramcosta.composedestinations.navigation.dependency
 import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
+import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.CalendarScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.GalleryScreenDestination
@@ -59,7 +60,10 @@ import com.sayler666.gina.ui.theme.GinaTheme
     ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class,
 )
 @Composable
-fun GinaApp(vm: GinaMainViewModel, activity: ViewModelStoreOwner) {
+fun GinaApp(
+    vm: GinaMainViewModel,
+    activity: ViewModelStoreOwner
+) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     GinaTheme(theme) {
         val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
