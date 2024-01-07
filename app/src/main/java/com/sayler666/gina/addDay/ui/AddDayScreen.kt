@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -45,6 +46,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
+import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.NavigationBarColor
@@ -56,16 +58,18 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
     val date: LocalDate? = null
 )
 
+const val ADD_DAY_URL = "gina://add_day"
+
 @RootNavGraph
 @Destination(
-    navArgsDelegate = AddDayScreenNavArgs::class
+    navArgsDelegate = AddDayScreenNavArgs::class,
+    deepLinks = [DeepLink(uriPattern = ADD_DAY_URL)]
 )
 @Composable
 fun AddDayScreen(
@@ -114,7 +118,11 @@ fun AddDayScreen(
     val showFormatRow = remember { mutableStateOf(false) }
 
     fun onBackPress() {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, navController)
+        handleBackPress(
+            changesExist,
+            showDiscardConfirmationDialog,
+            navController
+        )
     }
     BackHandler(onBack = ::onBackPress)
     Scaffold(
@@ -238,7 +246,10 @@ private fun BottomBar(
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
-                Attachments(onClick = addAttachmentAction, onLongClick = addAttachmentLongClickAction)
+                Attachments(
+                    onClick = addAttachmentAction,
+                    onLongClick = addAttachmentLongClickAction
+                )
 
                 Friends(
                     currentDay.friendsSelected,

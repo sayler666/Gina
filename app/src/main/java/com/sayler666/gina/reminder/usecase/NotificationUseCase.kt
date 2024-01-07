@@ -4,18 +4,14 @@ import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.BitmapFactory.decodeResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.sayler666.gina.R
-import com.sayler666.gina.ginaApp.MainActivity
+import com.sayler666.gina.ginaApp.navigation.addDayDestinationPendingIntent
 import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDERS_CHANNEL_ID
 import timber.log.Timber
 import javax.inject.Inject
@@ -82,12 +78,7 @@ class NotificationUseCaseImpl @Inject constructor(
     }
 
     private fun createMainActivityIntent(context: Context): PendingIntent? =
-        PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java).apply { flags = FLAG_ACTIVITY_SINGLE_TOP },
-            FLAG_UPDATE_CURRENT or FLAG_MUTABLE
-        )
+        addDayDestinationPendingIntent(context)
 
     override fun hideNotificationById(notificationId: Int) {
         val notificationManager = NotificationManagerCompat.from(context)

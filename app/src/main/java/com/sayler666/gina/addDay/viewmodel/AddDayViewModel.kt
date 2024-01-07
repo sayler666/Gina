@@ -10,6 +10,7 @@ import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.entity.Attachment
 import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.db.entity.DayDetails
@@ -45,6 +46,7 @@ class AddDayViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getAllFriendsUseCase: GetAllFriendsUseCase,
     quotesRepository: QuotesRepository,
+    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
     private val addDayUseCase: AddDayUseCase,
@@ -54,6 +56,7 @@ class AddDayViewModel @Inject constructor(
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
     init {
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         with(imageOptimizationViewModel) { initialize() }
     }
 
