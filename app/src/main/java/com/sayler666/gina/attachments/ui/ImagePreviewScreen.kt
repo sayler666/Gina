@@ -121,7 +121,7 @@ fun ImagePreviewScreen(
     val imagePreview: ImagePreviewWithDayEntity? by viewModel.attachmentWithDay.collectAsStateWithLifecycle(
         null
     )
-    var barsVisible by rememberSaveable { mutableStateOf(false) }
+    var barsVisible by rememberSaveable { mutableStateOf(true) }
 
     ConstraintLayout(
         modifier = Modifier.fillMaxSize()
