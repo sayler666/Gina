@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -250,12 +251,13 @@ fun DayDetailsScreen(
 private fun Text(it: DayDetailsEntity) {
     val richTextState = rememberRichTextState()
     richTextState.setTextOrHtml(it.content)
-
-    RichText(
-        state = richTextState, modifier = Modifier
-            .padding(16.dp, 8.dp)
-            .fillMaxWidth()
-    )
+    SelectionContainer {
+        RichText(
+            state = richTextState, modifier = Modifier
+                .padding(16.dp, 8.dp)
+                .fillMaxWidth()
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
