@@ -2,7 +2,7 @@ package com.sayler666.gina.settings.viewmodel
 
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.core.viewmodel.ViewModelSlice
-import com.sayler666.gina.settings.Settings
+import com.sayler666.gina.settings.SettingsStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +22,7 @@ interface ImageOptimizationViewModel : ViewModelSlice {
 }
 
 class ImageOptimizationViewModelImpl @Inject constructor(
-    private val setting: Settings,
+    private val setting: SettingsStorage,
     override var sliceScope: CoroutineScope
 ) : ImageOptimizationViewModel {
 

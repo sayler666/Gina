@@ -20,8 +20,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,9 +57,11 @@ import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
+import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -103,6 +107,7 @@ fun AddDayScreen(
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
     val quote: Quote? by viewModel.quote.collectAsStateWithLifecycle(null)
+    val workingCopy: String? by viewModel.workingCopy.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(Unit) {
         viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
@@ -116,6 +121,18 @@ fun AddDayScreen(
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
     val showFormatRow = remember { mutableStateOf(false) }
+
+    var content by remember {
+        mutableStateOf(TextFieldValue(dayTemp?.content ?: ""))
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.reinitializeText.collectLatest {
+            dayTemp?.content?.let {
+                content = TextFieldValue(it)
+            }
+        }
+    }
 
     fun onBackPress() {
         handleBackPress(
@@ -134,6 +151,10 @@ fun AddDayScreen(
                     onNavigateBackClicked = ::onBackPress,
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
+                    },
+                    hasWorkingCopy = workingCopy?.isNotBlank() ?: false,
+                    onRestoreWorkingCopyClicked = {
+                        viewModel.restoreWorkingCopy()
                     }
                 )
             }
@@ -191,8 +212,8 @@ fun AddDayScreen(
                     }
 
                     RichTextEditor(
-                        richTextState,
-                        text = day.content,
+                        textFieldValue = content,
+                        richTextState = richTextState,
                         autoFocus = autofocusOnContentText.value,
                         quote = quote,
                         onContentChanged = { content ->

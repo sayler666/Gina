@@ -11,12 +11,12 @@ import timber.log.Timber
 
 class GinaDatabaseProvider(
     private val application: Application,
-    private val databaseSettings: DatabaseSettings
+    private val databaseSettingsStorage: DatabaseSettingsStorage
 ) {
     private var databaseInstance: GinaDatabase? = null
 
     suspend fun openSavedDB(): Boolean {
-        val savedPath = databaseSettings.getDatabasePathFlow().first()
+        val savedPath = databaseSettingsStorage.getDatabasePathFlow().first()
         savedPath?.let {
             try {
                 if (databaseInstance == null) {
@@ -52,7 +52,7 @@ class GinaDatabaseProvider(
             return false
         }
         // update settings
-        databaseSettings.saveDatabasePath(path)
+        databaseSettingsStorage.saveDatabasePath(path)
         return true
     }
 

@@ -23,6 +23,7 @@ import com.sayler666.gina.quotes.QuotesRepository
 import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
 import com.sayler666.gina.reminder.usecase.NotificationUseCase
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
+import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +53,8 @@ class AddDayViewModel @Inject constructor(
     private val addDayUseCase: AddDayUseCase,
     private val imageOptimization: ImageOptimization,
     private val imageOptimizationViewModel: ImageOptimizationViewModel,
-    private val notificationUseCase: NotificationUseCase
+    private val notificationUseCase: NotificationUseCase,
+    private val workingCopyStorage: WorkingCopyStorage
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
     init {
@@ -69,6 +71,12 @@ class AddDayViewModel @Inject constructor(
         get() = navArgs.date
 
     val quote = quotesRepository.latestTodayQuoteFlow()
+
+    private val _workingCopy: MutableStateFlow<String> = MutableStateFlow("")
+    val workingCopy = workingCopyStorage.getTextContent().map {
+        it?.let { _workingCopy.emit(it) }
+        it
+    }
 
     private val blankDay = DayDetails(
         Day(
@@ -108,12 +116,23 @@ class AddDayViewModel @Inject constructor(
         WhileSubscribed(500),
         false
     )
+
+    private val _reinitializeText = MutableSharedFlow<Unit>()
+    val reinitializeText = _reinitializeText.asSharedFlow()
+
     private val _navigateBack = MutableSharedFlow<Unit>()
     val navigateBack = _navigateBack.asSharedFlow()
 
     fun setNewContent(newContent: String) {
         val temp = _tempDay.value ?: return
         _tempDay.value = temp.copy(day = temp.day.copy(content = newContent))
+
+        // create "Working Copy" with WorkingCopyStorage
+        if (newContent.isNotBlank()) {
+            viewModelScope.launch {
+                workingCopyStorage.store(newContent)
+            }
+        }
     }
 
     fun setNewDate(date: LocalDate) {
@@ -190,7 +209,19 @@ class AddDayViewModel @Inject constructor(
         _tempDay.value?.let {
             viewModelScope.launch {
                 addDayUseCase.addDay(it)
+                // clear working copy
+                workingCopyStorage.clear()
                 _navigateBack.emit(Unit)
+            }
+        }
+    }
+
+    fun restoreWorkingCopy() {
+        val temp = _tempDay.value ?: return
+        if (_workingCopy.value.isNotEmpty()) {
+            _tempDay.value = temp.copy(day = temp.day.copy(content = _workingCopy.value))
+            viewModelScope.launch {
+                _reinitializeText.emit(Unit)
             }
         }
     }

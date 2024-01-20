@@ -15,14 +15,15 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabaseSettings(settings: DatabaseSettingsImpl): DatabaseSettings = settings
+    fun provideDatabaseSettings(settings: DatabaseSettingsStorageImpl): DatabaseSettingsStorage =
+        settings
 
     @Provides
     @Singleton
     fun provideDatabaseProvider(
         app: Application,
-        databaseSettings: DatabaseSettings
-    ): GinaDatabaseProvider = GinaDatabaseProvider(app, databaseSettings)
+        databaseSettingsStorage: DatabaseSettingsStorage
+    ): GinaDatabaseProvider = GinaDatabaseProvider(app, databaseSettingsStorage)
 
     @Provides
     @Singleton

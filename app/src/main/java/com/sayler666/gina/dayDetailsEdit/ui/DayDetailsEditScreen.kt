@@ -25,10 +25,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
@@ -61,13 +63,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.navOptions
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -87,10 +89,13 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
-import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.mood.Mood
+import com.sayler666.gina.mood.ui.MoodIcon
+import com.sayler666.gina.mood.ui.MoodPicker
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.VerticalDivider
@@ -101,10 +106,6 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.mood.ui.MoodIcon
-import com.sayler666.gina.mood.ui.MoodPicker
-import com.sayler666.gina.mood.ui.mapToMoodIcon
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -147,6 +148,7 @@ fun DayDetailsEditScreen(
     val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
     val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
     val showDatePickerPopup = remember { mutableStateOf(false) }
+    val workingCopy: Boolean by viewModel.hasWorkingCopy.collectAsStateWithLifecycle(false)
 
     fun onBackPress() {
         handleBackPress(
@@ -159,6 +161,7 @@ fun DayDetailsEditScreen(
     LaunchedEffect(Unit) {
         viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
     }
+
 
     val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
@@ -173,6 +176,18 @@ fun DayDetailsEditScreen(
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
     val showFormatRow = remember { mutableStateOf(false) }
+    var content by remember { mutableStateOf(TextFieldValue()) }
+    LaunchedEffect(dayTemp?.content != null) {
+        dayTemp?.content?.let { content = TextFieldValue(it) }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.reinitializeText.collectLatest {
+            dayTemp?.content?.let {
+                content = TextFieldValue(it)
+            }
+        }
+    }
 
     BackHandler(onBack = ::onBackPress)
 
@@ -182,9 +197,13 @@ fun DayDetailsEditScreen(
             currentDay?.let { day ->
                 TopBar(
                     day = day,
+                    hasWorkingCopy = workingCopy,
                     onNavigateBackClicked = ::onBackPress,
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
+                    },
+                    onRestoreWorkingCopyClicked = {
+                        viewModel.restoreWorkingCopy()
                     }
                 )
             }
@@ -235,8 +254,8 @@ fun DayDetailsEditScreen(
                             AttachmentsAmountLabel(day.attachments)
                         }
                         RichTextEditor(
+                            textFieldValue = content,
                             richTextState = richTextState,
-                            text = day.content,
                             onContentChanged = viewModel::setNewContent
                         )
                     }
@@ -334,8 +353,10 @@ fun Attachments(
 @OptIn(ExperimentalMaterial3Api::class)
 fun TopBar(
     day: DayDetailsEntity,
+    hasWorkingCopy: Boolean,
     onNavigateBackClicked: () -> Unit,
-    onChangeDateClicked: () -> Unit
+    onChangeDateClicked: () -> Unit,
+    onRestoreWorkingCopyClicked: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -351,6 +372,19 @@ fun TopBar(
                     tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null
                 )
+            }
+        },
+        actions = {
+            if (hasWorkingCopy) {
+                IconButton(onClick = {
+                    onRestoreWorkingCopyClicked()
+                }) {
+                    Icon(
+                        rememberVectorPainter(image = Icons.Default.Assignment),
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = null
+                    )
+                }
             }
         },
         navigationIcon = {

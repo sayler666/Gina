@@ -20,6 +20,7 @@ import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
+import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -50,7 +51,8 @@ class DayDetailsEditViewModel @Inject constructor(
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
     private val imageOptimization: ImageOptimization,
-    private val imageOptimizationViewModel: ImageOptimizationViewModel
+    private val imageOptimizationViewModel: ImageOptimizationViewModel,
+    private val workingCopyStorage: WorkingCopyStorage
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
     init {
@@ -110,6 +112,16 @@ class DayDetailsEditViewModel @Inject constructor(
         false
     )
 
+    private val _workingCopy: MutableStateFlow<String> = MutableStateFlow("")
+    val hasWorkingCopy = workingCopyStorage.getTextContent().map {
+        it?.let { _workingCopy.emit(it) }
+
+        !it.isNullOrEmpty()
+    }
+
+    private val _reinitializeText = MutableSharedFlow<Unit>()
+    val reinitializeText = _reinitializeText.asSharedFlow()
+
     private val _navigateBack = MutableSharedFlow<Unit>()
     val navigateBack = _navigateBack.asSharedFlow()
 
@@ -117,10 +129,15 @@ class DayDetailsEditViewModel @Inject constructor(
     val navigateToList = _navigateToList.asSharedFlow()
 
     fun setNewContent(newContent: String) {
-        Timber.d("conten setNew (old value): ${_tempDay.value?.day?.content}")
-        Timber.d("conten setNew: $newContent")
         val temp = _tempDay.value ?: return
         _tempDay.value = temp.copy(day = temp.day.copy(content = newContent))
+
+        // create "Working Copy" with WorkingCopyStorage
+        if (newContent.isNotBlank() && changesExist.value) {
+            viewModelScope.launch {
+                workingCopyStorage.store(newContent)
+            }
+        }
     }
 
     fun setNewDate(date: LocalDate) {
@@ -200,6 +217,8 @@ class DayDetailsEditViewModel @Inject constructor(
         _tempDay.value?.let {
             viewModelScope.launch {
                 editDayUseCase.updateDay(it, attachmentsToDelete = _attachmentsToDelete.value)
+                // clear working copy
+                workingCopyStorage.clear()
                 _navigateBack.emit(Unit)
             }
         }
@@ -240,6 +259,16 @@ class DayDetailsEditViewModel @Inject constructor(
 
             _tempDay.update {
                 it?.copy(attachments = newAttachments + newAttachment)
+            }
+        }
+    }
+
+    fun restoreWorkingCopy() {
+        val temp = _tempDay.value ?: return
+        if (_workingCopy.value.isNotEmpty()){
+            _tempDay.value = temp.copy(day = temp.day.copy(content = _workingCopy.value))
+            viewModelScope.launch {
+                _reinitializeText.emit(Unit)
             }
         }
     }
