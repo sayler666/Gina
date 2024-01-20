@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.db.withRawDao
 import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
-import com.sayler666.gina.settings.Settings
+import com.sayler666.gina.settings.SettingsStorage
 import com.sayler666.gina.settings.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +23,7 @@ import kotlin.time.measureTime
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val setting: Settings,
+    private val setting: SettingsStorage,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val themeMapper: ThemeMapper,
     imageOptimizationViewModel: ImageOptimizationViewModel,

@@ -53,21 +53,25 @@ import java.time.LocalDate
 
 @Composable
 fun RichTextEditor(
+    textFieldValue: TextFieldValue,
     richTextState: RichTextState,
-    text: String,
     autoFocus: Boolean = false,
     quote: Quote? = null,
     onContentChanged: (String) -> Unit
 ) {
+    var callOnContentChanged by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     if (autoFocus) LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-    val textFieldValue by remember { mutableStateOf(TextFieldValue(text)) }
     LaunchedEffect(textFieldValue.text) {
         richTextState.setTextOrHtml(textFieldValue.text)
     }
 
-    LaunchedEffect(richTextState.annotatedString) { onContentChanged(richTextState.toHtml()) }
+    LaunchedEffect(richTextState.annotatedString) {
+        if (callOnContentChanged)
+            onContentChanged(richTextState.toHtml())
+        callOnContentChanged = true
+    }
 
     BasicRichTextEditor(state = richTextState,
         modifier = Modifier
@@ -136,7 +140,7 @@ private fun QuoteWithAuthor(
         colorScheme.onSurface.copy(alpha = 0.6f),
         Color.White.copy(alpha = 0.8f),
         colorScheme.onSurface.copy(alpha = 0.6f)
-        )
+    )
     val brush = remember(offset) {
         object : ShaderBrush() {
             override fun createShader(size: Size): Shader {

@@ -1,13 +1,13 @@
 package com.sayler666.gina.settings
 
 import com.sayler666.core.image.ImageOptimizationSettings
-import com.sayler666.gina.db.DatabaseSettings
+import com.sayler666.gina.db.DatabaseSettingsStorage
 import javax.inject.Inject
 
-class Settings @Inject constructor(
-    databaseSettings: DatabaseSettings,
+class SettingsStorage @Inject constructor(
+    databaseSettingsStorage: DatabaseSettingsStorage,
     imageOptimizationSettings: ImageOptimizationSettings,
     appSettings: AppSettings
-) : DatabaseSettings by databaseSettings,
+) : DatabaseSettingsStorage by databaseSettingsStorage,
     ImageOptimizationSettings by imageOptimizationSettings,
     AppSettings by appSettings

@@ -32,6 +32,8 @@ import com.sayler666.gina.reminder.usecase.NotificationUseCase
 import com.sayler666.gina.reminder.usecase.NotificationUseCaseImpl
 import com.sayler666.gina.reminder.usecase.TodayEntryExistUseCase
 import com.sayler666.gina.reminder.usecase.TodayEntryExistUseCaseImpl
+import com.sayler666.gina.workinCopy.WorkingCopyStorage
+import com.sayler666.gina.workinCopy.WorkingCopyStorageImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -87,4 +89,7 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun getNotificationHelper(useCase: NotificationUseCaseImpl): NotificationUseCase
+
+    @Binds
+    abstract fun getWorkingCopyStorage(storage: WorkingCopyStorageImpl): WorkingCopyStorage
 }
