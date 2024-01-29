@@ -82,3 +82,6 @@
 
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**
+
+-keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
+-keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
