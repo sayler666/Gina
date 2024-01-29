@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "939122159724",
+    "project_id": "gina-75492",
+    "storage_bucket": "gina-75492.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939122159724:android:6b9dc5d46ae55969712849",
+        "android_client_info": {
+          "package_name": "com.sayler666.gina"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvY-wu4j0LrUw6VtsX6L8CIaDbnBpDvXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

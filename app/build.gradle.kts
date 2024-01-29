@@ -1,4 +1,5 @@
 import ConfigData.ConfigData
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 
 plugins {
     alias(libs.plugins.android)
@@ -6,6 +7,8 @@ plugins {
     alias(libs.plugins.android.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val useReleaseKeystore = rootProject.file("release-keystore.jks").exists()
@@ -50,6 +53,9 @@ android {
             signingConfig = signingConfigs[if (useReleaseKeystore) "release" else "debug"]
             isShrinkResources = true
             isMinifyEnabled = true
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -116,5 +122,8 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
     implementation(libs.retrofit)
     implementation(libs.retrofit.serialization.converter)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     testImplementation(libs.junit)
 }
