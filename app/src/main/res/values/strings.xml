@@ -20,4 +20,9 @@
         <item quantity="other">%1$d years ago</item>
     </plurals>
 
+    <string name="empty_search_result_title">Empty search result!</string>
+    <string name="empty_search_result_body">Try narrowing search criteria.</string>
+    <string name="empty_state_title">No data found!</string>
+    <string name="empty_state_body">Add some entries.</string>
+
 </resources>

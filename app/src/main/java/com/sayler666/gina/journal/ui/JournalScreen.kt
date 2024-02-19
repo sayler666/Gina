@@ -1,6 +1,9 @@
 package com.sayler666.gina.journal.ui
 
+import android.content.Intent
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,8 +14,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,55 +24,39 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
+import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
-import com.sayler666.gina.attachments.ui.PreviousYearsAttachmentThumbnail
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
-import com.sayler666.gina.core.permission.Permissions
+import com.sayler666.gina.core.permission.Permissions.getManageAllFilesSettingsIntent
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
-import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
-import com.sayler666.gina.journal.viewmodel.DayEntity
 import com.sayler666.gina.journal.viewmodel.JournalState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
@@ -79,86 +64,120 @@ import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
-import com.sayler666.gina.journal.viewmodel.PreviousYearsAttachment
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.mood.ui.mapToMoodIcon
-import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @RootNavGraph
-@com.ramcosta.composedestinations.annotation.Destination
+@Destination
 @Composable
 fun JournalScreen(
-    destinationsNavigator: DestinationsNavigator,
-    navController: NavController,
-    bottomBarViewModel: BottomNavigationBarViewModel
+    destinationsNavigator: DestinationsNavigator
 ) {
-    val backStackEntry = remember(navController.currentBackStackEntry) {
-        navController.getBackStackEntry(NavGraphs.root.route)
-    }
-    val viewModel: JournalViewModel = hiltViewModel(backStackEntry)
-    val permissionsResult = rememberLauncherForActivityResult(StartActivityForResult()) {
-        viewModel.refreshPermissionStatus()
+    val viewModel: JournalViewModel = hiltViewModel()
+    val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
+
+    val permissionsLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
+        viewModel.onViewEvent(OnRefreshPermissionStatus)
     }
 
-    val state: JournalState by viewModel.state.collectAsStateWithLifecycle()
-    val searchText = rememberSaveable { mutableStateOf("") }
-    val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
-    val filtersActive: Boolean by viewModel.filtersActive.collectAsStateWithLifecycle()
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        onViewAction(action, destinationsNavigator, permissionsLauncher)
+    }
 
     Scaffold(
         topBar = {
-            FiltersBar(
-                title = "Gina",
-                searchText = searchText.value,
-                onSearchTextChanged = {
-                    searchText.value = it
-                    viewModel.searchQuery(searchText.value)
-                },
-                onClearClick = {
-                    viewModel.searchQuery("")
-                    searchText.value = ""
-                },
-                moodFilters = moodsFilters,
-                onMoodFiltersUpdate = { moods ->
-                    viewModel.updateMoodFilters(moods)
-                },
-                onResetFiltersClicked = {
-                    viewModel.resetFilters()
-                },
-                filtersActive,
-                onSearchVisibilityChanged = { show ->
-                    when (show) {
-                        true -> bottomBarViewModel.lockHide()
-                        false -> bottomBarViewModel.unlockAndShow()
-                    }
-                }
+            Toolbar(
+                viewState = viewState,
+                onViewEvent = viewModel::onViewEvent
             )
         },
         content = { padding ->
-            Journal(
-                Modifier.padding(top = padding.calculateTopPadding()),
-                destinationsNavigator = destinationsNavigator,
-                state = state,
-                onPermissionClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
-                onScrollStarted = bottomBarViewModel::hide,
-                onScrollEnded = bottomBarViewModel::show,
-                onOpenAttachment = bottomBarViewModel::hide
+            JournalContent(
+                modifier = Modifier
+                    .padding(top = padding.calculateTopPadding()),
+                state = viewState,
+                onViewEvent = viewModel::onViewEvent
             )
-        })
+        }
+    )
+}
+
+private fun onViewAction(
+    action: ViewAction,
+    destinationsNavigator: DestinationsNavigator,
+    permissionsResult: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
+    when (action) {
+        is NavToDay -> destinationsNavigator.navToDay(action.dayId)
+        is NavToAttachmentPreview -> destinationsNavigator.navToAttachment(action.imageId)
+        NavToManageAllFilesSettings -> permissionsResult.launch(getManageAllFilesSettingsIntent())
+    }
+}
+
+private fun DestinationsNavigator.navToAttachment(imageId: Int) = navigate(
+    ImagePreviewScreenDestination(ImagePreviewScreenNavArgs(imageId))
+)
+
+fun DestinationsNavigator.navToDay(dayId: Int) = navigate(
+    DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))
+)
+
+@Composable
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+private fun Toolbar(
+    viewState: JournalState,
+    onViewEvent: (ViewEvent) -> Unit
+) {
+    val searchText = rememberSaveable { mutableStateOf("") }
+    FiltersBar(
+        title = "Gina",
+        searchText = searchText.value,
+        onSearchTextChanged = {
+            searchText.value = it
+            onViewEvent(OnSearchQueryChanged(searchText.value))
+        },
+        onClearClick = {
+            searchText.value = ""
+            onViewEvent(OnSearchQueryChanged(""))
+        },
+        moodFilters = if (viewState is DaysState) viewState.moods else emptyList(),
+        onMoodFiltersUpdate = { moods ->
+            onViewEvent(OnMoodFiltersChanged(moods))
+        },
+        onResetFiltersClicked = {
+            onViewEvent(OnResetFilters)
+        },
+        filtersActive = viewState.filtersActive,
+        onSearchVisibilityChanged = { show ->
+            when (show) {
+                true -> onViewEvent(OnLockBottomBar)
+                false -> onViewEvent(OnUnlockBottomBar)
+            }
+        }
+    )
 }
 
 @Composable
-private fun Journal(
-    modifier: Modifier = Modifier,
-    destinationsNavigator: DestinationsNavigator,
+private fun JournalContent(
     state: JournalState,
-    onPermissionClick: () -> Unit,
-    onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit,
-    onOpenAttachment: () -> Unit
+    modifier: Modifier = Modifier,
+    onViewEvent: (ViewEvent) -> Unit
 ) {
     Column(
         modifier
@@ -166,23 +185,28 @@ private fun Journal(
             .imePadding()
     ) {
         when (state) {
-            is DaysState -> Days(
+            is DaysState -> DayList(
                 days = state.days,
-                attachments = state.previousYearsAttachments,
-                searchQuery = state.searchQuery,
-                destinationsNavigator = destinationsNavigator,
-                onScrollStarted = onScrollStarted,
-                onScrollEnded = onScrollEnded,
-                onOpenAttachment = onOpenAttachment
+                onViewEvent = onViewEvent,
+                headerContent = @Composable {
+                    AttachmentCarousel(
+                        state = state.previousYearsAttachments,
+                        onViewEvent = onViewEvent,
+                    )
+                }
             )
 
-            EmptySearchState -> EmptyResult(
-                "Empty search result!",
-                "Try narrowing search criteria."
+            is EmptySearchState -> EmptyResult(
+                header = stringResource(R.string.empty_search_result_title),
+                body = stringResource(R.string.empty_search_result_body)
             )
 
-            EmptyState -> EmptyResult("No data found!", "Add some entries.")
-            PermissionNeededState -> PermissionNeeded(onPermissionClick)
+            is EmptyState -> EmptyResult(
+                header = stringResource(R.string.empty_state_title),
+                body = stringResource(R.string.empty_state_body)
+            )
+
+            PermissionNeededState -> FilePermissionPermissionPrompt(onViewEvent)
             LoadingState -> {}
         }
         AnimatedVisibility(
@@ -197,7 +221,107 @@ private fun Journal(
 }
 
 @Composable
-fun Loading() {
+@OptIn(ExperimentalFoundationApi::class)
+private fun DayList(
+    days: List<DayRowState>,
+    onViewEvent: (ViewEvent) -> Unit,
+    headerContent: @Composable LazyItemScope.() -> Unit
+) {
+    val listState = rememberLazyListState()
+    val nestedScrollConnection = rememberScrollConnection(
+        onScrollDown = { onViewEvent(OnHideBottomBar) },
+        onScrollUp = { onViewEvent(OnShowBottomBar) }
+    )
+
+    LaunchedEffect(!listState.canScrollForward) {
+        onViewEvent(OnShowBottomBar)
+    }
+
+    val daysGrouped = days.groupBy { it.header }
+    LazyColumn(
+        Modifier.nestedScroll(nestedScrollConnection),
+        state = listState
+    ) {
+        item {
+            headerContent()
+        }
+
+        daysGrouped.forEach { (header, days) ->
+            stickyHeader {
+                ListStickyHeader(header)
+            }
+
+            items(
+                items = days,
+                key = { item -> item.id }
+            ) { dayRowState ->
+                DayRow(
+                    state = dayRowState,
+                    modifier = Modifier.animateItemPlacement(),
+                    onClick = { onViewEvent(OnDayClick(dayRowState.id)) }
+                )
+            }
+        }
+        item {
+            Spacer(
+                modifier = Modifier
+                    .windowInsetsBottomHeight(
+                        insets = WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun AttachmentCarousel(
+    state: HorizontalImagesCarouselState,
+    onViewEvent: (ViewEvent) -> Unit,
+) {
+    val resources = LocalContext.current.resources
+    HorizontalImagesCarousel(
+        state = state,
+        onImageClick = { id -> onViewEvent(OnAttachmentClick(id)) },
+        label = { attachment ->
+            if (attachment.yearsAgo > 0) {
+                resources.getQuantityString(
+                    R.plurals.years_ago_label,
+                    attachment.yearsAgo,
+                    attachment.yearsAgo
+                )
+            } else {
+                resources.getString(R.string.today)
+            }
+        }
+    )
+}
+
+@Composable
+private fun FilePermissionPermissionPrompt(
+    onViewEvent: (ViewEvent) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            onClick = { onViewEvent(OnManageAllFilesSettingsClick) },
+        ) {
+            Text(
+                style = MaterialTheme.typography.labelLarge,
+                text = stringResource(R.string.select_database_grant_permission)
+            )
+        }
+    }
+}
+
+@Composable
+private fun Loading() {
     Column(Modifier.fillMaxSize()) {
         repeat(3) {
             Column(Modifier.padding(12.dp)) {
@@ -207,7 +331,6 @@ fun Loading() {
                         .size(width = 140.dp, height = 30.dp)
                         .background(shimmerBrush(targetValue = 1100f))
                 )
-
                 Box(
                     modifier = Modifier
                         .padding(bottom = 8.dp)
@@ -221,207 +344,5 @@ fun Loading() {
                 )
             }
         }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalFoundationApi::class)
-private fun Days(
-    days: List<DayEntity>,
-    attachments: List<PreviousYearsAttachment>,
-    searchQuery: String? = null,
-    destinationsNavigator: DestinationsNavigator,
-    onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit,
-    onOpenAttachment: () -> Unit
-) {
-    val grouped = days.groupBy { it.header }
-    val listState = rememberLazyListState()
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                if (delta > 30) onScrollEnded()
-                if (delta < -20) onScrollStarted()
-                return Offset.Zero
-            }
-        }
-    }
-    LazyColumn(
-        Modifier.nestedScroll(nestedScrollConnection),
-        state = listState
-    ) {
-        item {
-            PreviousYearsAttachments(
-                attachments,
-                destinationsNavigator,
-                onOpenAttachment = onOpenAttachment
-            )
-        }
-        grouped.forEach { (header, days) ->
-            stickyHeader {
-                DateHeader(header)
-            }
-
-            itemsIndexed(
-                items = days,
-                key = { _, item -> item.id }
-            ) { _, dayEntity ->
-                Day(modifier = Modifier.animateItemPlacement(), dayEntity, searchQuery) {
-                    destinationsNavigator.navigate(
-                        DayDetailsScreenDestination(
-                            DayDetailsScreenNavArgs(dayEntity.id)
-                        )
-                    )
-                }
-            }
-        }
-        item {
-            Spacer(
-                modifier = Modifier
-                    .windowInsetsBottomHeight(
-                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
-                    )
-            )
-        }
-    }
-}
-
-@Composable
-private fun PreviousYearsAttachments(
-    attachments: List<PreviousYearsAttachment>,
-    destinationsNavigator: DestinationsNavigator,
-    onOpenAttachment: () -> Unit
-) {
-    val resources = LocalContext.current.resources
-    LazyRow(contentPadding = PaddingValues(start = 14.dp, end = 14.dp), content = {
-        items(attachments) { attachment ->
-            if (attachment.attachment is AttachmentEntity.Image)
-                PreviousYearsAttachmentThumbnail(
-                    attachment.attachment,
-                    size = 120.dp,
-                    text = if (attachment.yearsAgo > 0) resources.getQuantityString(
-                        R.plurals.years_ago_label,
-                        attachment.yearsAgo,
-                        attachment.yearsAgo
-                    ) else resources.getString(R.string.today),
-                    onClick = {
-                        onOpenAttachment()
-                        attachment.attachment.id?.let {
-                            destinationsNavigator.navigate(
-                                ImagePreviewScreenDestination(
-                                    ImagePreviewScreenNavArgs(
-                                        it,
-                                        allowNavigationToDayDetails = true
-                                    )
-                                )
-                            )
-                        }
-                    })
-        }
-    })
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Day(
-    modifier: Modifier = Modifier,
-    day: DayEntity,
-    searchQuery: String? = null,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier,
-        shape = RectangleShape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background,
-        ),
-        onClick = onClick
-    ) {
-        val icon = day.mood.mapToMoodIcon()
-        Column(
-            Modifier
-                .padding(start = 14.dp, end = 14.dp, bottom = 6.dp)
-                .fillMaxWidth()
-        ) {
-            Row(Modifier.fillMaxWidth()) {
-                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
-                icon.let {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        painter = rememberVectorPainter(
-                            image = icon.icon
-                        ),
-                        tint = icon.color,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-            val text = if (searchQuery == null) {
-                buildAnnotatedString { append(day.shortContent) }
-            } else {
-                buildAnnotatedString {
-                    val startIndex = day.shortContent.indexOf(searchQuery, ignoreCase = true)
-                    val endIndex = startIndex + searchQuery.length
-                    append(day.shortContent)
-                    addStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            background = MaterialTheme.colorScheme.secondaryContainer
-                        ),
-                        start = startIndex,
-                        end = endIndex
-                    )
-                }
-            }
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
-
-@Composable
-fun PermissionNeeded(
-    onClick: () -> Unit
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            onClick = {
-                onClick()
-            },
-        ) {
-            Text(
-                style = MaterialTheme.typography.labelLarge,
-                text = stringResource(R.string.select_database_grant_permission)
-            )
-        }
-    }
-}
-
-@Composable
-private fun DateHeader(header: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
-    ) {
-        Text(
-            modifier = Modifier.padding(start = 14.dp, top = 5.dp, bottom = 8.dp),
-            style = MaterialTheme.typography.labelMedium,
-            text = header,
-            color = MaterialTheme.colorScheme.primary
-        )
     }
 }

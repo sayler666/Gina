@@ -5,10 +5,13 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.html.getTextWithoutHtml
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
+import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.gina.db.entity.AttachmentWithDay
 import com.sayler666.gina.db.entity.Day
+import com.sayler666.gina.journal.ui.DayRowState
+import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
+import com.sayler666.gina.journal.ui.ImageAttachment
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
@@ -32,7 +35,7 @@ class DaysMapper @Inject constructor(
             requireNotNull(it.date)
             requireNotNull(it.content)
             val nonHtml = it.content.getTextWithoutHtml()
-            DayEntity(
+            DayRowState(
                 id = it.id,
                 dayOfMonth = getDayOfMonth(it.date),
                 dayOfWeek = getDayOfWeek(it.date),
@@ -42,6 +45,7 @@ class DaysMapper @Inject constructor(
                     true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
                     else -> getShortContent(nonHtml)
                 },
+                searchQuery = searchQuery,
                 mood = it.mood
             )
         }
@@ -49,19 +53,21 @@ class DaysMapper @Inject constructor(
         return when {
             daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
                 Mood.entries
-            )) -> EmptyState
+            )) -> EmptyState(activeFilters = moods.size != Mood.entries.size)
 
             daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
                 Mood.entries
-            )) -> EmptySearchState
+            )) -> EmptySearchState(activeFilters = moods.size != Mood.entries.size)
 
             daysResult.isNotEmpty() -> DaysState(
                 days = daysResult,
                 searchQuery = searchQuery,
-                previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments()
+                previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
+                activeFilters = moods.size != Mood.entries.size,
+                moods = moods
             )
 
-            else -> EmptyState
+            else -> EmptyState(activeFilters = moods.size != Mood.entries.size)
         }
     }
 
@@ -88,7 +94,7 @@ class DaysMapper @Inject constructor(
         private const val shortContentMaxLength = 120
     }
 
-    private fun List<AttachmentWithDay>.toPreviousYearsAttachments(): List<PreviousYearsAttachment> {
+    private fun List<AttachmentWithDay>.toPreviousYearsAttachments(): HorizontalImagesCarouselState {
         val now = LocalDate.now()
         return sortedByDescending { it.day.date }
             .mapNotNull { attachmentWithDay ->
@@ -96,36 +102,12 @@ class DaysMapper @Inject constructor(
                     val yearsAgo = now.minusYears(it.year.toLong()).year
                     val attachmentEntity =
                         attachmentMapper.mapToAttachmentEntity(attachmentWithDay.attachment)
-                    PreviousYearsAttachment(attachmentEntity, yearsAgo)
+                    when (attachmentEntity) {
+                        is Image -> ImageAttachment(attachmentEntity, yearsAgo)
+                        else -> null
+                    }
                 }
             }
     }
 }
 
-sealed class JournalState {
-    data object LoadingState : JournalState()
-    data object EmptyState : JournalState()
-    data object PermissionNeededState : JournalState()
-    data class DaysState(
-        val days: List<DayEntity> = emptyList(),
-        val searchQuery: String? = null,
-        val previousYearsAttachments: List<PreviousYearsAttachment> = emptyList()
-    ) : JournalState()
-
-    data object EmptySearchState : JournalState()
-}
-
-data class DayEntity(
-    val id: Int,
-    val dayOfMonth: String,
-    val dayOfWeek: String,
-    val yearAndMonth: String,
-    val header: String,
-    val shortContent: String,
-    val mood: Mood? = null
-)
-
-data class PreviousYearsAttachment(
-    val attachment: AttachmentEntity,
-    val yearsAgo: Int
-)

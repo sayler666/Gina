@@ -32,14 +32,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
-import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodLevel
 import com.sayler666.gina.mood.Mood
@@ -55,12 +57,10 @@ import com.sayler666.gina.ui.FiltersBar
 @OptIn(
     ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class
 )
-@com.ramcosta.composedestinations.annotation.Destination
+@Destination
 @Composable
-fun InsightsScreen(
-    viewModel: InsightsViewModel = hiltViewModel(),
-    bottomBarViewModel: BottomNavigationBarViewModel
-) {
+fun InsightsScreen() {
+    val viewModel: InsightsViewModel = hiltViewModel()
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
     val searchText = rememberSaveable { mutableStateOf("") }
     val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
@@ -89,8 +89,8 @@ fun InsightsScreen(
                 filtersActive,
                 onSearchVisibilityChanged = { show ->
                     when (show) {
-                        true -> bottomBarViewModel.lockHide()
-                        false -> bottomBarViewModel.unlockAndShow()
+                        true -> viewModel.onViewEvent(OnLockBottomBar)
+                        false -> viewModel.onViewEvent(OnUnlockBottomBar)
                     }
                 }
             )

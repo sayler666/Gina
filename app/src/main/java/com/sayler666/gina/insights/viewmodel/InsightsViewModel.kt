@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
+import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.mood.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +34,7 @@ class InsightsViewModel @Inject constructor(
     private val insightsMapper: InsightsMapper,
     private val getAllFriendsUseCase: GetAllFriendsUseCase,
     private val friendsMapper: FriendsMapper,
+    private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -50,6 +54,13 @@ class InsightsViewModel @Inject constructor(
 
     init {
         initDb()
+    }
+
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            OnLockBottomBar -> bottomNavigationVisibilityManager.lockHide()
+            OnUnlockBottomBar -> bottomNavigationVisibilityManager.unlockAndShow()
+        }
     }
 
     private fun initDb() {
@@ -91,5 +102,11 @@ class InsightsViewModel @Inject constructor(
 
     fun resetFilters() {
         _moodFilters.update { Mood.entries }
+    }
+
+    sealed interface ViewEvent {
+        // TODO add rest of the events
+        data object OnLockBottomBar : ViewEvent
+        data object OnUnlockBottomBar : ViewEvent
     }
 }

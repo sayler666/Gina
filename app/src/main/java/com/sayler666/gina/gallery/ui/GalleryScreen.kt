@@ -53,8 +53,9 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
-import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.NavigationBarColor
@@ -67,7 +68,6 @@ import kotlinx.coroutines.flow.collectLatest
 fun GalleryScreen(
     destinationsNavigator: DestinationsNavigator,
     viewModel: GalleryViewModel = hiltViewModel(),
-    bottomBarViewModel: BottomNavigationBarViewModel,
     ginaVM: GinaMainViewModel = hiltViewModel()
 ) {
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
@@ -91,8 +91,8 @@ fun GalleryScreen(
                 modifier = Modifier.padding(top = padding.calculateTopPadding()),
                 state = state,
                 fetchNextPage = viewModel::fetchNextPage,
-                onScrollStarted = bottomBarViewModel::hide,
-                onScrollEnded = bottomBarViewModel::show,
+                onScrollStarted = { viewModel.onViewEvent(OnHideBottomBar) },
+                onScrollEnded = { viewModel.onViewEvent(OnShowBottomBar) },
                 openImage = viewModel::fetchFullImage
             )
         })

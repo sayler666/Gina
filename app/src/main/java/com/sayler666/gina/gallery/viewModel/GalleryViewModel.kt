@@ -6,6 +6,9 @@ import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +23,8 @@ class GalleryViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val imageAttachmentsRepository: ImageAttachmentsRepository,
     private val galleryMapper: GalleryMapper,
-    private val attachmentMapper: AttachmentMapper
+    private val attachmentMapper: AttachmentMapper,
+    private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<GalleryState>(GalleryState.LoadingState)
@@ -59,5 +63,18 @@ class GalleryViewModel @Inject constructor(
                 .map(attachmentMapper::mapToAttachmentEntity)
                 .onSuccess { _openImage.emit(it) }
         }
+    }
+
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
+            OnShowBottomBar -> bottomNavigationVisibilityManager.show()
+        }
+    }
+
+    sealed interface ViewEvent {
+        // TODO add rest of the events
+        data object OnHideBottomBar : ViewEvent
+        data object OnShowBottomBar : ViewEvent
     }
 }
