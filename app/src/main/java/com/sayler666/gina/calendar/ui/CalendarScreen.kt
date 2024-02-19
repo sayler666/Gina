@@ -16,17 +16,17 @@ import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
+import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
 
 @Destination
 @Composable
 fun CalendarScreen(
     destinationsNavigator: DestinationsNavigator,
-    navController: NavController,
-    bottomBarViewModel: BottomNavigationBarViewModel
+    navController: NavController
 ) {
     val backStackEntry = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(NavGraphs.root.route)
@@ -51,8 +51,8 @@ fun CalendarScreen(
                                 AddDayScreenDestination(AddDayScreenNavArgs(date))
                             )
                         },
-                        onScrollTop = bottomBarViewModel::hide,
-                        onScrollBottom = bottomBarViewModel::show
+                        onScrollTop = { viewModel.onViewEvent(OnHideBottomBar) },
+                        onScrollBottom = { viewModel.onViewEvent(OnShowBottomBar) },
                     )
                 }
             }

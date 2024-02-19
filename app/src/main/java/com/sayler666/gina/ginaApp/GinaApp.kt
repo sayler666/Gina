@@ -23,19 +23,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
-import com.ramcosta.composedestinations.navigation.dependency
 import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.appCurrentDestinationAsState
-import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.destinations.CalendarScreenDestination
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.GalleryScreenDestination
@@ -45,9 +41,8 @@ import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
-import com.sayler666.gina.ginaApp.viewModel.BottomBarState
-import com.sayler666.gina.ginaApp.viewModel.BottomBarState.Shown
-import com.sayler666.gina.ginaApp.viewModel.BottomNavigationBarViewModel
+import com.sayler666.gina.ginaApp.navigation.BottomBarState
+import com.sayler666.gina.ginaApp.navigation.BottomBarState.Shown
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
@@ -61,8 +56,7 @@ import com.sayler666.gina.ui.theme.GinaTheme
 )
 @Composable
 fun GinaApp(
-    vm: GinaMainViewModel,
-    activity: ViewModelStoreOwner
+    vm: GinaMainViewModel
 ) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     GinaTheme(theme) {
@@ -85,9 +79,7 @@ fun GinaApp(
                 )
             )
 
-            val bottomBarVm: BottomNavigationBarViewModel = hiltViewModel(activity)
-            val bottomBarState: BottomBarState by bottomBarVm.state.collectAsStateWithLifecycle()
-
+            val bottomBarState: BottomBarState by vm.bottomBarState.collectAsStateWithLifecycle()
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
                 maxOffset = BOTTOM_NAV_HEIGHT,
                 visibleColor = colorScheme.surfaceColorAtElevation(3.dp),
@@ -130,9 +122,6 @@ fun GinaApp(
                             navGraph = NavGraphs.root,
                             startRoute = startRoute,
                             navController = navController,
-                            dependenciesContainerBuilder = {
-                                dependency(hiltViewModel<BottomNavigationBarViewModel>(activity))
-                            },
                             engine = navHostEngine
                         )
                     }

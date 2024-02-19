@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         setContent {
-            GinaApp(vm, this)
+            GinaApp(vm)
         }
 
 //        lifecycleScope.launch {
