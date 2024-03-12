@@ -56,9 +56,7 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
-import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.EmptyResult
-import com.sayler666.gina.ui.NavigationBarColor
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,12 +65,9 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun GalleryScreen(
     destinationsNavigator: DestinationsNavigator,
-    viewModel: GalleryViewModel = hiltViewModel(),
-    ginaVM: GinaMainViewModel = hiltViewModel()
 ) {
+    val viewModel: GalleryViewModel = hiltViewModel()
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
-    val theme by ginaVM.theme.collectAsStateWithLifecycle()
-    NavigationBarColor(theme = theme)
 
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
