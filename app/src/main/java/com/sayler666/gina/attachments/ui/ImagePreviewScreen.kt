@@ -1,6 +1,7 @@
 package com.sayler666.gina.attachments.ui
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -75,11 +76,11 @@ import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
+import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
-import com.sayler666.gina.mood.ui.mapToMoodIcon
 
 object ImagePreviewTransitions : DestinationStyle.Animated {
 
@@ -123,6 +124,14 @@ fun ImagePreviewScreen(
     )
     var barsVisible by rememberSaveable { mutableStateOf(true) }
 
+    var navigationBarVisible by remember { mutableStateOf(false) }
+    fun onBackPressed() {
+        navigationBarVisible = true
+        destinationsNavigator.popBackStack()
+    }
+    BackHandler(enabled = true) { onBackPressed() }
+    if (navigationBarVisible) NavigationBarColor(theme = null)
+
     ConstraintLayout(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -136,11 +145,12 @@ fun ImagePreviewScreen(
             val (zoomableBox, bottomBar, topBar) = createRefs()
 
             TopBar(
-                barsVisible,
-                topBar,
-                it,
-                destinationsNavigator,
-                viewModel.allowNavigationToDayDetails
+                barsVisible = barsVisible,
+                topBarRef = topBar,
+                attachmentPreviewWithDayEntity = it,
+                destinationsNavigator = destinationsNavigator,
+                allowNavigationToDayDetails = viewModel.allowNavigationToDayDetails,
+                onBackClick = ::onBackPressed
             )
 
             ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
@@ -227,7 +237,8 @@ private fun ConstraintLayoutScope.TopBar(
     topBarRef: ConstrainedLayoutReference,
     attachmentPreviewWithDayEntity: ImagePreviewWithDayEntity,
     destinationsNavigator: DestinationsNavigator,
-    allowNavigationToDayDetails: Boolean
+    allowNavigationToDayDetails: Boolean,
+    onBackClick: () -> Unit,
 ) {
     AnimatedVisibility(visible = barsVisible,
         enter = slideInVertically(direction = Top),
@@ -272,7 +283,7 @@ private fun ConstraintLayoutScope.TopBar(
                     )
             }
         }, navigationIcon = {
-            IconButton(onClick = { destinationsNavigator.popBackStack() }) {
+            IconButton(onClick = onBackClick) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, actions = {
