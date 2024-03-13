@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocalLibrary
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -155,7 +156,7 @@ fun ImagePreviewScreen(
 
             ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
 
-            BottomBar(barsVisible, bottomBar, destinationsNavigator, context, it)
+            BottomBar(barsVisible, bottomBar, context, it)
         }
     }
 }
@@ -171,7 +172,6 @@ data class ImagePreviewTmpScreenNavArgs(
 )
 @Composable
 fun ImagePreviewTmpScreen(
-    destinationsNavigator: DestinationsNavigator,
     viewModel: ImagePreviewTmpViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -196,7 +196,7 @@ fun ImagePreviewTmpScreen(
 
             ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
 
-            BottomBar(barsVisible, bottomBar, destinationsNavigator, context, it)
+            BottomBar(barsVisible, bottomBar, context, it)
         }
     }
 }
@@ -303,7 +303,6 @@ private fun ConstraintLayoutScope.TopBar(
 private fun ConstraintLayoutScope.BottomBar(
     barsVisible: Boolean,
     bottomBarRef: ConstrainedLayoutReference,
-    destinationsNavigator: DestinationsNavigator,
     context: Context,
     imagePreviewEntity: ImagePreviewEntity
 ) {
@@ -325,12 +324,25 @@ private fun ConstraintLayoutScope.BottomBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                destinationsNavigator.popBackStack()
                 Files.openFileIntent(
                     context,
                     bytes = imagePreviewEntity.attachment.bytes,
                     mimeType = imagePreviewEntity.attachment.mimeType
                 )
+            }) {
+                Icon(Icons.Filled.OpenInNew, null)
+            }
+            IconButton(onClick = {
+                Files.saveByteArrayToFile(
+                    context = context,
+                    byteArray = imagePreviewEntity.attachment.bytes,
+                    fileName = "${imagePreviewEntity.attachment.id}.jpeg"
+                )?.also {
+                    Files.shareImageFile(
+                        context = context,
+                        file = it
+                    )
+                }
             }) {
                 Icon(Icons.Filled.Share, null)
             }
