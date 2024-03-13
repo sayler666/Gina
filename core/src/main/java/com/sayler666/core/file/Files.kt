@@ -1,10 +1,8 @@
 package com.sayler666.core.file
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.result.ActivityResult
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import com.sayler666.gina.core.BuildConfig
@@ -13,6 +11,7 @@ import okio.buffer
 import okio.sink
 import org.apache.commons.io.IOUtils
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 
 object Files {
@@ -45,10 +44,42 @@ object Files {
         context.startActivity(intent)
     }
 
+    fun shareImageFile(
+        context: Context,
+        file: File
+    ) {
+        val uri: Uri = FileProvider.getUriForFile(
+            context,
+            BuildConfig.FILE_PROVIDER_AUTHORITY,
+            file
+        )
+
+        val shareIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = "image/*"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share Image"))
+    }
+
+    fun saveByteArrayToFile(context: Context, byteArray: ByteArray, fileName: String): File? {
+        val file = File(context.externalCacheDir, fileName)
+        try {
+            FileOutputStream(file).use { out ->
+                out.write(byteArray)
+            }
+            return file
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     @Throws(IOException::class)
     private fun readFileFromUri(uri: Uri, context: Context): ByteArray {
         val inputStream = context.contentResolver.openInputStream(uri)
-        var data: ByteArray = ByteArray(0)
+        var data = ByteArray(0)
         if (inputStream != null) data = IOUtils.toByteArray(inputStream)
 
         return data
@@ -83,36 +114,6 @@ fun handleMultipleVisualMedia(
     applyAvatar(attachmentList)
 }
 
-fun handleSelectedFiles(
-    it: ActivityResult,
-    context: Context,
-    addAttachments: (List<Pair<ByteArray, String>>) -> Unit
-) {
-
-    fun createAttachment(uri: Uri): Pair<ByteArray, String> {
-        val (content, mimeType) = Files.readBytesAndMimeTypeFromUri(uri, context)
-        return content to mimeType
-    }
-
-    if (it.resultCode != Activity.RESULT_CANCELED && it.data != null) {
-        // multiple files
-        val multipleItems = it.data?.clipData
-        val attachmentsList = mutableListOf<Pair<ByteArray, String>>()
-        if (multipleItems != null) {
-            for (i in 0 until multipleItems.itemCount) {
-                attachmentsList += createAttachment(multipleItems.getItemAt(i).uri)
-            }
-        } else {
-            // single file
-            it.data?.data?.let { uri ->
-                attachmentsList += createAttachment(uri)
-            }
-        }
-        if (attachmentsList.isNotEmpty()) addAttachments(attachmentsList)
-    }
-}
-
-fun String.isImageMimeType() =
-    this.contains(IMAGE_MIME_TYPE_PREFIX)
+fun String.isImageMimeType() = this.contains(IMAGE_MIME_TYPE_PREFIX)
 
 const val IMAGE_MIME_TYPE_PREFIX = "image/"

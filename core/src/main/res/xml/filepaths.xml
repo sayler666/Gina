@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <files-path
-        path="directory/"
-        name="app_directory" />
+        name="app_directory"
+        path="directory/" />
     <files-path
-        path="/"
-        name="allfiles" />
+        name="allfiles"
+        path="/" />
+    <external-cache-path
+        name="share"
+        path="." />
 </paths>
