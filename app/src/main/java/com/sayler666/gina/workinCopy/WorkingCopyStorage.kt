@@ -5,11 +5,10 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.sayler666.core.html.getTextWithoutHtml
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.workinCopy.WorkingCopyStorageImpl.PreferencesKeys.TEXT_CONTENT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 

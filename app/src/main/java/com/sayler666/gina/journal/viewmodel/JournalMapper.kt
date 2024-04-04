@@ -4,7 +4,7 @@ import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
-import com.sayler666.core.html.getTextWithoutHtml
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.gina.db.entity.AttachmentWithDay
