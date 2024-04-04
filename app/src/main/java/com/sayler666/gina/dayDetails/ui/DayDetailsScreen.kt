@@ -70,13 +70,16 @@ import com.sayler666.core.compose.Bottom
 import com.sayler666.core.compose.Top
 import com.sayler666.core.compose.slideInVerticallyWithFade
 import com.sayler666.core.file.Files
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.appDestination
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
 import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
-import com.sayler666.gina.dayDetails.ui.Way.*
+import com.sayler666.gina.dayDetails.ui.Way.NEXT
+import com.sayler666.gina.dayDetails.ui.Way.NONE
+import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
@@ -88,6 +91,7 @@ import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
+import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -251,12 +255,16 @@ fun DayDetailsScreen(
 private fun Text(it: DayDetailsEntity) {
     val richTextState = rememberRichTextState()
     richTextState.setTextOrHtml(it.content)
-    SelectionContainer {
-        RichText(
-            state = richTextState, modifier = Modifier
-                .padding(16.dp, 8.dp)
-                .fillMaxWidth()
-        )
+
+    Column(modifier = Modifier.padding(16.dp, 8.dp)) {
+        WordCharsCounter(text = it.content.getTextWithoutHtml())
+        SelectionContainer {
+            RichText(
+                state = richTextState,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 

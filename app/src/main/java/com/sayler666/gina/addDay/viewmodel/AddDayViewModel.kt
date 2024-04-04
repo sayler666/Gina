@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.file.isImageMimeType
-import com.sayler666.core.html.getTextWithoutHtml
 import com.sayler666.core.image.ImageOptimization
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity

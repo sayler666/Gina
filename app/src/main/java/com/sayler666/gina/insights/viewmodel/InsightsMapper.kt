@@ -2,7 +2,7 @@ package com.sayler666.gina.insights.viewmodel
 
 import com.sayler666.core.collections.mutate
 import com.sayler666.core.collections.pmap
-import com.sayler666.core.html.getTextWithoutHtml
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState

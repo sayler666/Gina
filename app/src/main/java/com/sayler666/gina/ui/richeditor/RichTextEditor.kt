@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
 import com.sayler666.core.compose.conditional
-import com.sayler666.core.html.containsHtml
-import com.sayler666.core.html.getTextWithoutHtml
+import com.sayler666.core.string.containsHtml
+import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.quotes.db.Quote
 import java.time.LocalDate
 
@@ -81,19 +82,27 @@ fun RichTextEditor(
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = colorScheme.onSurface),
         cursorBrush = SolidColor(colorScheme.primary),
         decorationBox = { innerTextField ->
-            QuoteWithAuthor(
-                quote = quote,
-                visible = richTextState.toHtml().getTextWithoutHtml()
-                    .isEmpty() && quote != null,
-                onClick = { quote ->
-                    with(richTextState) {
-                        setHtml(quote.toHtml())
-                        removeSpanStyle(currentSpanStyle)
-                        removeParagraphStyle(currentParagraphStyle)
-                    }
+            Column {
+                WordCharsCounter(
+                    richTextState.toHtml()
+                        .getTextWithoutHtml()
+                )
+                Box {
+                    QuoteWithAuthor(
+                        quote = quote,
+                        visible = richTextState.toHtml().getTextWithoutHtml()
+                            .isEmpty() && quote != null,
+                        onClick = { quote ->
+                            with(richTextState) {
+                                setHtml(quote.toHtml())
+                                removeSpanStyle(currentSpanStyle)
+                                removeParagraphStyle(currentParagraphStyle)
+                            }
+                        }
+                    )
+                    innerTextField()
                 }
-            )
-            innerTextField()
+            }
         }
     )
 }
