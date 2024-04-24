@@ -4,23 +4,27 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
-import com.sayler666.gina.dayDetails.ui.Way
-import com.sayler666.gina.dayDetails.ui.Way.NEXT
-import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToNextDay
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToPreviousDay
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.ShowSnackBar
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnAttachmentPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,50 +32,79 @@ import javax.inject.Inject
 class DayDetailsViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousDayUseCase: GetNextPreviousDayUseCase,
-    private val dayDetailsMapper: DayDetailsMapper,
     getDayDetailsUseCase: GetDayDetailsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
-    }
+    private val mutableViewState: MutableStateFlow<DayDetailsState?> = MutableStateFlow(null)
+    val viewState: StateFlow<DayDetailsState?> = mutableViewState.asStateFlow()
+
+    private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
+    val viewActions = mutableViewActions.receiveAsFlow()
 
     private val navArgs: DayDetailsScreenNavArgs =
         DayDetailsScreenDestination.argsFrom(savedStateHandle)
+
     private val id: Int
         get() = navArgs.dayId
 
-    private val _error = MutableSharedFlow<String?>()
-    val error = _error.asSharedFlow()
+    init {
+        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
 
-    private val _day = MutableStateFlow<Day?>(null)
-
-    private val _goToDayId = MutableSharedFlow<Pair<Int, Way>>()
-    val goToDayId = _goToDayId.asSharedFlow()
-
-    val day = getDayDetailsUseCase.getDayDetails(id).filterNotNull()
-        .onEach { day -> day.day.let { _day.emit(it) } }
-        .map(dayDetailsMapper::mapToVm)
-        .stateIn(viewModelScope, WhileSubscribed(500), null)
-
-    fun goToNextDay() {
         viewModelScope.launch {
-            _day.value?.let {
-                getNextPreviousDayUseCase.getNextDayAfterDate(it)
-                    .onSuccess { _goToDayId.emit(it to NEXT) }
-                    .onFailure { _error.emit(it.message) }
-            }
+            getDayDetailsUseCase.getDayDetails(id)
+                .onSuccess { mutableViewState.emit(it.toState()) }
         }
     }
 
-    fun goToPreviousDay() {
-        viewModelScope.launch {
-            _day.value?.let {
-                getNextPreviousDayUseCase.getPreviousDayBeforeDate(it)
-                    .onSuccess { _goToDayId.emit(it to PREVIOUS) }
-                    .onFailure { _error.emit(it.message) }
-            }
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            OnBackPressed -> mutableViewActions.trySend(Back)
+            OnNextDayPressed -> goToNextDay()
+            OnPreviousDayPressed -> goToPreviousDay()
+            OnDayDetailsPressed -> mutableViewActions.trySend(NavToDayDetails(id))
+            is OnAttachmentPressed -> mutableViewActions.trySend(NavToAttachment(event.attachmentId))
         }
+    }
+
+    private fun goToNextDay() {
+        viewModelScope.launch {
+            getNextPreviousDayUseCase.getNextDay(id)
+                .onSuccess { dayId ->
+                    mutableViewActions.trySend(NavToNextDay(dayId))
+                }
+                .onFailure { error ->
+                    mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty()))
+                }
+        }
+    }
+
+    private fun goToPreviousDay() {
+        viewModelScope.launch {
+            getNextPreviousDayUseCase.getPreviousDay(id)
+                .onSuccess { dayId ->
+                    mutableViewActions.trySend(NavToPreviousDay(dayId))
+                }
+                .onFailure { error ->
+                    mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty()))
+                }
+        }
+    }
+
+    sealed interface ViewEvent {
+        data object OnDayDetailsPressed : ViewEvent
+        data object OnNextDayPressed : ViewEvent
+        data object OnPreviousDayPressed : ViewEvent
+        data object OnBackPressed : ViewEvent
+        data class OnAttachmentPressed(val attachmentId: Int) : ViewEvent
+    }
+
+    sealed interface ViewAction {
+        data class NavToAttachment(val attachmentId: Int) : ViewAction
+        data class NavToDayDetails(val dayId: Int) : ViewAction
+        data class NavToNextDay(val dayId: Int) : ViewAction
+        data class NavToPreviousDay(val dayId: Int) : ViewAction
+        data class ShowSnackBar(val message: String) : ViewAction
+        data object Back : ViewAction
     }
 }

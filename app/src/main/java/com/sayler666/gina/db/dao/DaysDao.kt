@@ -33,6 +33,10 @@ interface DaysDao {
     fun getDayFlow(id: Int): Flow<DayDetails>
 
     @Transaction
+    @Query("SELECT * FROM days WHERE id = :id")
+    suspend fun getDay(id: Int): DayDetails
+
+    @Transaction
     @Query("SELECT * FROM days ORDER by date DESC LIMIT 1")
     suspend fun getLastDay(): DayDetails
 

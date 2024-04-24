@@ -1,5 +1,6 @@
 package com.sayler666.gina.attachments.viewmodel
 
+@Deprecated("Use AttachmentState")
 sealed class AttachmentEntity(
     open val id: Int?,
     open val bytes: ByteArray,

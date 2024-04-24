@@ -5,13 +5,13 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
+import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.attachments.viewmodel.toState
 import com.sayler666.gina.db.entity.AttachmentWithDay
 import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.journal.ui.DayRowState
 import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
-import com.sayler666.gina.journal.ui.ImageAttachment
+import com.sayler666.gina.journal.ui.ImageAttachmentState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
@@ -19,10 +19,7 @@ import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 import javax.inject.Inject
 
-class DaysMapper @Inject constructor(
-    private val attachmentMapper: AttachmentMapper
-) {
-
+class DaysMapper @Inject constructor() {
     suspend fun toJournalState(
         days: List<Day>,
         searchQuery: String,
@@ -100,10 +97,13 @@ class DaysMapper @Inject constructor(
             .mapNotNull { attachmentWithDay ->
                 attachmentWithDay.day.date?.let {
                     val yearsAgo = now.minusYears(it.year.toLong()).year
-                    val attachmentEntity =
-                        attachmentMapper.mapToAttachmentEntity(attachmentWithDay.attachment)
-                    when (attachmentEntity) {
-                        is Image -> ImageAttachment(attachmentEntity, yearsAgo)
+                    val attachmentState = attachmentWithDay.attachment.toState()
+                    when (attachmentState) {
+                        is AttachmentState.AttachmentImageState -> ImageAttachmentState(
+                            attachmentState,
+                            yearsAgo
+                        )
+
                         else -> null
                     }
                 }

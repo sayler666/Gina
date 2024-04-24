@@ -1,12 +1,6 @@
 package com.sayler666.gina.dayDetails.ui
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,35 +52,40 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.sayler666.core.compose.ANIMATION_DURATION
-import com.sayler666.core.compose.Bottom
-import com.sayler666.core.compose.Top
-import com.sayler666.core.compose.slideInVerticallyWithFade
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files
 import com.sayler666.core.string.getTextWithoutHtml
-import com.sayler666.gina.appDestination
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.dayDetails.ui.Way.NEXT
 import com.sayler666.gina.dayDetails.ui.Way.NONE
 import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsState
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToNextDay
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToPreviousDay
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.ShowSnackBar
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnAttachmentPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
-import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
@@ -94,8 +93,6 @@ import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-
 
 data class DayDetailsScreenNavArgs(
     val dayId: Int,
@@ -106,35 +103,6 @@ enum class Way {
     NEXT, PREVIOUS, NONE
 }
 
-object DayDetailsTransitions : DestinationStyle.Animated {
-
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition()
-            : EnterTransition? = when (initialState.appDestination()) {
-        DayDetailsScreenDestination -> {
-            val way = targetState.arguments?.getSerializable(
-                DayDetailsScreenNavArgs::way.name,
-                Way::class.java
-            ) ?: NONE
-
-            when (way) {
-                NEXT -> slideInVerticallyWithFade(Bottom)
-                PREVIOUS -> slideInVerticallyWithFade(Top)
-                NONE -> fadeIn(animationSpec = tween(ANIMATION_DURATION))
-            }
-        }
-
-        else -> null
-    }
-
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition()
-            : ExitTransition? = when (targetState.appDestination()) {
-        DayDetailsScreenDestination -> fadeOut(animationSpec = tween(ANIMATION_DURATION))
-
-        else -> null
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Destination(
     navArgsDelegate = DayDetailsScreenNavArgs::class,
     style = DayDetailsTransitions::class
@@ -142,57 +110,51 @@ object DayDetailsTransitions : DestinationStyle.Animated {
 @Composable
 fun DayDetailsScreen(
     destinationsNavigator: DestinationsNavigator,
-    navController: NavController,
-    viewModel: DayDetailsViewModel = hiltViewModel(),
-    vm: GinaMainViewModel = hiltViewModel()
 ) {
-    val theme by vm.theme.collectAsStateWithLifecycle()
+    val ginaMainViewModel: GinaMainViewModel = hiltViewModel()
+    val theme by ginaMainViewModel.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
-    val requester = remember { FocusRequester() }
+
+    val viewModel: DayDetailsViewModel = hiltViewModel()
+    val viewState: DayDetailsState? = viewModel.viewState.collectAsStateWithLifecycle().value
+
     val snackbarHostState = remember { SnackbarHostState() }
-    val day: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle(null)
 
-    LaunchedEffect(Unit) {
-        viewModel.goToDayId.collectLatest { (id, direction) ->
-            id.let { dayId ->
-                destinationsNavigator.navigate(
-                    DayDetailsScreenDestination(
-                        DayDetailsScreenNavArgs(
-                            dayId, direction
-                        )
-                    )
-                ) {
-                    popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
-                }
-            }
-        }
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        onViewAction(action, destinationsNavigator, snackbarHostState)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.error.collectLatest {
-            it?.let { message ->
-                snackbarHostState.showSnackbar(
-                    message = message, duration = SnackbarDuration.Short
-                )
-            }
-        }
+    if (viewState != null) {
+        Content(
+            state = viewState,
+            viewEvent = viewModel::onViewEvent,
+            snackbarHostState = snackbarHostState,
+        )
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun Content(
+    state: DayDetailsState,
+    viewEvent: (ViewEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
+    val requester = remember { FocusRequester() }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
         TopAppBar(title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                day?.let {
-                    DayTitle(it.dayOfMonth, it.dayOfWeek, it.yearAndMonth)
-                }
+                DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
             }
         }, navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { viewEvent(OnBackPressed) }) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, actions = {
-            day?.mood?.mapToMoodIcon()?.let { icon ->
+            state.mood.mapToMoodIcon().let { icon ->
                 Icon(
                     rememberVectorPainter(image = icon.icon),
                     tint = icon.color,
@@ -201,9 +163,7 @@ fun DayDetailsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
             }
             IconButton(onClick = {
-                day?.id?.let {
-                    destinationsNavigator.navigate(DayDetailsEditScreenDestination(it))
-                }
+                viewEvent(OnDayDetailsPressed)
             }) {
                 Icon(Icons.Filled.Edit, null)
             }
@@ -215,27 +175,25 @@ fun DayDetailsScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            day?.let {
-                AttachmentsRow(it, destinationsNavigator)
-                Text(it)
-            }
+            AttachmentsRow(state, viewEvent)
+            Text(state)
         }
     }, bottomBar = {
-        day?.let {
-            if (it.friendsSelected.isNotEmpty()) BottomAppBar(containerColor = MaterialTheme.colorScheme.surface,
-                content = { FriendsRow(it.friendsSelected) })
+        state.let {
+            if (it.friends.isNotEmpty()) BottomAppBar(containerColor = MaterialTheme.colorScheme.surface,
+                content = { FriendsRow(it.friends) })
         }
     }, modifier = Modifier
         .onKeyEvent {
             if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
             when (it.key) {
                 VolumeUp -> {
-                    viewModel.goToNextDay()
+                    viewEvent(OnNextDayPressed)
                     return@onKeyEvent true
                 }
 
                 VolumeDown -> {
-                    viewModel.goToPreviousDay()
+                    viewEvent(OnPreviousDayPressed)
                     return@onKeyEvent true
                 }
 
@@ -251,13 +209,57 @@ fun DayDetailsScreen(
     }
 }
 
+private suspend fun onViewAction(
+    action: ViewAction,
+    destinationsNavigator: DestinationsNavigator,
+    snackbarHostState: SnackbarHostState,
+) {
+    when (action) {
+        Back -> destinationsNavigator.popBackStack()
+        is NavToNextDay -> goToDay(destinationsNavigator, action.dayId, NEXT)
+        is NavToPreviousDay -> goToDay(destinationsNavigator, action.dayId, PREVIOUS)
+
+        is ShowSnackBar -> {
+            snackbarHostState.showSnackbar(
+                message = action.message,
+                duration = SnackbarDuration.Short
+            )
+        }
+
+        is NavToDayDetails -> destinationsNavigator.navigate(
+            DayDetailsEditScreenDestination(action.dayId)
+        )
+
+        is NavToAttachment -> destinationsNavigator.navigate(
+            ImagePreviewScreenDestination(
+                ImagePreviewScreenNavArgs(
+                    attachmentId = action.attachmentId,
+                    allowNavigationToDayDetails = false
+                )
+            )
+        )
+    }
+}
+
+private fun goToDay(
+    destinationsNavigator: DestinationsNavigator,
+    dayId: Int,
+    way: Way
+) {
+    destinationsNavigator.navigate(
+        DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId = dayId, way = way))
+    ) {
+        popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
+    }
+}
+
 @Composable
-private fun Text(it: DayDetailsEntity) {
+private fun Text(state: DayDetailsState) {
     val richTextState = rememberRichTextState()
-    richTextState.setTextOrHtml(it.content)
+    richTextState.setTextOrHtml(state.content)
 
     Column(modifier = Modifier.padding(16.dp, 8.dp)) {
-        WordCharsCounter(text = it.content.getTextWithoutHtml())
+        WordCharsCounter(text = state.content.getTextWithoutHtml())
         SelectionContainer {
             RichText(
                 state = richTextState,
@@ -271,31 +273,29 @@ private fun Text(it: DayDetailsEntity) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AttachmentsRow(
-    day: DayDetailsEntity,
-    destinationsNavigator: DestinationsNavigator,
+    state: DayDetailsState,
+    viewEvent: (ViewEvent) -> Unit
 ) {
-    if (day.attachments.isNotEmpty()) {
+    if (state.attachments.isNotEmpty()) {
         val context = LocalContext.current
         FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
-            day.attachments.forEach { attachment ->
+            state.attachments.forEach { attachment ->
                 when (attachment) {
-                    is Image -> ImageThumbnail(attachment, onClick = {
-                        attachment.id?.let {
-                            destinationsNavigator.navigate(
-                                ImagePreviewScreenDestination(
-                                    ImagePreviewScreenNavArgs(
-                                        it, allowNavigationToDayDetails = false
-                                    )
-                                )
-                            )
-                        }
-                    })
+                    is AttachmentState.AttachmentImageState -> ImageThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.id?.let {
+                                viewEvent(OnAttachmentPressed(it))
+                            }
+                        })
 
-                    is NonImage -> FileThumbnail(attachment, onClick = {
-                        Files.openFileIntent(
-                            context, attachment.bytes, attachment.mimeType
-                        )
-                    })
+                    is AttachmentState.AttachmentNonImageState -> FileThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.content?.let {
+                                Files.openFileIntent(context, it, attachment.mimeType)
+                            }
+                        })
                 }
             }
         }
@@ -303,7 +303,7 @@ private fun AttachmentsRow(
 }
 
 @Composable
-fun FriendsRow(friends: List<FriendEntity>) {
+fun FriendsRow(friends: List<FriendState>) {
     val context = LocalContext.current
 
     LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {

@@ -70,6 +70,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
@@ -188,7 +189,7 @@ fun FriendEdit(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Box {
-                            FriendIcon(friend)
+                            FriendIcon(friend.toState())
                             Icon(
                                 Filled.Edit,
                                 null,
@@ -304,7 +305,7 @@ fun FriendComponent(
             }) {
         Spacer(modifier = Modifier.width(8.dp))
 
-        FriendIcon(friend)
+        FriendIcon(friend.toState())
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -323,8 +324,11 @@ fun FriendComponent(
     }
 }
 
+
+data class FriendState(val name: String, val avatar: ByteArray?, val initials: String)
+
 @Composable
-fun FriendIcon(friend: FriendEntity, modifier: Modifier = Modifier, size: Dp = 38.dp) {
+fun FriendIcon(friend: FriendState, modifier: Modifier = Modifier, size: Dp = 38.dp) {
     Box(
         modifier = modifier
             .shadow(elevation = 3.dp, shape = CircleShape)

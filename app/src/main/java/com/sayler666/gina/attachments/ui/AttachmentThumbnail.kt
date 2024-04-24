@@ -26,12 +26,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FileThumbnail(
-    attachment: AttachmentEntity.NonImage,
+    state: AttachmentState.AttachmentNonImageState,
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null
 ) {
@@ -57,7 +56,7 @@ fun FileThumbnail(
                 contentDescription = ""
             )
             Text(
-                attachment.displayName,
+                text = state.name,
                 modifier = Modifier.align(Alignment.BottomEnd),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -69,7 +68,7 @@ fun FileThumbnail(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageThumbnail(
-    attachment: AttachmentEntity.Image,
+    state: AttachmentState.AttachmentImageState,
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null,
     size: Dp = 65.dp
@@ -88,7 +87,7 @@ fun ImageThumbnail(
         Image(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
-            painter = rememberAsyncImagePainter(attachment.bytes),
+            painter = rememberAsyncImagePainter(state.content),
             contentDescription = "",
         )
     }
@@ -97,7 +96,7 @@ fun ImageThumbnail(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PreviousYearsAttachmentThumbnail(
-    attachment: AttachmentEntity.Image,
+    state: AttachmentState.AttachmentImageState,
     text: String,
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null,
@@ -122,7 +121,7 @@ fun PreviousYearsAttachmentThumbnail(
             Image(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                painter = rememberAsyncImagePainter(attachment.bytes),
+                painter = rememberAsyncImagePainter(state.content),
                 contentDescription = "",
             )
             Text(

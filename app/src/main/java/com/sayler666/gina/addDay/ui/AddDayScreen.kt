@@ -39,7 +39,7 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.ui.Attachments
-import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsAmountLabel
+import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsCountLabel
 import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
@@ -57,11 +57,9 @@ import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
-import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -208,7 +206,7 @@ fun AddDayScreen(
                     AnimatedVisibility(
                         visible = isKeyboardOpen && day.attachments.isNotEmpty()
                     ) {
-                        AttachmentsAmountLabel(day.attachments)
+                        AttachmentsCountLabel(day.attachments.size)
                     }
 
                     RichTextEditor(
