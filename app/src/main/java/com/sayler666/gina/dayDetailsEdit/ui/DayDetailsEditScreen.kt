@@ -78,12 +78,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleMultipleVisualMedia
 import com.sayler666.core.image.ImageOptimization
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.NonImage
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
@@ -92,6 +90,7 @@ import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
@@ -251,7 +250,7 @@ fun DayDetailsEditScreen(
                         AnimatedVisibility(
                             visible = isKeyboardOpen && day.attachments.isNotEmpty()
                         ) {
-                            AttachmentsAmountLabel(day.attachments)
+                            AttachmentsCountLabel(day.attachments.size)
                         }
                         RichTextEditor(
                             textFieldValue = content,
@@ -301,11 +300,9 @@ private fun rememberConfirmationDialog(viewModel: DayDetailsEditViewModel): Muta
 }
 
 @Composable
-fun AttachmentsAmountLabel(
-    attachments: List<AttachmentEntity>
-) {
+fun AttachmentsCountLabel(count: Int) {
     Text(
-        text = "Attachments: ${attachments.size}",
+        text = "Attachments: $count",
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary),
         modifier = Modifier.padding(start = 16.dp)
     )
@@ -322,8 +319,8 @@ fun Attachments(
     if (day.attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
         day.attachments.forEach { attachment ->
             when (attachment) {
-                is Image -> ImageThumbnail(attachment, onClick = {
-                    attachment.bytes.let { image ->
+                is AttachmentState.AttachmentImageState -> ImageThumbnail(attachment, onClick = {
+                    attachment.content?.let { image ->
                         destinationsNavigator.navigate(
                             ImagePreviewTmpScreenDestination(
                                 ImagePreviewTmpScreenNavArgs(
@@ -334,15 +331,17 @@ fun Attachments(
                         )
                     }
                 }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.bytes.hashCode())
+                    onRemoveAttachment(attachment.content.hashCode())
                 })
 
-                is NonImage -> FileThumbnail(attachment, onClick = {
-                    openFileIntent(
-                        context, attachment.bytes, attachment.mimeType
-                    )
+                is AttachmentState.AttachmentNonImageState -> FileThumbnail(attachment, onClick = {
+                    attachment.content?.let { image ->
+                        openFileIntent(
+                            context, image, attachment.mimeType
+                        )
+                    }
                 }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.bytes.hashCode())
+                    onRemoveAttachment(attachment.content.hashCode())
                 })
             }
         }
@@ -511,7 +510,7 @@ fun Friends(
                 }) { showFriendsPopup.value = true }) {
             friends.take(2).forEachIndexed { i, friend ->
                 FriendIcon(
-                    friend = friend,
+                    friend = friend.toState(),
                     size = 32.dp,
                     modifier = Modifier
                         .offset(i * 8.dp)

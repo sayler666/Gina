@@ -92,7 +92,7 @@ class DayDetailsEditViewModel @Inject constructor(
             null
         )
 
-    val day = combine(getDayDetailsUseCase.getDayDetails(id), allFriends, friendsSearchQuery)
+    val day = combine(getDayDetailsUseCase.getDayDetailsFlow(id), allFriends, friendsSearchQuery)
     { day, allFriends, friendsSearchQuery ->
         if (_tempDay.value == null) _tempDay.value = day
         day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }

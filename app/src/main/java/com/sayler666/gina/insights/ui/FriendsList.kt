@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.ui.EmptyResult
 
 @Composable
@@ -90,7 +91,11 @@ private fun FriendsChart(
 }
 
 @Composable
-fun FriendBar(friend: FriendEntity, position: Int, maxCount: Int) {
+fun FriendBar(
+    friend: FriendEntity,
+    position: Int,
+    maxCount: Int
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -113,7 +118,7 @@ fun FriendBar(friend: FriendEntity, position: Int, maxCount: Int) {
             },
             label = ""
         ) {
-            FriendIcon(it, size = 32.dp)
+            FriendIcon(it.toState(), size = 32.dp) // TODO do mapping it before
         }
 
         Spacer(modifier = Modifier.width(12.dp))

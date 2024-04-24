@@ -2,37 +2,42 @@ package com.sayler666.gina.dayDetails.usecaase
 
 import android.database.SQLException
 import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.db.returnWithDaysDao
 import timber.log.Timber
 import javax.inject.Inject
 
 interface GetNextPreviousDayUseCase {
-    suspend fun getNextDayAfterDate(day: Day): Result<Int>
-    suspend fun getPreviousDayBeforeDate(day: Day): Result<Int>
+    suspend fun getNextDay(dayId: Int): Result<Int>
+    suspend fun getPreviousDay(dayId: Int): Result<Int>
 }
 
 class GetNextPreviousDayUseCaseUseCaseImpl @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider
 ) : GetNextPreviousDayUseCase {
-    override suspend fun getNextDayAfterDate(day: Day): Result<Int> = try {
-        val dayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            if (day.id != null && day.date != null)
-                getNextDayIdAfter(day.date, day.id) else null
+    override suspend fun getNextDay(dayId: Int): Result<Int> = try {
+        val currentDay = ginaDatabaseProvider.returnWithDaysDao {
+            getDay(dayId)
         }
-        dayId?.let { Result.success(it) }
+        val nextDayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
+            if (currentDay?.day?.id != null && currentDay.day.date != null)
+                getNextDayIdAfter(currentDay.day.date, currentDay.day.id) else null
+        }
+        nextDayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No next day found"))
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         Result.failure(e)
     }
 
-    override suspend fun getPreviousDayBeforeDate(day: Day): Result<Int> = try {
-        val dayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            if (day.id != null && day.date != null)
-                getPreviousDayIdBefore(day.date, day.id) else null
+    override suspend fun getPreviousDay(dayId: Int): Result<Int> = try {
+        val currentDay = ginaDatabaseProvider.returnWithDaysDao {
+            getDay(dayId)
         }
-        dayId?.let { Result.success(it) }
+        val previousDayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
+            if (currentDay?.day?.id != null && currentDay.day.date != null)
+                getPreviousDayIdBefore(currentDay.day.date, currentDay.day.id) else null
+        }
+        previousDayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No previous day found"))
 
     } catch (e: SQLException) {

@@ -64,12 +64,13 @@ class FriendsMapper @Inject constructor() {
     private fun List<FriendEntity>.sort() = sortedBy { it.name }
         .sortedByDescending { it.daysCount }
 
-    private fun createInitials(name: String): String {
-        val nameParts = name.split(" ").filter { it.isNotEmpty() }
-        val initials = when {
-            nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
-            else -> name[0].toString()
-        }
-        return initials
+}
+
+fun createInitials(name: String): String {
+    val nameParts = name.split(" ").filter { it.isNotEmpty() }
+    val initials = when {
+        nameParts.size >= 2 -> nameParts[0][0].toString() + nameParts[1][0].toString()
+        else -> name[0].toString()
     }
+    return initials
 }
