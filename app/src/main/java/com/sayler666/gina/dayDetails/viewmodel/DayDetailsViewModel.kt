@@ -17,6 +17,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnB
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
 import com.sayler666.gina.db.GinaDatabaseProvider
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,7 @@ import javax.inject.Inject
 class DayDetailsViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousDayUseCase: GetNextPreviousDayUseCase,
-    getDayDetailsUseCase: GetDayDetailsUseCase,
+    private val getDayDetailsUseCase: GetDayDetailsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -50,7 +51,9 @@ class DayDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
+    }
 
+    private fun fetchDayDetails() {
         viewModelScope.launch {
             getDayDetailsUseCase.getDayDetails(id)
                 .onSuccess { mutableViewState.emit(it.toState()) }
@@ -59,6 +62,7 @@ class DayDetailsViewModel @Inject constructor(
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {
+            OnResume -> fetchDayDetails()
             OnBackPressed -> mutableViewActions.trySend(Back)
             OnNextDayPressed -> goToNextDay()
             OnPreviousDayPressed -> goToPreviousDay()
@@ -92,6 +96,7 @@ class DayDetailsViewModel @Inject constructor(
     }
 
     sealed interface ViewEvent {
+        data object OnResume : ViewEvent
         data object OnDayDetailsPressed : ViewEvent
         data object OnNextDayPressed : ViewEvent
         data object OnPreviousDayPressed : ViewEvent

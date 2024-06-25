@@ -106,7 +106,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.constraintlayout)
     implementation(libs.androidx.compose.material.icons)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.permissions)
     implementation(libs.coil.compose)
