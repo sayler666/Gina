@@ -225,7 +225,7 @@ fun Insights(state: DataState) {
             ),
             colorProvider = { level -> moodLevelColor(level as MoodLevel) }
         )
-        FriendsList(state.friendsStats)
+        FriendsList(state.friendsLastMonthStats, state.friendsAllTimeStats)
         DoughnutChart(state.moodChartData)
         Spacer(
             modifier = Modifier.windowInsetsBottomHeight(

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -72,9 +73,24 @@ class InsightsViewModel @Inject constructor(
             ) { moods, search ->
                 moods to search
             }.flatMapLatest { (moods, search) ->
-                val friendsDeferred = async {
+                val friendsLastMonthDeferred = async {
                     getAllFriendsUseCase
-                        .getAllFriendsWithCount(search, moods)
+                        .getAllFriendsWithCount(
+                            searchQuery = search,
+                            moods = moods,
+                            dateFrom = LocalDate.now().minusMonths(1),
+                            dateTo = LocalDate.now()
+                        )
+                        .let { friendsMapper.mapToFriends(it) }
+                }
+                val friendsAllTimeDeferred = async {
+                    getAllFriendsUseCase
+                        .getAllFriendsWithCount(
+                            searchQuery = search,
+                            moods = moods,
+                            dateFrom = LocalDate.now().minusYears(100),
+                            dateTo = LocalDate.now()
+                        )
                         .let { friendsMapper.mapToFriends(it) }
                 }
 
@@ -82,10 +98,11 @@ class InsightsViewModel @Inject constructor(
                     .getFilteredDaysFlow(search, moods)
                     .map {
                         insightsMapper.toInsightsState(
-                            it,
-                            search,
-                            moods,
-                            friendsDeferred.await()
+                            days = it,
+                            searchQuery = search,
+                            moods = moods,
+                            friendsLastMonth = friendsLastMonthDeferred.await(),
+                            friendsAllTime = friendsAllTimeDeferred.await()
                         )
                     }
             }.collect(_state::tryEmit)

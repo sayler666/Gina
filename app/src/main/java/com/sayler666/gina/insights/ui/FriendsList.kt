@@ -18,12 +18,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,9 +40,11 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.ui.EmptyResult
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendsList(
-    friends: List<FriendEntity>
+    friendsLastMonth: List<FriendEntity>,
+    friendsAllTime: List<FriendEntity>
 ) {
     Card(
         modifier = Modifier
@@ -53,22 +58,63 @@ fun FriendsList(
                 .animateContentSize()
                 .padding(bottom = 8.dp)
         ) {
-            Text(
-                text = "Friends",
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
-            )
-            if (friends.isNotEmpty()) {
-                FriendsChart(friends)
-            } else {
-                EmptyResult(
-                    "No data found!",
-                    "No friends found within given filters.",
-                    headerStyle = MaterialTheme.typography.titleLarge
+            val lastMonth = remember { mutableStateOf(true) }
+            Row {
+                Text(
+                    text = "Friends",
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.titleMedium
+                        .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
                 )
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(Modifier.padding(end = 10.dp)) {
+                    FilterChip(
+                        label = {
+                            Text(
+                                "Last month",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(end = 8.dp),
+                        onClick = { lastMonth.value = true },
+                        selected = lastMonth.value,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    FilterChip(
+                        label = {
+                            Text(
+                                "All time",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        onClick = { lastMonth.value = false },
+                        selected = !lastMonth.value,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                }
             }
+            when (lastMonth.value) {
+                true -> FriendsStats(friendsLastMonth)
+
+                false -> FriendsStats(friendsAllTime)
+            }
+
         }
+    }
+}
+
+@Composable
+private fun FriendsStats(data: List<FriendEntity>) {
+    if (data.isNotEmpty()) {
+        FriendsChart(data)
+    } else {
+        EmptyResult(
+            "No data found!",
+            "No friends found within given filters.",
+            headerStyle = MaterialTheme.typography.titleLarge
+        )
     }
 }
 

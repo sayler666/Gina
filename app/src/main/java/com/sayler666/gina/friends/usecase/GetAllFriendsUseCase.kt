@@ -13,13 +13,16 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 interface GetAllFriendsUseCase {
     fun getAllFriendsWithCount(): Flow<List<FriendWithCount>>
     suspend fun getAllFriendsWithCount(
         searchQuery: String,
-        moods: List<Mood>
+        moods: List<Mood>,
+        dateFrom: LocalDate,
+        dateTo: LocalDate
     ): List<FriendWithCount>
 }
 
@@ -39,10 +42,12 @@ class GetAllFriendsUseCaseImpl @Inject constructor(
 
     override suspend fun getAllFriendsWithCount(
         searchQuery: String,
-        moods: List<Mood>
+        moods: List<Mood>,
+        dateFrom: LocalDate,
+        dateTo: LocalDate
     ): List<FriendWithCount> = try {
         ginaDatabaseProvider.returnWithDaysDao {
-            getFriendsWithCount(searchQuery, *moods.toTypedArray())
+            getFriendsWithCount(searchQuery, dateFrom, dateTo, *moods.toTypedArray())
         } ?: emptyList()
     } catch (e: SQLException) {
         Timber.e(e, "Database error")

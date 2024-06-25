@@ -107,9 +107,15 @@ interface DaysDao {
                 "LEFT JOIN days ON days.id = daysFriends.id " +
                 "WHERE content LIKE '%' || :searchQuery || '%' " +
                 "AND mood IN (:moods)" +
+                "AND days.date >= :dateFrom and days.date <= :dateTo " +
                 "GROUP BY friends.friend_id ORDER BY friendId DESC"
     )
-    suspend fun getFriendsWithCount(searchQuery: String?, vararg moods: Mood): List<FriendWithCount>
+    suspend fun getFriendsWithCount(
+        searchQuery: String?,
+        dateFrom: LocalDate,
+        dateTo: LocalDate,
+        vararg moods: Mood,
+    ): List<FriendWithCount>
 
     @Query("DELETE FROM daysFriends WHERE id = :id")
     suspend fun deleteFriendsForDay(id: Int): Int

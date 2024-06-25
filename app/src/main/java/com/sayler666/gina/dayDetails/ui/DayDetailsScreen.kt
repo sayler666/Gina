@@ -51,6 +51,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
@@ -81,6 +83,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnB
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
+import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
@@ -124,50 +127,55 @@ fun DayDetailsScreen(
         onViewAction(action, destinationsNavigator, snackbarHostState)
     }
 
-    if (viewState != null) {
-        Content(
-            state = viewState,
-            viewEvent = viewModel::onViewEvent,
-            snackbarHostState = snackbarHostState,
-        )
+    LifecycleStartEffect(Unit) {
+        viewModel.onViewEvent(OnResume)
+        onStopOrDispose {}
     }
+
+    Content(
+        state = viewState,
+        viewEvent = viewModel::onViewEvent,
+        snackbarHostState = snackbarHostState,
+    )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun Content(
-    state: DayDetailsState,
+    state: DayDetailsState?,
     viewEvent: (ViewEvent) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     val requester = remember { FocusRequester() }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
-        TopAppBar(title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
-            }
-        }, navigationIcon = {
-            IconButton(onClick = { viewEvent(OnBackPressed) }) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = null)
-            }
-        }, actions = {
-            state.mood.mapToMoodIcon().let { icon ->
-                Icon(
-                    rememberVectorPainter(image = icon.icon),
-                    tint = icon.color,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-            }
-            IconButton(onClick = {
-                viewEvent(OnDayDetailsPressed)
-            }) {
-                Icon(Icons.Filled.Edit, null)
-            }
-        })
+        state?.let {
+            TopAppBar(title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
+                }
+            }, navigationIcon = {
+                IconButton(onClick = { viewEvent(OnBackPressed) }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                }
+            }, actions = {
+                state.mood.mapToMoodIcon().let { icon ->
+                    Icon(
+                        rememberVectorPainter(image = icon.icon),
+                        tint = icon.color,
+                        contentDescription = null
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                IconButton(onClick = {
+                    viewEvent(OnDayDetailsPressed)
+                }) {
+                    Icon(Icons.Filled.Edit, null)
+                }
+            })
+        }
     }, content = { padding ->
         Column(
             modifier = Modifier
@@ -175,11 +183,13 @@ private fun Content(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            AttachmentsRow(state, viewEvent)
-            Text(state)
+            state?.let {
+                AttachmentsRow(state, viewEvent)
+                Text(state)
+            }
         }
     }, bottomBar = {
-        state.let {
+        state?.let {
             if (it.friends.isNotEmpty()) BottomAppBar(containerColor = MaterialTheme.colorScheme.surface,
                 content = { FriendsRow(it.friends) })
         }

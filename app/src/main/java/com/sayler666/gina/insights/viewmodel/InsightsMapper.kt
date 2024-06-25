@@ -25,7 +25,8 @@ class InsightsMapper @Inject constructor() {
         days: List<Day>,
         searchQuery: String,
         moods: List<Mood>,
-        friends: List<FriendEntity>
+        friendsLastMonth: List<FriendEntity>,
+        friendsAllTime: List<FriendEntity>,
     ): InsightState = when {
         days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries))
         -> EmptyState
@@ -41,7 +42,8 @@ class InsightsMapper @Inject constructor() {
             contributionHeatMapData = generateContributionHeatMapData(days),
             moodHeatMapData = generateMoodHeatMapData(days),
             moodChartData = generateMoodChartData(days),
-            friendsStats = friends
+            friendsLastMonthStats = friendsLastMonth,
+            friendsAllTimeStats = friendsAllTime,
         )
 
         else -> EmptyState
@@ -192,7 +194,8 @@ sealed class InsightState {
         val moodHeatMapData: Map<LocalDate, MoodLevel>,
         val moodChartData: List<MoodChartData>,
         val searchQuery: String? = null,
-        val friendsStats: List<FriendEntity>
+        val friendsLastMonthStats: List<FriendEntity>,
+        val friendsAllTimeStats: List<FriendEntity>,
     ) : InsightState()
 
     data object EmptySearchState : InsightState()
