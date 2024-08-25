@@ -81,9 +81,10 @@ class SettingsViewModel @Inject constructor(
                 } catch (e: Throwable) {
                     _toastMessage.emit("Error while vacuuming!")
                     Timber.e(e)
+                } finally {
+                    _showDbCardLoader.value = false
                 }
             }
-            _showDbCardLoader.value = false
             Timber.d("Vacuum ended in: $time")
         }
     }
