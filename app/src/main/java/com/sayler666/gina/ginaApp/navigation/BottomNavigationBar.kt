@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R
 import com.sayler666.gina.appCurrentDestinationAsState
@@ -79,6 +79,7 @@ fun BottomNavigationBar(
     color: Color,
     navController: NavController
 ) {
+    val destinationNavigator = navController.rememberDestinationsNavigator()
     val currentDestination: Destination = navController.appCurrentDestinationAsState().value
         ?: NavGraphs.root.startAppDestination
 
@@ -104,10 +105,10 @@ fun BottomNavigationBar(
                 isSelected = currentDestination == it.destination,
                 icon = if (currentDestination == it.destination) it.iconSelected else it.icon,
                 onClick = {
-                    navController.navigate(it.destination) {
+                    destinationNavigator.navigate(it.destination) {
                         launchSingleTop = true
                         restoreState = true
-                        popUpTo(JournalScreenDestination.route)
+                        popUpTo(JournalScreenDestination)
                     }
                 }
             )

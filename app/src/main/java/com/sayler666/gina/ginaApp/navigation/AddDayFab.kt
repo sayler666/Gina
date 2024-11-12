@@ -11,18 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.sayler666.gina.R
 import com.sayler666.gina.destinations.AddDayScreenDestination
 
 @Composable
 fun DayFab(modifier: Modifier = Modifier, navController: NavHostController) {
+    val destinationNavigator = navController.rememberDestinationsNavigator()
     FloatingActionButton(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
         onClick = {
-            navController.navigate(AddDayScreenDestination()) {
+            destinationNavigator.navigate(AddDayScreenDestination()) {
                 launchSingleTop = true
                 restoreState = false
             }

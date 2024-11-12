@@ -18,21 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
-import androidx.core.graphics.drawable.IconCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
-import com.sayler666.gina.R
 import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
 import com.sayler666.gina.core.permission.Permissions
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
-import com.sayler666.gina.ginaApp.navigation.addDayDestinationIntent
 import com.sayler666.gina.ginaApp.navigation.addDayShortcut
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -49,7 +45,7 @@ fun SelectDatabaseScreen(
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collectLatest {
             destinationsNavigator.navigate(JournalScreenDestination, builder = {
-                popUpTo(SelectDatabaseScreenDestination.route) { inclusive = true }
+                popUpTo(SelectDatabaseScreenDestination) { inclusive = true }
             })
         }
     }
