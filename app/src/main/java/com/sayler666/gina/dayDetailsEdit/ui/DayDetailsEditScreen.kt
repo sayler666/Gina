@@ -45,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -479,7 +480,7 @@ fun Attachments(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
             .padding(start = 8.dp)
             .combinedClickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(bounded = false),
+                indication = ripple(bounded = false),
                 enabled = true,
                 onLongClick = { onLongClick?.invoke() },
                 onClick = onClick
@@ -504,7 +505,7 @@ fun Friends(
         true -> Box(modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
             .clickable(
-                indication = rememberRipple(bounded = false),
+                indication = ripple(bounded = false),
                 interactionSource = remember {
                     MutableInteractionSource()
                 }) { showFriendsPopup.value = true }) {

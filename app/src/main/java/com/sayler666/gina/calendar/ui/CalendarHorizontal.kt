@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.*
 
 @Composable
 fun CalendarHorizontal(
@@ -81,13 +80,11 @@ fun CalendarHorizontal(
             onSelectDate = { date ->
                 coroutineScope.launch {
                     state.scrollToMonth(date.yearMonth)
-                    currentYearMonth.value = date.yearMonth
                 }
             },
             onTodayClick = {
                 coroutineScope.launch {
                     state.scrollToMonth(today.yearMonth)
-                    currentYearMonth.value = today.yearMonth
                 }
             })
         HorizontalCalendar(
@@ -223,14 +220,14 @@ private fun rememberFirstMostVisibleMonth(
 ): CalendarMonth {
     val visibleMonth = remember(state) { mutableStateOf(state.firstVisibleMonth) }
     LaunchedEffect(state) {
-        snapshotFlow { state.layoutInfo.firstMostVisibleMonth(viewportPercent) }
+        snapshotFlow { state.layoutInfo.lastMostVisibleMonth(viewportPercent) }
             .filterNotNull()
             .collect { month -> visibleMonth.value = month }
     }
     return visibleMonth.value
 }
 
-private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
+private fun CalendarLayoutInfo.lastMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
     return if (visibleMonthsInfo.isEmpty()) {
         null
     } else {

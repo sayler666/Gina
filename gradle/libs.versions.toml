@@ -4,40 +4,38 @@
 minSdk = "33"
 targetSdk = "33"
 compileSdk = "android-34"
-agp = "8.4.2"
+agp = "8.7.2"
 
 # Application version
-versionCode = "8"
+versionCode = "9"
 versionMajor = "2"
 versionMinor = "7"
-versionRevision = "1"
+versionRevision = "2"
 
 # Kotlin
-kotlin = "2.0.21"
+kotlin = "2.0.20"
 kotlin-coroutines = "1.9.0-RC.2"
 kotlin-serialization = "1.7.3"
-ksp = "2.0.21-1.0.27"
+ksp = "2.0.20-1.0.24"
 
 # Compose
-compose = "1.5.4"
-compose-material3 = "1.2.1"
-richeditor-compose = "1.0.0-beta05"
-compose-destination = "1.10.2"
-calendar-compose = "2.4.0"
+compose = "1.7.5"
+compose-material3 = "1.3.1"
+richeditor-compose = "1.0.0-rc10"
+compose-destination = "1.11.7"
+calendar-compose = "2.6.0"
 coil-compose = "2.4.0"
 
 # AndroidX
 androidx-core = "1.13.1"
-androidx-appcompat = "1.7.0"
-androidx-activity = "1.9.2"
-androidx-constraintLayout-compose = "1.0.1"
-androidx-lifecycle = "2.8.6"
-androidx-annotations = "1.8.2"
+androidx-activity = "1.9.3"
+androidx-constraintLayout-compose = "1.1.0"
+androidx-lifecycle = "2.8.7"
 androidx-datastore = "1.1.1"
 
 # Navigation
-navigation = "2.7.6"
-lifecycle = "2.7.0"
+navigation = "2.8.3"
+lifecycle = "2.8.7"
 core-splashscreen = "1.0.1"
 
 # Accompanist
@@ -49,28 +47,28 @@ room = "2.6.1"
 
 # Hilt
 hilt = "2.49"
-hilt-navigation-compose = "1.1.0"
-hilt-compiler = "1.1.0"
-desugar-jdk-libs = "2.0.4"
+hilt-navigation-compose = "1.2.0"
+hilt-compiler = "1.2.0"
+desugar-jdk-libs = "2.1.3"
 
 # Network
 retrofit = "2.9.0"
 retrofit-serialization-converter = "1.0.0"
-okio = "3.6.0"
+okio = "3.7.0"
 okhttp3 = "4.12.0"
 
 # Google services
-google-services = "4.4.0"
+google-services = "4.4.2"
 
 # Firebase
-firebase-crashlytics = "2.9.9"
-firebase-bom = "32.7.1"
+firebase-crashlytics = "3.0.2"
+firebase-bom = "33.5.1"
 firebaseCrashlyticsGradle = "3.0.2"
 
 # Other
 timber = "5.0.1"
-commons-io = "2.11.0"
-exifinterface = "1.3.6"
+commons-io = "2.13.0"
+exifinterface = "1.3.7"
 jsoup = "1.14.3"
 
 # Test

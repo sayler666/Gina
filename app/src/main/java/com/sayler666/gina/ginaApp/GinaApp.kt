@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
@@ -39,10 +38,10 @@ import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
-import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
-import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.navigation.BottomBarState
 import com.sayler666.gina.ginaApp.navigation.BottomBarState.Shown
+import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
+import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
@@ -51,9 +50,7 @@ import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(
-    ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class,
-)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(
     vm: GinaMainViewModel
