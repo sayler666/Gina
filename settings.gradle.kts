@@ -1,7 +1,7 @@
-rootProject.name = "Gina"
-include(":app")
+@file:Suppress("UnstableApiUsage")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -17,4 +17,9 @@ dependencyResolutionManagement {
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     }
 }
+
+rootProject.name = "Gina"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(":app")
 include(":core")
