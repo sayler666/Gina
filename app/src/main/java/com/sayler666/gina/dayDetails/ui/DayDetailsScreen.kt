@@ -22,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +32,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,7 +52,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -190,8 +190,7 @@ private fun Content(
         }
     }, bottomBar = {
         state?.let {
-            if (it.friends.isNotEmpty()) BottomAppBar(containerColor = MaterialTheme.colorScheme.surface,
-                content = { FriendsRow(it.friends) })
+            FriendsRow(state.friends)
         }
     }, modifier = Modifier
         .onKeyEvent {
@@ -259,7 +258,7 @@ private fun goToDay(
     destinationsNavigator.navigate(
         DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId = dayId, way = way))
     ) {
-        popUpTo(DayDetailsScreenDestination.route) { inclusive = true }
+        popUpTo(DayDetailsScreenDestination) { inclusive = true }
     }
 }
 
@@ -316,18 +315,26 @@ private fun AttachmentsRow(
 fun FriendsRow(friends: List<FriendState>) {
     val context = LocalContext.current
 
-    LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
-        items(friends) { friend ->
-            FriendIcon(friend = friend,
-                size = 42.dp,
-                modifier = Modifier
-                    .padding(end = 8.dp, top = 0.dp)
-                    .clickable(indication = rememberRipple(bounded = false),
-                        interactionSource = remember { MutableInteractionSource() }) {
-                        Toast
-                            .makeText(context, friend.name, Toast.LENGTH_SHORT)
-                            .show()
-                    })
-        }
-    })
+    if (friends.isNotEmpty())
+        BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            content = {
+                LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
+                    items(friends) { friend ->
+                        FriendIcon(friend = friend,
+                            size = 42.dp,
+                            modifier = Modifier
+                                .padding(end = 8.dp, top = 0.dp)
+                                .clickable(indication = ripple(bounded = false),
+                                    interactionSource = remember { MutableInteractionSource() }) {
+                                    Toast
+                                        .makeText(context, friend.name, Toast.LENGTH_SHORT)
+                                        .show()
+                                })
+                    }
+                })
+
+            }
+        )
+
+
 }

@@ -25,11 +25,16 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBot
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.mood.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -60,6 +65,7 @@ class JournalViewModel @Inject constructor(
         initDb()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun initDb() {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
 
@@ -77,9 +83,13 @@ class JournalViewModel @Inject constructor(
                         moods = moods,
                         previousYearsAttachments = attachments
                     )
-                }.onEach(mutableViewState::tryEmit)
-                .launchIn(viewModelScope)
-        }.launchIn(viewModelScope)
+                }
+        }
+            .flattenConcat()
+            .flowOn(Dispatchers.Default)
+            .distinctUntilChanged()
+            .onEach(mutableViewState::tryEmit)
+            .launchIn(viewModelScope)
     }
 
     fun onViewEvent(event: ViewEvent) {

@@ -18,10 +18,6 @@ dependencies {
     // Kotlin
     implementation(libs.kotlin.serialization.json)
 
-    // Kotlin Coroutines
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.kotlin.coroutines.android)
-
     // Dagger hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)

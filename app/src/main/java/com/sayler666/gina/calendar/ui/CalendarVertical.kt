@@ -83,13 +83,11 @@ fun CalendarVertical(
             onSelectDate = { date ->
                 coroutineScope.launch {
                     state.scrollToMonth(date.yearMonth)
-                    currentYearMonth.value = date.yearMonth
                 }
             },
             onTodayClick = {
                 coroutineScope.launch {
                     state.scrollToMonth(today.yearMonth)
-                    currentYearMonth.value = today.yearMonth
                 }
             })
         WeekDaysHeader(daysOfWeek)
