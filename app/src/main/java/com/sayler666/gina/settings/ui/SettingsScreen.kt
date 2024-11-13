@@ -2,6 +2,7 @@ package com.sayler666.gina.settings.ui
 
 import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,10 @@ fun SettingsScreen(
 
     val notificationPermissionState =
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+
+    BackHandler {
+        destinationsNavigator.popBackStack()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collectLatest {

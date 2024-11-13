@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -64,7 +65,7 @@ fun YearMonthSwitcherPopup(
                     enabled = true,
                     indication = null,
                     onClick = { onDismiss() },
-                    interactionSource = MutableInteractionSource()
+                    interactionSource = remember { MutableInteractionSource() }
                 ), contentAlignment = Alignment.Center
         ) {
             Card(
@@ -74,7 +75,7 @@ fun YearMonthSwitcherPopup(
                         enabled = true,
                         indication = null,
                         onClick = { },
-                        interactionSource = MutableInteractionSource()
+                        interactionSource = remember { MutableInteractionSource() }
                     ),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

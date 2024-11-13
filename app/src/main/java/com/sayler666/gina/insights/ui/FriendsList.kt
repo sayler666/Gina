@@ -23,6 +23,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,7 +41,6 @@ import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.ui.EmptyResult
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendsList(
     friendsLastMonth: List<FriendEntity>,
@@ -50,7 +50,7 @@ fun FriendsList(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)),
         elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(
