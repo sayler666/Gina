@@ -60,6 +60,7 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -94,13 +95,6 @@ fun AddDayScreen(
 
     val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-    ImageCompressBottomSheet(
-        showDialog = showImageCompressSettingsDialog.value,
-        imageOptimizationSettings = imageOptimizationSettings,
-        onDismiss = { showImageCompressSettingsDialog.value = false },
-        onSetImageQuality = viewModel::setNewImageQuality,
-        onImageCompressionToggled = viewModel::toggleImageCompression
-    )
 
     val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
@@ -162,7 +156,9 @@ fun AddDayScreen(
                 BottomBar(
                     it,
                     addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
-                    addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
+                    addAttachmentLongClickAction = {
+                        Timber.d("show image comp ${showImageCompressSettingsDialog.value}")
+                        showImageCompressSettingsDialog.value = true },
                     onSaveChanges = { viewModel.saveChanges() },
                     onMoodChanged = { mood ->
                         viewModel.setNewMood(mood)
@@ -220,6 +216,14 @@ fun AddDayScreen(
                     )
                 }
             }
+
+            ImageCompressBottomSheet(
+                showDialog = showImageCompressSettingsDialog.value,
+                imageOptimizationSettings = imageOptimizationSettings,
+                onDismiss = { showImageCompressSettingsDialog.value = false },
+                onSetImageQuality = viewModel::setNewImageQuality,
+                onImageCompressionToggled = viewModel::toggleImageCompression
+            )
         })
 }
 
