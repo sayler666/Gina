@@ -50,6 +50,7 @@ import com.sayler666.core.compose.conditional
 import com.sayler666.core.string.containsHtml
 import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.quotes.db.Quote
+import timber.log.Timber
 import java.time.LocalDate
 
 @Composable
@@ -69,8 +70,10 @@ fun RichTextEditor(
     }
 
     LaunchedEffect(richTextState.annotatedString) {
-        if (callOnContentChanged)
+        if (callOnContentChanged) {
             onContentChanged(richTextState.toHtml())
+            Timber.d("conetnt:" + richTextState.toHtml())
+        }
         callOnContentChanged = true
     }
 
@@ -93,11 +96,7 @@ fun RichTextEditor(
                         visible = richTextState.toHtml().getTextWithoutHtml()
                             .isEmpty() && quote != null,
                         onClick = { quote ->
-                            with(richTextState) {
-                                setHtml(quote.toHtml())
-                                removeSpanStyle(currentSpanStyle)
-                                removeParagraphStyle(currentParagraphStyle)
-                            }
+                            richTextState.setHtml(quote.toHtml())
                         }
                     )
                     innerTextField()
@@ -109,7 +108,7 @@ fun RichTextEditor(
 
 private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>" +
         "<p style=\"text-align: center;\"><b>—$author</b></p>" +
-        "<p><br/></p>"
+        "<p style=\"text-align: left;\"><br></p>"
 
 @Preview(backgroundColor = 0xFF009688)
 @Composable
