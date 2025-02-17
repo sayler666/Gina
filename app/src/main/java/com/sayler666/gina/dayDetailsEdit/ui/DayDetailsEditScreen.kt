@@ -165,13 +165,6 @@ fun DayDetailsEditScreen(
 
     val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-    ImageCompressBottomSheet(
-        showDialog = showImageCompressSettingsDialog.value,
-        imageOptimizationSettings = imageOptimizationSettings,
-        onDismiss = { showImageCompressSettingsDialog.value = false },
-        onSetImageQuality = viewModel::setNewImageQuality,
-        onImageCompressionToggled = viewModel::toggleImageCompression
-    )
 
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
@@ -261,6 +254,14 @@ fun DayDetailsEditScreen(
                     }
                 }
             }
+
+            ImageCompressBottomSheet(
+                showDialog = showImageCompressSettingsDialog.value,
+                imageOptimizationSettings = imageOptimizationSettings,
+                onDismiss = { showImageCompressSettingsDialog.value = false },
+                onSetImageQuality = viewModel::setNewImageQuality,
+                onImageCompressionToggled = viewModel::toggleImageCompression
+            )
         })
 }
 
