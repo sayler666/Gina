@@ -20,8 +20,6 @@ class MainActivity : ComponentActivity() {
 
     private val vm: GinaMainViewModel by viewModels()
 
-    //    @Inject
-//    lateinit var addReminder: AddReminderUseCase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,9 +40,6 @@ class MainActivity : ComponentActivity() {
             GinaApp(vm)
         }
 
-//        lifecycleScope.launch {
-//            addReminder(Reminder(time = LocalTime.now().plusSeconds(5)))
-//        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
