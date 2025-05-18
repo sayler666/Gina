@@ -9,7 +9,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,6 +81,8 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBot
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 
 @RootNavGraph
 @Destination
@@ -221,7 +222,6 @@ private fun JournalContent(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun DayList(
     days: List<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
@@ -237,9 +237,12 @@ private fun DayList(
         onViewEvent(OnShowBottomBar)
     }
 
+    val hazeState = rememberHazeState()
+
     val daysGrouped = days.groupBy { it.header }
     LazyColumn(
-        Modifier.nestedScroll(nestedScrollConnection),
+        Modifier
+            .nestedScroll(nestedScrollConnection),
         state = listState
     ) {
         item {
@@ -248,7 +251,10 @@ private fun DayList(
 
         daysGrouped.forEach { (header, days) ->
             stickyHeader {
-                ListStickyHeader(header)
+                ListStickyHeader(
+                    hazeState = hazeState,
+                    text = header
+                )
             }
 
             items(
@@ -257,7 +263,7 @@ private fun DayList(
             ) { dayRowState ->
                 DayRow(
                     state = dayRowState,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem().hazeSource(hazeState),
                     onClick = { onViewEvent(OnDayClick(dayRowState.id)) }
                 )
             }

@@ -64,7 +64,7 @@ fun ByteArray.scaleToMinSize(minWidth: Int = 1080, minHeight: Int = 1920): Scale
             w = destWidth.toInt()
             h = minHeight
         } else {
-            scaledBitmap = it.copy(it.config, true)
+            scaledBitmap = it.copy(it.config!!, true)
         }
 
         it.recycle()

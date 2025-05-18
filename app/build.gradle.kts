@@ -67,6 +67,8 @@ dependencies {
 
     // Other
     implementation(libs.timber)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 
     testImplementation(libs.junit)
 }
