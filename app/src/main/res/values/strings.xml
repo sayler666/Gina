@@ -13,6 +13,8 @@
     <string name="theme_mountain_view">Mountain View</string>
     <string name="theme_dynamic">Dynamic</string>
     <string name="theme_legacy">Legacy</string>
+    <string name="theme_deep_ocean">Deep Ocean</string>
+    <string name="theme_golden_meadow_twilight">Golden Meadow Twilight</string>
 
     <string name="today">Today</string>
     <plurals name="years_ago_label">

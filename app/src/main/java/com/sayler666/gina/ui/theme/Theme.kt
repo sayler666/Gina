@@ -11,7 +11,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.sayler666.gina.BuildConfig
 import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.ui.theme.colors.DeepOceanColors
 import com.sayler666.gina.ui.theme.colors.FirewatchColors
+import com.sayler666.gina.ui.theme.colors.GoldenMeadowTwilightColors
 import com.sayler666.gina.ui.theme.colors.LegacyColors
 import com.sayler666.gina.ui.theme.colors.MountainViewColors
 import timber.log.Timber
@@ -34,6 +36,8 @@ fun GinaTheme(
         }
 
         Legacy -> if (darkTheme) LegacyColors.DarkColors else LegacyColors.LightColors
+        DeepOcean -> if (darkTheme) DeepOceanColors.DarkColors else DeepOceanColors.LightColors
+        GoldenMeadowTwilight -> if (darkTheme) GoldenMeadowTwilightColors.DarkColors else GoldenMeadowTwilightColors.LightColors
     }
 
     // Log current colors values
