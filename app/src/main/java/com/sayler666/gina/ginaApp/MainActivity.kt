@@ -5,11 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.sayler666.gina.ginaApp.navigation.addDayShortcut
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -34,6 +36,10 @@ class MainActivity : ComponentActivity() {
                     showSplash = it != null
                 }
         }
+
+        ShortcutManagerCompat.removeAllDynamicShortcuts(baseContext)
+        ShortcutManagerCompat.pushDynamicShortcut(baseContext, addDayShortcut(baseContext))
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         setContent {
