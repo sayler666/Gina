@@ -1,7 +1,7 @@
 package com.sayler666.gina.ginaApp.navigation
 
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.TaskStackBuilder
 import android.content.Context
@@ -23,7 +23,7 @@ fun addDayShortcut(context: Context) = ShortcutInfoCompat.Builder(context, "AddD
 fun addDayDestinationPendingIntent(context: Context): PendingIntent =
     TaskStackBuilder.create(context).run {
         addNextIntentWithParentStack(addDayDestinationIntent())
-        getPendingIntent(1, FLAG_UPDATE_CURRENT or FLAG_MUTABLE)
+        getPendingIntent(1, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
     }
 
 fun addDayDestinationIntent(): Intent = Intent(

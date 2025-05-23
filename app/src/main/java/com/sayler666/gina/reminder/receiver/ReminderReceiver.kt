@@ -2,7 +2,7 @@ package com.sayler666.gina.reminder.receiver
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -74,7 +74,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 context,
                 0,
                 Intent(context, ReminderReceiver::class.java),
-                FLAG_UPDATE_CURRENT or FLAG_MUTABLE
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
 
             val triggerTimeEpochMillis = LocalTime.now()

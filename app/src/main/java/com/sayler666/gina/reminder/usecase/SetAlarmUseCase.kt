@@ -2,7 +2,7 @@ package com.sayler666.gina.reminder.usecase
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
@@ -26,7 +26,12 @@ class SetAlarmUseCase @Inject constructor(
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, ReminderReceiver::class.java)
             val pendingIntent =
-                PendingIntent.getBroadcast(context, 0, intent, FLAG_UPDATE_CURRENT or FLAG_MUTABLE)
+                PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    intent,
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+                )
 
             var triggerTimeEpochMillis =
                 reminder.time.toEpochSecond(LocalDate.now(), OffsetDateTime.now().offset) * 1000
