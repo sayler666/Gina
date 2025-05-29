@@ -6,8 +6,8 @@ import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCaseImpl
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCaseImpl
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCaseUseCaseImpl
+import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
+import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCaseUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
@@ -52,7 +52,7 @@ abstract class UseCaseModule {
     abstract fun provideImageAttachmentsRepository(useCase: ImageAttachmentsRepositoryImpl): ImageAttachmentsRepository
 
     @Binds
-    abstract fun provideGetNextPreviousDayDetailsUseCase(useCase: GetNextPreviousDayUseCaseUseCaseImpl): GetNextPreviousDayUseCase
+    abstract fun provideGetNextPreviousDayDetailsUseCase(useCase: GetNextPreviousIdDayUseCaseUseCaseImpl): GetNextPreviousIdDayUseCase
 
     @Binds
     abstract fun provideEditDayUseCase(useCase: EditDayUseCaseImpl): EditDayUseCase

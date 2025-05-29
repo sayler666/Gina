@@ -1,7 +1,7 @@
 package com.sayler666.gina.settings
 
 import com.sayler666.core.image.ImageOptimizationSettings
-import com.sayler666.gina.db.DatabaseSettingsStorage
+import com.sayler666.data.database.db.journal.DatabaseSettingsStorage
 import javax.inject.Inject
 
 class SettingsStorage @Inject constructor(

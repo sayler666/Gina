@@ -5,17 +5,17 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.domain.model.journal.AttachmentWithDay
+import com.sayler666.domain.model.journal.Day
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.viewmodel.toState
-import com.sayler666.gina.db.entity.AttachmentWithDay
-import com.sayler666.gina.db.entity.Day
 import com.sayler666.gina.journal.ui.DayRowState
 import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
 import com.sayler666.gina.journal.ui.ImageAttachmentState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
-import com.sayler666.gina.mood.Mood
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -28,9 +28,6 @@ class DaysMapper @Inject constructor() {
     ): JournalState {
 
         val daysResult = days.pmap {
-            requireNotNull(it.id)
-            requireNotNull(it.date)
-            requireNotNull(it.content)
             val nonHtml = it.content.getTextWithoutHtml()
             DayRowState(
                 id = it.id,
@@ -48,9 +45,9 @@ class DaysMapper @Inject constructor() {
         }
 
         return when {
-            daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(
-                Mood.entries
-            )) -> EmptyState(activeFilters = moods.size != Mood.entries.size)
+            daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries)) -> EmptyState(
+                activeFilters = moods.size != Mood.entries.size
+            )
 
             daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
                 Mood.entries
@@ -95,10 +92,9 @@ class DaysMapper @Inject constructor() {
         val now = LocalDate.now()
         return sortedByDescending { it.day.date }
             .mapNotNull { attachmentWithDay ->
-                attachmentWithDay.day.date?.let {
+                attachmentWithDay.day.date.let {
                     val yearsAgo = now.minusYears(it.year.toLong()).year
-                    val attachmentState = attachmentWithDay.attachment.toState()
-                    when (attachmentState) {
+                    when (val attachmentState = attachmentWithDay.attachment.toState()) {
                         is AttachmentState.AttachmentImageState -> ImageAttachmentState(
                             attachmentState,
                             yearsAgo

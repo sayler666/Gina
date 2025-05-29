@@ -1,7 +1,7 @@
 package com.sayler666.gina.reminder.usecase
 
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.returnWithDaysDao
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.returnWithDaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

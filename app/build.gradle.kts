@@ -12,6 +12,8 @@ android {
 
 dependencies {
     api(projects.core)
+    implementation(projects.dataDatabase)
+    implementation(projects.domainModel)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

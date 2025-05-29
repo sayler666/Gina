@@ -42,7 +42,7 @@ import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.reminder.viewmodel.ReminderEntity
+import com.sayler666.gina.reminder.viewmodel.ReminderState
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.settings.viewmodel.ThemeItem
 import com.sayler666.gina.ui.NavigationBarColor
@@ -64,7 +64,7 @@ fun SettingsScreen(
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
     val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()
-    val reminder: ReminderEntity by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
+    val reminder: ReminderState by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
     val dbCardLoader: Boolean by viewModel.showDbCardLoader.collectAsStateWithLifecycle()
 
     val notificationPermissionState =

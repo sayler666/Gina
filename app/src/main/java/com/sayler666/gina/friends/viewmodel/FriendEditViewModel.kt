@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
-import com.sayler666.gina.db.entity.Friend
+import com.sayler666.domain.model.journal.Friend
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +46,7 @@ class FriendEditViewModel @Inject constructor(
 
     fun loadFriend(id: Int) {
         viewModelScope.launch {
-            getFriendUseCase.getFriend(id).collect {
+            getFriendUseCase.getFriendFlow(id).collect {
                 _friend.value = it
             }
         }

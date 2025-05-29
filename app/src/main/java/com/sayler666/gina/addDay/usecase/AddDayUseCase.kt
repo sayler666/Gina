@@ -1,52 +1,29 @@
 package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.dao.DaysDao
-import com.sayler666.gina.db.entity.DayDetails
-import com.sayler666.gina.db.entity.DayFriends
-import com.sayler666.gina.db.transactionWithDaysDao
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.data.database.db.journal.dao.DaysDao
+import com.sayler666.data.database.db.journal.entity.DayDetailsEntity
+import com.sayler666.data.database.db.journal.entity.DayFriendsEntity
+import com.sayler666.data.database.db.journal.transactionWithDaysDao
+import com.sayler666.domain.model.journal.DayDetails
 import timber.log.Timber
 import javax.inject.Inject
 
 interface AddDayUseCase {
-    suspend fun addDay(
-        dayDetails: DayDetails
-    )
+    suspend fun addDay(dayDetails: DayDetails)
 }
 
 class AddDayUseCaseImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider
+    private val journalRepository: JournalRepository,
 ) : AddDayUseCase {
-    override suspend fun addDay(
-        dayDetails: DayDetails
-    ) {
+    override suspend fun addDay(dayDetails: DayDetails) {
         try {
-            ginaDatabaseProvider.transactionWithDaysDao {
-                val dayId = addDay(dayDetails.day).toInt()
-                addAttachments(dayDetails, dayId)
-                addFriends(dayDetails, dayId)
-            }
+            journalRepository.addDay(dayDetails)
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
     }
 
-    private suspend fun DaysDao.addAttachments(
-        dayDetails: DayDetails,
-        dayId: Int
-    ) {
-        dayDetails.attachments.toMutableList()
-            .map { it.copy(dayId = dayId) }
-            .let { insertAttachments(it) }
-    }
-
-    private suspend fun DaysDao.addFriends(
-        dayDetails: DayDetails,
-        dayId: Int
-    ) {
-        dayDetails.friends
-            .map { friend -> DayFriends(dayId, friend.id) }
-            .let { addFriendsToDay(it) }
-    }
 }

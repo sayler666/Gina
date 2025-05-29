@@ -2,7 +2,7 @@
 
 # Android SDK
 minSdk = "33"
-targetSdk = "35"
+targetSdk = "34"
 compileSdk = "android-35"
 agp = "8.8.2"
 
@@ -75,6 +75,10 @@ haze = "1.6.0"
 
 # Test
 junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
 
 [libraries]
 
@@ -157,6 +161,10 @@ plgn-andrid-library = { module = "com.android.library:com.android.library.gradle
 plgn-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 plgn-kotlin-compose-compiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 firebase-crashlytics-gradle = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 agp-application = { id = "com.android.application", version.ref = "agp" }

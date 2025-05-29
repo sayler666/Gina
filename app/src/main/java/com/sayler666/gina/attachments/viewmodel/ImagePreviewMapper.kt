@@ -3,25 +3,18 @@ package com.sayler666.gina.attachments.viewmodel
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
-import com.sayler666.gina.db.entity.AttachmentWithDay
-import com.sayler666.gina.mood.Mood
+import com.sayler666.domain.model.journal.AttachmentWithDay
+import com.sayler666.domain.model.journal.Mood
+import com.sayler666.gina.attachments.ui.AttachmentState
 import javax.inject.Inject
 
 
-class ImagePreviewMapper @Inject constructor(
-    private val attachmentMapper: AttachmentMapper
-) {
+class ImagePreviewMapper @Inject constructor() {
     fun mapToVm(
         attachmentWithDay: AttachmentWithDay,
     ): ImagePreviewWithDayEntity = with(attachmentWithDay) {
-        requireNotNull(day.id)
-        requireNotNull(day.date)
-        requireNotNull(attachment.id)
-        requireNotNull(attachment.mimeType)
-        requireNotNull(attachment.content)
         return ImagePreviewWithDayEntity(
-            attachment = attachmentMapper.mapToAttachmentEntity(attachment),
+            attachment = attachment.toState(),
             imageFormat = parseMimeType(attachment.mimeType),
             imageSize = getImageSize(attachment.content),
             mood = day.mood,
@@ -38,7 +31,11 @@ class ImagePreviewTmpMapper @Inject constructor() {
         image: ByteArray,
         mimeType: String
     ): ImagePreviewTmpEntity = ImagePreviewTmpEntity(
-        attachment = Image(id = null, bytes = image, mimeType = mimeType),
+        attachment = AttachmentState.AttachmentImageState(
+            id = null,
+            content = image,
+            mimeType = mimeType
+        ),
         imageFormat = parseMimeType(mimeType),
         imageSize = getImageSize(image)
     )
@@ -52,19 +49,19 @@ private fun parseMimeType(mimeType: String): String {
 }
 
 interface ImagePreviewEntity {
-    val attachment: AttachmentEntity
+    val attachment: AttachmentState
     val imageFormat: String
     val imageSize: String
 }
 
 data class ImagePreviewTmpEntity(
-    override val attachment: AttachmentEntity,
+    override val attachment: AttachmentState,
     override val imageFormat: String,
     override val imageSize: String
 ) : ImagePreviewEntity
 
 data class ImagePreviewWithDayEntity(
-    override val attachment: AttachmentEntity,
+    override val attachment: AttachmentState,
     override val imageFormat: String,
     override val imageSize: String,
     val dayId: Int,

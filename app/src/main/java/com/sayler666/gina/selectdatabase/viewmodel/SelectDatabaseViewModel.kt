@@ -3,7 +3,7 @@ package com.sayler666.gina.selectdatabase.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.destinations.Destination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel

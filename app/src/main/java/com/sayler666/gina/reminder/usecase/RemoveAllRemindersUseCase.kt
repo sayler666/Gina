@@ -6,8 +6,8 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
-import com.sayler666.gina.reminder.db.RemindersDatabaseProvider
-import com.sayler666.gina.reminder.db.withRemindersDao
+import com.sayler666.data.database.db.reminders.RemindersDatabaseProvider
+import com.sayler666.data.database.db.reminders.withRemindersDao
 import com.sayler666.gina.reminder.receiver.ReminderReceiver
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

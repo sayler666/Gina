@@ -2,7 +2,7 @@ package com.sayler666.gina.journal.viewmodel
 
 import com.sayler666.gina.journal.ui.DayRowState
 import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
-import com.sayler666.gina.mood.Mood
+import com.sayler666.domain.model.journal.Mood
 
 sealed class JournalState(val filtersActive: Boolean = false) {
     data class DaysState(

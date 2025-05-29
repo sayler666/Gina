@@ -17,4 +17,6 @@ local.properties
 /.idea/encodings.xml
 /.idea/
 /build-logic/convention/build/
+/data-database/build/
+/domain-model/build/
 .kotlin/

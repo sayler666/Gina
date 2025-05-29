@@ -1,10 +1,7 @@
 package com.sayler666.gina.dayDetailsEdit.usecase
 
-import android.database.SQLException
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.DayDetails
-import com.sayler666.gina.db.withDaysDao
-import timber.log.Timber
+import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.domain.model.journal.DayDetails
 import javax.inject.Inject
 
 interface DeleteDayUseCase {
@@ -12,15 +9,9 @@ interface DeleteDayUseCase {
 }
 
 class DeleteDayUseCaseImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider
+    private val journalRepository: JournalRepository,
 ) : DeleteDayUseCase {
     override suspend fun deleteDay(dayDetails: DayDetails) {
-        try {
-            ginaDatabaseProvider.withDaysDao {
-                deleteDay(dayDetails.day)
-            }
-        } catch (e: SQLException) {
-            Timber.e(e, "Database error")
-        }
+        journalRepository.deleteDay(dayDetails)
     }
 }

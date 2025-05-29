@@ -1,10 +1,10 @@
 package com.sayler666.gina.quotes
 
 import com.sayler666.gina.quotes.api.ZenQuotesService
-import com.sayler666.gina.quotes.db.Quote
-import com.sayler666.gina.quotes.db.QuotesDatabaseProvider
-import com.sayler666.gina.quotes.db.returnWithQuotesDao
-import com.sayler666.gina.quotes.db.withQuotesDao
+import com.sayler666.data.database.db.quotes.QuoteEntity
+import com.sayler666.data.database.db.quotes.QuotesDatabaseProvider
+import com.sayler666.data.database.db.quotes.returnWithQuotesDao
+import com.sayler666.data.database.db.quotes.withQuotesDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +24,7 @@ class QuotesRepository @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
-    fun latestTodayQuoteFlow(): Flow<Quote?> = flow {
+    fun latestTodayQuoteFlow(): Flow<QuoteEntity?> = flow {
         val todayDate = LocalDate.now()
         quotesDatabaseProvider.withQuotesDao {
             getLatestQuoteFlow()
@@ -51,6 +51,6 @@ class QuotesRepository @Inject constructor(
     }
 
     private fun mapToDbModel(quoteApiModel: QuoteApiModel, date: LocalDate) =
-        Quote(null, quoteApiModel.quote, quoteApiModel.author, date)
+        QuoteEntity(null, quoteApiModel.quote, quoteApiModel.author, date)
 }
 

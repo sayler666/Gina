@@ -7,11 +7,9 @@ import android.graphics.BitmapFactory
 import coil.decode.DecodeUtils.calculateInSampleSize
 import coil.size.Scale.FILL
 import com.sayler666.core.collections.pmap
+import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.gina.core.BuildConfig
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.Attachment
-import com.sayler666.gina.db.returnWithDaysDao
-import com.sayler666.gina.db.withDaysDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -32,7 +30,7 @@ interface ImageAttachmentsRepository {
 }
 
 class ImageAttachmentsRepositoryImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
+    private val journalRepository: JournalRepository,
     private val externalScope: CoroutineScope,
     private val context: Context
 ) : ImageAttachmentsRepository {
@@ -45,24 +43,18 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     override fun fetchNextPage() {
         externalScope.launch {
-            try {
-                ginaDatabaseProvider.withDaysDao {
-                    val thumbnails = getImageAttachmentsIds(offset)
-                        .mapToThumbnails().filterNotNull()
+            val thumbnails = journalRepository.getImageAttachmentsIds(offset)
+                .mapToThumbnails().filterNotNull()
 
-                    val updatedState = (attachmentsCached.value + thumbnails).distinctBy { it.id }
-                    attachmentsCached.tryEmit(updatedState)
+            val updatedState = (attachmentsCached.value + thumbnails).distinctBy { it.id }
+            attachmentsCached.tryEmit(updatedState)
 
-                    offset = updatedState.size
-                }
-            } catch (e: SQLException) {
-                Timber.e(e, "ImageRepository: Database error")
-            }
+            offset = updatedState.size
         }
     }
 
     override suspend fun fetchFullImage(id: Int): Result<Attachment> = try {
-        val image: Attachment? = ginaDatabaseProvider.returnWithDaysDao { getImage(id) }
+        val image: Attachment? = journalRepository.getImage(id)
         image?.let { Result.success(image) }
             ?: Result.failure(NoSuchElementException("Image with id: '$id' not found!"))
     } catch (e: SQLException) {
@@ -83,45 +75,43 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
 
     private suspend fun createThumbnailForId(id: Int): ByteArray? = coroutineScope {
         async {
-            ginaDatabaseProvider.returnWithDaysDao {
-                val attachment = getImage(id)
-                val image = attachment.content ?: return@returnWithDaysDao null
-                BitmapFactory.Options().run {
-                    inJustDecodeBounds = true
+            val attachment = journalRepository.getImage(id)
+            val image = attachment?.content ?: return@async null
+            BitmapFactory.Options().run {
+                inJustDecodeBounds = true
+                BitmapFactory.decodeByteArray(image, 0, image.size, this)
+
+                inSampleSize = calculateInSampleSize(
+                    srcWidth = outWidth,
+                    srcHeight = outHeight,
+                    dstWidth = THUMBNAIL_SIZE,
+                    dstHeight = THUMBNAIL_SIZE,
+                    scale = FILL
+                )
+
+                inJustDecodeBounds = false
+                Triple<Int, Int, Bitmap>(
+                    outWidth,
+                    outHeight,
                     BitmapFactory.decodeByteArray(image, 0, image.size, this)
-
-                    inSampleSize = calculateInSampleSize(
-                        srcWidth = outWidth,
-                        srcHeight = outHeight,
-                        dstWidth = THUMBNAIL_SIZE,
-                        dstHeight = THUMBNAIL_SIZE,
-                        scale = FILL
-                    )
-
-                    inJustDecodeBounds = false
-                    Triple<Int, Int, Bitmap>(
-                        outWidth,
-                        outHeight,
-                        BitmapFactory.decodeByteArray(image, 0, image.size, this)
-                    )
-                }.let { (width, height, bitmap) ->
-                    ByteArrayOutputStream().use { stream ->
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, stream)
-                        val resizedBytes = stream.toByteArray()
-                        if (BuildConfig.DEBUG) {
-                            val resizedImage =
-                                BitmapFactory.decodeByteArray(resizedBytes, 0, resizedBytes.size)
-                            Timber.d(
-                                "ImageRepository: Resized image res: " +
-                                        "${resizedImage.width}/${resizedImage.height}" +
-                                        " origin: ${width}/${height}" +
-                                        " size: ${resizedBytes.size} bytes"
-                            )
-                            resizedImage.recycle()
-                        }
-                        bitmap.recycle()
-                        resizedBytes
+                )
+            }.let { (width, height, bitmap) ->
+                ByteArrayOutputStream().use { stream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, stream)
+                    val resizedBytes = stream.toByteArray()
+                    if (BuildConfig.DEBUG) {
+                        val resizedImage =
+                            BitmapFactory.decodeByteArray(resizedBytes, 0, resizedBytes.size)
+                        Timber.d(
+                            "ImageRepository: Resized image res: " +
+                                    "${resizedImage.width}/${resizedImage.height}" +
+                                    " origin: ${width}/${height}" +
+                                    " size: ${resizedBytes.size} bytes"
+                        )
+                        resizedImage.recycle()
                     }
+                    bitmap.recycle()
+                    resizedBytes
                 }
             }
         }.await()

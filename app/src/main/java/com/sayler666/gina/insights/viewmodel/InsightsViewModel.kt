@@ -2,7 +2,7 @@ package com.sayler666.gina.insights.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
@@ -10,7 +10,7 @@ import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.gina.mood.Mood
+import com.sayler666.domain.model.journal.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async

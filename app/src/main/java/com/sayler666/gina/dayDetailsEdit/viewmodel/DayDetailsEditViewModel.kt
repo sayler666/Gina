@@ -5,20 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.file.isImageMimeType
 import com.sayler666.core.image.ImageOptimization
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.domain.model.journal.Attachment
+import com.sayler666.domain.model.journal.DayDetails
+import com.sayler666.domain.model.journal.Friend
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.Attachment
-import com.sayler666.gina.db.entity.DayDetails
-import com.sayler666.gina.db.entity.Friend
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
-import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -203,8 +203,12 @@ class DayDetailsEditViewModel @Inject constructor(
 
     fun friendSelect(friendId: Int, selected: Boolean) {
         _tempDay.update { day ->
-            val friendInContext: Friend = allFriends.value.find { it.friendId == friendId }?.let {
-                Friend(it.friendId, it.friendName, it.friendAvatar)
+            val friendInContext = allFriends.value.find { it.friendId == friendId }?.let {
+                Friend(
+                    it.friendId,
+                    it.friendName,
+                    it.friendAvatar
+                )
             } ?: return
             when (selected) {
                 true -> day?.copy(friends = day.friends + friendInContext)
@@ -249,7 +253,7 @@ class DayDetailsEditViewModel @Inject constructor(
                 }
             }
         viewModelScope.launch {
-            val bytes = imageOptimization.optimizeImage(toOptimize.content!!)
+            val bytes = imageOptimization.optimizeImage(toOptimize.content)
             val newAttachment = Attachment(
                 dayId = null,
                 content = bytes,
@@ -265,7 +269,7 @@ class DayDetailsEditViewModel @Inject constructor(
 
     fun restoreWorkingCopy() {
         val temp = _tempDay.value ?: return
-        if (_workingCopy.value.isNotEmpty()){
+        if (_workingCopy.value.isNotEmpty()) {
             _tempDay.value = temp.copy(day = temp.day.copy(content = _workingCopy.value))
             viewModelScope.launch {
                 _reinitializeText.emit(Unit)

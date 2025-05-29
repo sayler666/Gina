@@ -35,7 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.reminder.viewmodel.Active
-import com.sayler666.gina.reminder.viewmodel.ReminderEntity
+import com.sayler666.gina.reminder.viewmodel.ReminderState
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderSettingsSections(
-    currentReminder: ReminderEntity,
+    currentReminder: ReminderState,
     onReminderSet: (LocalTime) -> Unit,
     onReminderCancel: () -> Unit
 ) {
