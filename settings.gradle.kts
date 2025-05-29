@@ -1,5 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
+include(":domain-model")
+
+
+
+
+
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -23,3 +29,4 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":app")
 include(":core")
+include(":data-database")

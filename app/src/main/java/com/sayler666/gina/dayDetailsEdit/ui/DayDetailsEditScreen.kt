@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.TextFormat
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -79,6 +78,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleMultipleVisualMedia
 import com.sayler666.core.image.ImageOptimization
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
@@ -92,7 +92,6 @@ import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.toState
-import com.sayler666.gina.mood.Mood
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
@@ -189,7 +188,9 @@ fun DayDetailsEditScreen(
         topBar = {
             currentDay?.let { day ->
                 TopBar(
-                    day = day,
+                    dayOfMonth = day.dayOfMonth,
+                    dayOfWeek = day.dayOfWeek,
+                    yearAndMonth = day.yearAndMonth,
                     hasWorkingCopy = workingCopy,
                     onNavigateBackClicked = ::onBackPress,
                     onChangeDateClicked = {
@@ -310,6 +311,7 @@ fun AttachmentsCountLabel(count: Int) {
     )
 }
 
+@Deprecated("Use state")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Attachments(
@@ -353,7 +355,9 @@ fun Attachments(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TopBar(
-    day: DayDetailsEntity,
+    dayOfMonth: String,
+    dayOfWeek: String,
+    yearAndMonth: String,
     hasWorkingCopy: Boolean,
     onNavigateBackClicked: () -> Unit,
     onChangeDateClicked: () -> Unit,
@@ -367,7 +371,11 @@ fun TopBar(
                     onChangeDateClicked()
                 }
             ) {
-                DayTitle(day.dayOfMonth, day.dayOfWeek, day.yearAndMonth)
+                DayTitle(
+                    dayOfMonth = dayOfMonth,
+                    dayOfWeek = dayOfWeek,
+                    yearAndMonth = yearAndMonth
+                )
                 Icon(
                     Filled.ArrowDropDown,
                     tint = MaterialTheme.colorScheme.primary,
@@ -438,17 +446,17 @@ private fun BottomBar(
 
                 VerticalDivider()
 
-                Attachments(addAttachmentAction, onLongClick = addAttachmentLongClickAction)
+                AttachmentsButton(addAttachmentAction, onLongClick = addAttachmentLongClickAction)
 
                 Friends(
-                    currentDay.friendsSelected,
-                    onSearchChanged,
-                    onAddNewFriend,
-                    onFriendClicked,
-                    currentDay
+                    friends = currentDay.friendsSelected,
+                    onSearchChanged = onSearchChanged,
+                    onAddNewFriend = onAddNewFriend,
+                    onFriendClicked = onFriendClicked,
+                    allFriends = currentDay.friendsAll,
                 )
 
-                Mood(currentDay, showMoodPopup, onMoodChanged)
+                Mood(currentDay.mood ?: Mood.EMPTY, showMoodPopup, onMoodChanged)
 
                 VerticalDivider()
 
@@ -474,7 +482,7 @@ private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Attachments(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
+fun AttachmentsButton(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
@@ -495,21 +503,22 @@ fun Attachments(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
 @Composable
 fun Friends(
     friends: List<FriendEntity>,
+    allFriends: List<FriendEntity>,
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
     onFriendClicked: (Int, Boolean) -> Unit,
-    currentDay: DayDetailsEntity
 ) {
     val showFriendsPopup = remember { mutableStateOf(false) }
 
     when (friends.isNotEmpty()) {
-        true -> Box(modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp)
-            .clickable(
-                indication = ripple(bounded = false),
-                interactionSource = remember {
-                    MutableInteractionSource()
-                }) { showFriendsPopup.value = true }) {
+        true -> Box(
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp)
+                .clickable(
+                    indication = ripple(bounded = false),
+                    interactionSource = remember {
+                        MutableInteractionSource()
+                    }) { showFriendsPopup.value = true }) {
             friends.take(2).forEachIndexed { i, friend ->
                 FriendIcon(
                     friend = friend.toState(),
@@ -544,22 +553,22 @@ fun Friends(
             onSearchChanged(searchQuery.value)
         },
         onFriendClicked = onFriendClicked,
-        friends = currentDay.friendsAll
+        friends = allFriends
     )
 }
 
 @Composable
 fun Mood(
-    currentDay: DayDetailsEntity,
+    mood: Mood,
     showMoodPopup: MutableState<Boolean>,
-    onMoodChanged: (Mood) -> Unit
+    onMoodChanged: (com.sayler666.domain.model.journal.Mood) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val moodIcon: MoodIcon = currentDay.mood.mapToMoodIcon()
+    val moodIcon: MoodIcon = mood.mapToMoodIcon()
 
     var animationActive by remember { mutableStateOf(false) }
     val moodIconAnimParam by MoodIconAnimation().animateMoodIconAsState(
-        mood = currentDay.mood,
+        mood = mood,
         active = animationActive
     )
 
@@ -572,7 +581,8 @@ fun Mood(
             contentDescription = null,
         )
     }
-    MoodPicker(showMoodPopup.value,
+    MoodPicker(
+        showMoodPopup.value,
         onDismiss = { showMoodPopup.value = false },
         onSelectMood = { mood ->
             scope.launch {
@@ -595,7 +605,7 @@ class MoodIconAnimation(
 ) {
     @Composable
     fun animateMoodIconAsState(
-        mood: Mood?,
+        mood: com.sayler666.domain.model.journal.Mood?,
         active: Boolean
     ): State<MoodIconAnimParam> {
         val fraction = remember { Animatable(0f) }

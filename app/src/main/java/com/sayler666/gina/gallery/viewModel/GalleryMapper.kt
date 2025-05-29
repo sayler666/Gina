@@ -29,11 +29,11 @@ class GalleryMapper @Inject constructor() {
 }
 
 sealed class GalleryState {
-    object LoadingState : GalleryState()
-    object EmptyState : GalleryState()
+    data object LoadingState : GalleryState()
+    data object EmptyState : GalleryState()
     data class DataState(
         val images: List<Image>,
     ) : GalleryState()
 
-    object EmptySearchState : GalleryState()
+    data object EmptySearchState : GalleryState()
 }

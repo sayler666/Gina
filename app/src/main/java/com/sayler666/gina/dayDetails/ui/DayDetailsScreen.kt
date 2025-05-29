@@ -332,9 +332,6 @@ fun FriendsRow(friends: List<FriendState>) {
                                 })
                     }
                 })
-
             }
         )
-
-
 }

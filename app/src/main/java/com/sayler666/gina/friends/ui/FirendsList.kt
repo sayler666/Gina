@@ -144,7 +144,6 @@ fun handleAvatar(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FriendEdit(
     showPopup: Boolean,
@@ -323,9 +322,6 @@ fun FriendComponent(
         )
     }
 }
-
-
-data class FriendState(val name: String, val avatar: ByteArray?, val initials: String)
 
 @Composable
 fun FriendIcon(friend: FriendState, modifier: Modifier = Modifier, size: Dp = 38.dp) {

@@ -7,7 +7,7 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import com.sayler666.core.date.MILLIS_IN_DAY
-import com.sayler666.gina.reminder.db.Reminder
+import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.gina.reminder.receiver.ReminderReceiver
 import timber.log.Timber
 import java.time.Instant
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class SetAlarmUseCase @Inject constructor(
     val context: Context
 ) {
-    operator fun invoke(reminder: Reminder) {
+    operator fun invoke(reminder: ReminderEntity) {
         Timber.d("SetAlarmUseCase: invoked")
         try {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

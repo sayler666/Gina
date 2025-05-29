@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousDayUseCase
+import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
@@ -18,7 +18,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnD
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
-import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -32,7 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DayDetailsViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
-    private val getNextPreviousDayUseCase: GetNextPreviousDayUseCase,
+    private val getNextPreviousIdDayUseCase: GetNextPreviousIdDayUseCase,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -73,7 +73,7 @@ class DayDetailsViewModel @Inject constructor(
 
     private fun goToNextDay() {
         viewModelScope.launch {
-            getNextPreviousDayUseCase.getNextDay(id)
+            getNextPreviousIdDayUseCase.getNextDayId(id)
                 .onSuccess { dayId ->
                     mutableViewActions.trySend(NavToNextDay(dayId))
                 }
@@ -85,7 +85,7 @@ class DayDetailsViewModel @Inject constructor(
 
     private fun goToPreviousDay() {
         viewModelScope.launch {
-            getNextPreviousDayUseCase.getPreviousDay(id)
+            getNextPreviousIdDayUseCase.getPreviousDayId(id)
                 .onSuccess { dayId ->
                     mutableViewActions.trySend(NavToPreviousDay(dayId))
                 }

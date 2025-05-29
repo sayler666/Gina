@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,7 +18,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.mood.Mood
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 
@@ -34,7 +33,6 @@ data class DayRowState(
     val mood: Mood? = null
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayRow(
     state: DayRowState,

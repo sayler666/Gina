@@ -1,7 +1,7 @@
 package com.sayler666.gina.friends.viewmodel
 
-import com.sayler666.gina.db.entity.Friend
-import com.sayler666.gina.db.entity.FriendWithCount
+import com.sayler666.domain.model.journal.Friend
+import com.sayler666.domain.model.journal.FriendWithCount
 import javax.inject.Inject
 
 class FriendsMapper @Inject constructor() {

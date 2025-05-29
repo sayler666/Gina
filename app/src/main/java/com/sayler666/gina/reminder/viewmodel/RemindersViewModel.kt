@@ -1,10 +1,11 @@
 package com.sayler666.gina.reminder.viewmodel
 
 import com.sayler666.core.viewmodel.ViewModelSlice
-import com.sayler666.gina.reminder.db.Reminder
+import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.gina.reminder.usecase.AddReminderUseCase
 import com.sayler666.gina.reminder.usecase.GetLastReminderUseCase
 import com.sayler666.gina.reminder.usecase.RemoveAllRemindersUseCase
+import com.sayler666.gina.reminder.usecase.toReminderState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,7 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 interface RemindersViewModel : ViewModelSlice {
-    val reminder: StateFlow<ReminderEntity>
+    val reminder: StateFlow<ReminderState>
 
     fun setReminder(localTime: LocalTime)
 
@@ -27,13 +28,13 @@ class RemindersViewModelImpl @Inject constructor(
     private val addReminderUseCase: AddReminderUseCase,
     private val removeAllRemindersUseCase: RemoveAllRemindersUseCase
 ) : RemindersViewModel {
-    private val _reminder: MutableStateFlow<ReminderEntity> = MutableStateFlow(NotActive)
-    override val reminder: StateFlow<ReminderEntity> = _reminder.asStateFlow()
+    private val _reminder: MutableStateFlow<ReminderState> = MutableStateFlow(NotActive)
+    override val reminder: StateFlow<ReminderState> = _reminder.asStateFlow()
 
     init {
         sliceScope.launch {
             getLastReminderUseCase()
-                .collect { _reminder.emit(it) }
+                .collect { _reminder.emit(it.toReminderState()) }
         }
     }
 
@@ -43,7 +44,7 @@ class RemindersViewModelImpl @Inject constructor(
             removeAllRemindersUseCase()
 
             // add new one
-            addReminderUseCase(Reminder(time = localTime))
+            addReminderUseCase(ReminderEntity(time = localTime))
         }
     }
 

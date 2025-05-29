@@ -3,19 +3,19 @@ package com.sayler666.gina.insights.viewmodel
 import com.sayler666.core.collections.mutate
 import com.sayler666.core.collections.pmap
 import com.sayler666.core.string.getTextWithoutHtml
-import com.sayler666.gina.db.entity.Day
+import com.sayler666.domain.model.journal.Day
+import com.sayler666.domain.model.journal.Mood
+import com.sayler666.domain.model.journal.Mood.AWESOME
+import com.sayler666.domain.model.journal.Mood.BAD
+import com.sayler666.domain.model.journal.Mood.EMPTY
+import com.sayler666.domain.model.journal.Mood.GOOD
+import com.sayler666.domain.model.journal.Mood.LOW
+import com.sayler666.domain.model.journal.Mood.NEUTRAL
+import com.sayler666.domain.model.journal.Mood.SUPERB
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.mood.Mood.AWESOME
-import com.sayler666.gina.mood.Mood.BAD
-import com.sayler666.gina.mood.Mood.EMPTY
-import com.sayler666.gina.mood.Mood.GOOD
-import com.sayler666.gina.mood.Mood.LOW
-import com.sayler666.gina.mood.Mood.NEUTRAL
-import com.sayler666.gina.mood.Mood.SUPERB
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
@@ -162,7 +162,6 @@ class InsightsMapper @Inject constructor() {
             .reversed()
             .forEach { day ->
                 val currentDayDate = day.date
-                    ?: throw java.lang.IllegalStateException("No date found in day ${day.id}")
                 if (currentStreak == 0) {
                     currentStreakStartDay = currentDayDate
                     currentStreak++

@@ -2,8 +2,8 @@ package com.sayler666.gina.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.withRawDao
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.withRawDao
 import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
 import com.sayler666.gina.settings.SettingsStorage
 import com.sayler666.gina.settings.Theme

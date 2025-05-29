@@ -1,7 +1,7 @@
 package com.sayler666.gina.reminder.usecase
 
-import com.sayler666.gina.reminder.db.RemindersDatabaseProvider
-import com.sayler666.gina.reminder.db.withRemindersDao
+import com.sayler666.data.database.db.reminders.RemindersDatabaseProvider
+import com.sayler666.data.database.db.reminders.withRemindersDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

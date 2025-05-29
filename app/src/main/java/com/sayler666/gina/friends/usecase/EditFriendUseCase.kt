@@ -1,10 +1,7 @@
 package com.sayler666.gina.friends.usecase
 
-import android.database.SQLException
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.Friend
-import com.sayler666.gina.db.withDaysDao
-import timber.log.Timber
+import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.domain.model.journal.Friend
 import javax.inject.Inject
 
 interface EditFriendUseCase {
@@ -12,15 +9,7 @@ interface EditFriendUseCase {
 }
 
 class EditFriendUseCaseImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider
+    private val journalRepository: JournalRepository
 ) : EditFriendUseCase {
-    override suspend fun editFriend(friend: Friend) {
-        try {
-            ginaDatabaseProvider.withDaysDao {
-                updateFriend(friend)
-            }
-        } catch (e: SQLException) {
-            Timber.e(e, "Database error")
-        }
-    }
+    override suspend fun editFriend(friend: Friend) = journalRepository.editFriend(friend)
 }

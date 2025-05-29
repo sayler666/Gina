@@ -1,14 +1,15 @@
 package com.sayler666.gina.attachments.viewmodel
 
 import com.sayler666.core.file.isImageMimeType
+import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.gina.attachments.ui.AttachmentState
-import com.sayler666.gina.db.entity.Attachment
 import java.util.Locale
 import javax.inject.Inject
 
 fun Attachment.toState(): AttachmentState {
     requireNotNull(content)
     requireNotNull(mimeType)
+
     return when {
         mimeType.isImageMimeType() -> AttachmentState.AttachmentImageState(
             id = this.id,
@@ -18,8 +19,8 @@ fun Attachment.toState(): AttachmentState {
 
         else -> AttachmentState.AttachmentNonImageState(
             id = this.id,
-            content = this.content,
-            mimeType = this.mimeType,
+            content = content,
+            mimeType = mimeType,
             name = mimeType.substringAfter("/")
         )
     }

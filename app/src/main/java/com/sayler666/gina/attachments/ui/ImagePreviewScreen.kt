@@ -139,7 +139,7 @@ fun ImagePreviewScreen(
         imagePreview?.let {
             // scaledBitmap to fit screen
             val scaledBitmapInfo = remember(it.attachment.id) {
-                it.attachment.bytes.scaleToMinSize()
+                it.attachment.content.scaleToMinSize()
             }
 
             // constraints refs
@@ -189,7 +189,7 @@ fun ImagePreviewTmpScreen(
         imagePreview?.let {
             // scaledBitmap to fit screen
             val scaledBitmapInfo =
-                remember(it.attachment.id) { it.attachment.bytes.scaleToMinSize() }
+                remember(it.attachment.id) { it.attachment.content?.scaleToMinSize() } ?: return@let
 
             // constraints refs
             val (zoomableBox, bottomBar) = createRefs()
@@ -326,7 +326,7 @@ private fun ConstraintLayoutScope.BottomBar(
             IconButton(onClick = {
                 Files.openFileIntent(
                     context,
-                    bytes = imagePreviewEntity.attachment.bytes,
+                    bytes = imagePreviewEntity.attachment.content,
                     mimeType = imagePreviewEntity.attachment.mimeType
                 )
             }) {
@@ -335,7 +335,7 @@ private fun ConstraintLayoutScope.BottomBar(
             IconButton(onClick = {
                 Files.saveByteArrayToFile(
                     context = context,
-                    byteArray = imagePreviewEntity.attachment.bytes,
+                    byteArray = imagePreviewEntity.attachment.content,
                     fileName = "${imagePreviewEntity.attachment.id}.jpeg"
                 )?.also {
                     Files.shareImageFile(

@@ -3,7 +3,8 @@ package com.sayler666.gina.journal.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
@@ -23,7 +24,6 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFi
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
-import com.sayler666.gina.mood.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,7 +135,9 @@ class JournalViewModel @Inject constructor(
         data object OnRefreshPermissionStatus : ViewEvent
         data object OnManageAllFilesSettingsClick : ViewEvent
         data class OnSearchQueryChanged(val searchQuery: String) : ViewEvent
-        data class OnMoodFiltersChanged(val moods: List<Mood>) : ViewEvent
+        data class OnMoodFiltersChanged(val moods: List<Mood>) :
+            ViewEvent
+
         data object OnResetFilters : ViewEvent
         data object OnHideBottomBar : ViewEvent
         data object OnShowBottomBar : ViewEvent

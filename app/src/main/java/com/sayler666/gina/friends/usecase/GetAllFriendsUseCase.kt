@@ -1,18 +1,9 @@
 package com.sayler666.gina.friends.usecase
 
-import android.database.SQLException
-import com.sayler666.gina.db.GinaDatabaseProvider
-import com.sayler666.gina.db.entity.FriendWithCount
-import com.sayler666.gina.db.returnWithDaysDao
-import com.sayler666.gina.db.withDaysDao
-import com.sayler666.gina.mood.Mood
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.domain.model.journal.FriendWithCount
+import com.sayler666.domain.model.journal.Mood
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -27,30 +18,16 @@ interface GetAllFriendsUseCase {
 }
 
 class GetAllFriendsUseCaseImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val journalRepository: JournalRepository,
 ) : GetAllFriendsUseCase {
-    override fun getAllFriendsWithCount(): Flow<List<FriendWithCount>> = flow {
-        try {
-            ginaDatabaseProvider.withDaysDao {
-                emitAll(getFriendsWithCountFlow())
-            }
-        } catch (e: SQLException) {
-            Timber.e(e, "Database error")
-        }
-    }.flowOn(dispatcher)
+    override fun getAllFriendsWithCount(): Flow<List<FriendWithCount>> =
+        journalRepository.getAllFriendsWithCountFlow()
 
     override suspend fun getAllFriendsWithCount(
         searchQuery: String,
         moods: List<Mood>,
         dateFrom: LocalDate,
         dateTo: LocalDate
-    ): List<FriendWithCount> = try {
-        ginaDatabaseProvider.returnWithDaysDao {
-            getFriendsWithCount(searchQuery, dateFrom, dateTo, *moods.toTypedArray())
-        } ?: emptyList()
-    } catch (e: SQLException) {
-        Timber.e(e, "Database error")
-        emptyList()
-    }
+    ): List<FriendWithCount> =
+        journalRepository.getAllFriendsWithCount(searchQuery, moods, dateFrom, dateTo)
 }

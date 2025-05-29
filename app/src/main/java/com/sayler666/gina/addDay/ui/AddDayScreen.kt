@@ -1,11 +1,14 @@
 package com.sayler666.gina.addDay.ui
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.PickVisualMediaRequest.Builder
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -34,22 +37,48 @@ import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.sayler666.core.image.ImageOptimization
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
+import com.sayler666.core.file.Files.openFileIntent
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.Back
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAddNewFriend
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentPickerPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentRemove
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentsAdded
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnContentChanged
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendSearchQueryChanged
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageCompressionToggled
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageQualityChanged
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnMoodChanged
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWorkingCopyPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
+import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
+import com.sayler666.gina.attachments.ui.FileThumbnail
+import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
+import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.calendar.ui.DatePickerDialog
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
-import com.sayler666.gina.dayDetailsEdit.ui.Attachments
+import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsButton
 import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsCountLabel
 import com.sayler666.gina.dayDetailsEdit.ui.Friends
 import com.sayler666.gina.dayDetailsEdit.ui.Mood
 import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.TopBar
-import com.sayler666.gina.dayDetailsEdit.ui.handleBackPress
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
+import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.mood.Mood
-import com.sayler666.gina.quotes.db.Quote
 import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.VerticalDivider
@@ -60,7 +89,6 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 data class AddDayScreenNavArgs(
@@ -84,120 +112,148 @@ fun AddDayScreen(
     val theme by vm.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme)
 
-    val context = LocalContext.current
-    val addAttachmentLauncher =
-        rememberLauncherForMultipleImages(context = context) { attachments ->
-            viewModel.addAttachments(attachments)
-        }
-    val addAttachmentRequest: PickVisualMediaRequest = Builder()
-        .setMediaType(ImageOnly)
-        .build()
-
-    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
-    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-
-    val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
-    val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
-    val quote: Quote? by viewModel.quote.collectAsStateWithLifecycle(null)
-    val workingCopy: String? by viewModel.workingCopy.collectAsStateWithLifecycle(null)
-
-    LaunchedEffect(Unit) {
-        viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
-    }
-
-    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
-    val showDatePickerPopup = remember { mutableStateOf(false) }
-
-    val autofocusOnContentText = remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val isKeyboardOpen by keyboardAsState()
-    val richTextState = rememberRichTextState()
-    val showFormatRow = remember { mutableStateOf(false) }
+    val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
+    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
 
     var content by remember {
-        mutableStateOf(TextFieldValue(dayTemp?.content ?: ""))
+        mutableStateOf(TextFieldValue(state?.content ?: ""))
     }
-
     LaunchedEffect(Unit) {
         viewModel.reinitializeText.collectLatest {
-            dayTemp?.content?.let {
+            state?.content?.let {
                 content = TextFieldValue(it)
             }
         }
     }
 
-    fun onBackPress() {
-        handleBackPress(
-            changesExist,
-            showDiscardConfirmationDialog,
-            navController
+    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
+
+    val context = LocalContext.current
+    val addAttachmentLauncher =
+        rememberLauncherForMultipleImages(context = context) { attachments ->
+            viewModel.onViewEvent(OnAttachmentsAdded(attachments))
+        }
+    val addAttachmentRequest: PickVisualMediaRequest = Builder()
+        .setMediaType(ImageOnly)
+        .build()
+
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        onViewAction(
+            action,
+            destinationsNavigator,
+            addAttachmentLauncher,
+            addAttachmentRequest,
+            showDiscardConfirmationDialog
         )
     }
-    BackHandler(onBack = ::onBackPress)
+
+    BackHandler(onBack = { viewModel.onViewEvent(OnBackPressed) })
+
+    Content(
+        state = state,
+        textFieldValue = content,
+        viewEvent = viewModel::onViewEvent,
+        imageOptimizationSettings = imageOptimizationSettings,
+    )
+}
+
+private suspend fun onViewAction(
+    action: ViewAction,
+    destinationsNavigator: DestinationsNavigator,
+    addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
+    addAttachmentRequest: PickVisualMediaRequest,
+    showDiscardConfirmationDialog: MutableState<Boolean>,
+) {
+    when (action) {
+        Back -> destinationsNavigator.popBackStack()
+
+        is NavToAttachment -> destinationsNavigator.navigate(
+            ImagePreviewTmpScreenDestination(
+                ImagePreviewTmpScreenNavArgs(
+                    image = action.image,
+                    mimeType = action.mimeType
+                )
+            )
+        )
+
+        ShowAttachmentPicker -> {
+            addAttachmentLauncher.launch(addAttachmentRequest)
+        }
+
+        ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
+    }
+}
+
+@Composable
+private fun Content(
+    state: AddDayState?,
+    textFieldValue: TextFieldValue,
+    viewEvent: (ViewEvent) -> Unit,
+    imageOptimizationSettings: OptimizationSettings?,
+) {
+    val showDatePickerPopup = remember { mutableStateOf(false) }
+
+    val autofocusOnContentText = remember { mutableStateOf(false) }
+    val isKeyboardOpen by keyboardAsState()
+    val richTextState = rememberRichTextState()
+    val showFormatRow = remember { mutableStateOf(false) }
+
+    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
+
+
+
     Scaffold(
         Modifier.imePadding(),
         topBar = {
-            dayTemp?.let {
+            state?.let {
                 TopBar(
-                    day = it,
-                    onNavigateBackClicked = ::onBackPress,
+                    dayOfWeek = state.dayOfWeek,
+                    dayOfMonth = state.dayOfMonth,
+                    yearAndMonth = state.yearAndMonth,
+                    onNavigateBackClicked = { viewEvent(OnBackPressed) },
                     onChangeDateClicked = {
                         showDatePickerPopup.value = true
                     },
-                    hasWorkingCopy = workingCopy?.isNotBlank() ?: false,
-                    onRestoreWorkingCopyClicked = {
-                        viewModel.restoreWorkingCopy()
-                    }
+                    hasWorkingCopy = it.workingCopyExists,
+                    onRestoreWorkingCopyClicked = { viewEvent(OnRestoreWorkingCopyPressed) }
                 )
             }
         },
         bottomBar = {
-            dayTemp?.let {
+            state?.let {
                 BottomBar(
                     it,
-                    addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
-                    addAttachmentLongClickAction = {
-                        Timber.d("show image comp ${showImageCompressSettingsDialog.value}")
-                        showImageCompressSettingsDialog.value = true },
-                    onSaveChanges = { viewModel.saveChanges() },
-                    onMoodChanged = { mood ->
-                        viewModel.setNewMood(mood)
-                        coroutineScope.launch {
-                            delay(250)
-                            autofocusOnContentText.value = true
-                        }
-                    },
-                    onSearchChanged = viewModel::searchFriend,
-                    onAddNewFriend = viewModel::addNewFriend,
-                    onFriendClicked = viewModel::friendSelect,
+                    viewEvent = viewEvent,
                     richTextState = richTextState,
-                    showFormatRow = showFormatRow
+                    showFormatRow = showFormatRow,
+                    autofocusOnContentText = autofocusOnContentText,
+                    showImageCompressSettingsDialog = showImageCompressSettingsDialog
                 )
             }
         },
         content = { padding ->
-            dayTemp?.let {
+            state?.let {
                 DatePickerDialog(
                     showDatePickerPopup.value,
                     initialDate = it.localDate,
                     onDismiss = {
                         showDatePickerPopup.value = false
                     },
-                    onDateChanged = viewModel::setNewDate
+                    onDateChanged = { viewEvent(OnSetNewDate(it)) }
                 )
             }
             Column(
                 modifier = Modifier
                     .padding(padding)
             ) {
-                dayTemp?.let { day ->
-
+                state?.let { day ->
                     AnimatedVisibility(
                         visible = !isKeyboardOpen
                     ) {
-                        Attachments(day, destinationsNavigator) { attachmentHash ->
-                            viewModel.removeAttachment(attachmentHash)
-                        }
+                        AttachmentsRow(
+                            attachments = day.attachments,
+                            viewEvent = viewEvent,
+                        )
                     }
                     AnimatedVisibility(
                         visible = isKeyboardOpen && day.attachments.isNotEmpty()
@@ -206,12 +262,12 @@ fun AddDayScreen(
                     }
 
                     RichTextEditor(
-                        textFieldValue = content,
+                        textFieldValue = textFieldValue,
                         richTextState = richTextState,
                         autoFocus = autofocusOnContentText.value,
-                        quote = quote,
+                        quote = state.quote,
                         onContentChanged = { content ->
-                            viewModel.setNewContent(content)
+                            viewEvent(OnContentChanged(content))
                         }
                     )
                 }
@@ -221,8 +277,8 @@ fun AddDayScreen(
                 showDialog = showImageCompressSettingsDialog.value,
                 imageOptimizationSettings = imageOptimizationSettings,
                 onDismiss = { showImageCompressSettingsDialog.value = false },
-                onSetImageQuality = viewModel::setNewImageQuality,
-                onImageCompressionToggled = viewModel::toggleImageCompression
+                onSetImageQuality = { viewEvent(OnImageQualityChanged(it)) },
+                onImageCompressionToggled = { viewEvent(OnImageCompressionToggled(it)) },
             )
         })
 }
@@ -242,16 +298,12 @@ private fun rememberDiscardDialog(navController: NavController): MutableState<Bo
 
 @Composable
 private fun BottomBar(
-    currentDay: DayDetailsEntity,
-    addAttachmentAction: () -> Unit,
-    addAttachmentLongClickAction: () -> Unit,
-    onSaveChanges: () -> Unit,
-    onMoodChanged: (Mood) -> Unit,
-    onSearchChanged: (String) -> Unit,
-    onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit,
+    state: AddDayState,
+    viewEvent: (ViewEvent) -> Unit,
     richTextState: RichTextState,
-    showFormatRow: MutableState<Boolean>
+    showFormatRow: MutableState<Boolean>,
+    showImageCompressSettingsDialog: MutableState<Boolean>,
+    autofocusOnContentText: MutableState<Boolean>,
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
 
@@ -259,6 +311,7 @@ private fun BottomBar(
         delay(300)
         showMoodPopup.value = true
     }
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
         RichTextStyleRow(
@@ -269,26 +322,75 @@ private fun BottomBar(
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
-                Attachments(
-                    onClick = addAttachmentAction,
-                    onLongClick = addAttachmentLongClickAction
+                AttachmentsButton(
+                    onClick = { viewEvent(OnAttachmentPickerPressed) },
+                    onLongClick = { showImageCompressSettingsDialog.value = true }
                 )
 
                 Friends(
-                    currentDay.friendsSelected,
-                    onSearchChanged,
-                    onAddNewFriend,
-                    onFriendClicked,
-                    currentDay
+                    friends = state.friendsSelected,
+                    allFriends = state.friendsAll,
+                    onSearchChanged = { viewEvent(OnFriendSearchQueryChanged(it)) },
+                    onAddNewFriend = { viewEvent(OnAddNewFriend(it)) },
+                    onFriendClicked = { friendId, state ->
+                        viewEvent(OnFriendPressed(friendId, state))
+                    },
                 )
 
-                Mood(currentDay, showMoodPopup, onMoodChanged)
+                Mood(
+                    mood = state.mood,
+                    showMoodPopup = showMoodPopup,
+                    onMoodChanged = {
+                        viewEvent(OnMoodChanged(it))
+                        coroutineScope.launch {
+                            delay(250)
+                            autofocusOnContentText.value = true
+                        }
+                    })
 
                 VerticalDivider()
 
                 TextFormat(showFormatRow)
             },
-            floatingActionButton = { SaveFab { onSaveChanges() } }
+            floatingActionButton = { SaveFab { viewEvent(OnSaveChangesPressed) } }
         )
+    }
+}
+
+
+@Composable
+fun AttachmentsRow(
+    attachments: List<AttachmentState>,
+    viewEvent: (ViewEvent) -> Unit,
+) {
+    val context = LocalContext.current
+    if (attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
+        attachments.forEach { attachment ->
+            when (attachment) {
+                is AttachmentImageState -> ImageThumbnail(
+                    state = attachment,
+                    onClick = {
+                        attachment.content.let { image ->
+                            viewEvent(OnAttachmentPressed(image, attachment.mimeType))
+                        }
+                    },
+                    onRemoveClicked = {
+                        viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                    })
+
+                is AttachmentNonImageState -> FileThumbnail(
+                    state = attachment,
+                    onClick = {
+                        attachment.content.let { image ->
+                            openFileIntent(
+                                context, image, attachment.mimeType
+                            )
+                        }
+                    },
+                    onRemoveClicked = {
+                        viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                    })
+            }
+        }
     }
 }

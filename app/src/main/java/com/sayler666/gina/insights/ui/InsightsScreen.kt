@@ -44,7 +44,7 @@ import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockB
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodLevel
-import com.sayler666.gina.mood.Mood
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.awesomeColor
 import com.sayler666.gina.mood.ui.badColor
 import com.sayler666.gina.mood.ui.goodColor

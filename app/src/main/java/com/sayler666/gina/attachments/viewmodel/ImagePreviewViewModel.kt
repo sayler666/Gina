@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
-import com.sayler666.gina.db.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +37,7 @@ class ImagePreviewViewModel @Inject constructor(
     val allowNavigationToDayDetails: Boolean
         get() = navArgs.allowNavigationToDayDetails
 
-    val attachmentWithDay = getAttachmentWithDayUseCase.getAttachmentWithDay(id)
+    val attachmentWithDay = getAttachmentWithDayUseCase.getAttachmentWithDayFlow(id)
         .filterNotNull()
         .map(imagePreviewMapper::mapToVm)
         .stateIn(viewModelScope, WhileSubscribed(500), null)

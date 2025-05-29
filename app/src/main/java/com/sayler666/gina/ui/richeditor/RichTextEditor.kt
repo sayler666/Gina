@@ -49,7 +49,7 @@ import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
 import com.sayler666.core.compose.conditional
 import com.sayler666.core.string.containsHtml
 import com.sayler666.core.string.getTextWithoutHtml
-import com.sayler666.gina.quotes.db.Quote
+import com.sayler666.data.database.db.quotes.QuoteEntity
 import timber.log.Timber
 import java.time.LocalDate
 
@@ -58,7 +58,7 @@ fun RichTextEditor(
     textFieldValue: TextFieldValue,
     richTextState: RichTextState,
     autoFocus: Boolean = false,
-    quote: Quote? = null,
+    quote: QuoteEntity? = null,
     onContentChanged: (String) -> Unit
 ) {
     var callOnContentChanged by remember { mutableStateOf(false) }
@@ -106,7 +106,7 @@ fun RichTextEditor(
     )
 }
 
-private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>" +
+private fun QuoteEntity.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>" +
         "<p style=\"text-align: center;\"><b>—$author</b></p>" +
         "<p style=\"text-align: left;\"><br></p>"
 
@@ -114,7 +114,7 @@ private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>"
 @Composable
 fun QuotePreview() {
     QuoteWithAuthor(
-        quote = Quote(
+        quote = QuoteEntity(
             id = null,
             quote = "Lorem ipsum et cetera, lorem et ipum, lorem et ipum.",
             author = "sayler",
@@ -127,9 +127,9 @@ fun QuotePreview() {
 
 @Composable
 private fun QuoteWithAuthor(
-    quote: Quote?,
+    quote: QuoteEntity?,
     visible: Boolean,
-    onClick: (Quote) -> Unit
+    onClick: (QuoteEntity) -> Unit
 ) {
     var blurEnabled by remember { mutableStateOf(true) }
     val blurRadius: Dp by animateDpAsState(if (blurEnabled) 30.dp else 0.dp, tween(500))
