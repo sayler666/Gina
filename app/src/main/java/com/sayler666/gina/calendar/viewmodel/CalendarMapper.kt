@@ -1,6 +1,7 @@
 package com.sayler666.gina.calendar.viewmodel
 
 import com.sayler666.domain.model.journal.Day
+import com.sayler666.domain.model.journal.Mood
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -10,7 +11,8 @@ class CalendarMapper @Inject constructor() {
         requireNotNull(it.date)
         CalendarDayEntity(
             id = it.id,
-            date = it.date
+            date = it.date,
+            mood = it.mood
         )
     }
 
@@ -18,5 +20,6 @@ class CalendarMapper @Inject constructor() {
 
 data class CalendarDayEntity(
     val id: Int,
-    val date: LocalDate
+    val date: LocalDate,
+    val mood: Mood
 )

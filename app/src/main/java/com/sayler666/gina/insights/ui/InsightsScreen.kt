@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
@@ -44,7 +45,6 @@ import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockB
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodLevel
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.awesomeColor
 import com.sayler666.gina.mood.ui.badColor
 import com.sayler666.gina.mood.ui.goodColor
@@ -238,6 +238,9 @@ fun Insights(state: DataState) {
 
 @Composable
 fun zeroLevelColor() = colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+
+@Composable
+fun emptyLevelColor() = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
 
 @Composable
 private fun contributionLevelColor(level: ContributionLevel): Color = when (level) {

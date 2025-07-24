@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -40,8 +41,16 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.core.compose.conditional
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
+import com.sayler666.gina.insights.ui.emptyLevelColor
+import com.sayler666.gina.mood.ui.awesomeColor
+import com.sayler666.gina.mood.ui.badColor
+import com.sayler666.gina.mood.ui.goodColor
+import com.sayler666.gina.mood.ui.lowColor
+import com.sayler666.gina.mood.ui.neutralColor
+import com.sayler666.gina.mood.ui.superbColor
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -79,7 +88,8 @@ fun CalendarVertical(
     val visibleMonth = rememberFirstMostVisibleYear(state)
 
     Column {
-        CalendarTopBar(visibleMonth,
+        CalendarTopBar(
+            visibleMonth,
             onSelectDate = { date ->
                 coroutineScope.launch {
                     state.scrollToMonth(date.yearMonth)
@@ -140,30 +150,31 @@ private fun CalendarDay(
     val monthDate = day.position == DayPosition.MonthDate
     val isSelected = day.date == selected
     if (monthDate)
-        Box(modifier = Modifier
-            .aspectRatio(1.22f)
-            .padding(4.dp)
-            .clip(shape = RoundedCornerShape(size = 8.dp))
-            .conditional(day.date == today) {
-                border(
-                    width = 1.dp,
-                    color = currentDayColor,
-                    shape = RoundedCornerShape(8.dp)
-                ).background(currentDayColor.copy(alpha = 0.1f))
-            }
-            .conditional(isSelected) {
-                border(
-                    width = 1.dp,
-                    color = currentDayColor,
-                    shape = RoundedCornerShape(8.dp)
-                ).background(currentDayColor.copy(alpha = 0.9f))
-            }
-            .clickable {
-                when (dayEntity != null) {
-                    true -> onDayClick(dayEntity)
-                    false -> onEmptyDayClick(day.date)
+        Box(
+            modifier = Modifier
+                .aspectRatio(1.22f)
+                .padding(4.dp)
+                .clip(shape = RoundedCornerShape(size = 8.dp))
+                .conditional(day.date == today) {
+                    border(
+                        width = 1.dp,
+                        color = currentDayColor,
+                        shape = RoundedCornerShape(8.dp)
+                    ).background(currentDayColor.copy(alpha = 0.1f))
                 }
-            }, contentAlignment = Alignment.Center
+                .conditional(isSelected) {
+                    border(
+                        width = 1.dp,
+                        color = currentDayColor,
+                        shape = RoundedCornerShape(8.dp)
+                    ).background(currentDayColor.copy(alpha = 0.9f))
+                }
+                .clickable {
+                    when (dayEntity != null) {
+                        true -> onDayClick(dayEntity)
+                        false -> onEmptyDayClick(day.date)
+                    }
+                }, contentAlignment = Alignment.Center
         ) {
             val textColor = when {
                 !isSelected -> MaterialTheme.colorScheme.onSurface
@@ -172,7 +183,7 @@ private fun CalendarDay(
 
             val dotColor = when {
                 isSelected -> MaterialTheme.colorScheme.surfaceVariant
-                else -> MaterialTheme.colorScheme.primary
+                else -> moodLevelColor(dayEntity?.mood)
             }
 
             Day(day, textColor, isSelected, hasEntry, dotColor)
@@ -214,3 +225,14 @@ private fun CalendarLayoutInfo.firstMostVisibleMonth(): CalendarMonth? =
     } else {
         visibleMonthsInfo.firstOrNull()?.month
     }
+
+@Composable
+private fun moodLevelColor(level: Mood?): Color = when (level) {
+    Mood.BAD -> badColor()
+    Mood.LOW -> lowColor()
+    Mood.NEUTRAL -> neutralColor()
+    Mood.GOOD -> goodColor()
+    Mood.SUPERB -> superbColor()
+    Mood.AWESOME -> awesomeColor()
+    else -> emptyLevelColor()
+}
