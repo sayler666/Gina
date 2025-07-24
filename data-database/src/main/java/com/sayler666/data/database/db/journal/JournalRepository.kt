@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class JournalRepository @Inject constructor(
@@ -47,9 +48,10 @@ class JournalRepository @Inject constructor(
         }
     }.flowOn(dispatcher)
 
-    fun previousYearsAttachments(): Flow<List<AttachmentWithDay>> = flow {
+    fun previousYearsAttachments(date: LocalDate): Flow<List<AttachmentWithDay>> = flow {
+        val dateString = date.format(DateTimeFormatter.ofPattern("MM-dd"))
         ginaDatabaseProvider.withDaysDao {
-            emitAll(getPreviousYearsAttachments().map { attachments ->
+            emitAll(getPreviousYearsAttachments(dateString).map { attachments ->
                 attachments.map { it.toModel() }
             })
         }
