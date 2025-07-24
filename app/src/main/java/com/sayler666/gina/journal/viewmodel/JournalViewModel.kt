@@ -25,11 +25,13 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQ
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -38,6 +40,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class JournalViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
@@ -58,28 +61,36 @@ class JournalViewModel @Inject constructor(
 
     init {
         initDb()
+
+        observeJournalState()
     }
 
     private fun initDb() {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
+    }
 
+    private fun observeJournalState() {
         combine(
             mutableMoodFilters,
             mutableSearchQuery,
             previousYearsAttachmentsUseCase()
         ) { moods, search, attachments ->
-            getDaysUseCase
-                .getFilteredDaysFlow(search, moods)
-                .map { days ->
-                    daysMapper.toJournalState(
-                        days = days,
-                        searchQuery = search,
-                        moods = moods,
-                        previousYearsAttachments = attachments
-                    )
-                }.onEach(mutableViewState::tryEmit)
-                .launchIn(viewModelScope)
-        }.launchIn(viewModelScope)
+            Triple(moods, search, attachments)
+        }
+            .flatMapLatest { (moods, search, attachments) ->
+                getDaysUseCase
+                    .getFilteredDaysFlow(search, moods)
+                    .map { days ->
+                        daysMapper.toJournalState(
+                            days = days,
+                            searchQuery = search,
+                            moods = moods,
+                            previousYearsAttachments = attachments
+                        )
+                    }
+            }
+            .onEach(mutableViewState::tryEmit)
+            .launchIn(viewModelScope)
     }
 
     fun onViewEvent(event: ViewEvent) {
@@ -135,9 +146,7 @@ class JournalViewModel @Inject constructor(
         data object OnRefreshPermissionStatus : ViewEvent
         data object OnManageAllFilesSettingsClick : ViewEvent
         data class OnSearchQueryChanged(val searchQuery: String) : ViewEvent
-        data class OnMoodFiltersChanged(val moods: List<Mood>) :
-            ViewEvent
-
+        data class OnMoodFiltersChanged(val moods: List<Mood>) : ViewEvent
         data object OnResetFilters : ViewEvent
         data object OnHideBottomBar : ViewEvent
         data object OnShowBottomBar : ViewEvent

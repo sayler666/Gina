@@ -55,9 +55,9 @@ interface DaysDao {
     @Query(
         "SELECT * FROM attachments JOIN days ON attachments.days_id = days.id" +
                 " WHERE strftime('%m-%d', datetime(date/1000, 'unixepoch', 'localtime'))" +
-                " = strftime('%m-%d',date())"
+                " = :currentDate"
     )
-    fun getPreviousYearsAttachments(): Flow<List<AttachmentWithDayEntity>>
+    fun getPreviousYearsAttachments(currentDate: String): Flow<List<AttachmentWithDayEntity>>
 
     @Query(
         "SELECT attachments.attachment_id FROM attachments " +
