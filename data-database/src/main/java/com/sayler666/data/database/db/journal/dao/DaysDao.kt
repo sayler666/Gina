@@ -99,6 +99,29 @@ interface DaysDao {
     )
     fun getFriendsWithCountFlow(): Flow<List<FriendWithCount>>
 
+
+    @Query(
+        """
+        SELECT 
+            friends.friend_id AS friendId, 
+            friends.name AS friendName,
+            friends.avatar AS friendAvatar, 
+            COUNT(daysFriends.friend_id) AS daysCount, 
+            (SELECT COUNT(*) 
+             FROM daysFriends df
+             JOIN days d ON df.id = d.id
+             WHERE df.friend_id = friends.friend_id 
+               AND d.date >= (strftime('%s', 'now', '-1 month') * 1000)
+               AND d.date <= (strftime('%s', 'now') * 1000)
+            ) AS recentMonthCount
+        FROM friends
+        LEFT JOIN daysFriends ON friends.friend_id = daysFriends.friend_id 
+        GROUP BY friends.friend_id, friends.name, friends.avatar
+        ORDER BY recentMonthCount DESC, daysCount DESC;
+    """
+    )
+    fun getFriendsWithCountByRecentFlow(): Flow<List<FriendWithCount>>
+
     @Query(
         "SELECT friends.friend_id as friendId, friends.name as friendName," +
                 "friends.avatar as friendAvatar, " +

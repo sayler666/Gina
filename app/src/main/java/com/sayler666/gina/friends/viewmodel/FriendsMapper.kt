@@ -24,7 +24,6 @@ class FriendsMapper @Inject constructor() {
             }
         }
             .map { it.copy(selected = friendsIds.contains(it.id)) }
-            .sort()
             .filterBySearchQuery(searchQuery)
     }
 

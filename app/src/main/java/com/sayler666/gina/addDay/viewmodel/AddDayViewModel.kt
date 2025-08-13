@@ -40,7 +40,7 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDat
 import com.sayler666.gina.attachments.viewmodel.toState
 import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
-import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.quotes.QuotesRepository
 import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
@@ -78,7 +78,7 @@ class AddDayViewModel @Inject constructor(
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
     savedStateHandle: SavedStateHandle,
-    getAllFriendsUseCase: GetAllFriendsUseCase,
+    getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCaseImpl,
     quotesRepository: QuotesRepository,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
@@ -112,7 +112,7 @@ class AddDayViewModel @Inject constructor(
         it
     }
     private val quote = quotesRepository.latestTodayQuoteFlow()
-    private val allFriends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
+    private val allFriends = getAllFriendsByRecentUseCase().stateIn(
         viewModelScope,
         WhileSubscribed(500),
         emptyList()
