@@ -18,7 +18,7 @@ import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
-import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +44,7 @@ import javax.inject.Inject
 class DayDetailsEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getDayDetailsUseCase: GetDayDetailsUseCase,
-    getAllFriendsUseCase: GetAllFriendsUseCase,
+    getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCase,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addFriendUseCase: AddFriendUseCase,
     private val dayDetailsMapper: DayDetailsMapper,
@@ -68,7 +68,7 @@ class DayDetailsEditViewModel @Inject constructor(
     private val id: Int
         get() = navArgs.dayId
 
-    private val allFriends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
+    private val allFriends = getAllFriendsByRecentUseCase().stateIn(
         viewModelScope,
         WhileSubscribed(500),
         emptyList()

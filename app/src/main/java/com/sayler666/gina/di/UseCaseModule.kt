@@ -20,6 +20,8 @@ import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCaseImpl
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCaseImpl
+import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
+import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCaseImpl
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
@@ -68,6 +70,9 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun getAllFriendsUseCase(useCase: GetAllFriendsUseCaseImpl): GetAllFriendsUseCase
+
+    @Binds
+    abstract fun GetAllFriendsByRecentUseCase(useCase: GetAllFriendsByRecentUseCaseImpl): GetAllFriendsByRecentUseCase
 
     @Binds
     abstract fun addFriendUseCase(useCase: AddFriendUseCaseImpl): AddFriendUseCase

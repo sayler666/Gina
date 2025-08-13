@@ -155,6 +155,16 @@ class JournalRepository @Inject constructor(
         }
     }.flowOn(dispatcher)
 
+    fun getAllFriendsWithCountByRecentFlow(): Flow<List<FriendWithCount>> = flow {
+        try {
+            ginaDatabaseProvider.withDaysDao {
+                emitAll(getFriendsWithCountByRecentFlow())
+            }
+        } catch (e: SQLException) {
+            Timber.e(e, "Database error")
+        }
+    }.flowOn(dispatcher)
+
     suspend fun getAllFriendsWithCount(
         searchQuery: String,
         moods: List<Mood>,
