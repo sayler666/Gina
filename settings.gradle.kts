@@ -1,10 +1,4 @@
-@file:Suppress("UnstableApiUsage")
-
 include(":domain-model")
-
-
-
-
 
 pluginManagement {
     includeBuild("build-logic")
