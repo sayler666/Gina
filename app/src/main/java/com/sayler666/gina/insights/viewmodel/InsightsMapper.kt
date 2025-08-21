@@ -12,6 +12,7 @@ import com.sayler666.domain.model.journal.Mood.GOOD
 import com.sayler666.domain.model.journal.Mood.LOW
 import com.sayler666.domain.model.journal.Mood.NEUTRAL
 import com.sayler666.domain.model.journal.Mood.SUPERB
+import com.sayler666.domain.model.journal.MoodAverage
 import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
@@ -25,14 +26,16 @@ class InsightsMapper @Inject constructor() {
         days: List<Day>,
         searchQuery: String,
         moods: List<Mood>,
+        moodsByMonth: List<MoodAverage>,
+        moodsByWeek: List<MoodAverage>,
         friendsLastMonth: List<FriendEntity>,
         friendsAllTime: List<FriendEntity>,
     ): InsightState = when {
         days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries))
-        -> EmptyState
+            -> EmptyState
 
         days.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(Mood.entries))
-        -> EmptySearchState
+            -> EmptySearchState
 
         days.isNotEmpty() -> DataState(
             totalEntries = days.size,
@@ -41,6 +44,8 @@ class InsightsMapper @Inject constructor() {
             totalMoods = days.count { it.mood != EMPTY },
             contributionHeatMapData = generateContributionHeatMapData(days),
             moodHeatMapData = generateMoodHeatMapData(days),
+            moodByMonthData = moodsByMonth,
+            moodByWeekData = moodsByWeek,
             moodChartData = generateMoodChartData(days),
             friendsLastMonthStats = friendsLastMonth,
             friendsAllTimeStats = friendsAllTime,
@@ -191,6 +196,8 @@ sealed class InsightState {
         val totalMoods: Int,
         val contributionHeatMapData: Map<LocalDate, ContributionLevel>,
         val moodHeatMapData: Map<LocalDate, MoodLevel>,
+        val moodByMonthData: List<MoodAverage>,
+        val moodByWeekData: List<MoodAverage>,
         val moodChartData: List<MoodChartData>,
         val searchQuery: String? = null,
         val friendsLastMonthStats: List<FriendEntity>,

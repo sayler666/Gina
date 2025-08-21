@@ -3,14 +3,16 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
+import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCase
+import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCase
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.domain.model.journal.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -34,6 +36,8 @@ class InsightsViewModel @Inject constructor(
     private val getDaysUseCase: GetDaysUseCase,
     private val insightsMapper: InsightsMapper,
     private val getAllFriendsUseCase: GetAllFriendsUseCase,
+    private val getAvgMoodByMonthsUseCase: GetAvgMoodByMonthsUseCase,
+    private val getAvgMoodByWeeksUseCase: GetAvgMoodByWeeksUseCase,
     private val friendsMapper: FriendsMapper,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
 ) : ViewModel() {
@@ -94,6 +98,9 @@ class InsightsViewModel @Inject constructor(
                         .let { friendsMapper.mapToFriends(it) }
                 }
 
+                val avgMoodByMonth = async { getAvgMoodByMonthsUseCase() }
+                val avgMoodByWeek = async { getAvgMoodByWeeksUseCase() }
+
                 getDaysUseCase
                     .getFilteredDaysFlow(search, moods)
                     .map {
@@ -101,6 +108,8 @@ class InsightsViewModel @Inject constructor(
                             days = it,
                             searchQuery = search,
                             moods = moods,
+                            moodsByMonth = avgMoodByMonth.await(),
+                            moodsByWeek = avgMoodByWeek.await(),
                             friendsLastMonth = friendsLastMonthDeferred.await(),
                             friendsAllTime = friendsAllTimeDeferred.await()
                         )

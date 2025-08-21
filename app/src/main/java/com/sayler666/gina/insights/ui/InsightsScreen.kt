@@ -1,30 +1,42 @@
 package com.sayler666.gina.insights.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -53,6 +65,8 @@ import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
+import com.sayler666.gina.ui.chart.MoodLineChart
+import java.time.format.DateTimeFormatter
 
 @OptIn(
     ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class
@@ -203,35 +217,160 @@ fun Insights(state: DataState) {
             .verticalScroll(scrollState)
     ) {
         Summary(state)
-        HeatMapCalendar(
-            state.contributionHeatMapData,
-            "Contributions",
-            "Less",
-            "More",
-            arrayOf<Level>(*ContributionLevel.entries.toTypedArray()).copyOfRange(
-                1,
-                ContributionLevel.entries.size
-            ),
-            colorProvider = { level -> contributionLevelColor(level as ContributionLevel) }
-        )
-        HeatMapCalendar(
-            state.moodHeatMapData,
-            "Moods",
-            "Worse",
-            "Better",
-            arrayOf<Level>(*MoodLevel.entries.toTypedArray()).copyOfRange(
-                1,
-                MoodLevel.entries.size
-            ),
-            colorProvider = { level -> moodLevelColor(level as MoodLevel) }
-        )
+
+        Moods(state)
+
         FriendsList(state.friendsLastMonthStats, state.friendsAllTimeStats)
+
+        Contribution(state)
+
         DoughnutChart(state.moodChartData)
+
         Spacer(
             modifier = Modifier.windowInsetsBottomHeight(
                 WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
             )
         )
+    }
+}
+
+@Composable
+fun Contribution(state: DataState) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceColorAtElevation(3.dp)),
+        elevation = CardDefaults.cardElevation(2.dp),
+    ) {
+        Column {
+            Text(
+                text = "Contributions",
+                modifier = Modifier.padding(12.dp),
+                style = MaterialTheme.typography.titleMedium
+                    .copy(color = colorScheme.onPrimaryContainer),
+            )
+            HeatMapCalendar(
+                modifier = Modifier.height(190.dp),
+                state.contributionHeatMapData,
+                "Less",
+                "More",
+                arrayOf<Level>(*ContributionLevel.entries.toTypedArray()).copyOfRange(
+                    1,
+                    ContributionLevel.entries.size
+                ),
+                colorProvider = { level -> contributionLevelColor(level as ContributionLevel) }
+            )
+        }
+    }
+}
+
+enum class Mode {
+    Day, Week, Month
+}
+
+@Composable
+private fun Moods(state: DataState) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceColorAtElevation(3.dp)),
+        elevation = CardDefaults.cardElevation(2.dp),
+    ) {
+        Column(
+            Modifier
+                .animateContentSize()
+                .padding(bottom = 8.dp)
+        ) {
+
+            val mode = remember { mutableStateOf(Mode.Month) }
+            Row {
+                Text(
+                    text = "Moods",
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.titleMedium
+                        .copy(color = colorScheme.onPrimaryContainer),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    Modifier.padding(end = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        label = {
+                            Text(
+                                "By month",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        onClick = { mode.value = Mode.Month },
+                        selected = mode.value == Mode.Month,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    FilterChip(
+                        label = {
+                            Text(
+                                "By week",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        onClick = { mode.value = Mode.Week },
+                        selected = mode.value == Mode.Week,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    FilterChip(
+                        label = {
+                            Text(
+                                "By day",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        onClick = { mode.value = Mode.Day },
+                        selected = mode.value == Mode.Day,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                }
+            }
+            AnimatedContent(
+                targetState = mode.value,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = ""
+            ) { mode ->
+                Row {
+                    when (mode) {
+                        Mode.Day -> HeatMapCalendar(
+                            modifier = Modifier.height(190.dp),
+                            state.moodHeatMapData,
+                            "Worse",
+                            "Better",
+                            arrayOf<Level>(*MoodLevel.entries.toTypedArray()).copyOfRange(
+                                1,
+                                MoodLevel.entries.size
+                            ),
+                            colorProvider = { level -> moodLevelColor(level as MoodLevel) }
+                        )
+
+                        Mode.Week -> MoodLineChart(
+                            modifier = Modifier.height(190.dp),
+                            moods = state.moodByWeekData,
+                            dateLabelFormatter = { date ->
+                                date.format(DateTimeFormatter.ofPattern("d MMM\nyyyy"))
+                            }
+                        )
+
+                        Mode.Month -> MoodLineChart(
+                            modifier = Modifier.height(190.dp),
+                            moods = state.moodByMonthData,
+                            dateLabelFormatter = { date ->
+                                date.format(DateTimeFormatter.ofPattern("MMM\nyyyy"))
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

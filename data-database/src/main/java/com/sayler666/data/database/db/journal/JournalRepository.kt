@@ -17,6 +17,7 @@ import com.sayler666.domain.model.journal.DayDetails
 import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.FriendWithCount
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.domain.model.journal.MoodAverage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -267,6 +268,24 @@ class JournalRepository @Inject constructor(
                 .map { it.copy(dayId = dayId).toEntity() }
                 .let { insertAttachments(it) }
         }
+    }
+
+    suspend fun getAvgMoodsByMonth(): List<MoodAverage> = try {
+        (ginaDatabaseProvider.returnWithDaysDao {
+            getAvgMoodsByMonth()
+        } ?: emptyList())
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        emptyList()
+    }
+
+    suspend fun getAvgMoodsByWeek(): List<MoodAverage> = try {
+        (ginaDatabaseProvider.returnWithDaysDao {
+            getAvgMoodsByWeek()
+        } ?: emptyList())
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        emptyList()
     }
 
 }
