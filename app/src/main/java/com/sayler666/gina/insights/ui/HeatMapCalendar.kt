@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -46,8 +43,8 @@ import java.time.YearMonth
 
 @Composable
 fun HeatMapCalendar(
+    modifier: Modifier = Modifier,
     heatMapData: Map<LocalDate, Level>,
-    title: String,
     legendLeft: String,
     legendRight: String,
     legend: Array<Level>,
@@ -57,64 +54,51 @@ fun HeatMapCalendar(
     val startDate = remember { heatMapData.keys.last() }
 
     val context = LocalContext.current
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)),
-        elevation = CardDefaults.cardElevation(2.dp),
-    ) {
-        Column {
-            val heatMapCalendarState = rememberHeatMapCalendarState(
-                startMonth = startDate.yearMonth,
-                endMonth = endDate.yearMonth,
-                firstVisibleMonth = endDate.yearMonth,
-                firstDayOfWeek = firstDayOfWeekFromLocale(),
-            )
+
+    val heatMapCalendarState = rememberHeatMapCalendarState(
+        startMonth = startDate.yearMonth,
+        endMonth = endDate.yearMonth,
+        firstVisibleMonth = endDate.yearMonth,
+        firstDayOfWeek = firstDayOfWeekFromLocale(),
+    )
+    Column(modifier = modifier) {
+        HeatMapCalendar(
+            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+            state = heatMapCalendarState,
+            contentPadding = PaddingValues(end = 6.dp),
+            dayContent = { day, week ->
+                Day(
+                    day = day,
+                    startDate = startDate,
+                    endDate = endDate,
+                    week = week,
+                    color = heatMapData[day.date]?.let { colorProvider(it) } ?: zeroLevelColor()
+                ) { clicked ->
+                    Toast.makeText(context, clicked.toString(), Toast.LENGTH_SHORT).show()
+                }
+            },
+            monthHeader = { MonthHeader(it, endDate, heatMapCalendarState) },
+        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp, end = 8.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = title,
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                legendLeft,
+                Modifier.padding(end = 2.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline,
             )
-            HeatMapCalendar(
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                state = heatMapCalendarState,
-                contentPadding = PaddingValues(end = 6.dp),
-                dayContent = { day, week ->
-                    Day(
-                        day = day,
-                        startDate = startDate,
-                        endDate = endDate,
-                        week = week,
-                        color = heatMapData[day.date]?.let { colorProvider(it) } ?: zeroLevelColor()
-                    ) { clicked ->
-                        Toast.makeText(context, clicked.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                },
-                monthHeader = { MonthHeader(it, endDate, heatMapCalendarState) },
+            legend.forEach { LevelBox(colorProvider(it)) }
+            Text(
+                legendRight,
+                Modifier.padding(start = 2.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
             )
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp, end = 8.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    legendLeft,
-                    Modifier.padding(end = 2.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
-                )
-                legend.forEach { LevelBox(colorProvider(it)) }
-                Text(
-                    legendRight,
-                    Modifier.padding(start = 2.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
         }
     }
 }
@@ -202,3 +186,4 @@ private fun getMonthWithYear(
         }
     }
 }
+

@@ -26,6 +26,10 @@ import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCaseImpl
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepositoryImpl
+import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCase
+import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCaseImpl
+import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCase
+import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCaseImpl
 import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
@@ -97,4 +101,10 @@ abstract class UseCaseModule {
 
     @Binds
     abstract fun getWorkingCopyStorage(storage: WorkingCopyStorageImpl): WorkingCopyStorage
+
+    @Binds
+    abstract fun getAvgMoodByMonthsUseCase(useCase: GetAvgMoodByMonthsUseCaseImpl): GetAvgMoodByMonthsUseCase
+
+    @Binds
+    abstract fun getAvgMoodByWeeksUseCase(useCase: GetAvgMoodByWeeksUseCaseImpl): GetAvgMoodByWeeksUseCase
 }

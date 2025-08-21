@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.sayler666.data.database.db.journal.converter.DateConverter
 import com.sayler666.data.database.db.journal.converter.MoodConverter
+import com.sayler666.data.database.db.journal.converter.YearMonthConverter
 import com.sayler666.data.database.db.journal.dao.DaysDao
 import com.sayler666.data.database.db.journal.dao.RawDao
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity
@@ -18,7 +19,7 @@ import com.sayler666.data.database.db.journal.entity.FriendEntity
     version = 1,
     exportSchema = false
 )
-@TypeConverters(MoodConverter::class, DateConverter::class)
+@TypeConverters(MoodConverter::class, DateConverter::class, YearMonthConverter::class)
 abstract class GinaDatabase : RoomDatabase() {
     abstract fun daysDao(): DaysDao
 

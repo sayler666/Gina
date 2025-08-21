@@ -3,8 +3,8 @@ include(":domain-model")
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-        google()
         mavenCentral()
+        google()
         gradlePluginPortal()
     }
 }
@@ -12,8 +12,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
         mavenCentral()
+        google()
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     }
 }

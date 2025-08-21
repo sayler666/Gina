@@ -14,6 +14,7 @@ import com.sayler666.data.database.db.journal.entity.DayFriendsEntity
 import com.sayler666.data.database.db.journal.entity.FriendEntity
 import com.sayler666.domain.model.journal.FriendWithCount
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.domain.model.journal.MoodAverage
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -139,6 +140,38 @@ interface DaysDao {
         dateTo: LocalDate,
         vararg moods: Mood,
     ): List<FriendWithCount>
+
+
+    @Query(
+        """
+            SELECT 
+                CAST(strftime('%s', date/1000, 'unixepoch', 'start of month') AS INTEGER) * 1000 AS period,
+                ROUND(AVG(CAST(mood AS REAL)), 2) AS moodAvg
+            FROM days 
+            WHERE date IS NOT NULL 
+                AND mood IS NOT NULL
+                AND mood IS NOT -2147483648
+            GROUP BY strftime('%Y-%m', datetime(date/1000, 'unixepoch'))
+            ORDER BY period DESC;
+        """
+    )
+    suspend fun getAvgMoodsByMonth(): List<MoodAverage>
+
+
+    @Query(
+        """
+            SELECT 
+                CAST(strftime('%s', datetime(date/1000, 'unixepoch'), 'weekday 0', '-6 days') AS INTEGER) * 1000 AS period,	
+                ROUND(AVG(CAST(mood AS REAL)), 2) AS moodAvg
+            FROM days 
+            WHERE date IS NOT NULL 
+                AND mood IS NOT NULL
+    			AND mood IS NOT -2147483648
+            GROUP BY strftime('%Y-W%W', datetime(date/1000, 'unixepoch'))
+            ORDER BY period DESC;
+        """
+    )
+    suspend fun getAvgMoodsByWeek(): List<MoodAverage>
 
     @Query("DELETE FROM daysFriends WHERE id = :id")
     suspend fun deleteFriendsForDay(id: Int): Int
