@@ -42,6 +42,7 @@ class AppSettingsImpl @Inject constructor(private val app: Application) : AppSet
 
 enum class Theme {
     Dynamic,
+    AlterBridge,
     GoldenMeadowTwilight,
     DeepOcean,
     Firewatch,

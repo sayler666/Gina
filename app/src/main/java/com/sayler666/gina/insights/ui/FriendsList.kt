@@ -63,8 +63,8 @@ fun FriendsList(
                 Text(
                     text = "Friends",
                     modifier = Modifier.padding(12.dp),
-                    style = MaterialTheme.typography.titleMedium
-                        .copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                    style = MaterialTheme.typography.labelLarge
+                        .copy(color = MaterialTheme.colorScheme.onSurface)
                 )
                 Spacer(modifier = Modifier.weight(1f))
 

@@ -247,8 +247,8 @@ fun Contribution(state: DataState) {
             Text(
                 text = "Contributions",
                 modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.titleMedium
-                    .copy(color = colorScheme.onPrimaryContainer),
+                style = MaterialTheme.typography.labelLarge
+                    .copy(color = colorScheme.onSurface)
             )
             HeatMapCalendar(
                 modifier = Modifier.height(190.dp),
@@ -289,8 +289,8 @@ private fun Moods(state: DataState) {
                 Text(
                     text = "Moods",
                     modifier = Modifier.padding(12.dp),
-                    style = MaterialTheme.typography.titleMedium
-                        .copy(color = colorScheme.onPrimaryContainer),
+                    style = MaterialTheme.typography.labelLarge
+                        .copy(color = colorScheme.onSurface)
                 )
                 Spacer(modifier = Modifier.weight(1f))
 

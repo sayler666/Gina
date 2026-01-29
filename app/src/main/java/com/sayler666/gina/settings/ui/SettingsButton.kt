@@ -72,7 +72,7 @@ fun SettingsButton(
                 Text(
                     text = body,
                     style = MaterialTheme.typography.labelMedium
-                        .copy(color = MaterialTheme.colorScheme.outline)
+                        .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                 )
             }
             Spacer(modifier = Modifier.weight(1f))

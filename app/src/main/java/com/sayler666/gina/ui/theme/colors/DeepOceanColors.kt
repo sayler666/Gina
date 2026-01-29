@@ -125,7 +125,6 @@ object DeepOceanColors {
         inverseOnSurface = dark_inverseOnSurface,
         inverseSurface = dark_inverseSurface,
         inversePrimary = dark_inversePrimary,
-        surfaceTint = dark_surfaceTint,
         outlineVariant = dark_outlineVariant,
         scrim = dark_scrim,
     )
