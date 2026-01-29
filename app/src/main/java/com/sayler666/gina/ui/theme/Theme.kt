@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.sayler666.gina.BuildConfig
 import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.ui.theme.colors.AlterBridgeColors
 import com.sayler666.gina.ui.theme.colors.DeepOceanColors
 import com.sayler666.gina.ui.theme.colors.FirewatchColors
 import com.sayler666.gina.ui.theme.colors.GoldenMeadowTwilightColors
@@ -27,6 +28,7 @@ fun GinaTheme(
     content: @Composable () -> Unit
 ) {
     val colors: ColorScheme = when (theme) {
+        AlterBridge -> if (darkTheme) AlterBridgeColors.DarkColors else AlterBridgeColors.LightColors
         Firewatch -> if (darkTheme) FirewatchColors.DarkColors else FirewatchColors.LightColors
         MountainView -> if (darkTheme) MountainViewColors.DarkColors else MountainViewColors.LightColors
         Dynamic -> if (darkTheme) {

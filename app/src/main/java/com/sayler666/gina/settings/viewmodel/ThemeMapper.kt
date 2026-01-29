@@ -3,6 +3,7 @@ package com.sayler666.gina.settings.viewmodel
 import com.sayler666.gina.R.string
 import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.ui.theme.colors.AlterBridgeColors
 import com.sayler666.gina.ui.theme.colors.DeepOceanColors
 import com.sayler666.gina.ui.theme.colors.FirewatchColors
 import com.sayler666.gina.ui.theme.colors.GoldenMeadowTwilightColors
@@ -71,6 +72,17 @@ class ThemeMapper @Inject constructor() {
                     GoldenMeadowTwilightColors.DarkColors.primary,
                     GoldenMeadowTwilightColors.DarkColors.secondary,
                     GoldenMeadowTwilightColors.DarkColors.tertiary
+                )
+            )
+
+            AlterBridge -> ThemeItem(
+                theme,
+                string.theme_golden_alter_bridge,
+                theme == activeTheme,
+                ColorsPreview(
+                    AlterBridgeColors.DarkColors.primary,
+                    AlterBridgeColors.DarkColors.secondary,
+                    AlterBridgeColors.DarkColors.tertiary
                 )
             )
         }

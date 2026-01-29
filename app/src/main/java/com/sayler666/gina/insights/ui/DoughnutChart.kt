@@ -49,8 +49,8 @@ fun DoughnutChart(
             Text(
                 text = "Moods graph",
                 modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.titleMedium
-                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                style = MaterialTheme.typography.labelLarge
+                    .copy(color = MaterialTheme.colorScheme.onSurface)
             )
             if (values.isNotEmpty()) {
                 Chart(values, size, thickness)

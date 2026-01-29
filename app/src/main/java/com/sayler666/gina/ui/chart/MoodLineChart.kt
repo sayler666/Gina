@@ -67,7 +67,7 @@ fun MoodLineChart(
     val paddingDp = 20.dp
 
     val chartWidth = maxOf(a = 300.dp, b = minPointWidth * moods.size)
-    val legendColor = MaterialTheme.colorScheme.outline
+    val legendColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     val awesomeColor = awesomeColor()
     val badColor = badColor()
