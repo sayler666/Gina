@@ -125,7 +125,7 @@ private fun InsightsContent(
     Column(
         modifier
             .fillMaxSize()
-            .imePadding()
+            .imePadding(),
     ) {
         when (state) {
             is DataState -> Insights(state)
@@ -216,6 +216,7 @@ fun Insights(state: DataState) {
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
+        Spacer(Modifier.padding(top = 12.dp))
         Summary(state)
 
         Moods(state)

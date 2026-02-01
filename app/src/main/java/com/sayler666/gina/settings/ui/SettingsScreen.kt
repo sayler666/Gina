@@ -94,6 +94,7 @@ fun SettingsScreen(
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+                Spacer(Modifier.padding(top = 16.dp))
                 Text(
                     text = "Database",
                     style = MaterialTheme.typography.labelLarge,

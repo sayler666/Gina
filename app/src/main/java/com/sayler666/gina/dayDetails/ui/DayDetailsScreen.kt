@@ -148,7 +148,8 @@ private fun Content(
 ) {
     val requester = remember { FocusRequester() }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
         state?.let {
             TopAppBar(title = {
                 Row(
@@ -193,24 +194,24 @@ private fun Content(
             FriendsRow(state.friends)
         }
     }, modifier = Modifier
-        .onKeyEvent {
-            if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
-            when (it.key) {
-                VolumeUp -> {
-                    viewEvent(OnNextDayPressed)
-                    return@onKeyEvent true
-                }
+            .onKeyEvent {
+                if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
+                when (it.key) {
+                    VolumeUp -> {
+                        viewEvent(OnNextDayPressed)
+                        return@onKeyEvent true
+                    }
 
-                VolumeDown -> {
-                    viewEvent(OnPreviousDayPressed)
-                    return@onKeyEvent true
-                }
+                    VolumeDown -> {
+                        viewEvent(OnPreviousDayPressed)
+                        return@onKeyEvent true
+                    }
 
-                else -> return@onKeyEvent false
+                    else -> return@onKeyEvent false
+                }
             }
-        }
-        .focusRequester(requester)
-        .focusable())
+            .focusRequester(requester)
+            .focusable())
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -287,7 +288,10 @@ private fun AttachmentsRow(
 ) {
     if (state.attachments.isNotEmpty()) {
         val context = LocalContext.current
-        FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
+        FlowRow(modifier = Modifier
+            .padding(16.dp, 0.dp)
+            .padding(top = 16.dp)
+        ) {
             state.attachments.forEach { attachment ->
                 when (attachment) {
                     is AttachmentState.AttachmentImageState -> ImageThumbnail(
@@ -301,7 +305,7 @@ private fun AttachmentsRow(
                     is AttachmentState.AttachmentNonImageState -> FileThumbnail(
                         attachment,
                         onClick = {
-                            attachment.content?.let {
+                            attachment.content.let {
                                 Files.openFileIntent(context, it, attachment.mimeType)
                             }
                         })
@@ -316,15 +320,18 @@ fun FriendsRow(friends: List<FriendState>) {
     val context = LocalContext.current
 
     if (friends.isNotEmpty())
-        BottomAppBar(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+        BottomAppBar(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             content = {
                 LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
                     items(friends) { friend ->
-                        FriendIcon(friend = friend,
+                        FriendIcon(
+                            friend = friend,
                             size = 42.dp,
                             modifier = Modifier
                                 .padding(end = 8.dp, top = 0.dp)
-                                .clickable(indication = ripple(bounded = false),
+                                .clickable(
+                                    indication = ripple(bounded = false),
                                     interactionSource = remember { MutableInteractionSource() }) {
                                     Toast
                                         .makeText(context, friend.name, Toast.LENGTH_SHORT)

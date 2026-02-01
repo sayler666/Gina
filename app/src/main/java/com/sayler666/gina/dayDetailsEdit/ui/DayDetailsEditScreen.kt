@@ -307,7 +307,7 @@ fun AttachmentsCountLabel(count: Int) {
     Text(
         text = "Attachments: $count",
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary),
-        modifier = Modifier.padding(start = 16.dp)
+        modifier = Modifier.padding(start = 16.dp, top = 16.dp)
     )
 }
 
@@ -320,33 +320,45 @@ fun Attachments(
     onRemoveAttachment: (Int) -> Unit
 ) {
     val context = LocalContext.current
-    if (day.attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
-        day.attachments.forEach { attachment ->
-            when (attachment) {
-                is AttachmentState.AttachmentImageState -> ImageThumbnail(attachment, onClick = {
-                    attachment.content?.let { image ->
-                        destinationsNavigator.navigate(
-                            ImagePreviewTmpScreenDestination(
-                                ImagePreviewTmpScreenNavArgs(
-                                    image = image,
-                                    mimeType = attachment.mimeType
+    if (day.attachments.isNotEmpty()) {
+        FlowRow(
+            modifier = Modifier
+                .padding(16.dp, 0.dp)
+                .padding(top = 16.dp)
+        ) {
+            day.attachments.forEach { attachment ->
+                when (attachment) {
+                    is AttachmentState.AttachmentImageState -> ImageThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.content?.let { image ->
+                                destinationsNavigator.navigate(
+                                    ImagePreviewTmpScreenDestination(
+                                        ImagePreviewTmpScreenNavArgs(
+                                            image = image,
+                                            mimeType = attachment.mimeType
+                                        )
+                                    )
                                 )
-                            )
-                        )
-                    }
-                }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.content.hashCode())
-                })
+                            }
+                        },
+                        onRemoveClicked = {
+                            onRemoveAttachment(attachment.content.hashCode())
+                        })
 
-                is AttachmentState.AttachmentNonImageState -> FileThumbnail(attachment, onClick = {
-                    attachment.content?.let { image ->
-                        openFileIntent(
-                            context, image, attachment.mimeType
-                        )
-                    }
-                }, onRemoveClicked = {
-                    onRemoveAttachment(attachment.content.hashCode())
-                })
+                    is AttachmentState.AttachmentNonImageState -> FileThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.content?.let { image ->
+                                openFileIntent(
+                                    context, image, attachment.mimeType
+                                )
+                            }
+                        },
+                        onRemoveClicked = {
+                            onRemoveAttachment(attachment.content.hashCode())
+                        })
+                }
             }
         }
     }

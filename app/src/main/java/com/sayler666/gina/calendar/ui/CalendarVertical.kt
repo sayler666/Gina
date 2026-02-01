@@ -146,7 +146,7 @@ private fun CalendarDay(
     onEmptyDayClick: (LocalDate) -> Unit
 ) {
     val hasEntry = dayEntity != null
-    val currentDayColor = MaterialTheme.colorScheme.surfaceTint
+    val currentDayColor = MaterialTheme.colorScheme.onBackground
     val monthDate = day.position == DayPosition.MonthDate
     val isSelected = day.date == selected
     if (monthDate)
