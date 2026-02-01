@@ -80,12 +80,12 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
             BitmapFactory.Options().run {
                 inJustDecodeBounds = true
                 BitmapFactory.decodeByteArray(image, 0, image.size, this)
-
+                val ratio = (1.0 * outWidth) / outHeight
                 inSampleSize = calculateInSampleSize(
                     srcWidth = outWidth,
                     srcHeight = outHeight,
                     dstWidth = THUMBNAIL_SIZE,
-                    dstHeight = THUMBNAIL_SIZE,
+                    dstHeight = (THUMBNAIL_SIZE * ratio).toInt(),
                     scale = FILL
                 )
 
@@ -148,7 +148,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
     private fun createCacheFileName(id: Int) = "$id.jpg"
 
     companion object {
-        const val THUMBNAIL_SIZE = 140
-        const val THUMBNAIL_QUALITY = 60
+        const val THUMBNAIL_SIZE = 250
+        const val THUMBNAIL_QUALITY = 80
     }
 }

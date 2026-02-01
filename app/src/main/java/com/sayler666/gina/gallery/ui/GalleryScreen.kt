@@ -1,8 +1,10 @@
 package com.sayler666.gina.gallery.ui
 
-import androidx.compose.foundation.Image
+import android.graphics.BitmapFactory.Options
+import android.graphics.BitmapFactory.decodeByteArray
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -10,17 +12,20 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,7 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -183,7 +188,7 @@ fun ImagesGrid(
     openImage: (Int) -> Unit,
     hazeState: HazeState
 ) {
-    val gridState = rememberLazyGridState()
+    val gridState = rememberLazyStaggeredGridState()
 
     LaunchedEffect(key1 = gridState, block = {
         snapshotFlow { gridState.isScrolledToTheEnd() }.collect {
@@ -205,26 +210,44 @@ fun ImagesGrid(
     Column(
         Modifier.fillMaxSize()
     ) {
-        LazyVerticalGrid(
+        LazyVerticalStaggeredGrid(
             modifier = Modifier
+                .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
-                .hazeSource(hazeState),
+                .hazeSource(state = hazeState),
             state = gridState,
-            columns = GridCells.Adaptive(minSize = 120.dp),
+            columns = StaggeredGridCells.Fixed(2),
             contentPadding = WindowInsets.systemBars
-                .only(WindowInsetsSides.Bottom + WindowInsetsSides.Top)
+                .only(WindowInsetsSides.Vertical)
                 .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT, top = 64.dp))
-                .asPaddingValues()
+                .asPaddingValues(),
+            verticalItemSpacing = 2.dp,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            items(state.images) { image ->
-                Image(
+            items(
+                items = state.images,
+                key = { it.id ?: it.hashCode() },
+                contentType = { "image_cell" }
+            ) { image ->
+                val aspectRatio: Float = remember(image.bytes) {
+                    val options = Options().apply { inJustDecodeBounds = true }
+                    decodeByteArray(image.bytes, 0, image.bytes.size, options)
+
+                    if (options.outWidth > 0 && options.outHeight > 0) {
+                        options.outWidth.toFloat() / options.outHeight.toFloat()
+                    } else {
+                        1f
+                    }
+                }
+
+                AsyncImage(
+                    model = image.bytes,
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(120.dp)
-                        .padding(start = 1.dp, bottom = 1.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio)
                         .clickable { image.id?.let { openImage(it) } },
-                    contentScale = ContentScale.Crop,
-                    painter = rememberAsyncImagePainter(model = image.bytes),
-                    contentDescription = "",
+                    contentScale = ContentScale.FillWidth
                 )
             }
         }
@@ -236,7 +259,7 @@ private fun LoadingGrid() {
     FlowRow(
         Modifier
             .fillMaxSize()
-            .padding(top = 90.dp)
+            .padding(top = 120.dp)
     ) {
         repeat(18) {
             Box(
@@ -249,8 +272,12 @@ private fun LoadingGrid() {
     }
 }
 
-fun LazyGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
+fun LazyStaggeredGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
     return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
         ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
 }
 
+fun LazyGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
+    return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
+        ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
+}
