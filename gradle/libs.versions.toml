@@ -3,8 +3,8 @@
 # Android SDK
 minSdk = "33"
 targetSdk = "34"
-compileSdk = "android-35"
-agp = "8.11.1"
+compileSdk = "35"
+agp = "9.0.1"
 
 # Application version
 versionCode = "9"
@@ -13,10 +13,10 @@ versionMinor = "10"
 versionRevision = "0"
 
 # Kotlin
-kotlin = "2.1.21"
+kotlin = "2.2.10"
 kotlin-coroutines = "1.9.0"
 kotlin-serialization = "1.7.3"
-ksp = "2.1.21-2.0.2"
+ksp = "2.2.10-2.0.2"
 
 # Compose
 compose = "1.8.2"
@@ -47,7 +47,7 @@ accompanist-premissions = "0.32.0"
 room = "2.7.2"
 
 # Hilt
-hilt = "2.55"
+hilt = "2.59.2"
 hilt-navigation-compose = "1.2.0"
 hilt-compiler = "1.2.0"
 desugar-jdk-libs = "2.1.3"
