@@ -9,7 +9,7 @@ import coil.size.Scale.FILL
 import com.sayler666.core.collections.pmap
 import com.sayler666.data.database.db.journal.JournalRepository
 import com.sayler666.domain.model.journal.Attachment
-import com.sayler666.gina.core.BuildConfig
+import com.sayler666.gina.feature.gallery.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
