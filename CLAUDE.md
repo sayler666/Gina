@@ -11,29 +11,31 @@ Feature-complete — no new features planned.
 - No unit tests
 
 ## Current Module Structure
-- `:app` — all features, ViewModels, UI, DI, Navigation (being refactored)
-- `:core` — pure Kotlin utils only (Compose helpers moved to `:core-ui`)
-- `:core-ui` — Compose only — shared components, theme, modifiers (extracted)
-- `:data-database` — Room, DAOs, entities, repositories (journal/quotes/reminders)
+- `:app` — remaining features, ViewModels, UI, DI, Navigation (being refactored)
+- `:core` — pure Kotlin utils only (no Compose)
+- `:core-ui` — Compose only — shared components, theme, modifiers
+- `:data-database` — Room, DAOs, entities, repositories, use cases
 - `:domain-model` — pure Kotlin models, no logic
+- `:feature-calendar` — calendar UI and ViewModel
+- `:feature-settings` — settings UI and logic
 - `:build-logic` — Gradle convention plugins
 
 ## Target Module Structure (refactor in progress)
 ```
 app/                    # entry point, DI graph, MainActivity, Navigation only
 build-logic/
-core/                   # pure Kotlin only, no Compose (split done)
-core-ui/                # Compose only — shared components, theme, modifiers (extracted)
-data-database/          # already extracted
-domain-model/           # already extracted
+core/                   # pure Kotlin only, no Compose
+core-ui/                # Compose only — shared components, theme, modifiers
+data-database/          # extracted
+domain-model/           # extracted
 feature/
-  feature-calendar/
+  feature-calendar/     # extracted
   feature-day-edit/     # addDay + dayDetailsEdit combined
   feature-day-details/
-  feature-friends/      # Theme enum moved to core-ui, friend UI state in module
+  feature-friends/
   feature-gallery/
   feature-insights/
-  feature-settings/
+  feature-settings/     # extracted
 ```
 
 ## Module Dependency Rules

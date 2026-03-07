@@ -30,8 +30,6 @@ import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCase
 import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCaseImpl
 import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCase
 import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCaseImpl
-import com.sayler666.gina.journal.usecase.GetDaysUseCase
-import com.sayler666.gina.journal.usecase.GetDaysUseCaseImpl
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCaseImpl
 import com.sayler666.gina.reminder.usecase.NotificationUseCase
@@ -48,9 +46,6 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class UseCaseModule {
-    @Binds
-    abstract fun provideGetDaysUseCase(useCase: GetDaysUseCaseImpl): GetDaysUseCase
-
     @Binds
     abstract fun provideGetDayDetailsUseCase(useCase: GetDayDetailsUseCaseImpl): GetDayDetailsUseCase
 

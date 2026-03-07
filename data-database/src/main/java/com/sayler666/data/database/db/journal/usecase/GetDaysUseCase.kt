@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.usecase
+package com.sayler666.data.database.db.journal.usecase
 
 import com.sayler666.data.database.db.journal.JournalRepository
 import com.sayler666.domain.model.journal.Day
@@ -18,5 +18,4 @@ class GetDaysUseCaseImpl @Inject constructor(
 
     override fun getFilteredDaysFlow(searchQuery: String, moods: List<Mood>): Flow<List<Day>> =
         journalRepository.daysWithFiltersFlow(searchQuery, *moods.toTypedArray())
-
 }

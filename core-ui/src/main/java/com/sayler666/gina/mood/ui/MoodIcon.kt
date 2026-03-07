@@ -81,3 +81,6 @@ fun superbColor() = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
 
 @Composable
 fun awesomeColor() = MaterialTheme.colorScheme.primary
+
+@Composable
+fun emptyLevelColor() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

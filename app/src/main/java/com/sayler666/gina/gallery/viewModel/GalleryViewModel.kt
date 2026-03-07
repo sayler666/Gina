@@ -7,7 +7,7 @@ import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
+import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.dataDatabase)
     implementation(projects.domainModel)
     implementation(projects.featureSettings)
+    implementation(projects.featureCalendar)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
