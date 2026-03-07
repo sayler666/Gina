@@ -14,7 +14,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils.blendARGB
-import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
+
+val BOTTOM_NAV_HEIGHT = 70.dp
 
 @Stable
 class VerticalBottomBarAnimation(

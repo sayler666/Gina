@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.ui.theme.Theme
 
 @Composable
 fun StatusBarColor(color: Color = MaterialTheme.colorScheme.surface, theme: Theme?) {

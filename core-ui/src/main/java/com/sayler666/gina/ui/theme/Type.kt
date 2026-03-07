@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.sayler666.gina.R
+import com.sayler666.gina.core.ui.R
 
 val RobotoSlabThin = FontFamily(Font(R.font.roboto_slab_thin))
 val RobotoSlabLight = FontFamily(Font(R.font.roboto_slab_light))

@@ -46,6 +46,7 @@ import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.startAppDestination
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
+import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
@@ -126,8 +127,6 @@ fun GinaApp(
         }
     }
 }
-
-val BOTTOM_NAV_HEIGHT = 70.dp
 
 private val Destination.shouldShowScaffoldElements
     get() = when (this) {

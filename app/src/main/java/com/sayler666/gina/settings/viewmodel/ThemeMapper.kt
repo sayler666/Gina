@@ -1,8 +1,14 @@
 package com.sayler666.gina.settings.viewmodel
 
 import com.sayler666.gina.R.string
-import com.sayler666.gina.settings.Theme
-import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.ui.theme.Theme
+import com.sayler666.gina.ui.theme.Theme.AlterBridge
+import com.sayler666.gina.ui.theme.Theme.DeepOcean
+import com.sayler666.gina.ui.theme.Theme.Dynamic
+import com.sayler666.gina.ui.theme.Theme.Firewatch
+import com.sayler666.gina.ui.theme.Theme.GoldenMeadowTwilight
+import com.sayler666.gina.ui.theme.Theme.Legacy
+import com.sayler666.gina.ui.theme.Theme.MountainView
 import com.sayler666.gina.ui.theme.colors.AlterBridgeColors
 import com.sayler666.gina.ui.theme.colors.DeepOceanColors
 import com.sayler666.gina.ui.theme.colors.FirewatchColors

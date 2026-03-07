@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
 import com.sayler666.gina.settings.SettingsStorage
-import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.ui.theme.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow

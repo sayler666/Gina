@@ -2,7 +2,7 @@ package com.sayler666.gina.settings.viewmodel
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.ui.theme.Theme
 
 data class ThemeItem(
     val theme: Theme,

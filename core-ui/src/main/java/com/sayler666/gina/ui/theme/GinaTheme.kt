@@ -8,9 +8,14 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.sayler666.gina.BuildConfig
-import com.sayler666.gina.settings.Theme
-import com.sayler666.gina.settings.Theme.*
+import com.sayler666.gina.core.ui.BuildConfig
+import com.sayler666.gina.ui.theme.Theme.AlterBridge
+import com.sayler666.gina.ui.theme.Theme.DeepOcean
+import com.sayler666.gina.ui.theme.Theme.Dynamic
+import com.sayler666.gina.ui.theme.Theme.Firewatch
+import com.sayler666.gina.ui.theme.Theme.GoldenMeadowTwilight
+import com.sayler666.gina.ui.theme.Theme.Legacy
+import com.sayler666.gina.ui.theme.Theme.MountainView
 import com.sayler666.gina.ui.theme.colors.AlterBridgeColors
 import com.sayler666.gina.ui.theme.colors.DeepOceanColors
 import com.sayler666.gina.ui.theme.colors.FirewatchColors
