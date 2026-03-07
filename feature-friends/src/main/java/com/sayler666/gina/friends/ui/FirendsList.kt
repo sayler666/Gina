@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.PickVisualMediaRequest.Builder
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.compose.animation.AnimatedVisibility
@@ -155,9 +154,7 @@ fun FriendEdit(
             viewModel.changeAvatar(avatar)
         }
     }
-    val request: PickVisualMediaRequest = Builder()
-        .setMediaType(ImageOnly)
-        .build()
+    val request: PickVisualMediaRequest = PickVisualMediaRequest(ImageOnly)
 
     LaunchedEffect(friendId) {
         viewModel.loadFriend(friendId)

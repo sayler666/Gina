@@ -1,9 +1,10 @@
 package com.sayler666.gina.convention
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
@@ -12,14 +13,16 @@ class AndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
             apply(libs.findPlugin("agp-library"))
-            apply(libs.findPlugin("kotlin-android"))
         }
 
-        with(extensions.getByType<LibraryExtension>()) {
-            compileSdkVersion = libs.findVersionString("compileSdk")
+        val compileSdkVersion = libs.findVersionInt("compileSdk")
+        val minSdkVersion = libs.findVersionInt("minSdk")
+
+        extensions.configure<LibraryExtension> {
+            compileSdk = compileSdkVersion
 
             with(defaultConfig) {
-                minSdk = libs.findVersionInt("minSdk")
+                minSdk = minSdkVersion
             }
 
             with(buildTypes) {

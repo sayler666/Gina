@@ -26,7 +26,9 @@
       "Bash(handle:*)",
       "Bash(tasklist:*)",
       "Bash(rm:*)",
-      "Bash(wmic process:*)"
+      "Bash(wmic process:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ]
   }
 }
