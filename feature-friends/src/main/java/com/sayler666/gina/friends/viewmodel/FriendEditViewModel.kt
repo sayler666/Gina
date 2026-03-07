@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.domain.model.journal.Friend
-import com.sayler666.gina.dayDetailsEdit.usecase.GetFriendUseCase
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
+import com.sayler666.gina.friends.usecase.GetFriendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
