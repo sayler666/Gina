@@ -1,11 +1,11 @@
-package com.sayler666.gina.settings.viewmodel
+package com.sayler666.gina.feature.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.withRawDao
-import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
-import com.sayler666.gina.settings.SettingsStorage
+import com.sayler666.gina.feature.settings.SettingsStorage
+import com.sayler666.gina.feature.settings.reminder.RemindersViewModel
 import com.sayler666.gina.ui.theme.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

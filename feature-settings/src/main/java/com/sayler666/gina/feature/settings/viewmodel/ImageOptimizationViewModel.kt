@@ -1,8 +1,8 @@
-package com.sayler666.gina.settings.viewmodel
+package com.sayler666.gina.feature.settings.viewmodel
 
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.core.viewmodel.ViewModelSlice
-import com.sayler666.gina.settings.SettingsStorage
+import com.sayler666.gina.feature.settings.SettingsStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,4 +51,3 @@ class ImageOptimizationViewModelImpl @Inject constructor(
         }
     }
 }
-

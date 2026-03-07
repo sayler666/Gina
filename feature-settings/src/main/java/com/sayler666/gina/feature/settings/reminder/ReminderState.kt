@@ -1,4 +1,4 @@
-package com.sayler666.gina.reminder.viewmodel
+package com.sayler666.gina.feature.settings.reminder
 
 import java.time.LocalTime
 

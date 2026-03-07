@@ -3,8 +3,6 @@ package com.sayler666.gina.di
 import android.app.Application
 import android.content.Context
 import com.sayler666.gina.ginaApp.GinaApplication
-import com.sayler666.gina.settings.AppSettings
-import com.sayler666.gina.settings.AppSettingsImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,7 +34,4 @@ class ApplicationModule {
     fun provideExternalScope(application: GinaApplication): CoroutineScope =
         application.applicationScope
 
-    @Provides
-    @Singleton
-    fun provideAppSettings(appSettingsImpl: AppSettingsImpl): AppSettings = appSettingsImpl
 }

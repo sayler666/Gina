@@ -1,4 +1,4 @@
-package com.sayler666.gina.settings
+package com.sayler666.gina.feature.settings
 
 import com.sayler666.core.image.ImageOptimizationSettings
 import com.sayler666.data.database.db.journal.DatabaseSettingsStorage

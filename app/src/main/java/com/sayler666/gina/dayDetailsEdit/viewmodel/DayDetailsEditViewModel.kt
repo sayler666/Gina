@@ -17,10 +17,10 @@ import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
-import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
