@@ -12,8 +12,6 @@ import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCaseImpl
-import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
-import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepositoryImpl
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCaseImpl
 import com.sayler666.gina.reminder.usecase.NotificationUseCase
@@ -32,9 +30,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class UseCaseModule {
     @Binds
     abstract fun provideGetDayDetailsUseCase(useCase: GetDayDetailsUseCaseImpl): GetDayDetailsUseCase
-
-    @Binds
-    abstract fun provideImageAttachmentsRepository(useCase: ImageAttachmentsRepositoryImpl): ImageAttachmentsRepository
 
     @Binds
     abstract fun provideGetNextPreviousDayDetailsUseCase(useCase: GetNextPreviousIdDayUseCaseUseCaseImpl): GetNextPreviousIdDayUseCase

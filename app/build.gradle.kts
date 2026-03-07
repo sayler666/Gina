@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.featureCalendar)
     implementation(projects.featureFriends)
     implementation(projects.featureInsights)
+    implementation(projects.featureGallery)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

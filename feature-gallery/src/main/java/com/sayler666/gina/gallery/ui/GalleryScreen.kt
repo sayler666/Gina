@@ -48,12 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
-import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.gallery.viewModel.GalleryState
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
@@ -74,22 +69,16 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RootNavGraph
-@Destination
 @Composable
 fun GalleryScreen(
-    destinationsNavigator: DestinationsNavigator,
+    onOpenImage: (Int) -> Unit,
 ) {
     val viewModel: GalleryViewModel = hiltViewModel()
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
-            it.id?.let { imageId ->
-                destinationsNavigator.navigate(
-                    ImagePreviewScreenDestination(ImagePreviewScreenNavArgs(imageId))
-                )
-            }
+            it.id?.let { imageId -> onOpenImage(imageId) }
         }
     }
 
