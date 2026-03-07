@@ -1,10 +1,10 @@
 package com.sayler666.gina.quotes
 
-import com.sayler666.gina.quotes.api.ZenQuotesService
 import com.sayler666.data.database.db.quotes.QuoteEntity
 import com.sayler666.data.database.db.quotes.QuotesDatabaseProvider
 import com.sayler666.data.database.db.quotes.returnWithQuotesDao
 import com.sayler666.data.database.db.quotes.withQuotesDao
+import com.sayler666.gina.quotes.api.ZenQuotesService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +32,7 @@ class QuotesRepository @Inject constructor(
                     when (quote?.date) {
                         todayDate -> emit(quote)
                         else -> with(fetchAndSaveNewQuote(todayDate)) {
-                            if (this == null) getRandomQuote()?.let { emit(it) }
+                            if (this == null) emit(getRandomQuote())
                         }
                     }
                 }
