@@ -3,7 +3,6 @@ package com.sayler666.core.compose
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.runtime.Composable
 
 const val ANIMATION_DURATION = 500
 

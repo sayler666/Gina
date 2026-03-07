@@ -23,4 +23,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":app")
 include(":core")
+include(":core-ui")
 include(":data-database")

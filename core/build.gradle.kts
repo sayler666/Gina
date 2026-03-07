@@ -1,6 +1,5 @@
 plugins {
     id("plugins.android.library")
-    id("plugins.android.compose")
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -49,10 +48,8 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.compiler)
     implementation(libs.androidx.exifinterface)
-    implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.datastore)
 
     // Other
