@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.domain.model.journal.Mood
@@ -71,7 +70,6 @@ import java.time.format.DateTimeFormatter
 @OptIn(
     ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class
 )
-@Destination
 @Composable
 fun InsightsScreen() {
     val viewModel: InsightsViewModel = hiltViewModel()
