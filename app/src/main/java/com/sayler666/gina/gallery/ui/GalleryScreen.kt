@@ -229,9 +229,9 @@ fun ImagesGrid(
                 key = { it.id ?: it.hashCode() },
                 contentType = { "image_cell" }
             ) { image ->
-                val aspectRatio: Float = remember(image.bytes) {
+                val aspectRatio: Float = remember(image.content) {
                     val options = Options().apply { inJustDecodeBounds = true }
-                    decodeByteArray(image.bytes, 0, image.bytes.size, options)
+                    decodeByteArray(image.content, 0, image.content.size, options)
 
                     if (options.outWidth > 0 && options.outHeight > 0) {
                         options.outWidth.toFloat() / options.outHeight.toFloat()
@@ -241,7 +241,7 @@ fun ImagesGrid(
                 }
 
                 AsyncImage(
-                    model = image.bytes,
+                    model = image.content,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()

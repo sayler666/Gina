@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,14 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.friends.ui.FriendIcon
-import com.sayler666.gina.friends.viewmodel.FriendEntity
-import com.sayler666.gina.friends.viewmodel.toState
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.ui.EmptyResult
 
 @Composable
 fun FriendsList(
-    friendsLastMonth: List<FriendEntity>,
-    friendsAllTime: List<FriendEntity>
+    friendsLastMonth: List<FriendState>,
+    friendsAllTime: List<FriendState>
 ) {
     Card(
         modifier = Modifier
@@ -106,7 +104,7 @@ fun FriendsList(
 }
 
 @Composable
-private fun FriendsStats(data: List<FriendEntity>) {
+private fun FriendsStats(data: List<FriendState>) {
     if (data.isNotEmpty()) {
         FriendsChart(data)
     } else {
@@ -120,7 +118,7 @@ private fun FriendsStats(data: List<FriendEntity>) {
 
 @Composable
 private fun FriendsChart(
-    friends: List<FriendEntity>
+    friends: List<FriendState>
 ) {
     var friendsToShow by remember { mutableIntStateOf(5) }
     val maxCount = friends.first().daysCount
@@ -138,7 +136,7 @@ private fun FriendsChart(
 
 @Composable
 fun FriendBar(
-    friend: FriendEntity,
+    friend: FriendState,
     position: Int,
     maxCount: Int
 ) {
@@ -164,7 +162,7 @@ fun FriendBar(
             },
             label = ""
         ) {
-            FriendIcon(it.toState(), size = 32.dp) // TODO do mapping it before
+            FriendIcon(it, size = 32.dp)
         }
 
         Spacer(modifier = Modifier.width(12.dp))

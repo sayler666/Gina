@@ -12,13 +12,14 @@ import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
-import com.sayler666.gina.dayDetails.viewmodel.DayDetailsMapper
+import com.sayler666.gina.dayDetails.viewmodel.toEditState
 import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
+import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +48,7 @@ class DayDetailsEditViewModel @Inject constructor(
     getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCase,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addFriendUseCase: AddFriendUseCase,
-    private val dayDetailsMapper: DayDetailsMapper,
+    private val friendsMapper: FriendsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
     private val imageOptimization: ImageOptimization,
@@ -83,7 +84,7 @@ class DayDetailsEditViewModel @Inject constructor(
         allFriends,
         friendsSearchQuery
     ) { day, allFriends, friendsSearchQuery ->
-        day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
+        day?.let { it.toEditState(friendsMapper, allFriends, friendsSearchQuery) }
     }
         .filterNotNull()
         .stateIn(
@@ -95,7 +96,7 @@ class DayDetailsEditViewModel @Inject constructor(
     val day = combine(getDayDetailsUseCase.getDayDetailsFlow(id), allFriends, friendsSearchQuery)
     { day, allFriends, friendsSearchQuery ->
         if (_tempDay.value == null) _tempDay.value = day
-        day?.let { dayDetailsMapper.mapToVm(it, allFriends, friendsSearchQuery) }
+        day?.let { it.toEditState(friendsMapper, allFriends, friendsSearchQuery) }
     }
         .filterNotNull()
         .stateIn(

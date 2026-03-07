@@ -2,9 +2,8 @@ package com.sayler666.gina.gallery.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity
-import com.sayler666.gina.attachments.viewmodel.AttachmentMapper
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
@@ -23,14 +22,13 @@ class GalleryViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val imageAttachmentsRepository: ImageAttachmentsRepository,
     private val galleryMapper: GalleryMapper,
-    private val attachmentMapper: AttachmentMapper,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<GalleryState>(GalleryState.LoadingState)
     val state = _state
 
-    private val _openImage = MutableSharedFlow<AttachmentEntity>()
+    private val _openImage = MutableSharedFlow<AttachmentImageState>()
     val openImage = _openImage.asSharedFlow()
 
     init {
@@ -60,7 +58,7 @@ class GalleryViewModel @Inject constructor(
     fun fetchFullImage(id: Int) {
         viewModelScope.launch {
             imageAttachmentsRepository.fetchFullImage(id)
-                .map(attachmentMapper::mapToAttachmentEntity)
+                .map { AttachmentImageState(id = it.id, content = it.content, mimeType = it.mimeType) }
                 .onSuccess { _openImage.emit(it) }
         }
     }

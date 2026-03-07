@@ -2,6 +2,7 @@ package com.sayler666.gina.friends.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +36,7 @@ class ManageFriendsViewModel @Inject constructor(
     )
 
     private val friendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
-    val friends: StateFlow<List<FriendEntity>> = combine(
+    val friends: StateFlow<List<FriendState>> = combine(
         _friends,
         friendsSearchQuery
     ) { friends, friendsSearchQuery ->

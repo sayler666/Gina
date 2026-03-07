@@ -1,6 +1,6 @@
 package com.sayler666.gina.gallery.viewModel
 
-import com.sayler666.gina.attachments.viewmodel.AttachmentEntity.Image
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.gallery.usecase.Thumbnail
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
@@ -17,13 +17,12 @@ class GalleryMapper @Inject constructor() {
         else -> EmptyState
     }
 
-    private fun mapAttachments(attachments: List<Thumbnail>): List<Image> =
+    private fun mapAttachments(attachments: List<Thumbnail>): List<AttachmentImageState> =
         attachments.map {
-            Image(
+            AttachmentImageState(
                 id = it.id,
-                bytes = it.bytes,
+                content = it.bytes,
                 mimeType = "image/*",
-                dayId = null
             )
         }
 }
@@ -32,7 +31,7 @@ sealed class GalleryState {
     data object LoadingState : GalleryState()
     data object EmptyState : GalleryState()
     data class DataState(
-        val images: List<Image>,
+        val images: List<AttachmentImageState>,
     ) : GalleryState()
 
     data object EmptySearchState : GalleryState()

@@ -4,10 +4,10 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.domain.model.journal.DayDetails
-import com.sayler666.gina.attachments.ui.AttachmentState
-import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.viewmodel.toState
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.viewmodel.createInitials
 
 data class DayDetailsState(
@@ -30,6 +30,6 @@ fun DayDetails.toState() = DayDetailsState(
     mood = day.mood,
     attachments = attachments.map { it.toState() },
     friends = friends.map {
-        FriendState(name = it.name, avatar = it.avatar, initials = createInitials(it.name))
+        FriendState(id = it.id, name = it.name, avatar = it.avatar, initials = createInitials(it.name))
     }
 )

@@ -10,13 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.sayler666.gina.friends.viewmodel.FriendEntity
 
 
 @Composable
 fun FriendsPicker(
     showPopup: Boolean,
-    friends: List<FriendEntity>,
+    friends: List<FriendState>,
     searchValue: String,
     onDismiss: () -> Unit,
     onSearchChanged: (String) -> Unit,
