@@ -6,7 +6,7 @@ import com.sayler666.gina.ui.theme.Theme
 
 data class ThemeItem(
     val theme: Theme,
-    @StringRes val name: Int,
+    @param:StringRes val name: Int,
     val selected: Boolean,
     val colorsPreview: ColorsPreview? = null
 )

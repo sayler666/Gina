@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.LocalLibrary
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,7 +44,7 @@ import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.compose.Top
@@ -135,7 +135,7 @@ fun ImagePreviewTmpScreen(
         imagePreview?.let {
             // scaledBitmap to fit screen
             val scaledBitmapInfo =
-                remember(it.attachment.id) { it.attachment.content?.scaleToMinSize() } ?: return@let
+                remember(it.attachment.id) { it.attachment.content.scaleToMinSize() }
 
             // constraints refs
             val (zoomableBox, bottomBar) = createRefs()
@@ -224,7 +224,7 @@ private fun ConstraintLayoutScope.TopBar(
             }
         }, navigationIcon = {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
         }, actions = {
             attachmentPreviewWithDayEntity.mood?.mapToMoodIcon()?.let { icon ->
@@ -270,7 +270,7 @@ private fun ConstraintLayoutScope.BottomBar(
                     mimeType = imagePreviewEntity.attachment.mimeType
                 )
             }) {
-                Icon(Icons.Filled.OpenInNew, null)
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, null)
             }
             IconButton(onClick = {
                 Files.saveByteArrayToFile(

@@ -27,6 +27,7 @@ class ComposePlugin : Plugin<Project> {
             }
         }
 
+        dependencies.add("implementation", dependencies.platform(libs.findLibrary("compose-bom").get()))
         dependencies.add("implementation", libs.findBundle("compose").get())
         dependencies.add("debugImplementation", libs.findLibrary("compose-ui-tooling").get())
 
