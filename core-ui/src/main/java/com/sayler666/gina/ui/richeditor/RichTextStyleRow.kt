@@ -13,8 +13,6 @@ import androidx.compose.material.icons.automirrored.outlined.FormatAlignLeft
 import androidx.compose.material.icons.automirrored.outlined.FormatAlignRight
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.FormatAlignCenter
-import androidx.compose.material.icons.outlined.FormatAlignLeft
-import androidx.compose.material.icons.outlined.FormatAlignRight
 import androidx.compose.material.icons.outlined.FormatBold
 import androidx.compose.material.icons.outlined.FormatClear
 import androidx.compose.material.icons.outlined.FormatItalic

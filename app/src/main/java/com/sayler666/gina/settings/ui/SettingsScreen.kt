@@ -40,12 +40,12 @@ import com.sayler666.core.compose.plus
 import com.sayler666.core.file.Files
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.destinations.ManageFriendsScreenDestination
-import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.reminder.viewmodel.ReminderState
 import com.sayler666.gina.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.settings.viewmodel.ThemeItem
 import com.sayler666.gina.ui.NavigationBarColor
+import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)

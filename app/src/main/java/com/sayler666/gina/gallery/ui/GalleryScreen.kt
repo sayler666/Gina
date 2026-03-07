@@ -62,8 +62,8 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle

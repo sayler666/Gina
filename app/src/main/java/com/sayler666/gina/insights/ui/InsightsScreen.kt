@@ -48,7 +48,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.domain.model.journal.Mood
-import com.sayler666.gina.ginaApp.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
@@ -66,6 +65,7 @@ import com.sayler666.gina.mood.ui.superbColor
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.chart.MoodLineChart
+import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import java.time.format.DateTimeFormatter
 
 @OptIn(

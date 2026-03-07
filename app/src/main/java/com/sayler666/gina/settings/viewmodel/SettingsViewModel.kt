@@ -6,7 +6,7 @@ import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.withRawDao
 import com.sayler666.gina.reminder.viewmodel.RemindersViewModel
 import com.sayler666.gina.settings.SettingsStorage
-import com.sayler666.gina.settings.Theme
+import com.sayler666.gina.ui.theme.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

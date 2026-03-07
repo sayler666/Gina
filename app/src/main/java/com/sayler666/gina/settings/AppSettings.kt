@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.sayler666.gina.settings.AppSettingsImpl.PreferencesKeys.THEME
+import com.sayler666.gina.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -40,16 +41,3 @@ class AppSettingsImpl @Inject constructor(private val app: Application) : AppSet
     }
 }
 
-enum class Theme {
-    Dynamic,
-    AlterBridge,
-    GoldenMeadowTwilight,
-    DeepOcean,
-    Firewatch,
-    MountainView,
-    Legacy;
-
-    companion object {
-        fun default(): Theme = Dynamic
-    }
-}

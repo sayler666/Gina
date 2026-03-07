@@ -37,9 +37,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.settings.viewmodel.ColorsPreview
 import com.sayler666.gina.settings.viewmodel.ThemeItem
+import com.sayler666.gina.ui.theme.Theme
 import kotlinx.coroutines.launch
 
 @Composable

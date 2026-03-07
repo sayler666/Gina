@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew :core-ui:assembleDebug:*)",
-      "Bash(./gradlew :core:assembleDebug:*)"
+      "Bash(./gradlew :core:assembleDebug:*)",
+      "Bash(./gradlew :app:compileDebugKotlin:*)",
+      "Bash(xargs grep -l \"^package\")",
+      "Bash(xargs grep \"^package\")",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew clean:*)"
     ]
   }
 }

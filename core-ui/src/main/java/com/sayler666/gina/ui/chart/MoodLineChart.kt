@@ -42,15 +42,12 @@ import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
-import com.sayler666.gina.settings.Theme
 import com.sayler666.gina.ui.theme.GinaTheme
 import com.sayler666.gina.ui.theme.RobotoSlabRegular
+import com.sayler666.gina.ui.theme.Theme
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
-import java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME
 
 
 @Composable
