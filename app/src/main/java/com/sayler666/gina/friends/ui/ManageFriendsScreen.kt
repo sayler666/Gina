@@ -9,13 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.sayler666.gina.NavGraphs
-import com.sayler666.gina.friends.viewmodel.FriendEntity
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.NavigationBarColor
@@ -34,7 +32,7 @@ fun ManageFriendsScreen(
         navController.getBackStackEntry(NavGraphs.root.route)
     }
     val viewModel: ManageFriendsViewModel = hiltViewModel(backStackEntry)
-    val friends: List<FriendEntity> by viewModel.friends.collectAsStateWithLifecycle()
+    val friends: List<FriendState> by viewModel.friends.collectAsStateWithLifecycle()
 
     val friendIdToEdit = remember { mutableStateOf<Int?>(null) }
     val showFriendEditPopup = remember { mutableStateOf(false) }

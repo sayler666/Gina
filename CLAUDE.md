@@ -12,7 +12,8 @@ Feature-complete — no new features planned.
 
 ## Current Module Structure
 - `:app` — all features, ViewModels, UI, DI, Navigation (being refactored)
-- `:core` — mixed Kotlin utils + Compose helpers (being split)
+- `:core` — pure Kotlin utils only (Compose helpers moved to `:core-ui`)
+- `:core-ui` — Compose only — shared components, theme, modifiers (extracted)
 - `:data-database` — Room, DAOs, entities, repositories (journal/quotes/reminders)
 - `:domain-model` — pure Kotlin models, no logic
 - `:build-logic` — Gradle convention plugins
@@ -21,15 +22,15 @@ Feature-complete — no new features planned.
 ```
 app/                    # entry point, DI graph, MainActivity, Navigation only
 build-logic/
-core/                   # pure Kotlin only, no Compose
-core-ui/                # Compose only — shared components, theme, modifiers
+core/                   # pure Kotlin only, no Compose (split done)
+core-ui/                # Compose only — shared components, theme, modifiers (extracted)
 data-database/          # already extracted
 domain-model/           # already extracted
 feature/
   feature-calendar/
   feature-day-edit/     # addDay + dayDetailsEdit combined
   feature-day-details/
-  feature-friends/
+  feature-friends/      # Theme enum moved to core-ui, friend UI state in module
   feature-gallery/
   feature-insights/
   feature-settings/
@@ -46,8 +47,8 @@ feature/
 
 ## Refactoring Rules — follow when writing any new code
 - New models → `:domain-model`
-- New Kotlin utils → `:core`
-- New shared Compose components → `:core-ui`
+- New Kotlin utils → `:core` (no Compose allowed)
+- New shared Compose components → `:core-ui` (Theme enum already there)
 - New use cases → `:data-database` next to relevant repository
 - New feature code → target `feature-*` module, never `:app`
 - `:app` gets only navigation wiring and DI

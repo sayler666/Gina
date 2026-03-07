@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,8 +68,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
-import com.sayler666.gina.friends.viewmodel.FriendEntity
-import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
@@ -78,7 +75,7 @@ import com.sayler666.gina.ui.theme.secondaryTextColors
 @Composable
 fun FriendsList(
     padding: PaddingValues = PaddingValues(0.dp),
-    friends: List<FriendEntity>,
+    friends: List<FriendState>,
     selectable: Boolean,
     onFriendClicked: (Int, Boolean) -> Unit,
     searchValue: String,
@@ -166,7 +163,7 @@ fun FriendEdit(
         viewModel.loadFriend(friendId)
     }
 
-    val friendEntity: FriendEntity? by viewModel.friend.collectAsStateWithLifecycle()
+    val friendEntity: FriendState? by viewModel.friend.collectAsStateWithLifecycle()
     friendEntity?.let { friend ->
         val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
         if (showPopup) {
@@ -188,7 +185,7 @@ fun FriendEdit(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Box {
-                            FriendIcon(friend.toState())
+                            FriendIcon(friend)
                             Icon(
                                 Filled.Edit,
                                 null,
@@ -292,7 +289,7 @@ private fun SearchTextField(
 
 @Composable
 fun FriendComponent(
-    friend: FriendEntity,
+    friend: FriendState,
     onClick: (Boolean) -> Unit,
     selectable: Boolean = false
 ) {
@@ -304,7 +301,7 @@ fun FriendComponent(
             }) {
         Spacer(modifier = Modifier.width(8.dp))
 
-        FriendIcon(friend.toState())
+        FriendIcon(friend)
 
         Spacer(modifier = Modifier.width(12.dp))
 

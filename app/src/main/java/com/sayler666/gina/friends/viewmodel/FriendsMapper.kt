@@ -2,6 +2,7 @@ package com.sayler666.gina.friends.viewmodel
 
 import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.FriendWithCount
+import com.sayler666.gina.friends.ui.FriendState
 import javax.inject.Inject
 
 class FriendsMapper @Inject constructor() {
@@ -9,7 +10,7 @@ class FriendsMapper @Inject constructor() {
         dayFriends: List<Friend>,
         allFriends: List<FriendWithCount>,
         searchQuery: String? = null
-    ): List<FriendEntity> {
+    ): List<FriendState> {
         val friendsIds = dayFriends.map { it.id }
 
         return when (allFriends.isNotEmpty()) {
@@ -30,14 +31,14 @@ class FriendsMapper @Inject constructor() {
     fun mapToFriends(
         allFriends: List<FriendWithCount> = emptyList(),
         searchQuery: String? = null
-    ): List<FriendEntity> = allFriends.map(::mapToFriend)
+    ): List<FriendState> = allFriends.map(::mapToFriend)
         .sort()
         .filterBySearchQuery(searchQuery)
         .toList()
 
     private fun mapToFriend(
         friend: FriendWithCount
-    ): FriendEntity = FriendEntity(
+    ): FriendState = FriendState(
         id = friend.friendId,
         name = friend.friendName,
         avatar = friend.friendAvatar,
@@ -48,7 +49,7 @@ class FriendsMapper @Inject constructor() {
 
     fun mapToFriend(
         friend: Friend
-    ): FriendEntity = FriendEntity(
+    ): FriendState = FriendState(
         id = friend.id,
         name = friend.name,
         avatar = friend.avatar,
@@ -56,11 +57,11 @@ class FriendsMapper @Inject constructor() {
         initials = createInitials(friend.name)
     )
 
-    private fun List<FriendEntity>.filterBySearchQuery(query: String?) = filter { friend ->
+    private fun List<FriendState>.filterBySearchQuery(query: String?) = filter { friend ->
         query?.let { friend.name.contains(it, ignoreCase = true) } ?: run { true }
     }
 
-    private fun List<FriendEntity>.sort() = sortedBy { it.name }
+    private fun List<FriendState>.sort() = sortedBy { it.name }
         .sortedByDescending { it.daysCount }
 
 }

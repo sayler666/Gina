@@ -13,7 +13,7 @@ import com.sayler666.domain.model.journal.Mood.LOW
 import com.sayler666.domain.model.journal.Mood.NEUTRAL
 import com.sayler666.domain.model.journal.Mood.SUPERB
 import com.sayler666.domain.model.journal.MoodAverage
-import com.sayler666.gina.friends.viewmodel.FriendEntity
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
 import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
@@ -28,8 +28,8 @@ class InsightsMapper @Inject constructor() {
         moods: List<Mood>,
         moodsByMonth: List<MoodAverage>,
         moodsByWeek: List<MoodAverage>,
-        friendsLastMonth: List<FriendEntity>,
-        friendsAllTime: List<FriendEntity>,
+        friendsLastMonth: List<FriendState>,
+        friendsAllTime: List<FriendState>,
     ): InsightState = when {
         days.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries))
             -> EmptyState
@@ -200,8 +200,8 @@ sealed class InsightState {
         val moodByWeekData: List<MoodAverage>,
         val moodChartData: List<MoodChartData>,
         val searchQuery: String? = null,
-        val friendsLastMonthStats: List<FriendEntity>,
-        val friendsAllTimeStats: List<FriendEntity>,
+        val friendsLastMonthStats: List<FriendState>,
+        val friendsAllTimeStats: List<FriendState>,
     ) : InsightState()
 
     data object EmptySearchState : InsightState()

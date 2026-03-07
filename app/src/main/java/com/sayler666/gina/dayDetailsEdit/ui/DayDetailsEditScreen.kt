@@ -89,9 +89,8 @@ import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
+import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.ui.FriendsPicker
-import com.sayler666.gina.friends.viewmodel.FriendEntity
-import com.sayler666.gina.friends.viewmodel.toState
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
@@ -311,7 +310,6 @@ fun AttachmentsCountLabel(count: Int) {
     )
 }
 
-@Deprecated("Use state")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Attachments(
@@ -514,8 +512,8 @@ fun AttachmentsButton(onClick: () -> Unit, onLongClick: (() -> Unit)? = null) {
 
 @Composable
 fun Friends(
-    friends: List<FriendEntity>,
-    allFriends: List<FriendEntity>,
+    friends: List<FriendState>,
+    allFriends: List<FriendState>,
     onSearchChanged: (String) -> Unit,
     onAddNewFriend: (String) -> Unit,
     onFriendClicked: (Int, Boolean) -> Unit,
@@ -533,7 +531,7 @@ fun Friends(
                     }) { showFriendsPopup.value = true }) {
             friends.take(2).forEachIndexed { i, friend ->
                 FriendIcon(
-                    friend = friend.toState(),
+                    friend = friend,
                     size = 32.dp,
                     modifier = Modifier
                         .offset(i * 8.dp)
