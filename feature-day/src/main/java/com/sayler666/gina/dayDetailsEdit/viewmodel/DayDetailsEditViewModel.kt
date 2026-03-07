@@ -13,10 +13,8 @@ import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.toEditState
-import com.sayler666.gina.dayDetailsEdit.ui.DayDetailsEditScreenNavArgs
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
-import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
@@ -64,10 +62,7 @@ class DayDetailsEditViewModel @Inject constructor(
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         Timber.e(exception)
     }
-    private val navArgs: DayDetailsEditScreenNavArgs =
-        DayDetailsEditScreenDestination.argsFrom(savedStateHandle)
-    private val id: Int
-        get() = navArgs.dayId
+    private val id: Int = savedStateHandle.get<Int>("dayId") ?: error("Missing dayId arg")
 
     private val allFriends = getAllFriendsByRecentUseCase().stateIn(
         viewModelScope,

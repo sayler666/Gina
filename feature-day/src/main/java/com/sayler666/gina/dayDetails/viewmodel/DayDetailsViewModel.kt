@@ -3,7 +3,7 @@ package com.sayler666.gina.dayDetails.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
@@ -18,8 +18,6 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnD
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,11 +41,7 @@ class DayDetailsViewModel @Inject constructor(
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
 
-    private val navArgs: DayDetailsScreenNavArgs =
-        DayDetailsScreenDestination.argsFrom(savedStateHandle)
-
-    private val id: Int
-        get() = navArgs.dayId
+    private val id: Int = savedStateHandle.get<Int>("dayId") ?: error("Missing dayId arg")
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }

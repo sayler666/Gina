@@ -2,15 +2,7 @@ package com.sayler666.gina.attachments.ui
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -54,12 +46,7 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
 import coil.compose.rememberAsyncImagePainter
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.core.compose.Top
 import com.sayler666.core.compose.conditional
 import com.sayler666.core.compose.slideInVertically
@@ -67,54 +54,22 @@ import com.sayler666.core.compose.slideOutVertically
 import com.sayler666.core.file.Files
 import com.sayler666.core.image.ScaledBitmapInfo
 import com.sayler666.core.image.scaleToMinSize
-import com.sayler666.gina.appDestination
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewEntity
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewTmpEntity
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewTmpViewModel
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewViewModel
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewWithDayEntity
-import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
 
-object ImagePreviewTransitions : DestinationStyle.Animated {
-
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition()
-            : EnterTransition? = when (targetState.appDestination()) {
-        ImagePreviewScreenDestination -> scaleIn(animationSpec = tween(ANIMATION_DURATION)) + fadeIn()
-        ImagePreviewTmpScreenDestination -> scaleIn(animationSpec = tween(ANIMATION_DURATION)) + fadeIn()
-
-        else -> null
-    }
-
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition()
-            : ExitTransition? = when (initialState.appDestination()) {
-        ImagePreviewScreenDestination -> scaleOut(animationSpec = tween(ANIMATION_DURATION)) + fadeOut()
-        ImagePreviewTmpScreenDestination -> scaleOut(animationSpec = tween(ANIMATION_DURATION)) + fadeOut()
-
-        else -> null
-    }
-}
-
-data class ImagePreviewScreenNavArgs(
-    val attachmentId: Int,
-    val allowNavigationToDayDetails: Boolean = true
-)
-
-@Destination(
-    navArgsDelegate = ImagePreviewScreenNavArgs::class,
-    style = ImagePreviewTransitions::class
-)
 @Composable
 fun ImagePreviewScreen(
-    destinationsNavigator: DestinationsNavigator,
     viewModel: ImagePreviewViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit,
+    onNavigateToDayDetails: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     StatusBarColor(color = Color.Transparent, theme = null)
@@ -128,7 +83,7 @@ fun ImagePreviewScreen(
     var navigationBarVisible by remember { mutableStateOf(false) }
     fun onBackPressed() {
         navigationBarVisible = true
-        destinationsNavigator.popBackStack()
+        onNavigateBack()
     }
     BackHandler(enabled = true) { onBackPressed() }
     if (navigationBarVisible) NavigationBarColor(theme = null)
@@ -149,9 +104,9 @@ fun ImagePreviewScreen(
                 barsVisible = barsVisible,
                 topBarRef = topBar,
                 attachmentPreviewWithDayEntity = it,
-                destinationsNavigator = destinationsNavigator,
                 allowNavigationToDayDetails = viewModel.allowNavigationToDayDetails,
-                onBackClick = ::onBackPressed
+                onBackClick = ::onBackPressed,
+                onNavigateToDayDetails = onNavigateToDayDetails
             )
 
             ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
@@ -161,15 +116,6 @@ fun ImagePreviewScreen(
     }
 }
 
-data class ImagePreviewTmpScreenNavArgs(
-    val image: ByteArray,
-    val mimeType: String
-)
-
-@Destination(
-    navArgsDelegate = ImagePreviewTmpScreenNavArgs::class,
-    style = ImagePreviewTransitions::class
-)
 @Composable
 fun ImagePreviewTmpScreen(
     viewModel: ImagePreviewTmpViewModel = hiltViewModel(),
@@ -236,9 +182,9 @@ private fun ConstraintLayoutScope.TopBar(
     barsVisible: Boolean,
     topBarRef: ConstrainedLayoutReference,
     attachmentPreviewWithDayEntity: ImagePreviewWithDayEntity,
-    destinationsNavigator: DestinationsNavigator,
     allowNavigationToDayDetails: Boolean,
     onBackClick: () -> Unit,
+    onNavigateToDayDetails: (Int) -> Unit,
 ) {
     AnimatedVisibility(visible = barsVisible,
         enter = slideInVertically(direction = Top),
@@ -260,13 +206,7 @@ private fun ConstraintLayoutScope.TopBar(
                     .clip(RoundedCornerShape(4.dp))
                     .conditional(allowNavigationToDayDetails) {
                         clickable {
-                            destinationsNavigator.navigate(
-                                DayDetailsScreenDestination(
-                                    DayDetailsScreenNavArgs(
-                                        attachmentPreviewWithDayEntity.dayId
-                                    )
-                                )
-                            )
+                            onNavigateToDayDetails(attachmentPreviewWithDayEntity.dayId)
                         }
                     }
             ) {

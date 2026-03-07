@@ -15,9 +15,10 @@ import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.DayDetails
 import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
-import com.sayler666.gina.addDay.ui.AddDayScreenNavArgs
 import com.sayler666.gina.addDay.ui.AddDayState
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
+import com.sayler666.gina.addDay.usecase.DayQuoteProvider
+import com.sayler666.gina.addDay.usecase.ReminderDismissUseCase
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.Back
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
@@ -38,14 +39,10 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWo
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.attachments.viewmodel.toState
-import com.sayler666.gina.destinations.AddDayScreenDestination
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
-import com.sayler666.gina.quotes.QuotesRepository
-import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
-import com.sayler666.gina.reminder.usecase.NotificationUseCase
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -74,15 +71,15 @@ class AddDayViewModel @Inject constructor(
     private val addDayUseCase: AddDayUseCase,
     private val imageOptimization: ImageOptimization,
     private val imageOptimizationViewModel: ImageOptimizationViewModel,
-    private val notificationUseCase: NotificationUseCase,
+    private val reminderDismissUseCase: ReminderDismissUseCase,
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
     savedStateHandle: SavedStateHandle,
     getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCaseImpl,
-    quotesRepository: QuotesRepository,
+    dayQuoteProvider: DayQuoteProvider,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
-    private val navArgs: AddDayScreenNavArgs = AddDayScreenDestination.argsFrom(savedStateHandle)
+    private val date: LocalDate? = savedStateHandle.get<LocalDate>("date")
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
@@ -96,9 +93,6 @@ class AddDayViewModel @Inject constructor(
         Timber.e(exception)
     }
 
-    private val date: LocalDate?
-        get() = navArgs.date
-
     private val blankDay = DayDetails(
         day = Day(
             date = date ?: LocalDate.now(),
@@ -111,7 +105,7 @@ class AddDayViewModel @Inject constructor(
         it?.let { mutableWorkingCopy.emit(it) }
         it
     }
-    private val quote = quotesRepository.latestTodayQuoteFlow()
+    private val quote = dayQuoteProvider.latestTodayQuoteFlow()
     private val allFriends = getAllFriendsByRecentUseCase().stateIn(
         viewModelScope,
         WhileSubscribed(500),
@@ -276,7 +270,7 @@ class AddDayViewModel @Inject constructor(
 
     private fun saveChanges() {
         // hide reminder notification if shown
-        notificationUseCase.hideNotificationById(REMINDER_NOTIFICATION_ID)
+        reminderDismissUseCase.dismissReminderNotification()
 
         mutableDay.value?.let {
             viewModelScope.launch {

@@ -30,13 +30,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
-import com.ramcosta.composedestinations.annotation.DeepLink
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
@@ -66,7 +61,6 @@ import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
 import com.sayler666.gina.attachments.ui.FileThumbnail
-import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetailsEdit.ui.AttachmentsButton
@@ -77,10 +71,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
-import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
-import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
@@ -89,29 +80,15 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-
-data class AddDayScreenNavArgs(
-    val date: LocalDate? = null
-)
 
 const val ADD_DAY_URL = "gina://add_day"
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = AddDayScreenNavArgs::class,
-    deepLinks = [DeepLink(uriPattern = ADD_DAY_URL)]
-)
 @Composable
 fun AddDayScreen(
-    destinationsNavigator: DestinationsNavigator,
-    navController: NavController,
     viewModel: AddDayViewModel = hiltViewModel(),
-    vm: GinaMainViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit,
+    onNavigateToImagePreview: (ByteArray, String) -> Unit,
 ) {
-    val theme by vm.theme.collectAsStateWithLifecycle()
-    NavigationBarColor(theme = theme)
-
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
 
@@ -126,7 +103,7 @@ fun AddDayScreen(
         }
     }
 
-    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
+    val showDiscardConfirmationDialog = rememberDiscardDialog(onNavigateBack)
 
     val context = LocalContext.current
     val addAttachmentLauncher =
@@ -140,7 +117,8 @@ fun AddDayScreen(
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         onViewAction(
             action,
-            destinationsNavigator,
+            onNavigateBack,
+            onNavigateToImagePreview,
             addAttachmentLauncher,
             addAttachmentRequest,
             showDiscardConfirmationDialog
@@ -159,22 +137,16 @@ fun AddDayScreen(
 
 private suspend fun onViewAction(
     action: ViewAction,
-    destinationsNavigator: DestinationsNavigator,
+    onNavigateBack: () -> Unit,
+    onNavigateToImagePreview: (ByteArray, String) -> Unit,
     addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     addAttachmentRequest: PickVisualMediaRequest,
     showDiscardConfirmationDialog: MutableState<Boolean>,
 ) {
     when (action) {
-        Back -> destinationsNavigator.popBackStack()
+        Back -> onNavigateBack()
 
-        is NavToAttachment -> destinationsNavigator.navigate(
-            ImagePreviewTmpScreenDestination(
-                ImagePreviewTmpScreenNavArgs(
-                    image = action.image,
-                    mimeType = action.mimeType
-                )
-            )
-        )
+        is NavToAttachment -> onNavigateToImagePreview(action.image, action.mimeType)
 
         ShowAttachmentPicker -> {
             addAttachmentLauncher.launch(addAttachmentRequest)
@@ -199,8 +171,6 @@ private fun Content(
     val showFormatRow = remember { mutableStateOf(false) }
 
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-
-
 
     Scaffold(
         Modifier.imePadding(),
@@ -284,7 +254,7 @@ private fun Content(
 }
 
 @Composable
-private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {
+private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Boolean> {
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     ConfirmationDialog(
         title = "Discard changes",
@@ -292,7 +262,7 @@ private fun rememberDiscardDialog(navController: NavController): MutableState<Bo
         confirmButtonText = "Discard",
         dismissButtonText = "Cancel",
         showDialog = showDiscardConfirmationDialog
-    ) { navController.popBackStack() }
+    ) { onNavigateBack() }
     return showDiscardConfirmationDialog
 }
 

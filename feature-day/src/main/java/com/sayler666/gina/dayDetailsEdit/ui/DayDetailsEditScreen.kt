@@ -69,25 +69,18 @@ import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.file.handleMultipleVisualMedia
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
-import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
@@ -112,13 +105,12 @@ data class DayDetailsEditScreenNavArgs(
     val dayId: Int
 )
 
-@RootNavGraph
-@Destination(navArgsDelegate = DayDetailsEditScreenNavArgs::class)
 @Composable
 fun DayDetailsEditScreen(
-    destinationsNavigator: DestinationsNavigator,
-    navController: NavController,
-    viewModel: DayDetailsEditViewModel = hiltViewModel()
+    viewModel: DayDetailsEditViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit,
+    onNavigateToList: () -> Unit,
+    onNavigateToImagePreview: (ByteArray, String) -> Unit,
 ) {
     val context = LocalContext.current
     val addAttachmentLauncher =
@@ -135,31 +127,21 @@ fun DayDetailsEditScreen(
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateToList.collectLatest {
-            destinationsNavigator.popBackStack(
-                route = DayDetailsScreenDestination,
-                inclusive = true
-            )
-        }
+        viewModel.navigateToList.collectLatest { onNavigateToList() }
     }
 
     val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
-    val showDiscardConfirmationDialog = rememberDiscardDialog(navController)
+    val showDiscardConfirmationDialog = rememberDiscardDialog(onNavigateBack)
     val showDatePickerPopup = remember { mutableStateOf(false) }
     val workingCopy: Boolean by viewModel.hasWorkingCopy.collectAsStateWithLifecycle(false)
 
     fun onBackPress() {
-        handleBackPress(
-            changesExist,
-            showDiscardConfirmationDialog,
-            navController
-        )
+        handleBackPress(changesExist, showDiscardConfirmationDialog, onNavigateBack)
     }
 
     LaunchedEffect(Unit) {
-        viewModel.navigateBack.collectLatest { destinationsNavigator.popBackStack() }
+        viewModel.navigateBack.collectLatest { onNavigateBack() }
     }
-
 
     val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
@@ -237,7 +219,7 @@ fun DayDetailsEditScreen(
                         AnimatedVisibility(
                             visible = !isKeyboardOpen
                         ) {
-                            Attachments(day, destinationsNavigator) { attachmentHash ->
+                            Attachments(day, onNavigateToImagePreview) { attachmentHash ->
                                 viewModel.removeAttachment(attachmentHash)
                             }
                         }
@@ -276,7 +258,7 @@ fun rememberLauncherForMultipleImages(
 }
 
 @Composable
-private fun rememberDiscardDialog(navController: NavController): MutableState<Boolean> {
+private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Boolean> {
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     ConfirmationDialog(
         title = "Discard changes",
@@ -284,7 +266,7 @@ private fun rememberDiscardDialog(navController: NavController): MutableState<Bo
         confirmButtonText = "Discard",
         dismissButtonText = "Cancel",
         showDialog = showDiscardConfirmationDialog,
-    ) { navController.popBackStack() }
+    ) { onNavigateBack() }
     return showDiscardConfirmationDialog
 }
 
@@ -314,7 +296,7 @@ fun AttachmentsCountLabel(count: Int) {
 @Composable
 fun Attachments(
     day: DayDetailsEntity,
-    destinationsNavigator: DestinationsNavigator,
+    onNavigateToImagePreview: (ByteArray, String) -> Unit,
     onRemoveAttachment: (Int) -> Unit
 ) {
     val context = LocalContext.current
@@ -330,14 +312,7 @@ fun Attachments(
                         attachment,
                         onClick = {
                             attachment.content?.let { image ->
-                                destinationsNavigator.navigate(
-                                    ImagePreviewTmpScreenDestination(
-                                        ImagePreviewTmpScreenNavArgs(
-                                            image = image,
-                                            mimeType = attachment.mimeType
-                                        )
-                                    )
-                                )
+                                onNavigateToImagePreview(image, attachment.mimeType)
                             }
                         },
                         onRemoveClicked = {
@@ -645,11 +620,11 @@ class MoodIconAnimation(
 fun handleBackPress(
     changesExist: Boolean,
     showDiscardConfirmationDialog: MutableState<Boolean>,
-    navController: NavController
+    onNavigateBack: () -> Unit
 ) {
     if (changesExist) {
         showDiscardConfirmationDialog.value = true
     } else {
-        navController.popBackStack()
+        onNavigateBack()
     }
 }
