@@ -379,8 +379,6 @@ private fun Moods(state: DataState) {
 @Composable
 fun zeroLevelColor() = colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
 
-@Composable
-fun emptyLevelColor() = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
 
 @Composable
 private fun contributionLevelColor(level: ContributionLevel): Color = when (level) {

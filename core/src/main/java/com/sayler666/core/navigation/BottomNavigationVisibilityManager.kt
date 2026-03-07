@@ -1,7 +1,7 @@
-package com.sayler666.gina.ginaApp.navigation
+package com.sayler666.core.navigation
 
-import com.sayler666.gina.ginaApp.navigation.BottomBarState.Hidden
-import com.sayler666.gina.ginaApp.navigation.BottomBarState.Shown
+import com.sayler666.core.navigation.BottomBarState.Hidden
+import com.sayler666.core.navigation.BottomBarState.Shown
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.atomic.AtomicBoolean

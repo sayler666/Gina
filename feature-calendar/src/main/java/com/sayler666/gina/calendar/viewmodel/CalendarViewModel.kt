@@ -2,11 +2,11 @@ package com.sayler666.gina.calendar.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.core.navigation.BottomNavigationVisibilityManager
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.gina.ginaApp.navigation.BottomNavigationVisibilityManager
-import com.sayler666.gina.journal.usecase.GetDaysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map

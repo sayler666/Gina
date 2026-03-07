@@ -10,7 +10,8 @@
       "Bash(./gradlew clean:*)",
       "Bash(mkdir:*)",
       "Bash(./gradlew :feature-settings:compileDebugKotlin:*)",
-      "Bash(./gradlew :app:assembleDebug:*)"
+      "Bash(./gradlew :app:assembleDebug:*)",
+      "Bash(./gradlew :feature-calendar:compileDebugKotlin:*)"
     ]
   }
 }

@@ -43,9 +43,9 @@ import com.kizitonwose.calendar.core.yearMonth
 import com.sayler666.core.compose.conditional
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
-import com.sayler666.gina.insights.ui.emptyLevelColor
 import com.sayler666.gina.mood.ui.awesomeColor
 import com.sayler666.gina.mood.ui.badColor
+import com.sayler666.gina.mood.ui.emptyLevelColor
 import com.sayler666.gina.mood.ui.goodColor
 import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.neutralColor

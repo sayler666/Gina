@@ -38,8 +38,8 @@ import com.sayler666.gina.destinations.InsightsScreenDestination
 import com.sayler666.gina.destinations.JournalScreenDestination
 import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
 import com.sayler666.gina.destinations.SettingsScreenDestination
-import com.sayler666.gina.ginaApp.navigation.BottomBarState
-import com.sayler666.gina.ginaApp.navigation.BottomBarState.Shown
+import com.sayler666.core.navigation.BottomBarState
+import com.sayler666.core.navigation.BottomBarState.Shown
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
