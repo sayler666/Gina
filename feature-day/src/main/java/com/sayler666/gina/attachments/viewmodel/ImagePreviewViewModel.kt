@@ -3,12 +3,8 @@ package com.sayler666.gina.attachments.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
-import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreenNavArgs
-import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.gina.destinations.ImagePreviewScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
+import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.filterNotNull
@@ -30,12 +26,9 @@ class ImagePreviewViewModel @Inject constructor(
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
-    private val navArgs: ImagePreviewScreenNavArgs =
-        ImagePreviewScreenDestination.argsFrom(savedStateHandle)
-    private val id: Int
-        get() = navArgs.attachmentId
-    val allowNavigationToDayDetails: Boolean
-        get() = navArgs.allowNavigationToDayDetails
+    private val id: Int = savedStateHandle.get<Int>("attachmentId") ?: error("Missing attachmentId arg")
+    val allowNavigationToDayDetails: Boolean =
+        savedStateHandle.get<Boolean>("allowNavigationToDayDetails") ?: true
 
     val attachmentWithDay = getAttachmentWithDayUseCase.getAttachmentWithDayFlow(id)
         .filterNotNull()
@@ -49,17 +42,10 @@ class ImagePreviewTmpViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val navArgs: ImagePreviewTmpScreenNavArgs =
-        ImagePreviewTmpScreenDestination.argsFrom(savedStateHandle)
-
-    private val image: ByteArray
-        get() = navArgs.image
-    private val mimeType: String
-        get() = navArgs.mimeType
+    private val image: ByteArray = savedStateHandle.get<ByteArray>("image") ?: error("Missing image arg")
+    private val mimeType: String = savedStateHandle.get<String>("mimeType") ?: error("Missing mimeType arg")
 
     val imagePreview = flow {
         emit(mapper.mapToVm(image, mimeType))
     }.stateIn(viewModelScope, WhileSubscribed(5000), null)
 }
-
-

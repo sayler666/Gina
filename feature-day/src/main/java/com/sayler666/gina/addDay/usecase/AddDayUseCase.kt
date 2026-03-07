@@ -1,12 +1,7 @@
 package com.sayler666.gina.addDay.usecase
 
 import android.database.SQLException
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.JournalRepository
-import com.sayler666.data.database.db.journal.dao.DaysDao
-import com.sayler666.data.database.db.journal.entity.DayDetailsEntity
-import com.sayler666.data.database.db.journal.entity.DayFriendsEntity
-import com.sayler666.data.database.db.journal.transactionWithDaysDao
 import com.sayler666.domain.model.journal.DayDetails
 import timber.log.Timber
 import javax.inject.Inject
@@ -25,5 +20,4 @@ class AddDayUseCaseImpl @Inject constructor(
             Timber.e(e, "Database error")
         }
     }
-
 }

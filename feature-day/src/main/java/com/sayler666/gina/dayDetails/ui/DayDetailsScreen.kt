@@ -36,7 +36,6 @@ import androidx.compose.material3.ripple
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,17 +55,13 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files
 import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
-import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.dayDetails.ui.Way.NEXT
-import com.sayler666.gina.dayDetails.ui.Way.NONE
 import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsState
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
@@ -84,47 +79,39 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnD
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
-import com.sayler666.gina.destinations.DayDetailsEditScreenDestination
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
-import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayTitle
-import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
-
-data class DayDetailsScreenNavArgs(
-    val dayId: Int,
-    val way: Way = NONE
-)
 
 enum class Way {
     NEXT, PREVIOUS, NONE
 }
 
-@Destination(
-    navArgsDelegate = DayDetailsScreenNavArgs::class,
-    style = DayDetailsTransitions::class
-)
 @Composable
 fun DayDetailsScreen(
-    destinationsNavigator: DestinationsNavigator,
+    onNavigateBack: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigateToDay: (Int, Way) -> Unit,
+    onNavigateToAttachment: (Int) -> Unit,
 ) {
-    val ginaMainViewModel: GinaMainViewModel = hiltViewModel()
-    val theme by ginaMainViewModel.theme.collectAsStateWithLifecycle()
-    NavigationBarColor(theme = theme)
-
     val viewModel: DayDetailsViewModel = hiltViewModel()
     val viewState: DayDetailsState? = viewModel.viewState.collectAsStateWithLifecycle().value
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
-        onViewAction(action, destinationsNavigator, snackbarHostState)
+        onViewAction(
+            action = action,
+            onNavigateBack = onNavigateBack,
+            onNavigateToEdit = onNavigateToEdit,
+            onNavigateToDay = onNavigateToDay,
+            onNavigateToAttachment = onNavigateToAttachment,
+            snackbarHostState = snackbarHostState,
+        )
     }
 
     LifecycleStartEffect(Unit) {
@@ -221,45 +208,22 @@ private fun Content(
 
 private suspend fun onViewAction(
     action: ViewAction,
-    destinationsNavigator: DestinationsNavigator,
+    onNavigateBack: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigateToDay: (Int, Way) -> Unit,
+    onNavigateToAttachment: (Int) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     when (action) {
-        Back -> destinationsNavigator.popBackStack()
-        is NavToNextDay -> goToDay(destinationsNavigator, action.dayId, NEXT)
-        is NavToPreviousDay -> goToDay(destinationsNavigator, action.dayId, PREVIOUS)
-
-        is ShowSnackBar -> {
-            snackbarHostState.showSnackbar(
-                message = action.message,
-                duration = SnackbarDuration.Short
-            )
-        }
-
-        is NavToDayDetails -> destinationsNavigator.navigate(
-            DayDetailsEditScreenDestination(action.dayId)
+        Back -> onNavigateBack()
+        is NavToNextDay -> onNavigateToDay(action.dayId, NEXT)
+        is NavToPreviousDay -> onNavigateToDay(action.dayId, PREVIOUS)
+        is ShowSnackBar -> snackbarHostState.showSnackbar(
+            message = action.message,
+            duration = SnackbarDuration.Short
         )
-
-        is NavToAttachment -> destinationsNavigator.navigate(
-            ImagePreviewScreenDestination(
-                ImagePreviewScreenNavArgs(
-                    attachmentId = action.attachmentId,
-                    allowNavigationToDayDetails = false
-                )
-            )
-        )
-    }
-}
-
-private fun goToDay(
-    destinationsNavigator: DestinationsNavigator,
-    dayId: Int,
-    way: Way
-) {
-    destinationsNavigator.navigate(
-        DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId = dayId, way = way))
-    ) {
-        popUpTo(DayDetailsScreenDestination) { inclusive = true }
+        is NavToDayDetails -> onNavigateToEdit(action.dayId)
+        is NavToAttachment -> onNavigateToAttachment(action.attachmentId)
     }
 }
 

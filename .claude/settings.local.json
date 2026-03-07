@@ -13,7 +13,20 @@
       "Bash(./gradlew :app:assembleDebug:*)",
       "Bash(./gradlew :feature-calendar:compileDebugKotlin:*)",
       "Bash(./gradlew :feature-friends:compileDebugKotlin:*)",
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(for f in \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/ui/DayDetailsScreen.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/ui/DayDetailsTransitions.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/usecaase/GetDayDetailsUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/usecaase/GetNextPreviousIdDayUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/viewmodel/DayDetailsMapper.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/viewmodel/DayDetailsState.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetails/viewmodel/DayDetailsViewModel.kt\")",
+      "Bash(do)",
+      "Bash(echo \"=== $f ===\")",
+      "Read(//f/Android Projects/Gina/**)",
+      "Bash(done)",
+      "Bash(for f in \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetailsEdit/ui/DayDetailsEditScreen.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetailsEdit/usecase/DeleteDayUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetailsEdit/usecase/EditDayUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/dayDetailsEdit/viewmodel/DayDetailsEditViewModel.kt\")",
+      "Bash(for f in \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/addDay/ui/AddDayScreen.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/addDay/ui/AddDayState.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/addDay/usecase/AddDayUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/addDay/viewmodel/AddDayViewModel.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/ui/AttachmentThumbnail.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/ui/ImagePreviewScreen.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/usecase/GetAttachmentWithDayUseCase.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/viewmodel/AttachmentMapper.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/viewmodel/ImagePreviewMapper.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/attachments/viewmodel/ImagePreviewViewModel.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/mood/ui/MoodPicker.kt\" \"F:/Android Projects/Gina/app/src/main/java/com/sayler666/gina/workinCopy/WorkingCopyStorage.kt\")",
+      "Bash(xargs grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(handle:*)",
+      "Bash(tasklist:*)",
+      "Bash(rm:*)",
+      "Bash(wmic process:*)"
     ]
   }
 }
