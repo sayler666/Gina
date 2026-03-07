@@ -30,6 +30,7 @@
             <option value="$PROJECT_DIR$/data-database" />
             <option value="$PROJECT_DIR$/domain-model" />
             <option value="$PROJECT_DIR$/feature-calendar" />
+            <option value="$PROJECT_DIR$/feature-friends" />
             <option value="$PROJECT_DIR$/feature-settings" />
           </set>
         </option>

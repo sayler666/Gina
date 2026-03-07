@@ -17,6 +17,7 @@ Feature-complete — no new features planned.
 - `:data-database` — Room, DAOs, entities, repositories, use cases
 - `:domain-model` — pure Kotlin models, no logic
 - `:feature-calendar` — calendar UI and ViewModel
+- `:feature-friends` — friends UI, ViewModels, and use cases
 - `:feature-settings` — settings UI and logic
 - `:build-logic` — Gradle convention plugins
 

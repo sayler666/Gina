@@ -9,29 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.ramcosta.composedestinations.annotation.Destination
-import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
-import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ui.NavigationBarColor
+import com.sayler666.gina.ui.theme.Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination
 @Composable
 fun ManageFriendsScreen(
-    navController: NavController,
-    vm: GinaMainViewModel = hiltViewModel(),
+    viewModel: ManageFriendsViewModel,
+    theme: Theme?,
 ) {
-    val theme by vm.theme.collectAsStateWithLifecycle()
     NavigationBarColor(theme = theme, color = MaterialTheme.colorScheme.surface)
 
-    val backStackEntry = remember(navController.currentBackStackEntry) {
-        navController.getBackStackEntry(NavGraphs.root.route)
-    }
-    val viewModel: ManageFriendsViewModel = hiltViewModel(backStackEntry)
     val friends: List<FriendState> by viewModel.friends.collectAsStateWithLifecycle()
 
     val friendIdToEdit = remember { mutableStateOf<Int?>(null) }

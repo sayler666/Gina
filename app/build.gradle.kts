@@ -17,6 +17,7 @@ dependencies {
     implementation(projects.domainModel)
     implementation(projects.featureSettings)
     implementation(projects.featureCalendar)
+    implementation(projects.featureFriends)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
