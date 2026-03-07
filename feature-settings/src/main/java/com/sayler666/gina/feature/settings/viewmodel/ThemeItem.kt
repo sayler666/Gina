@@ -1,4 +1,4 @@
-package com.sayler666.gina.settings.viewmodel
+package com.sayler666.gina.feature.settings.viewmodel
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color

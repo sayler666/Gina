@@ -1,6 +1,6 @@
-package com.sayler666.gina.settings.viewmodel
+package com.sayler666.gina.feature.settings.viewmodel
 
-import com.sayler666.gina.R.string
+import com.sayler666.gina.feature.settings.R.string
 import com.sayler666.gina.ui.theme.Theme
 import com.sayler666.gina.ui.theme.Theme.AlterBridge
 import com.sayler666.gina.ui.theme.Theme.DeepOcean
@@ -59,7 +59,7 @@ class ThemeMapper @Inject constructor() {
                 )
             )
 
-            DeepOcean  -> ThemeItem(
+            DeepOcean -> ThemeItem(
                 theme,
                 string.theme_deep_ocean,
                 theme == activeTheme,

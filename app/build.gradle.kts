@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.coreUi)
     implementation(projects.dataDatabase)
     implementation(projects.domainModel)
+    implementation(projects.featureSettings)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

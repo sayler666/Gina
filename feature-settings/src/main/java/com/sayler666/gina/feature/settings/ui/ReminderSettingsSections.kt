@@ -1,4 +1,4 @@
-package com.sayler666.gina.settings.ui
+package com.sayler666.gina.feature.settings.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -34,8 +34,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.reminder.viewmodel.Active
-import com.sayler666.gina.reminder.viewmodel.ReminderState
+import com.sayler666.gina.feature.settings.reminder.Active
+import com.sayler666.gina.feature.settings.reminder.ReminderState
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME

@@ -88,13 +88,13 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.destinations.DayDetailsScreenDestination
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
+import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
-import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog

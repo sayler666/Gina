@@ -78,8 +78,8 @@ import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.destinations.ImagePreviewTmpScreenDestination
+import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog

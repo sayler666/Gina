@@ -1,4 +1,4 @@
-package com.sayler666.gina.settings.ui
+package com.sayler666.gina.feature.settings.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

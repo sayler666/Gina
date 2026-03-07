@@ -1,7 +1,9 @@
 package com.sayler666.gina.reminder.viewmodel
 
-import com.sayler666.core.viewmodel.ViewModelSlice
 import com.sayler666.data.database.db.reminders.ReminderEntity
+import com.sayler666.gina.feature.settings.reminder.NotActive
+import com.sayler666.gina.feature.settings.reminder.ReminderState
+import com.sayler666.gina.feature.settings.reminder.RemindersViewModel
 import com.sayler666.gina.reminder.usecase.AddReminderUseCase
 import com.sayler666.gina.reminder.usecase.GetLastReminderUseCase
 import com.sayler666.gina.reminder.usecase.RemoveAllRemindersUseCase
@@ -13,14 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import javax.inject.Inject
-
-interface RemindersViewModel : ViewModelSlice {
-    val reminder: StateFlow<ReminderState>
-
-    fun setReminder(localTime: LocalTime)
-
-    fun removeReminders()
-}
 
 class RemindersViewModelImpl @Inject constructor(
     override var sliceScope: CoroutineScope,

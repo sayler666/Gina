@@ -7,7 +7,10 @@
       "Bash(xargs grep -l \"^package\")",
       "Bash(xargs grep \"^package\")",
       "Bash(./gradlew assembleDebug:*)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew clean:*)",
+      "Bash(mkdir:*)",
+      "Bash(./gradlew :feature-settings:compileDebugKotlin:*)",
+      "Bash(./gradlew :app:assembleDebug:*)"
     ]
   }
 }

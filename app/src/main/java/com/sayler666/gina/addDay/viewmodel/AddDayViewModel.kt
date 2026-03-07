@@ -39,13 +39,13 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChang
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.attachments.viewmodel.toState
 import com.sayler666.gina.destinations.AddDayScreenDestination
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.quotes.QuotesRepository
 import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
 import com.sayler666.gina.reminder.usecase.NotificationUseCase
-import com.sayler666.gina.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
