@@ -75,6 +75,10 @@ Feature-complete — no new features planned.
 - `ViewEvent.On*` — e.g. `OnBackPressed`, `OnContentChanged`
 - `ViewAction.*` — e.g. `Back`, `ShowDiscardDialog`
 
+## Code Conventions
+- `hiltViewModel` import: use `androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel` (not `androidx.hilt.navigation.compose`)
+- Resource annotations on `val` constructor params require explicit target: `@param:StringRes val name: Int` (Kotlin 2.3+)
+
 ## Do NOT Touch
 - Room schema — breakage loses user data
 - `GinaDatabaseProvider` — DB initialization flow

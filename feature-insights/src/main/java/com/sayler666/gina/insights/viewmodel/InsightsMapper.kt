@@ -104,7 +104,7 @@ class InsightsMapper @Inject constructor() {
         return heatMap
     }
 
-    private fun List<Int>.med() = sorted().let {
+    private fun List<Int>.med(): Int = sorted().let {
         if (it.isEmpty()) return 0
         if (it.size % 2 == 0)
             (it[it.size / 2] + it[(it.size - 1) / 2]) / 2

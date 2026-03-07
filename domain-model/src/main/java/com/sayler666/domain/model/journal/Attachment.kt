@@ -14,18 +14,15 @@ data class Attachment(
 
         if (id != other.id) return false
         if (dayId != other.dayId) return false
-        if (content != null) {
-            if (other.content == null) return false
-            if (!content.contentEquals(other.content)) return false
-        } else if (other.content != null) return false
+        if (!content.contentEquals(other.content)) return false
         return mimeType == other.mimeType
     }
 
     override fun hashCode(): Int {
         var result = id ?: 0
         result = 31 * result + (dayId ?: 0)
-        result = 31 * result + (content?.contentHashCode() ?: 0)
-        result = 31 * result + (mimeType?.hashCode() ?: 0)
+        result = 31 * result + content.contentHashCode()
+        result = 31 * result + mimeType.hashCode()
         return result
     }
 }

@@ -27,10 +27,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
@@ -67,7 +67,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -311,7 +311,7 @@ fun Attachments(
                     is AttachmentState.AttachmentImageState -> ImageThumbnail(
                         attachment,
                         onClick = {
-                            attachment.content?.let { image ->
+                            attachment.content.let { image ->
                                 onNavigateToImagePreview(image, attachment.mimeType)
                             }
                         },
@@ -322,7 +322,7 @@ fun Attachments(
                     is AttachmentState.AttachmentNonImageState -> FileThumbnail(
                         attachment,
                         onClick = {
-                            attachment.content?.let { image ->
+                            attachment.content.let { image ->
                                 openFileIntent(
                                     context, image, attachment.mimeType
                                 )
@@ -374,7 +374,7 @@ fun TopBar(
                     onRestoreWorkingCopyClicked()
                 }) {
                     Icon(
-                        rememberVectorPainter(image = Icons.Default.Assignment),
+                        rememberVectorPainter(image = Icons.AutoMirrored.Filled.Assignment),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
@@ -385,7 +385,7 @@ fun TopBar(
             IconButton(
                 onClick = { onNavigateBackClicked() }
             ) {
-                Icon(Filled.ArrowBack, null)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
             }
         })
 }

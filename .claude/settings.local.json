@@ -28,7 +28,9 @@
       "Bash(rm:*)",
       "Bash(wmic process:*)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "WebSearch",
+      "WebFetch(domain:central.sonatype.com)"
     ]
   }
 }

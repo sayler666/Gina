@@ -1,14 +1,14 @@
 package com.sayler666.gina.mood.ui
 
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.Icons.Outlined
+import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
-import androidx.compose.material.icons.outlined.Help
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -59,7 +59,7 @@ fun Mood?.mapToMoodIcon(): MoodIcon = when (this) {
     )
 
     else -> MoodIcon(
-        icon = Outlined.Help,
+        icon = Icons.AutoMirrored.Outlined.Help,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
