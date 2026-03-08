@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.core)
     implementation(projects.domainModel)
     implementation(projects.dataDatabase)
+    implementation(projects.navigation)
 
     // Kotlin Coroutines
     implementation(libs.kotlin.coroutines.core)
@@ -21,7 +22,6 @@ dependencies {
 
     // Compose extras
     implementation(libs.androidx.compose.material.icons)
-    implementation(libs.compose.destinations.core)
     implementation(libs.richeditor.compose)
     implementation(libs.accompanist.systemuicontroller)
 

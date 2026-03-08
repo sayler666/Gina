@@ -4,8 +4,6 @@ import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.gina.destinations.Destination
-import com.sayler666.gina.destinations.JournalScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +20,7 @@ class SelectDatabaseViewModel @Inject constructor(
     private val _permissionGranted = MutableStateFlow(Environment.isExternalStorageManager())
     val permissionGranted: StateFlow<Boolean> = _permissionGranted
 
-    private val _navigateToHome = MutableSharedFlow<Destination>()
+    private val _navigateToHome = MutableSharedFlow<Unit>()
     val navigateToHome = _navigateToHome.asSharedFlow()
 
     fun refreshPermissionStatus() {
@@ -31,7 +29,7 @@ class SelectDatabaseViewModel @Inject constructor(
 
     fun openDatabase(path: String) {
         viewModelScope.launch {
-            if (ginaDatabaseProvider.openAndRememberDB(path)) _navigateToHome.emit(JournalScreenDestination)
+            if (ginaDatabaseProvider.openAndRememberDB(path)) _navigateToHome.emit(Unit)
         }
     }
 }

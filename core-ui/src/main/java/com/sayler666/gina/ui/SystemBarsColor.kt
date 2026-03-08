@@ -11,7 +11,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.sayler666.gina.ui.theme.Theme
 
 @Composable
-fun StatusBarColor(color: Color = MaterialTheme.colorScheme.surface, theme: Theme?) {
+fun StatusBarColor(color: Color = MaterialTheme.colorScheme.surface, theme: Theme? = LocalTheme.current) {
     val systemUiController = rememberSystemUiController()
     DisposableEffect(systemUiController, theme) {
         systemUiController.setStatusBarColor(
@@ -25,7 +25,7 @@ fun StatusBarColor(color: Color = MaterialTheme.colorScheme.surface, theme: Them
 @Composable
 fun NavigationBarColor(
     color: Color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-    theme: Theme?
+    theme: Theme? = LocalTheme.current
 ) {
     val systemUiController = rememberSystemUiController()
     DisposableEffect(systemUiController, theme, color) {

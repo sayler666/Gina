@@ -14,59 +14,47 @@ import androidx.compose.material.icons.twotone.PhotoLibrary
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
-import com.sayler666.gina.NavGraphs
 import com.sayler666.gina.R
-import com.sayler666.gina.appCurrentDestinationAsState
-import com.sayler666.gina.destinations.CalendarScreenDestination
-import com.sayler666.gina.destinations.Destination
-import com.sayler666.gina.destinations.DirectionDestination
-import com.sayler666.gina.destinations.GalleryScreenDestination
-import com.sayler666.gina.destinations.InsightsScreenDestination
-import com.sayler666.gina.destinations.JournalScreenDestination
-import com.sayler666.gina.destinations.SettingsScreenDestination
-import com.sayler666.gina.startAppDestination
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 
 enum class BottomDestinations(
-    val destination: DirectionDestination,
+    val route: Route,
     val icon: ImageVector,
     val iconSelected: ImageVector,
     val label: Int
 ) {
     Journal(
-        JournalScreenDestination,
+        Route.Journal,
         Icons.TwoTone.AutoStories,
         Icons.Filled.AutoStories,
         R.string.days_label
     ),
     Calendar(
-        CalendarScreenDestination,
+        Route.Calendar,
         Icons.TwoTone.CalendarMonth,
         Icons.Filled.CalendarMonth,
         R.string.calendar_label
     ),
     Gallery(
-        GalleryScreenDestination,
+        Route.Gallery,
         Icons.TwoTone.PhotoLibrary,
         Icons.Filled.PhotoLibrary,
         R.string.gallery_label
     ),
     Insights(
-        InsightsScreenDestination,
+        Route.Insights,
         Icons.TwoTone.Insights,
         Icons.Filled.Insights,
         R.string.insights_label
     ),
     Settings(
-        SettingsScreenDestination,
+        Route.Settings,
         Icons.TwoTone.Settings,
         Icons.Filled.Settings,
         R.string.settings_label
@@ -77,17 +65,12 @@ enum class BottomDestinations(
 fun BottomNavigationBar(
     modifier: Modifier = Modifier,
     color: Color,
-    navController: NavController
+    currentRoute: Any?,
+    backStack: MutableList<Route>
 ) {
-    val destinationNavigator = navController.rememberDestinationsNavigator()
-    val currentDestination: Destination = navController.appCurrentDestinationAsState().value
-        ?: NavGraphs.root.startAppDestination
-
-    val selectedIndex = remember(currentDestination) {
-        val index = BottomDestinations.entries.toTypedArray().indexOfFirst {
-            currentDestination == it.destination
-        }
-        if (index in 0 until BottomDestinations.entries.size) index else 0
+    val selectedIndex = androidx.compose.runtime.remember(currentRoute) {
+        val index = BottomDestinations.entries.indexOfFirst { it.route == currentRoute }
+        if (index >= 0) index else 0
     }
 
     AnimatedNavigationBar(
@@ -97,18 +80,22 @@ fun BottomNavigationBar(
         ballColor = MaterialTheme.colorScheme.secondaryContainer,
         menuItemsSize = BottomDestinations.entries.size
     ) {
-        BottomDestinations.entries.forEach {
+        BottomDestinations.entries.forEach { dest ->
             DropletButton(
                 modifier = Modifier
                     .fillMaxSize()
                     .zIndex(1f),
-                isSelected = currentDestination == it.destination,
-                icon = if (currentDestination == it.destination) it.iconSelected else it.icon,
+                isSelected = currentRoute == dest.route,
+                icon = if (currentRoute == dest.route) dest.iconSelected else dest.icon,
                 onClick = {
-                    destinationNavigator.navigate(it.destination) {
-                        launchSingleTop = true
-                        restoreState = true
-                        popUpTo(JournalScreenDestination)
+                    val existingIndex = backStack.indexOfFirst { it == dest.route }
+                    if (existingIndex >= 0) {
+                        // pop to existing entry
+                        while (backStack.size > existingIndex + 1) backStack.removeLastOrNull()
+                    } else {
+                        // pop to Journal, then push destination
+                        while (backStack.size > 1) backStack.removeLastOrNull()
+                        if (dest.route != Route.Journal) backStack.add(dest.route)
                     }
                 }
             )

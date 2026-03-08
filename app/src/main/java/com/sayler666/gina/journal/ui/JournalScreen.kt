@@ -1,9 +1,6 @@
 package com.sayler666.gina.journal.ui
 
-import android.content.Intent
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -42,19 +39,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.R
-import com.sayler666.gina.attachments.ui.ImagePreviewScreenNavArgs
 import com.sayler666.gina.core.permission.Permissions.getManageAllFilesSettingsIntent
-import com.sayler666.gina.dayDetails.ui.DayDetailsScreenNavArgs
-import com.sayler666.gina.destinations.DayDetailsScreenDestination
-import com.sayler666.gina.destinations.ImagePreviewScreenDestination
 import com.sayler666.gina.journal.viewmodel.JournalState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
@@ -62,7 +52,6 @@ import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.journal.viewmodel.JournalViewModel
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
@@ -78,27 +67,30 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFi
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
-@RootNavGraph
-@Destination
 @Composable
-fun JournalScreen(
-    destinationsNavigator: DestinationsNavigator
-) {
+fun JournalScreen() {
     val viewModel: JournalViewModel = hiltViewModel()
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
+    val navigator = LocalNavigator.current
 
     val permissionsLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
         viewModel.onViewEvent(OnRefreshPermissionStatus)
     }
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
-        onViewAction(action, destinationsNavigator, permissionsLauncher)
+        when (action) {
+            is NavToDay -> navigator.navigate(Route.DayDetails(action.dayId))
+            is NavToAttachmentPreview -> navigator.navigate(Route.ImagePreview(action.imageId))
+            NavToManageAllFilesSettings -> permissionsLauncher.launch(getManageAllFilesSettingsIntent())
+        }
     }
 
     Scaffold(
@@ -118,26 +110,6 @@ fun JournalScreen(
         }
     )
 }
-
-private fun onViewAction(
-    action: ViewAction,
-    destinationsNavigator: DestinationsNavigator,
-    permissionsResult: ManagedActivityResultLauncher<Intent, ActivityResult>
-) {
-    when (action) {
-        is NavToDay -> destinationsNavigator.navToDay(action.dayId)
-        is NavToAttachmentPreview -> destinationsNavigator.navToAttachment(action.imageId)
-        NavToManageAllFilesSettings -> permissionsResult.launch(getManageAllFilesSettingsIntent())
-    }
-}
-
-private fun DestinationsNavigator.navToAttachment(imageId: Int) = navigate(
-    ImagePreviewScreenDestination(ImagePreviewScreenNavArgs(imageId))
-)
-
-fun DestinationsNavigator.navToDay(dayId: Int) = navigate(
-    DayDetailsScreenDestination(DayDetailsScreenNavArgs(dayId))
-)
 
 @Composable
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)

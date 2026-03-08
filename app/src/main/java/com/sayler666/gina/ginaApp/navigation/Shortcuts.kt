@@ -12,21 +12,24 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import com.sayler666.gina.R
 import com.sayler666.gina.addDay.ui.ADD_DAY_URL
+import com.sayler666.gina.ginaApp.MainActivity
 
 fun addDayShortcut(context: Context) = ShortcutInfoCompat.Builder(context, "AddDay")
     .setShortLabel("Add new entry")
     .setLongLabel("Add new entry")
     .setIcon(IconCompat.createWithResource(context, R.drawable.feather_icon_white))
-    .setIntent(addDayDestinationIntent())
+    .setIntent(addDayDestinationIntent(context))
     .build()
 
 fun addDayDestinationPendingIntent(context: Context): PendingIntent =
     TaskStackBuilder.create(context).run {
-        addNextIntentWithParentStack(addDayDestinationIntent())
+        addNextIntentWithParentStack(addDayDestinationIntent(context))
         getPendingIntent(1, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
     }
 
-fun addDayDestinationIntent(): Intent = Intent(
+fun addDayDestinationIntent(context: Context): Intent = Intent(
     ACTION_VIEW,
-    ADD_DAY_URL.toUri()
+    ADD_DAY_URL.toUri(),
+    context,
+    MainActivity::class.java
 )

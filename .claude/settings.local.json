@@ -30,7 +30,18 @@
       "Bash(curl:*)",
       "Bash(python3:*)",
       "WebSearch",
-      "WebFetch(domain:central.sonatype.com)"
+      "WebFetch(domain:central.sonatype.com)",
+      "Bash(unzip:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(jar tf:*)",
+      "Read(//f/tmp/**)",
+      "Bash(jar xf \"C:/Users/sayler/.gradle/caches/9.3.1/transforms/7c7807175b9c1cee77d202bb4e65902b/workspace/transformed/navigation3-runtime/jars/classes.jar\")",
+      "Bash(javap -p androidx/navigation3/runtime/EntryProviderKt.class)",
+      "Bash(javap -p androidx/navigation3/runtime/EntryProviderScope.class)",
+      "Bash(javap:*)",
+      "Bash(jar xf:*)"
     ]
   }
 }

@@ -1,10 +1,10 @@
 package com.sayler666.gina.ginaApp
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,33 +17,29 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.sayler666.core.compose.ANIMATION_DURATION
-import com.sayler666.gina.NavGraphs
-import com.sayler666.gina.appCurrentDestinationAsState
-import com.sayler666.gina.destinations.CalendarScreenDestination
-import com.sayler666.gina.destinations.Destination
-import com.sayler666.gina.destinations.GalleryScreenDestination
-import com.sayler666.gina.destinations.InsightsScreenDestination
-import com.sayler666.gina.destinations.JournalScreenDestination
-import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
-import com.sayler666.gina.destinations.SettingsScreenDestination
 import com.sayler666.core.navigation.BottomBarState
 import com.sayler666.core.navigation.BottomBarState.Shown
+import com.sayler666.gina.di.EntryProviderInstaller
+import com.sayler666.gina.di.NavEntryFallback
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.startAppDestination
+import com.sayler666.gina.navigation.Navigator
+import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalTheme
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
@@ -51,31 +47,31 @@ import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GinaApp(
-    vm: GinaMainViewModel
+    vm: GinaMainViewModel,
+    installers: Set<@JvmSuppressWildcards EntryProviderInstaller>,
+    fallback: NavEntryFallback
 ) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     GinaTheme(theme) {
-        val rememberedDatabase: Boolean? by vm.hasRememberedDatabase.collectAsStateWithLifecycle()
+        // ViewModel-owned backStack survives configuration changes.
+        val backStack = vm.backStack
+        val navigator = remember { Navigator(backStack) }
 
-        if (rememberedDatabase != null) {
-            StatusBarColor(color = colorScheme.surface, theme = theme)
-            val startRoute = if (rememberedDatabase == false) SelectDatabaseScreenDestination
-            else JournalScreenDestination
+        if (backStack.isNotEmpty()) {
+            val currentRoute = backStack.lastOrNull()
 
-            val navController = rememberNavController()
-            val destination: Destination = navController.appCurrentDestinationAsState().value
-                ?: NavGraphs.root.startAppDestination
-
-            val navHostEngine = rememberAnimatedNavHostEngine(
-                navHostContentAlignment = Alignment.BottomCenter,
-                rootDefaultAnimations = RootNavGraphDefaultAnimations(
-                    enterTransition = { fadeIn(animationSpec = tween(ANIMATION_DURATION)) },
-                    exitTransition = { fadeOut(animationSpec = tween(ANIMATION_DURATION)) }
-                )
-            )
+            // Handle deep links arriving via onNewIntent (app already running).
+            // Fresh-start deep links are already baked into backStack by the ViewModel.
+            val pendingDeepLink: Route? by vm.pendingDeepLink.collectAsStateWithLifecycle()
+            LaunchedEffect(pendingDeepLink) {
+                val route = pendingDeepLink ?: return@LaunchedEffect
+                if (backStack.none { it is Route.AddDay }) {
+                    navigator.navigate(route)
+                }
+                vm.consumeDeepLink()
+            }
 
             val bottomBarState: BottomBarState by vm.bottomBarState.collectAsStateWithLifecycle()
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
@@ -87,54 +83,66 @@ fun GinaApp(
                 visible = bottomBarState == Shown
             )
 
-            NavigationBarColor(theme = theme, color = bottomBarAnimInfoState.color)
-            Scaffold(
-                Modifier.fillMaxSize(),
-                containerColor = colorScheme.background,
-                floatingActionButton = {
-                    if (destination.shouldShowScaffoldElements)
-                        DayFab(
-                            modifier = Modifier
-                                .offset(y = bottomBarAnimInfoState.yOffset),
-                            navController = navController
-                        )
-                },
-                floatingActionButtonPosition = FabPosition.End,
-                bottomBar = {
-                    if (destination.shouldShowScaffoldElements)
-                        BottomNavigationBar(
-                            modifier = Modifier
-                                .windowInsetsPadding(WindowInsets.navigationBars)
-                                .offset(y = bottomBarAnimInfoState.yOffset)
-                                .height(BOTTOM_NAV_HEIGHT)
-                                .alpha(bottomBarAnimInfoState.alpha),
-                            color = bottomBarAnimInfoState.color,
-                            navController = navController
-                        )
-                },
-                content = {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        DestinationsNavHost(
-                            navGraph = NavGraphs.root,
-                            startRoute = startRoute,
-                            navController = navController,
-                            engine = navHostEngine
-                        )
+            val entryProviderFn = remember(installers, fallback) {
+                entryProvider(fallback = fallback) {
+                    installers.forEach { installer -> installer(this) }
+                }
+            }
+
+            CompositionLocalProvider(LocalNavigator provides navigator, LocalTheme provides theme) {
+                StatusBarColor(color = colorScheme.surface)
+                NavigationBarColor(color = bottomBarAnimInfoState.color)
+                Scaffold(
+                    Modifier.fillMaxSize(),
+                    containerColor = colorScheme.background,
+                    floatingActionButton = {
+                        if (currentRoute.shouldShowScaffoldElements)
+                            DayFab(
+                                modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
+                                onNavigateToAddDay = { backStack.add(Route.AddDay()) }
+                            )
+                    },
+                    floatingActionButtonPosition = FabPosition.End,
+                    bottomBar = {
+                        if (currentRoute.shouldShowScaffoldElements)
+                            BottomNavigationBar(
+                                modifier = Modifier
+                                    .windowInsetsPadding(WindowInsets.navigationBars)
+                                    .offset(y = bottomBarAnimInfoState.yOffset)
+                                    .height(BOTTOM_NAV_HEIGHT)
+                                    .alpha(bottomBarAnimInfoState.alpha),
+                                color = bottomBarAnimInfoState.color,
+                                currentRoute = currentRoute,
+                                backStack = backStack
+                            )
+                    },
+                    content = {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            NavDisplay(
+                                backStack = backStack,
+                                onBack = { backStack.removeLastOrNull() },
+                                transitionSpec = {
+                                    fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(tween(ANIMATION_DURATION))
+                                },
+                                popTransitionSpec = {
+                                    fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(tween(ANIMATION_DURATION))
+                                },
+                                entryProvider = entryProviderFn
+                            )
+                        }
                     }
-                })
+                )
+            }
         }
     }
 }
 
-private val Destination.shouldShowScaffoldElements
+private val Route?.shouldShowScaffoldElements
     get() = when (this) {
-        is JournalScreenDestination,
-        is CalendarScreenDestination,
-        is InsightsScreenDestination,
-        is GalleryScreenDestination,
-        is SettingsScreenDestination -> true
-
+        is Route.Journal,
+        is Route.Calendar,
+        is Route.Insights,
+        is Route.Gallery,
+        is Route.Settings -> true
         else -> false
     }

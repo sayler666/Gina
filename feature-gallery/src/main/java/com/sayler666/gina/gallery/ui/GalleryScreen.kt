@@ -57,7 +57,9 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -70,15 +72,14 @@ import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen(
-    onOpenImage: (Int) -> Unit,
-) {
+fun GalleryScreen() {
     val viewModel: GalleryViewModel = hiltViewModel()
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
+    val navigator = LocalNavigator.current
 
     LaunchedEffect(Unit) {
         viewModel.openImage.collectLatest {
-            it.id?.let { imageId -> onOpenImage(imageId) }
+            it.id?.let { imageId -> navigator.navigate(Route.ImagePreview(imageId)) }
         }
     }
 

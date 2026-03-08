@@ -35,6 +35,7 @@
             <option value="$PROJECT_DIR$/feature-gallery" />
             <option value="$PROJECT_DIR$/feature-insights" />
             <option value="$PROJECT_DIR$/feature-settings" />
+            <option value="$PROJECT_DIR$/navigation" />
           </set>
         </option>
       </GradleProjectSettings>

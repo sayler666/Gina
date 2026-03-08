@@ -1,6 +1,5 @@
 package com.sayler666.gina.dayDetails.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
@@ -18,6 +17,9 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnD
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,14 +27,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DayDetailsViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DayDetailsViewModel.Factory::class)
+class DayDetailsViewModel @AssistedInject constructor(
+    @Assisted val dayId: Int,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousIdDayUseCase: GetNextPreviousIdDayUseCase,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val mutableViewState: MutableStateFlow<DayDetailsState?> = MutableStateFlow(null)
@@ -41,7 +42,10 @@ class DayDetailsViewModel @Inject constructor(
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
 
-    private val id: Int = savedStateHandle.get<Int>("dayId") ?: error("Missing dayId arg")
+    @AssistedFactory
+    interface Factory {
+        fun create(dayId: Int): DayDetailsViewModel
+    }
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
@@ -49,7 +53,7 @@ class DayDetailsViewModel @Inject constructor(
 
     private fun fetchDayDetails() {
         viewModelScope.launch {
-            getDayDetailsUseCase.getDayDetails(id)
+            getDayDetailsUseCase.getDayDetails(dayId)
                 .onSuccess { mutableViewState.emit(it.toState()) }
         }
     }
@@ -60,14 +64,14 @@ class DayDetailsViewModel @Inject constructor(
             OnBackPressed -> mutableViewActions.trySend(Back)
             OnNextDayPressed -> goToNextDay()
             OnPreviousDayPressed -> goToPreviousDay()
-            OnDayDetailsPressed -> mutableViewActions.trySend(NavToDayDetails(id))
+            OnDayDetailsPressed -> mutableViewActions.trySend(NavToDayDetails(dayId))
             is OnAttachmentPressed -> mutableViewActions.trySend(NavToAttachment(event.attachmentId))
         }
     }
 
     private fun goToNextDay() {
         viewModelScope.launch {
-            getNextPreviousIdDayUseCase.getNextDayId(id)
+            getNextPreviousIdDayUseCase.getNextDayId(dayId)
                 .onSuccess { dayId ->
                     mutableViewActions.trySend(NavToNextDay(dayId))
                 }
@@ -79,7 +83,7 @@ class DayDetailsViewModel @Inject constructor(
 
     private fun goToPreviousDay() {
         viewModelScope.launch {
-            getNextPreviousIdDayUseCase.getPreviousDayId(id)
+            getNextPreviousIdDayUseCase.getPreviousDayId(dayId)
                 .onSuccess { dayId ->
                     mutableViewActions.trySend(NavToPreviousDay(dayId))
                 }

@@ -6,12 +6,11 @@ Feature-complete — no new features planned.
 
 ## Stack
 - Kotlin + Coroutines, Jetpack Compose + Material3
-- MVI architecture, Hilt DI, Room, Compose Destinations (migration planned)
-- Firebase: Crashlytics + Analytics only
-- No unit tests
+- MVI architecture, Hilt DI, Room, Jetpack Nav3
+- Firebase: Crashlytics
 
 ## Current Module Structure
-- `:app` — navigation wiring, DI graph, MainActivity, thin @Destination wrappers only
+- `:app` — navigation wiring, DI graph, MainActivity, `GinaApp` + `NavDisplay`, thin route wrappers
 - `:core` — pure Kotlin utils only (no Compose)
 - `:core-ui` — Compose only — shared components, theme, modifiers
 - `:data-database` — Room, DAOs, entities, repositories, use cases
@@ -22,34 +21,35 @@ Feature-complete — no new features planned.
 - `:feature-gallery` — gallery UI, ViewModel, and image thumbnail repository
 - `:feature-insights` — insights UI, ViewModels, and use cases
 - `:feature-settings` — settings UI and logic
+- `:navigation` — `Route` sealed interface (all routes), `Navigator` backstack manager
 - `:build-logic` — Gradle convention plugins
 
 ## Module Dependency Rules
 - `:domain-model` → no dependencies
+- `:navigation` → `:domain-model` only
 - `:core` → `:domain-model` only
-- `:core-ui` → `:core`, `:domain-model`
+- `:core-ui` → `:core`, `:domain-model`, `:navigation`
 - `:data-database` → `:domain-model`, `:core`
 - `feature-*` → `:core`, `:core-ui`, `:domain-model`, `:data-database`
 - `feature-*` → cross-feature dependencies allowed if necessary
 - `:app` → all modules, owns Navigation and top-level DI
 
-## Modularization Pattern
-- Feature modules expose composables with nav callbacks — no `@Destination` annotation
-- `:app` has thin `@RootNavGraph @Destination` wrappers that wire `DestinationsNavigator` → lambdas
-- App wrapper package must differ from the feature package it wraps — same package causes `NoSuchMethodError` at runtime (dex class collision)
-  - Convention: feature uses its own package, app wrapper uses `com.sayler666.gina.<feature>` (no `.ui`)
-- `DayDetailsTransitions` and `ImagePreviewTransitions` stay in `:app` — they use `appDestination()` which is KSP-generated in `:app`
+## Navigation Pattern (Jetpack Nav3)
+- All routes defined in `:navigation` as `Route` sealed interface (`Route.Journal`, `Route.DayDetails(dayId, way)`, etc.)
+- `GinaApp` owns the backstack (`vm.backStack: SnapshotStateList<Route>`) and a `Navigator` wrapping it
+- `Navigator` is provided via `LocalNavigator` composition local (defined in `core-ui`) — screens call `LocalNavigator.current` to navigate
+- `NavDisplay` in `GinaApp` has a centralized `entryProvider` that dispatches each `Route` to the appropriate screen composable
+- `:app` thin wrapper composables extract params from `Route` and pass them to feature screens
+  - e.g., `app/dayDetails/DayDetailsScreen.kt` calls `FeatureDayDetailsScreen(dayId = route.dayId)`
+  - App wrappers remain in a different package from the feature screen they wrap (convention unchanged)
+- Feature screens receive `Route` data directly — no `DestinationsNavigator`, no `NavController`, no `SavedStateHandle` for nav args
+- Transitions are handled inline in `entryProvider` via `NavEntry` metadata (see `GinaApp.kt` for `Route.DayDetails` slide transitions)
 
-## Nav Args + KSP Rule
-- Nav args with **default values** MUST be defined in `:app`, not in feature modules
-  - KSP (Compose Destinations) cannot detect default values from compiled bytecode in other modules
-- Nav args without defaults can live in feature modules
-- Feature ViewModels read args via `savedStateHandle.get<T>("argName")` — never use generated `XxxDestination.argsFrom(savedStateHandle)`
-- Nav args currently in `:app`:
-  - `DayDetailsScreenNavArgs` — `app/.../dayDetails/ui/DayDetailsNavArgs.kt`
-  - `AddDayScreenNavArgs` — `app/.../addDay/ui/AddDayNavArgs.kt`
-  - `ImagePreviewScreenNavArgs`, `ImagePreviewTmpScreenNavArgs` — `app/.../attachments/ui/ImagePreviewNavArgs.kt`
-- `const val` strings (e.g. `ADD_DAY_URL`) can stay in feature modules — usable in annotations across modules
+## ViewModel Nav Args Pattern
+- ViewModels that need route params use `@HiltViewModel(assistedFactory = ...)` + `@AssistedInject`
+- Route params are injected as `@Assisted` constructor params
+- App wrapper composable calls `hiltViewModel<VM, VM.Factory>(key = ...) { factory -> factory.create(route.param) }`
+- No `SavedStateHandle` for nav args — params come directly from the `Route` object
 
 ## Refactoring Rules — follow when writing any new code
 - New models → `:domain-model`
@@ -57,10 +57,7 @@ Feature-complete — no new features planned.
 - New shared Compose components → `:core-ui` (Theme enum already there)
 - New use cases → `:data-database` next to relevant repository
 - New feature code → target `feature-*` module, never `:app`
-- `:app` gets only navigation wiring, nav args, and DI
-
-## Planned Migrations (in order)
-1. **Navigation** — migrate from Compose Destinations to Jetpack Nav3. Each feature module will expose its own Nav3 destinations.
+- `:app` gets only navigation wiring (thin wrappers, `GinaApp`, `NavDisplay`) and DI
 
 ## MVI Pattern
 - `viewState: StateFlow<State?>` — built with `combine()`, `WhileSubscribed(500)`

@@ -12,6 +12,7 @@ android {
 
 dependencies {
     api(projects.core)
+    implementation(projects.navigation)
     implementation(projects.coreUi)
     implementation(projects.dataDatabase)
     implementation(projects.domainModel)
@@ -45,13 +46,14 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.constraintLayout.compose)
     implementation(libs.androidx.compose.material.icons)
-    implementation(libs.navigation.ui)
+
+    // Nav3
+    implementation(libs.navigation3.ui)
+    implementation(libs.lifecycle.viewmodel.navigation3)
 
     // Compose
     implementation(libs.compose.material3)
-    implementation(libs.compose.destinations.core)
     implementation(libs.coil.compose)
-    ksp(libs.compose.destinations.ksp)
     implementation(libs.calendar.compose)
     implementation(libs.richeditor.compose)
 

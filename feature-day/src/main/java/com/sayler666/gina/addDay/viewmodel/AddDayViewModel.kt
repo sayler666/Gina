@@ -1,6 +1,5 @@
 package com.sayler666.gina.addDay.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.date.getDayOfMonth
@@ -44,6 +43,9 @@ import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -62,10 +64,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
-import javax.inject.Inject
 
-@HiltViewModel
-class AddDayViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = AddDayViewModel.Factory::class)
+class AddDayViewModel @AssistedInject constructor(
+    @Assisted val date: LocalDate?,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addFriendUseCase: AddFriendUseCase,
     private val addDayUseCase: AddDayUseCase,
@@ -74,12 +76,14 @@ class AddDayViewModel @Inject constructor(
     private val reminderDismissUseCase: ReminderDismissUseCase,
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
-    savedStateHandle: SavedStateHandle,
     getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCaseImpl,
     dayQuoteProvider: DayQuoteProvider,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
 
-    private val date: LocalDate? = savedStateHandle.get<LocalDate>("date")
+    @AssistedFactory
+    interface Factory {
+        fun create(date: LocalDate?): AddDayViewModel
+    }
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()

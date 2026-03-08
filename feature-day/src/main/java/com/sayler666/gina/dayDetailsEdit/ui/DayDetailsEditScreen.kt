@@ -88,7 +88,9 @@ import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
@@ -100,19 +102,13 @@ import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.sin
 
-
-data class DayDetailsEditScreenNavArgs(
-    val dayId: Int
-)
-
 @Composable
 fun DayDetailsEditScreen(
-    viewModel: DayDetailsEditViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToList: () -> Unit,
-    onNavigateToImagePreview: (ByteArray, String) -> Unit,
+    dayId: Int,
 ) {
+    val viewModel: DayDetailsEditViewModel = hiltViewModel<DayDetailsEditViewModel, DayDetailsEditViewModel.Factory>(key = dayId.toString()) { it.create(dayId) }
     val context = LocalContext.current
+    val navigator = LocalNavigator.current
     val addAttachmentLauncher =
         rememberLauncherForMultipleImages(context = context) { attachments ->
             viewModel.addAttachments(attachments)
@@ -127,20 +123,22 @@ fun DayDetailsEditScreen(
     val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateToList.collectLatest { onNavigateToList() }
+        viewModel.navigateToList.collectLatest {
+            navigator.popUntil { it !is Route.DayDetails && it !is Route.DayDetailsEdit }
+        }
     }
 
     val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
-    val showDiscardConfirmationDialog = rememberDiscardDialog(onNavigateBack)
+    val showDiscardConfirmationDialog = rememberDiscardDialog()
     val showDatePickerPopup = remember { mutableStateOf(false) }
     val workingCopy: Boolean by viewModel.hasWorkingCopy.collectAsStateWithLifecycle(false)
 
     fun onBackPress() {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, onNavigateBack)
+        handleBackPress(changesExist, showDiscardConfirmationDialog, navigator::back)
     }
 
     LaunchedEffect(Unit) {
-        viewModel.navigateBack.collectLatest { onNavigateBack() }
+        viewModel.navigateBack.collectLatest { navigator.back() }
     }
 
     val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
@@ -219,7 +217,7 @@ fun DayDetailsEditScreen(
                         AnimatedVisibility(
                             visible = !isKeyboardOpen
                         ) {
-                            Attachments(day, onNavigateToImagePreview) { attachmentHash ->
+                            Attachments(day) { attachmentHash ->
                                 viewModel.removeAttachment(attachmentHash)
                             }
                         }
@@ -258,7 +256,8 @@ fun rememberLauncherForMultipleImages(
 }
 
 @Composable
-private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Boolean> {
+private fun rememberDiscardDialog(): MutableState<Boolean> {
+    val navigator = LocalNavigator.current
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     ConfirmationDialog(
         title = "Discard changes",
@@ -266,7 +265,7 @@ private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Bool
         confirmButtonText = "Discard",
         dismissButtonText = "Cancel",
         showDialog = showDiscardConfirmationDialog,
-    ) { onNavigateBack() }
+    ) { navigator.back() }
     return showDiscardConfirmationDialog
 }
 
@@ -296,10 +295,10 @@ fun AttachmentsCountLabel(count: Int) {
 @Composable
 fun Attachments(
     day: DayDetailsEntity,
-    onNavigateToImagePreview: (ByteArray, String) -> Unit,
     onRemoveAttachment: (Int) -> Unit
 ) {
     val context = LocalContext.current
+    val navigator = LocalNavigator.current
     if (day.attachments.isNotEmpty()) {
         FlowRow(
             modifier = Modifier
@@ -312,7 +311,7 @@ fun Attachments(
                         attachment,
                         onClick = {
                             attachment.content.let { image ->
-                                onNavigateToImagePreview(image, attachment.mimeType)
+                                navigator.navigate(Route.ImagePreviewTmp(image, attachment.mimeType))
                             }
                         },
                         onRemoveClicked = {
