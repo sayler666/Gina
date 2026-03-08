@@ -39,6 +39,8 @@ import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.feature.settings.reminder.ReminderState
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.feature.settings.viewmodel.ThemeItem
+import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.theme.Theme
@@ -48,10 +50,9 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun SettingsScreen(
     theme: Theme?,
-    onNavigateToFriends: () -> Unit,
-    onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+    val navigator = LocalNavigator.current
     NavigationBarColor(theme = theme)
     val context = LocalContext.current
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
@@ -64,7 +65,7 @@ fun SettingsScreen(
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
 
     BackHandler {
-        onNavigateBack()
+        navigator.back()
     }
 
     LaunchedEffect(Unit) {
@@ -103,7 +104,7 @@ fun SettingsScreen(
                     },
                     loader = dbCardLoader
                 )
-                FriendsSettingsSection(onNavigateToFriends)
+                FriendsSettingsSection { navigator.navigate(Route.ManageFriends) }
                 Text(
                     text = "Attachments",
                     style = MaterialTheme.typography.labelLarge,

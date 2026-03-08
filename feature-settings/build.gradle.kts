@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.core)
     implementation(projects.coreUi)
     implementation(projects.dataDatabase)
+    implementation(projects.navigation)
 
     // Dagger hilt
     implementation(libs.dagger.hilt)

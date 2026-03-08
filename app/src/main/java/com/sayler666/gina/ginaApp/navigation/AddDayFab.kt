@@ -10,24 +10,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.sayler666.gina.R
-import com.sayler666.gina.destinations.AddDayScreenDestination
 
 @Composable
-fun DayFab(modifier: Modifier = Modifier, navController: NavHostController) {
-    val destinationNavigator = navController.rememberDestinationsNavigator()
+fun DayFab(
+    modifier: Modifier = Modifier,
+    onNavigateToAddDay: () -> Unit
+) {
     FloatingActionButton(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.primary,
         shape = CircleShape,
-        onClick = {
-            destinationNavigator.navigate(AddDayScreenDestination()) {
-                launchSingleTop = true
-                restoreState = false
-            }
-        }) {
+        onClick = onNavigateToAddDay
+    ) {
         Icon(
             painter = painterResource(R.drawable.feather_icon),
             contentDescription = "Add new entry",

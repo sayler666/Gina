@@ -14,6 +14,7 @@ dependencies {
     implementation(projects.coreUi)
     implementation(projects.domainModel)
     implementation(projects.dataDatabase)
+    implementation(projects.navigation)
 
     // Dagger hilt
     implementation(libs.dagger.hilt)

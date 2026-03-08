@@ -21,7 +21,6 @@ ksp = "2.3.6"
 # Compose
 compose-bom = "2025.12.00"
 richeditor-compose = "1.0.0-rc13"
-compose-destination = "1.11.7"
 calendar-compose = "2.6.0"
 coil-compose = "2.7.0"
 
@@ -33,7 +32,7 @@ androidx-lifecycle = "2.10.0"
 androidx-datastore = "1.2.0"
 
 # Navigation
-navigation = "2.8.3"
+navigation3 = "1.0.1"
 lifecycle = "2.10.0"
 core-splashscreen = "1.0.1"
 
@@ -116,15 +115,13 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 
-compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "compose-destination" }
-compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "compose-destination" }
 calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "calendar-compose" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
 richeditor-compose = { group = "com.mohamedrejeb.richeditor", name = "richeditor-compose", version.ref = "richeditor-compose" }
 
 # Navigation
-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
 
 # Dagger hilt
 dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

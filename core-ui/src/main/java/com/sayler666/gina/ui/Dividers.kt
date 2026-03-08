@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -12,7 +13,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun VerticalDivider() {
     Spacer(Modifier.width(8.dp))
-    androidx.compose.material3.VerticalDivider(
+    VerticalDivider(
         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
         modifier = Modifier
             .fillMaxHeight()

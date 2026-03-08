@@ -72,6 +72,8 @@ import com.sayler666.gina.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
+import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
@@ -80,17 +82,18 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 const val ADD_DAY_URL = "gina://add_day"
 
 @Composable
 fun AddDayScreen(
-    viewModel: AddDayViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToImagePreview: (ByteArray, String) -> Unit,
+    date: LocalDate?,
 ) {
+    val viewModel: AddDayViewModel = hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = date.toString()) { it.create(date) }
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
+    val navigator = LocalNavigator.current
 
     var content by remember {
         mutableStateOf(TextFieldValue(state?.content ?: ""))
@@ -103,7 +106,7 @@ fun AddDayScreen(
         }
     }
 
-    val showDiscardConfirmationDialog = rememberDiscardDialog(onNavigateBack)
+    val showDiscardConfirmationDialog = rememberDiscardDialog()
 
     val context = LocalContext.current
     val addAttachmentLauncher =
@@ -117,8 +120,7 @@ fun AddDayScreen(
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         onViewAction(
             action,
-            onNavigateBack,
-            onNavigateToImagePreview,
+            navigator,
             addAttachmentLauncher,
             addAttachmentRequest,
             showDiscardConfirmationDialog
@@ -137,16 +139,15 @@ fun AddDayScreen(
 
 private suspend fun onViewAction(
     action: ViewAction,
-    onNavigateBack: () -> Unit,
-    onNavigateToImagePreview: (ByteArray, String) -> Unit,
+    navigator: com.sayler666.gina.navigation.Navigator,
     addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     addAttachmentRequest: PickVisualMediaRequest,
     showDiscardConfirmationDialog: MutableState<Boolean>,
 ) {
     when (action) {
-        Back -> onNavigateBack()
+        Back -> navigator.back()
 
-        is NavToAttachment -> onNavigateToImagePreview(action.image, action.mimeType)
+        is NavToAttachment -> navigator.navigate(Route.ImagePreviewTmp(action.image, action.mimeType))
 
         ShowAttachmentPicker -> {
             addAttachmentLauncher.launch(addAttachmentRequest)
@@ -254,7 +255,8 @@ private fun Content(
 }
 
 @Composable
-private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Boolean> {
+private fun rememberDiscardDialog(): MutableState<Boolean> {
+    val navigator = LocalNavigator.current
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     ConfirmationDialog(
         title = "Discard changes",
@@ -262,7 +264,7 @@ private fun rememberDiscardDialog(onNavigateBack: () -> Unit): MutableState<Bool
         confirmButtonText = "Discard",
         dismissButtonText = "Cancel",
         showDialog = showDiscardConfirmationDialog
-    ) { onNavigateBack() }
+    ) { navigator.back() }
     return showDiscardConfirmationDialog
 }
 

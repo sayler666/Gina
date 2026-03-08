@@ -1,6 +1,5 @@
 package com.sayler666.gina.dayDetailsEdit.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.file.isImageMimeType
@@ -20,6 +19,9 @@ import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
@@ -36,12 +38,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
-import javax.inject.Inject
-
-
-@HiltViewModel
-class DayDetailsEditViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = DayDetailsEditViewModel.Factory::class)
+class DayDetailsEditViewModel @AssistedInject constructor(
+    @Assisted val dayId: Int,
     getDayDetailsUseCase: GetDayDetailsUseCase,
     getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCase,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
@@ -59,10 +58,14 @@ class DayDetailsEditViewModel @Inject constructor(
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
+    @AssistedFactory
+    interface Factory {
+        fun create(dayId: Int): DayDetailsEditViewModel
+    }
+
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         Timber.e(exception)
     }
-    private val id: Int = savedStateHandle.get<Int>("dayId") ?: error("Missing dayId arg")
 
     private val allFriends = getAllFriendsByRecentUseCase().stateIn(
         viewModelScope,
@@ -88,7 +91,7 @@ class DayDetailsEditViewModel @Inject constructor(
             null
         )
 
-    val day = combine(getDayDetailsUseCase.getDayDetailsFlow(id), allFriends, friendsSearchQuery)
+    val day = combine(getDayDetailsUseCase.getDayDetailsFlow(dayId), allFriends, friendsSearchQuery)
     { day, allFriends, friendsSearchQuery ->
         if (_tempDay.value == null) _tempDay.value = day
         day?.let { it.toEditState(friendsMapper, allFriends, friendsSearchQuery) }

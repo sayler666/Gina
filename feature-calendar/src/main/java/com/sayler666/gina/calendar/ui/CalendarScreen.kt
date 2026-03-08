@@ -10,14 +10,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewEvent.OnShowBottomBar
-import java.time.LocalDate
+import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.ui.LocalNavigator
 
 @Composable
 fun CalendarScreen(
     viewModel: CalendarViewModel,
-    onDayClick: (Int) -> Unit,
-    onEmptyDayClick: (LocalDate) -> Unit,
 ) {
+    val navigator = LocalNavigator.current
     val days by viewModel.days.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -27,8 +27,8 @@ fun CalendarScreen(
                     CalendarVertical(
                         padding,
                         days,
-                        onDayClick = { day -> onDayClick(day.id) },
-                        onEmptyDayClick = onEmptyDayClick,
+                        onDayClick = { day -> navigator.navigate(Route.DayDetails(day.id)) },
+                        onEmptyDayClick = { date -> navigator.navigate(Route.AddDay(date)) },
                         onScrollTop = { viewModel.onViewEvent(OnHideBottomBar) },
                         onScrollBottom = { viewModel.onViewEvent(OnShowBottomBar) },
                     )

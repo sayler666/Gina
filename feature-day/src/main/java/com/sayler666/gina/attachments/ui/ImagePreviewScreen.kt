@@ -60,18 +60,23 @@ import com.sayler666.gina.attachments.viewmodel.ImagePreviewTmpViewModel
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewViewModel
 import com.sayler666.gina.attachments.viewmodel.ImagePreviewWithDayEntity
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
 
 @Composable
 fun ImagePreviewScreen(
-    viewModel: ImagePreviewViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToDayDetails: (Int) -> Unit,
+    attachmentId: Int,
+    allowNavigationToDayDetails: Boolean,
 ) {
+    val viewModel: ImagePreviewViewModel = hiltViewModel<ImagePreviewViewModel, ImagePreviewViewModel.Factory>(key = attachmentId.toString()) {
+        it.create(attachmentId, allowNavigationToDayDetails)
+    }
     val context = LocalContext.current
+    val navigator = LocalNavigator.current
     StatusBarColor(color = Color.Transparent, theme = null)
     NavigationBarColor(color = Color.Transparent, theme = null)
 
@@ -83,7 +88,7 @@ fun ImagePreviewScreen(
     var navigationBarVisible by remember { mutableStateOf(false) }
     fun onBackPressed() {
         navigationBarVisible = true
-        onNavigateBack()
+        navigator.back()
     }
     BackHandler(enabled = true) { onBackPressed() }
     if (navigationBarVisible) NavigationBarColor(theme = null)
@@ -106,7 +111,7 @@ fun ImagePreviewScreen(
                 attachmentPreviewWithDayEntity = it,
                 allowNavigationToDayDetails = viewModel.allowNavigationToDayDetails,
                 onBackClick = ::onBackPressed,
-                onNavigateToDayDetails = onNavigateToDayDetails
+                onNavigateToDayDetails = { dayId -> navigator.navigate(Route.DayDetails(dayId)) }
             )
 
             ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
@@ -118,8 +123,12 @@ fun ImagePreviewScreen(
 
 @Composable
 fun ImagePreviewTmpScreen(
-    viewModel: ImagePreviewTmpViewModel = hiltViewModel(),
+    image: ByteArray,
+    mimeType: String,
 ) {
+    val viewModel: ImagePreviewTmpViewModel = hiltViewModel<ImagePreviewTmpViewModel, ImagePreviewTmpViewModel.Factory> {
+        it.create(image, mimeType)
+    }
     val context = LocalContext.current
     StatusBarColor(color = Color.Transparent, theme = null)
     NavigationBarColor(color = Color.Transparent, theme = null)

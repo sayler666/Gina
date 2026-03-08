@@ -58,11 +58,11 @@ import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files
 import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.domain.model.Way.NEXT
+import com.sayler666.domain.model.Way.PREVIOUS
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.FileThumbnail
 import com.sayler666.gina.attachments.ui.ImageThumbnail
-import com.sayler666.gina.dayDetails.ui.Way.NEXT
-import com.sayler666.gina.dayDetails.ui.Way.PREVIOUS
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsState
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction
@@ -82,34 +82,29 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnR
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.navigation.Navigator
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
 
-enum class Way {
-    NEXT, PREVIOUS, NONE
-}
 
 @Composable
 fun DayDetailsScreen(
-    onNavigateBack: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit,
-    onNavigateToDay: (Int, Way) -> Unit,
-    onNavigateToAttachment: (Int) -> Unit,
+    dayId: Int,
 ) {
-    val viewModel: DayDetailsViewModel = hiltViewModel()
+    val viewModel: DayDetailsViewModel = hiltViewModel<DayDetailsViewModel, DayDetailsViewModel.Factory>(key = dayId.toString()) { it.create(dayId) }
     val viewState: DayDetailsState? = viewModel.viewState.collectAsStateWithLifecycle().value
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val navigator = LocalNavigator.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         onViewAction(
             action = action,
-            onNavigateBack = onNavigateBack,
-            onNavigateToEdit = onNavigateToEdit,
-            onNavigateToDay = onNavigateToDay,
-            onNavigateToAttachment = onNavigateToAttachment,
+            navigator = navigator,
             snackbarHostState = snackbarHostState,
         )
     }
@@ -208,22 +203,19 @@ private fun Content(
 
 private suspend fun onViewAction(
     action: ViewAction,
-    onNavigateBack: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit,
-    onNavigateToDay: (Int, Way) -> Unit,
-    onNavigateToAttachment: (Int) -> Unit,
+    navigator: Navigator,
     snackbarHostState: SnackbarHostState,
 ) {
     when (action) {
-        Back -> onNavigateBack()
-        is NavToNextDay -> onNavigateToDay(action.dayId, NEXT)
-        is NavToPreviousDay -> onNavigateToDay(action.dayId, PREVIOUS)
+        Back -> navigator.back()
+        is NavToNextDay -> navigator.replace(Route.DayDetails(action.dayId, NEXT))
+        is NavToPreviousDay -> navigator.replace(Route.DayDetails(action.dayId, PREVIOUS))
         is ShowSnackBar -> snackbarHostState.showSnackbar(
             message = action.message,
             duration = SnackbarDuration.Short
         )
-        is NavToDayDetails -> onNavigateToEdit(action.dayId)
-        is NavToAttachment -> onNavigateToAttachment(action.attachmentId)
+        is NavToDayDetails -> navigator.navigate(Route.DayDetailsEdit(action.dayId))
+        is NavToAttachment -> navigator.navigate(Route.ImagePreview(action.attachmentId, allowNavigationToDayDetails = false))
     }
 }
 

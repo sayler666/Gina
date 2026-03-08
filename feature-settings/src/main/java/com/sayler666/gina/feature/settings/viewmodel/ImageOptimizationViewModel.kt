@@ -28,13 +28,14 @@ class ImageOptimizationViewModelImpl @Inject constructor(
 
     private val _tempImageOptimizationSettings: MutableStateFlow<ImageOptimization.OptimizationSettings> =
         MutableStateFlow(ImageOptimization.OptimizationSettings())
-    override val imageOptimizationSettings: StateFlow<ImageOptimization.OptimizationSettings?>
-        get() = setting.getImageCompressorSettingsFlow().map {
+    override val imageOptimizationSettings: StateFlow<ImageOptimization.OptimizationSettings?> by lazy {
+        setting.getImageCompressorSettingsFlow().map {
             _tempImageOptimizationSettings.value = it
             it
         }.stateIn(
             sliceScope, SharingStarted.WhileSubscribed(500), null
         )
+    }
 
     override fun setNewImageQuality(quality: Int) {
         val settings = _tempImageOptimizationSettings.value

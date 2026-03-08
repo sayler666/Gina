@@ -19,76 +19,53 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.sayler666.core.file.Files
 import com.sayler666.gina.R.string.select_database_grant_permission
 import com.sayler666.gina.R.string.select_database_open_database
 import com.sayler666.gina.core.permission.Permissions
-import com.sayler666.gina.destinations.JournalScreenDestination
-import com.sayler666.gina.destinations.SelectDatabaseScreenDestination
+import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
+import com.sayler666.gina.ui.LocalNavigator
 import kotlinx.coroutines.flow.collectLatest
 
-@RootNavGraph(start = true)
-@com.ramcosta.composedestinations.annotation.Destination
 @Composable
 fun SelectDatabaseScreen(
-    destinationsNavigator: DestinationsNavigator,
     viewModel: SelectDatabaseViewModel = hiltViewModel()
 ) {
+    val navigator = LocalNavigator.current
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateToHome.collectLatest {
-            destinationsNavigator.navigate(JournalScreenDestination, builder = {
-                popUpTo(SelectDatabaseScreenDestination) { inclusive = true }
-            })
-        }
-    }
-    val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
-        it.data?.data?.path?.let { path -> viewModel.openDatabase(path) }
+        viewModel.navigateToHome.collectLatest { navigator.navigateToRoot(Route.Journal) }
     }
 
-    val permissionsResult = rememberLauncherForActivityResult(StartActivityForResult()) {
+    val databaseResult = rememberLauncherForActivityResult(contract = StartActivityForResult()) { result ->
+        result.data?.data?.path?.let { path -> viewModel.openDatabase(path) }
+    }
+    val permissionsResult = rememberLauncherForActivityResult(contract = StartActivityForResult()) {
         viewModel.refreshPermissionStatus()
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         if (permissionGranted.not()) {
             Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                onClick = {
-                    permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent())
-                },
+                onClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
             ) {
-                Text(
-                    style = typography.labelLarge,
-                    text = stringResource(select_database_grant_permission)
-                )
+                Text(style = typography.labelLarge, text = stringResource(select_database_grant_permission))
             }
         } else {
             Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                onClick = {
-                    databaseResult.launch(Files.selectFileIntent())
-                },
+                onClick = { databaseResult.launch(Files.selectFileIntent()) },
             ) {
-                Text(
-                    style = typography.labelLarge,
-                    text = stringResource(select_database_open_database)
-                )
+                Text(style = typography.labelLarge, text = stringResource(select_database_open_database))
             }
         }
     }
-
 }
