@@ -103,6 +103,3 @@ Both day-edit VMs inject `ImageOptimizationViewModel` and delegate via Kotlin's 
 
 ### 5. Extract `Journal` feature out of `:app` into `:feature-journal`
 `JournalScreen`, `JournalViewModel`, `JournalMapper`, `JournalState`, and `PreviousYearsAttachmentsUseCase` live in `:app`, violating the rule that `:app` is for navigation wiring only. Create `:feature-journal` following the same pattern as other feature modules.
-
-### 6. Move `Route.shouldShowScaffoldElements` logic to `:navigation`
-`GinaApp.kt` contains a `when` expression hardcoding which routes show the scaffold/bottom bar. This belongs as a property on the `Route` sealed interface in `:navigation`, keeping route metadata co-located with the route definitions.
