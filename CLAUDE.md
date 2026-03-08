@@ -10,19 +10,25 @@ Feature-complete — no new features planned.
 - Firebase: Crashlytics
 
 ## Current Module Structure
-- `:app` — navigation wiring, DI graph, MainActivity, `GinaApp` + `NavDisplay`, thin route wrappers
-- `:core` — pure Kotlin utils only (no Compose)
-- `:core-ui` — Compose only — shared components, theme, modifiers
-- `:data-database` — Room, DAOs, entities, repositories, use cases
-- `:domain-model` — pure Kotlin models, no logic
+- `:app` — navigation wiring, DI graph, MainActivity, `GinaApp` + `NavDisplay`, thin route wrappers; also hosts `Journal` feature (not yet extracted: `JournalScreen`, `JournalViewModel`, `JournalMapper`, `JournalState`, `PreviousYearsAttachmentsUseCase`), `SelectDatabase` screen+VM, `GameOfLife` screen+VM, and `RemindersViewModelImpl`
+- `:core` — pure Kotlin utils only (no Compose); includes `ViewModelSlice`, `BottomNavigationVisibilityManager`, `BottomBarState`
+- `:core-ui` — Compose only — shared components, theme, modifiers; includes `LocalNavigator`, `NavigationBarColor`, `BOTTOM_NAV_HEIGHT`, `AttachmentState`
+- `:data-database` — Room, DAOs, entities, `JournalRepository` (days + attachments + friends + mood analytics), use cases; includes `GinaDatabaseProvider`, `DatabaseSettingsStorage`, `GetDaysUseCase`
+- `:domain-model` — pure Kotlin models, no logic; includes `Way` enum
 - `:feature-calendar` — calendar UI and ViewModel
-- `:feature-day` — day details, day edit, add day, image preview, attachments, working copy, mood
-- `:feature-friends` — friends UI, ViewModels, and use cases
-- `:feature-gallery` — gallery UI, ViewModel, and image thumbnail repository
-- `:feature-insights` — insights UI, ViewModels, and use cases
-- `:feature-settings` — settings UI and logic
-- `:navigation` — `Route` sealed interface (all routes), `Navigator` backstack manager
+- `:feature-day` — day details, day edit, add day, image preview, attachments, working copy, mood; use cases live under `dayDetails/usecase/`; `DayQuoteProvider` + `ReminderDismissUseCase` interfaces defined here, bound in app's `DayProvidersModule`
+- `:feature-friends` — friends UI, ViewModels, use cases (`Add/Delete/Edit/GetAll/GetAllByRecent/GetFriend`), `FriendsMapper`, `FriendsPicker`
+- `:feature-gallery` — gallery UI, ViewModel, `ImageAttachmentsRepository`, thumbnail handling
+- `:feature-insights` — insights UI, ViewModels, use cases (`GetAvgMoodByMonthsUseCase`, `GetAvgMoodByWeeksUseCase`); cross-feature deps on `:feature-friends` and `:feature-calendar`
+- `:feature-settings` — settings UI, `AppSettings`, `SettingsStorage`, `ImageOptimizationViewModel`, `RemindersViewModel` interface + `ReminderState`
+- `:navigation` — `Route` sealed interface (all routes), `ImagePreviewSource` sealed interface, `Navigator` backstack manager
 - `:build-logic` — Gradle convention plugins
+
+## All Routes (`Route` sealed interface in `:navigation`)
+Bottom nav roots: `Journal`, `Calendar`, `Gallery`, `Insights`, `Settings`
+Other screens: `SelectDatabase`, `ManageFriends`, `GameOfLife`
+Parameterised: `DayDetails(dayId, way)`, `DayDetailsEdit(dayId)`, `AddDay(date?)`, `ImagePreview(initialAttachmentId, source)`, `ImagePreviewTmp(image, mimeType)`
+Supporting: `ImagePreviewSource` — `Gallery`, `Day(dayId, attachmentIds)`, `Journal(attachmentIds)`
 
 ## Module Dependency Rules
 - `:domain-model` → no dependencies
@@ -80,3 +86,23 @@ Feature-complete — no new features planned.
 - Room schema — breakage loses user data
 - `GinaDatabaseProvider` — DB initialization flow
 - Firebase configuration
+
+## Refactoring Plan (prioritised)
+
+### 1. Extract `DayEditingViewModelSlice` — eliminate attachment/friend duplication
+`AddDayViewModel` and `DayDetailsEditViewModel` share ~100 lines of identical logic: `addAttachments`, `removeAttachment`, `optimizeAttachment`, friend search/select, working copy integration. Extract into a `ViewModelSlice` (pattern already exists in `:core`) consumed by both VMs.
+
+### 2. Split `DayDetailsEditScreen.kt` (629 lines) and relocate shared composables
+The file owns too many concerns (text editing, attachment picker, friend picker, mood picker, date picker, formatting toolbar). Several composables it defines (`TopBar`, `SaveFab`, `AttachmentsButton`, `Friends`, `Mood`, `TextFormat`) are already imported by `AddDayScreen.kt`. Extract them into a dedicated `DayEditingComponents.kt` within the same package.
+
+### 3. Split `JournalRepository` by domain (305 lines, 4 concerns)
+`JournalRepository` handles days, attachments, friends, and mood analytics. Split into `DayRepository`, `AttachmentRepository`, `FriendsRepository`, and `MoodAnalyticsRepository` — each with a focused interface and a single DAO dependency.
+
+### 4. Replace `ImageOptimizationViewModel` delegation with composition
+Both day-edit VMs inject `ImageOptimizationViewModel` and delegate via Kotlin's `by` keyword, then manually call `initialize()` — defeating the purpose of delegation and mixing VM lifecycles. Replace with composition: consume the settings `StateFlow` directly, or push the settings into a plain repository.
+
+### 5. Extract `Journal` feature out of `:app` into `:feature-journal`
+`JournalScreen`, `JournalViewModel`, `JournalMapper`, `JournalState`, and `PreviousYearsAttachmentsUseCase` live in `:app`, violating the rule that `:app` is for navigation wiring only. Create `:feature-journal` following the same pattern as other feature modules.
+
+### 6. Move `Route.shouldShowScaffoldElements` logic to `:navigation`
+`GinaApp.kt` contains a `when` expression hardcoding which routes show the scaffold/bottom bar. This belongs as a property on the `Route` sealed interface in `:navigation`, keeping route metadata co-located with the route definitions.

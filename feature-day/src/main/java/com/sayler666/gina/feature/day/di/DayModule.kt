@@ -6,10 +6,10 @@ import com.sayler666.gina.attachments.usecase.GetAttachmentIdsBySourceUseCase
 import com.sayler666.gina.attachments.usecase.GetAttachmentIdsBySourceUseCaseImpl
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCaseImpl
-import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
-import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCaseImpl
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCaseUseCaseImpl
+import com.sayler666.gina.dayDetails.usecase.GetDayDetailsUseCase
+import com.sayler666.gina.dayDetails.usecase.GetDayDetailsUseCaseImpl
+import com.sayler666.gina.dayDetails.usecase.GetNextPreviousIdDayUseCase
+import com.sayler666.gina.dayDetails.usecase.GetNextPreviousIdDayUseCaseUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase

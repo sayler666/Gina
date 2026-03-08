@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.attachments.ui.AttachmentState
-import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
-import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
+import com.sayler666.gina.dayDetails.usecase.GetDayDetailsUseCase
+import com.sayler666.gina.dayDetails.usecase.GetNextPreviousIdDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails

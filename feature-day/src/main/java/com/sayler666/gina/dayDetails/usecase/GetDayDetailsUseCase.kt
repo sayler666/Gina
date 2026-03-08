@@ -1,4 +1,4 @@
-package com.sayler666.gina.dayDetails.usecaase
+package com.sayler666.gina.dayDetails.usecase
 
 import com.sayler666.data.database.db.journal.JournalRepository
 import com.sayler666.domain.model.journal.DayDetails
