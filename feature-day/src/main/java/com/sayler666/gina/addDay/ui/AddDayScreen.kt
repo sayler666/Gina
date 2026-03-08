@@ -90,7 +90,10 @@ const val ADD_DAY_URL = "gina://add_day"
 fun AddDayScreen(
     date: LocalDate?,
 ) {
-    val viewModel: AddDayViewModel = hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = date.toString()) { it.create(date) }
+    val viewModel: AddDayViewModel =
+        hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = date.toString()) {
+            it.create(date)
+        }
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
@@ -137,7 +140,7 @@ fun AddDayScreen(
     )
 }
 
-private suspend fun onViewAction(
+private fun onViewAction(
     action: ViewAction,
     navigator: com.sayler666.gina.navigation.Navigator,
     addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
@@ -147,7 +150,9 @@ private suspend fun onViewAction(
     when (action) {
         Back -> navigator.back()
 
-        is NavToAttachment -> navigator.navigate(Route.ImagePreviewTmp(action.image, action.mimeType))
+        is NavToAttachment -> navigator.navigate(
+            Route.ImagePreviewTmp(action.image, action.mimeType)
+        )
 
         ShowAttachmentPicker -> {
             addAttachmentLauncher.launch(addAttachmentRequest)
@@ -342,9 +347,7 @@ fun AttachmentsRow(
                 is AttachmentImageState -> ImageThumbnail(
                     state = attachment,
                     onClick = {
-                        attachment.content.let { image ->
-                            viewEvent(OnAttachmentPressed(image, attachment.mimeType))
-                        }
+                        viewEvent(OnAttachmentPressed(attachment.content, attachment.mimeType))
                     },
                     onRemoveClicked = {
                         viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
@@ -353,11 +356,9 @@ fun AttachmentsRow(
                 is AttachmentNonImageState -> FileThumbnail(
                     state = attachment,
                     onClick = {
-                        attachment.content.let { image ->
-                            openFileIntent(
-                                context, image, attachment.mimeType
-                            )
-                        }
+                        openFileIntent(
+                            context, attachment.content, attachment.mimeType
+                        )
                     },
                     onRemoveClicked = {
                         viewEvent(OnAttachmentRemove(attachment.content.hashCode()))

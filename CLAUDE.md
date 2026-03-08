@@ -89,11 +89,8 @@ Supporting: `ImagePreviewSource` — `Gallery`, `Day(dayId, attachmentIds)`, `Jo
 
 ## Refactoring Plan (prioritised)
 
-### 1. Extract `DayEditingViewModelSlice` — eliminate attachment/friend duplication
-`AddDayViewModel` and `DayDetailsEditViewModel` share ~100 lines of identical logic: `addAttachments`, `removeAttachment`, `optimizeAttachment`, friend search/select, working copy integration. Extract into a `ViewModelSlice` (pattern already exists in `:core`) consumed by both VMs.
-
-### 2. Split `JournalRepository` by domain (305 lines, 4 concerns)
+### 1. Split `JournalRepository` by domain (305 lines, 4 concerns)
 `JournalRepository` handles days, attachments, friends, and mood analytics. Split into `DayRepository`, `AttachmentRepository`, `FriendsRepository`, and `MoodAnalyticsRepository` — each with a focused interface and a single DAO dependency.
 
-### 3. Extract `Journal` feature out of `:app` into `:feature-journal`
+### 2. Extract `Journal` feature out of `:app` into `:feature-journal`
 `JournalScreen`, `JournalViewModel`, `JournalMapper`, `JournalState`, and `PreviousYearsAttachmentsUseCase` live in `:app`, violating the rule that `:app` is for navigation wiring only. Create `:feature-journal` following the same pattern as other feature modules.
