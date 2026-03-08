@@ -26,8 +26,7 @@ dependencies {
     // Compose extras
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.richeditor.compose)
-    implementation(libs.accompanist.systemuicontroller)
-
     // Other
     implementation(libs.timber)
+    implementation(libs.haze)
 }

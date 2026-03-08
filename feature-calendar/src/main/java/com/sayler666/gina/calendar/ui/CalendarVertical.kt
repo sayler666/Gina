@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -154,13 +155,18 @@ private fun CalendarDay(
             modifier = Modifier
                 .aspectRatio(1.22f)
                 .padding(4.dp)
-                .clip(shape = RoundedCornerShape(size = 8.dp))
+                .clip(shape = RoundedCornerShape(size = 32.dp))
                 .conditional(day.date == today) {
                     border(
-                        width = 1.dp,
-                        color = currentDayColor,
-                        shape = RoundedCornerShape(8.dp)
-                    ).background(currentDayColor.copy(alpha = 0.1f))
+                        width = 0.5.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.29f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = RoundedCornerShape(32.dp)
+                    )
                 }
                 .conditional(isSelected) {
                     border(

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,17 +43,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.core.compose.plus
+import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodLevel
@@ -109,8 +116,9 @@ fun InsightsScreen() {
         },
         content = { padding ->
             InsightsContent(
-                Modifier.padding(top = padding.calculateTopPadding()),
-                state
+                modifier = Modifier.padding(top = padding.calculateTopPadding()),
+                state = state,
+                viewModel::onViewEvent
             )
         })
 }
@@ -118,10 +126,21 @@ fun InsightsScreen() {
 @Composable
 private fun InsightsContent(
     modifier: Modifier = Modifier,
-    state: InsightState
+    state: InsightState,
+    onViewEvent: (ViewEvent) -> Unit
 ) {
+    val listState = rememberLazyListState()
+    val nestedScrollConnection = rememberScrollConnection(
+        onScrollDown = { onViewEvent(OnHideBottomBar) },
+        onScrollUp = { onViewEvent(OnShowBottomBar) }
+    )
+
+    LaunchedEffect(!listState.canScrollForward) {
+        onViewEvent(OnShowBottomBar)
+    }
     Column(
         modifier
+            .nestedScroll(nestedScrollConnection)
             .fillMaxSize()
             .imePadding(),
     ) {

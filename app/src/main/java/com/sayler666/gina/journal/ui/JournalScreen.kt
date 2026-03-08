@@ -92,7 +92,10 @@ fun JournalScreen() {
             is NavToAttachmentPreview -> navigator.navigate(
                 Route.ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
             )
-            NavToManageAllFilesSettings -> permissionsLauncher.launch(getManageAllFilesSettingsIntent())
+
+            NavToManageAllFilesSettings -> permissionsLauncher.launch(
+                getManageAllFilesSettingsIntent()
+            )
         }
     }
 
@@ -216,8 +219,7 @@ private fun DayList(
 
     val daysGrouped = days.groupBy { it.header }
     LazyColumn(
-        Modifier
-            .nestedScroll(nestedScrollConnection),
+        Modifier.nestedScroll(nestedScrollConnection),
         state = listState
     ) {
         item {
@@ -238,7 +240,9 @@ private fun DayList(
             ) { dayRowState ->
                 DayRow(
                     state = dayRowState,
-                    modifier = Modifier.animateItem().hazeSource(hazeState),
+                    modifier = Modifier
+                        .animateItem()
+                        .hazeSource(hazeState),
                     onClick = { onViewEvent(OnDayClick(dayRowState.id)) }
                 )
             }

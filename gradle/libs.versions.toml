@@ -2,7 +2,7 @@
 
 # Android SDK
 minSdk = "33"
-targetSdk = "34"
+targetSdk = "36"
 compileSdk = "36"
 agp = "9.1.0"
 

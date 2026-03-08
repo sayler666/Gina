@@ -32,7 +32,6 @@ dependencies {
 
     // Accompanist
     implementation(libs.accompanist.permissions)
-    implementation(libs.accompanist.systemuicontroller)
 
     // Other
     implementation(libs.timber)

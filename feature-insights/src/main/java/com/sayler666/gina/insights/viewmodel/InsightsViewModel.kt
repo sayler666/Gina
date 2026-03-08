@@ -11,7 +11,9 @@ import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCase
 import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCase
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,6 +67,8 @@ class InsightsViewModel @Inject constructor(
         when (event) {
             OnLockBottomBar -> bottomNavigationVisibilityManager.lockHide()
             OnUnlockBottomBar -> bottomNavigationVisibilityManager.unlockAndShow()
+            OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
+            OnShowBottomBar -> bottomNavigationVisibilityManager.show()
         }
     }
 
@@ -132,6 +136,8 @@ class InsightsViewModel @Inject constructor(
 
     sealed interface ViewEvent {
         // TODO add rest of the events
+        data object OnHideBottomBar : ViewEvent
+        data object OnShowBottomBar : ViewEvent
         data object OnLockBottomBar : ViewEvent
         data object OnUnlockBottomBar : ViewEvent
     }

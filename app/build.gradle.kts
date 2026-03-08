@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.richeditor.compose)
 
     // Accompanist
-    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.permissions)
 
     // Room

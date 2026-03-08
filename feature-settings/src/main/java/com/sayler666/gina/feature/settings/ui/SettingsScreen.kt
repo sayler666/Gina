@@ -41,19 +41,15 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.feature.settings.viewmodel.ThemeItem
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
-import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
-import com.sayler666.gina.ui.theme.Theme
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(
-    theme: Theme?,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val navigator = LocalNavigator.current
-    NavigationBarColor(theme = theme)
     val context = LocalContext.current
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
     val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()

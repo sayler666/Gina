@@ -73,7 +73,6 @@ import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
-import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
 
@@ -95,7 +94,6 @@ fun ImagePreviewScreen(
     val navigator = LocalNavigator.current
 
     StatusBarColor(color = Color.Transparent, theme = null)
-    NavigationBarColor(color = Color.Transparent, theme = null)
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     var barsVisible by rememberSaveable { mutableStateOf(true) }
@@ -106,7 +104,6 @@ fun ImagePreviewScreen(
         viewModel.onViewEvent(OnBackPressed)
     }
     BackHandler(enabled = true) { onBackPressed() }
-    if (navigationBarVisible) NavigationBarColor(theme = null)
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
@@ -220,7 +217,6 @@ fun ImagePreviewTmpScreen(
         }
     val context = LocalContext.current
     StatusBarColor(color = Color.Transparent, theme = null)
-    NavigationBarColor(color = Color.Transparent, theme = null)
 
     val imagePreview: ImagePreviewTmpEntity? by viewModel.imagePreview.collectAsStateWithLifecycle(null)
     var barsVisible by rememberSaveable { mutableStateOf(false) }
