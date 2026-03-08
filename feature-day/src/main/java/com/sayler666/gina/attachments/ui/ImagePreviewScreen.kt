@@ -46,6 +46,7 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.compose.Top
 import com.sayler666.core.compose.conditional
@@ -63,6 +64,7 @@ import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.ZoomableBox
@@ -114,7 +116,7 @@ fun ImagePreviewScreen(
                 onNavigateToDayDetails = { dayId -> navigator.navigate(Route.DayDetails(dayId)) }
             )
 
-            ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
+            ZoomablePreview(zoomableBox, attachmentId, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
 
             BottomBar(barsVisible, bottomBar, context, it)
         }
@@ -149,7 +151,7 @@ fun ImagePreviewTmpScreen(
             // constraints refs
             val (zoomableBox, bottomBar) = createRefs()
 
-            ZoomablePreview(zoomableBox, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
+            ZoomablePreview(zoomableBox, null, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
 
             BottomBar(barsVisible, bottomBar, context, it)
         }
@@ -159,20 +161,27 @@ fun ImagePreviewTmpScreen(
 @Composable
 private fun ConstraintLayoutScope.ZoomablePreview(
     zoomableBox: ConstrainedLayoutReference,
+    attachmentId: Int?,
     scaledBitmapInfo: ScaledBitmapInfo,
     onClick: () -> Unit
 ) {
+    val sharedScope = LocalSharedTransitionScope.current
+    val sharedElementModifier: Modifier = if (sharedScope != null && attachmentId != null) {
+        val state = sharedScope.rememberSharedContentState("attachment_$attachmentId")
+        val animScope = LocalNavAnimatedContentScope.current
+        with(sharedScope) { Modifier.sharedElement(sharedContentState = state, animatedVisibilityScope = animScope) }
+    } else Modifier
+
     ZoomableBox(
         modifier = Modifier
             .fillMaxWidth()
+            .then(sharedElementModifier)
             .constrainAs(zoomableBox) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
                 bottom.linkTo(parent.bottom)
                 height = Dimension.fillToConstraints
             },
-        originalImageHeight = scaledBitmapInfo.height,
-        originalImageWidth = scaledBitmapInfo.width,
         click = onClick
     ) {
         Image(

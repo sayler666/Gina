@@ -25,7 +25,9 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.rememberAsyncImagePainter
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -73,6 +75,16 @@ fun ImageThumbnail(
     onRemoveClicked: (() -> Unit)? = null,
     size: Dp = 65.dp
 ) {
+    val sharedScope = LocalSharedTransitionScope.current
+    val imageModifier: Modifier = if (sharedScope != null && state.id != null) {
+        val sharedState = sharedScope.rememberSharedContentState("attachment_${state.id}")
+        val animScope = LocalNavAnimatedContentScope.current
+        with(sharedScope) {
+            Modifier
+                .fillMaxSize()
+                .sharedElement(sharedContentState = sharedState, animatedVisibilityScope = animScope)
+        }
+    } else Modifier.fillMaxSize()
     Card(
         Modifier
             .size(size)
@@ -81,11 +93,11 @@ fun ImageThumbnail(
                 onClick = { onClick() },
                 onLongClick = { onRemoveClicked?.invoke() }
             ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Image(
-            modifier = Modifier.fillMaxSize(),
+            modifier = imageModifier,
             contentScale = ContentScale.Crop,
             painter = rememberAsyncImagePainter(state.content),
             contentDescription = "",
@@ -102,6 +114,17 @@ fun PreviousYearsAttachmentThumbnail(
     onRemoveClicked: (() -> Unit)? = null,
     size: Dp = 125.dp
 ) {
+    val sharedScope = LocalSharedTransitionScope.current
+    val imageModifier: Modifier = if (sharedScope != null && state.id != null) {
+        val sharedState = sharedScope.rememberSharedContentState("attachment_${state.id}")
+        val animScope = LocalNavAnimatedContentScope.current
+        with(sharedScope) {
+            Modifier
+                .fillMaxSize()
+                .sharedElement(sharedContentState = sharedState, animatedVisibilityScope = animScope)
+        }
+    } else Modifier.fillMaxSize()
+
     Card(
         Modifier
             .height(size)
@@ -111,7 +134,7 @@ fun PreviousYearsAttachmentThumbnail(
                 onClick = { onClick() },
                 onLongClick = { onRemoveClicked?.invoke() }
             ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Box(
@@ -119,7 +142,7 @@ fun PreviousYearsAttachmentThumbnail(
                 .fillMaxSize()
         ) {
             Image(
-                modifier = Modifier.fillMaxSize(),
+                modifier = imageModifier,
                 contentScale = ContentScale.Crop,
                 painter = rememberAsyncImagePainter(state.content),
                 contentDescription = "",

@@ -20,6 +20,9 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
+    // Navigation3
+    implementation(libs.navigation3.ui)
+
     // Compose extras
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.richeditor.compose)
