@@ -82,6 +82,7 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnR
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.DayTitle
@@ -95,7 +96,10 @@ import kotlinx.coroutines.delay
 fun DayDetailsScreen(
     dayId: Int,
 ) {
-    val viewModel: DayDetailsViewModel = hiltViewModel<DayDetailsViewModel, DayDetailsViewModel.Factory>(key = dayId.toString()) { it.create(dayId) }
+    val viewModel: DayDetailsViewModel =
+        hiltViewModel<DayDetailsViewModel, DayDetailsViewModel.Factory>(key = dayId.toString()) {
+            it.create(dayId)
+        }
     val viewState: DayDetailsState? = viewModel.viewState.collectAsStateWithLifecycle().value
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -132,50 +136,50 @@ private fun Content(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
-        state?.let {
-            TopAppBar(title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
-                }
-            }, navigationIcon = {
-                IconButton(onClick = { viewEvent(OnBackPressed) }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                }
-            }, actions = {
-                state.mood.mapToMoodIcon().let { icon ->
-                    Icon(
-                        rememberVectorPainter(image = icon.icon),
-                        tint = icon.color,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-                IconButton(onClick = {
-                    viewEvent(OnDayDetailsPressed)
-                }) {
-                    Icon(Icons.Filled.Edit, null)
-                }
-            })
-        }
-    }, content = { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-        ) {
             state?.let {
-                AttachmentsRow(state, viewEvent)
-                Text(state)
+                TopAppBar(title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
+                    }
+                }, navigationIcon = {
+                    IconButton(onClick = { viewEvent(OnBackPressed) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                }, actions = {
+                    state.mood.mapToMoodIcon().let { icon ->
+                        Icon(
+                            rememberVectorPainter(image = icon.icon),
+                            tint = icon.color,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    IconButton(onClick = {
+                        viewEvent(OnDayDetailsPressed)
+                    }) {
+                        Icon(Icons.Filled.Edit, null)
+                    }
+                })
             }
-        }
-    }, bottomBar = {
-        state?.let {
-            FriendsRow(state.friends)
-        }
-    }, modifier = Modifier
+        }, content = { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                state?.let {
+                    AttachmentsRow(state, viewEvent)
+                    Text(state)
+                }
+            }
+        }, bottomBar = {
+            state?.let {
+                FriendsRow(state.friends)
+            }
+        }, modifier = Modifier
             .onKeyEvent {
                 if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
                 when (it.key) {
@@ -193,7 +197,8 @@ private fun Content(
                 }
             }
             .focusRequester(requester)
-            .focusable())
+            .focusable()
+    )
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -214,8 +219,14 @@ private suspend fun onViewAction(
             message = action.message,
             duration = SnackbarDuration.Short
         )
+
         is NavToDayDetails -> navigator.navigate(Route.DayDetailsEdit(action.dayId))
-        is NavToAttachment -> navigator.navigate(Route.ImagePreview(action.attachmentId, allowNavigationToDayDetails = false))
+        is NavToAttachment -> navigator.navigate(
+            Route.ImagePreview(
+                action.attachmentId,
+                ImagePreviewSource.Day(action.dayId, action.attachmentIds)
+            )
+        )
     }
 }
 
@@ -244,9 +255,10 @@ private fun AttachmentsRow(
 ) {
     if (state.attachments.isNotEmpty()) {
         val context = LocalContext.current
-        FlowRow(modifier = Modifier
-            .padding(16.dp, 0.dp)
-            .padding(top = 16.dp)
+        FlowRow(
+            modifier = Modifier
+                .padding(16.dp, 0.dp)
+                .padding(top = 16.dp)
         ) {
             state.attachments.forEach { attachment ->
                 when (attachment) {

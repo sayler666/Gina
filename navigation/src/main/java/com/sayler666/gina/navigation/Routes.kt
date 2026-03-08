@@ -3,6 +3,12 @@ package com.sayler666.gina.navigation
 import com.sayler666.domain.model.Way
 import java.time.LocalDate
 
+sealed interface ImagePreviewSource {
+    data object Gallery : ImagePreviewSource
+    data class Day(val dayId: Int, val attachmentIds: List<Int>) : ImagePreviewSource
+    data class Journal(val attachmentIds: List<Int>) : ImagePreviewSource
+}
+
 sealed interface Route {
     // Bottom nav roots
     data object Journal : Route
@@ -20,8 +26,8 @@ sealed interface Route {
     data class DayDetailsEdit(val dayId: Int) : Route
     data class AddDay(val date: LocalDate? = null) : Route
     data class ImagePreview(
-        val attachmentId: Int,
-        val allowNavigationToDayDetails: Boolean = true
+        val initialAttachmentId: Int,
+        val source: ImagePreviewSource,
     ) : Route
     data class ImagePreviewTmp(val image: ByteArray, val mimeType: String) : Route
 }

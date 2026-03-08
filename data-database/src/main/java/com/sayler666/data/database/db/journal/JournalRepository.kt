@@ -250,6 +250,20 @@ class JournalRepository @Inject constructor(
         emptyList()
     }
 
+    suspend fun getAllImageAttachmentIds(): List<Int> = try {
+        ginaDatabaseProvider.returnWithDaysDao { getAllImageAttachmentIds() } ?: emptyList()
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        emptyList()
+    }
+
+    suspend fun getImageAttachmentIdsForDay(dayId: Int): List<Int> = try {
+        ginaDatabaseProvider.returnWithDaysDao { getImageAttachmentIdsForDay(dayId) } ?: emptyList()
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        emptyList()
+    }
+
     suspend fun getImage(id: Int): Attachment? = try {
         ginaDatabaseProvider.returnWithDaysDao {
             getImage(id).toModel()

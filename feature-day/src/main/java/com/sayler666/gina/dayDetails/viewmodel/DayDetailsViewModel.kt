@@ -3,6 +3,7 @@ package com.sayler666.gina.dayDetails.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.usecaase.GetNextPreviousIdDayUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
@@ -65,7 +66,14 @@ class DayDetailsViewModel @AssistedInject constructor(
             OnNextDayPressed -> goToNextDay()
             OnPreviousDayPressed -> goToPreviousDay()
             OnDayDetailsPressed -> mutableViewActions.trySend(NavToDayDetails(dayId))
-            is OnAttachmentPressed -> mutableViewActions.trySend(NavToAttachment(event.attachmentId))
+            is OnAttachmentPressed -> {
+                val imageIds = mutableViewState.value
+                    ?.attachments
+                    ?.filterIsInstance<AttachmentState.AttachmentImageState>()
+                    ?.mapNotNull { it.id }
+                    ?: emptyList()
+                mutableViewActions.trySend(NavToAttachment(event.attachmentId, dayId, imageIds))
+            }
         }
     }
 
@@ -103,7 +111,7 @@ class DayDetailsViewModel @AssistedInject constructor(
     }
 
     sealed interface ViewAction {
-        data class NavToAttachment(val attachmentId: Int) : ViewAction
+        data class NavToAttachment(val attachmentId: Int, val dayId: Int, val attachmentIds: List<Int>) : ViewAction
         data class NavToDayDetails(val dayId: Int) : ViewAction
         data class NavToNextDay(val dayId: Int) : ViewAction
         data class NavToPreviousDay(val dayId: Int) : ViewAction

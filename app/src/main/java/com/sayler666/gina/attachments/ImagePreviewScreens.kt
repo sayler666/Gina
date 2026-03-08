@@ -8,8 +8,8 @@ import com.sayler666.gina.attachments.ui.ImagePreviewTmpScreen as FeatureImagePr
 @Composable
 fun ImagePreviewScreen(route: Route.ImagePreview) {
     FeatureImagePreviewScreen(
-        attachmentId = route.attachmentId,
-        allowNavigationToDayDetails = route.allowNavigationToDayDetails,
+        initialAttachmentId = route.initialAttachmentId,
+        source = route.source,
     )
 }
 

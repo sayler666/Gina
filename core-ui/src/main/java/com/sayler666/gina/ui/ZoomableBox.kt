@@ -2,7 +2,10 @@ package com.sayler666.gina.ui
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -44,24 +47,40 @@ fun ZoomableBox(
             .clip(RectangleShape)
             .onSizeChanged { size = it }
             .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    if (orientationPortrait) {
-                        scale = maxOf(minScale, minOf(scale * zoom, maxScale))
-                        val maxX = (size.width * (scale - 1)) / 2
-                        val minX = -maxX
-                        offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
-                        val maxY = (size.height * (scale - 1)) / 2
-                        val minY = -maxY
-                        offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
-                    } else {
-                        scale = maxOf(minScale, minOf(scale * zoom, maxScale))
-                        val maxY = (size.height * (scale - 1)) / 2
-                        val minY = -maxY
-                        offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
-                        val maxX = (size.width * (scale - 1)) / 2
-                        val minX = -maxX
-                        offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
-                    }
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    do {
+                        val event = awaitPointerEvent()
+                        val canceled = event.changes.any { it.isConsumed }
+                        if (!canceled) {
+                            val zoomChange = event.calculateZoom()
+                            val panChange = event.calculatePan()
+                            val isMultiTouch = event.changes.count { it.pressed } > 1
+
+                            // Consume only when pinching or already zoomed in.
+                            // At scale==1 with single touch, let the pager handle horizontal swipes.
+                            if (isMultiTouch || scale > 1f) {
+                                if (orientationPortrait) {
+                                    scale = maxOf(minScale, minOf(scale * zoomChange, maxScale))
+                                    val maxX = (size.width * (scale - 1)) / 2
+                                    val minX = -maxX
+                                    offsetX = maxOf(minX, minOf(maxX, offsetX + panChange.x))
+                                    val maxY = (size.height * (scale - 1)) / 2
+                                    val minY = -maxY
+                                    offsetY = maxOf(minY, minOf(maxY, offsetY + panChange.y))
+                                } else {
+                                    scale = maxOf(minScale, minOf(scale * zoomChange, maxScale))
+                                    val maxY = (size.height * (scale - 1)) / 2
+                                    val minY = -maxY
+                                    offsetY = maxOf(minY, minOf(maxY, offsetY + panChange.y))
+                                    val maxX = (size.width * (scale - 1)) / 2
+                                    val minX = -maxX
+                                    offsetX = maxOf(minX, minOf(maxX, offsetX + panChange.x))
+                                }
+                                event.changes.forEach { if (!it.isConsumed) it.consume() }
+                            }
+                        }
+                    } while (event.changes.any { it.pressed })
                 }
             }
             .clickable(interactionSource = interactionSource, indication = null) {
