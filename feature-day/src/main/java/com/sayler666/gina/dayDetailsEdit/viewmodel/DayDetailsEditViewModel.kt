@@ -9,7 +9,7 @@ import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.DayDetails
 import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
-import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
+import com.sayler666.gina.dayDetails.usecase.GetDayDetailsUseCase
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetails.viewmodel.toEditState
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
