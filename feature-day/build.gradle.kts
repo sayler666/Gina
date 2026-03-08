@@ -19,6 +19,9 @@ dependencies {
     implementation(projects.featureSettings)
     implementation(projects.featureCalendar)
 
+    // Navigation3
+    implementation(libs.navigation3.ui)
+
     // Dagger hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)

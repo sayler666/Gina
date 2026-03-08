@@ -2,13 +2,12 @@ package com.sayler666.gina.journal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.PreviousYearsAttachmentThumbnail
@@ -27,10 +26,12 @@ fun HorizontalImagesCarousel(
     onImageClick: (Int) -> Unit
 ) {
     LazyRow(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface),
         contentPadding = PaddingValues(start = 14.dp, end = 14.dp),
         content = {
-            items(state) { attachment ->
+            items(state, key = { it.state.id ?: it.hashCode() }) { attachment ->
                 PreviousYearsAttachmentThumbnail(
                     attachment.state,
                     size = 120.dp,

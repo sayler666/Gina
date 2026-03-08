@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.AsyncImage
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.gallery.viewModel.GalleryState
@@ -60,6 +61,7 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBot
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -68,7 +70,6 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,12 +77,6 @@ fun GalleryScreen() {
     val viewModel: GalleryViewModel = hiltViewModel()
     val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
-
-    LaunchedEffect(Unit) {
-        viewModel.openImage.collectLatest {
-            it.id?.let { imageId -> navigator.navigate(Route.ImagePreview(imageId)) }
-        }
-    }
 
     val hazeState = rememberHazeState()
 
@@ -92,7 +87,7 @@ fun GalleryScreen() {
             fetchNextPage = viewModel::fetchNextPage,
             onScrollStarted = { viewModel.onViewEvent(OnHideBottomBar) },
             onScrollEnded = { viewModel.onViewEvent(OnShowBottomBar) },
-            openImage = viewModel::fetchFullImage,
+            openImage = { imageId -> navigator.navigate(Route.ImagePreview(imageId)) },
             hazeState = hazeState,
         )
 
@@ -197,6 +192,8 @@ fun ImagesGrid(
         }
     }
 
+    val sharedScope = LocalSharedTransitionScope.current
+
     Column(
         Modifier.fillMaxSize()
     ) {
@@ -230,13 +227,28 @@ fun ImagesGrid(
                     }
                 }
 
+                val imageId = image.id
+                val sharedModifier = if (sharedScope != null && imageId != null) {
+                    val state = sharedScope.rememberSharedContentState("attachment_$imageId")
+                    with(sharedScope) {
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(aspectRatio)
+                            .sharedElement(
+                                sharedContentState = state,
+                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                            )
+                    }
+                } else {
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio)
+                }
+
                 AsyncImage(
                     model = image.content,
                     contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(aspectRatio)
-                        .clickable { image.id?.let { openImage(it) } },
+                    modifier = sharedModifier.clickable { imageId?.let { openImage(it) } },
                     contentScale = ContentScale.FillWidth
                 )
             }

@@ -1,6 +1,7 @@
 package com.sayler666.gina.ginaApp
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -39,6 +40,7 @@ import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
 import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
@@ -89,7 +91,12 @@ fun GinaApp(
                 }
             }
 
-            CompositionLocalProvider(LocalNavigator provides navigator, LocalTheme provides theme) {
+            SharedTransitionLayout {
+            CompositionLocalProvider(
+                LocalNavigator provides navigator,
+                LocalTheme provides theme,
+                LocalSharedTransitionScope provides this,
+            ) {
                 StatusBarColor(color = colorScheme.surface)
                 NavigationBarColor(color = bottomBarAnimInfoState.color)
                 Scaffold(
@@ -133,6 +140,7 @@ fun GinaApp(
                     }
                 )
             }
+            } // SharedTransitionLayout
         }
     }
 }
