@@ -103,7 +103,7 @@ fun GinaApp(
                         Modifier.fillMaxSize(),
                         containerColor = colorScheme.background,
                         floatingActionButton = {
-                            if (currentRoute.shouldShowScaffoldElements)
+                            if (currentRoute?.showScaffoldElements == true)
                                 DayFab(
                                     modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
                                     onNavigateToAddDay = { backStack.add(Route.AddDay()) }
@@ -111,7 +111,7 @@ fun GinaApp(
                         },
                         floatingActionButtonPosition = FabPosition.End,
                         bottomBar = {
-                            if (currentRoute.shouldShowScaffoldElements)
+                            if (currentRoute?.showScaffoldElements == true)
                                 BottomNavigationBar(
                                     modifier = Modifier
                                         .windowInsetsPadding(WindowInsets.navigationBars)
@@ -152,14 +152,3 @@ fun GinaApp(
         }
     }
 }
-
-private val Route?.shouldShowScaffoldElements
-    get() = when (this) {
-        is Route.Journal,
-        is Route.Calendar,
-        is Route.Insights,
-        is Route.Gallery,
-        is Route.Settings -> true
-
-        else -> false
-    }

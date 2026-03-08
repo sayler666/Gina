@@ -10,12 +10,14 @@ sealed interface ImagePreviewSource {
 }
 
 sealed interface Route {
+    val showScaffoldElements: Boolean get() = false
+
     // Bottom nav roots
-    data object Journal : Route
-    data object Calendar : Route
-    data object Gallery : Route
-    data object Insights : Route
-    data object Settings : Route
+    data object Journal : Route { override val showScaffoldElements = true }
+    data object Calendar : Route { override val showScaffoldElements = true }
+    data object Gallery : Route { override val showScaffoldElements = true }
+    data object Insights : Route { override val showScaffoldElements = true }
+    data object Settings : Route { override val showScaffoldElements = true }
 
     // Other screens
     data object SelectDatabase : Route
