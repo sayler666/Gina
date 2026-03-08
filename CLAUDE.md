@@ -92,14 +92,8 @@ Supporting: `ImagePreviewSource` — `Gallery`, `Day(dayId, attachmentIds)`, `Jo
 ### 1. Extract `DayEditingViewModelSlice` — eliminate attachment/friend duplication
 `AddDayViewModel` and `DayDetailsEditViewModel` share ~100 lines of identical logic: `addAttachments`, `removeAttachment`, `optimizeAttachment`, friend search/select, working copy integration. Extract into a `ViewModelSlice` (pattern already exists in `:core`) consumed by both VMs.
 
-### 2. Split `DayDetailsEditScreen.kt` (629 lines) and relocate shared composables
-The file owns too many concerns (text editing, attachment picker, friend picker, mood picker, date picker, formatting toolbar). Several composables it defines (`TopBar`, `SaveFab`, `AttachmentsButton`, `Friends`, `Mood`, `TextFormat`) are already imported by `AddDayScreen.kt`. Extract them into a dedicated `DayEditingComponents.kt` within the same package.
-
-### 3. Split `JournalRepository` by domain (305 lines, 4 concerns)
+### 2. Split `JournalRepository` by domain (305 lines, 4 concerns)
 `JournalRepository` handles days, attachments, friends, and mood analytics. Split into `DayRepository`, `AttachmentRepository`, `FriendsRepository`, and `MoodAnalyticsRepository` — each with a focused interface and a single DAO dependency.
 
-### 4. Replace `ImageOptimizationViewModel` delegation with composition
-Both day-edit VMs inject `ImageOptimizationViewModel` and delegate via Kotlin's `by` keyword, then manually call `initialize()` — defeating the purpose of delegation and mixing VM lifecycles. Replace with composition: consume the settings `StateFlow` directly, or push the settings into a plain repository.
-
-### 5. Extract `Journal` feature out of `:app` into `:feature-journal`
+### 3. Extract `Journal` feature out of `:app` into `:feature-journal`
 `JournalScreen`, `JournalViewModel`, `JournalMapper`, `JournalState`, and `PreviousYearsAttachmentsUseCase` live in `:app`, violating the rule that `:app` is for navigation wiring only. Create `:feature-journal` following the same pattern as other feature modules.
