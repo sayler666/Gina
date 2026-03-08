@@ -14,6 +14,8 @@ import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.DeleteDayUseCaseImpl
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.dayDetailsEdit.usecase.EditDayUseCaseImpl
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayEditingViewModelSlice
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayEditingViewModelSliceImpl
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import com.sayler666.gina.workinCopy.WorkingCopyStorageImpl
 import dagger.Binds
@@ -47,4 +49,7 @@ abstract class DayModule {
 
     @Binds
     abstract fun getWorkingCopyStorage(storage: WorkingCopyStorageImpl): WorkingCopyStorage
+
+    @Binds
+    abstract fun provideDayEditingViewModelSlice(slice: DayEditingViewModelSliceImpl): DayEditingViewModelSlice
 }

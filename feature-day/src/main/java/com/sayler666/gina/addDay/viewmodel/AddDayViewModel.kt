@@ -5,14 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
-import com.sayler666.core.file.isImageMimeType
-import com.sayler666.core.image.ImageOptimization
 import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.DayDetails
-import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.addDay.ui.AddDayState
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
@@ -38,17 +35,14 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWo
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.attachments.viewmodel.toState
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayEditingViewModelSlice
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
-import com.sayler666.gina.friends.usecase.AddFriendUseCase
-import com.sayler666.gina.friends.usecase.GetAllFriendsByRecentUseCaseImpl
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.workinCopy.WorkingCopyStorage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,25 +54,22 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 @HiltViewModel(assistedFactory = AddDayViewModel.Factory::class)
 class AddDayViewModel @AssistedInject constructor(
     @Assisted val date: LocalDate?,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
-    private val addFriendUseCase: AddFriendUseCase,
     private val addDayUseCase: AddDayUseCase,
-    private val imageOptimization: ImageOptimization,
     private val imageOptimizationViewModel: ImageOptimizationViewModel,
     private val reminderDismissUseCase: ReminderDismissUseCase,
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
-    getAllFriendsByRecentUseCase: GetAllFriendsByRecentUseCaseImpl,
+    private val dayEditingSlice: DayEditingViewModelSlice,
     dayQuoteProvider: DayQuoteProvider,
-) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel {
+) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
+    DayEditingViewModelSlice by dayEditingSlice {
 
     @AssistedFactory
     interface Factory {
@@ -91,39 +82,31 @@ class AddDayViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         with(imageOptimizationViewModel) { initialize() }
-    }
-
-    private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        Timber.e(exception)
+        dayEditingSlice.initializeSlice(viewModelScope)
+        mutableDay.value = DayDetails(
+            day = Day(date = date ?: LocalDate.now()),
+            attachments = emptyList(),
+            friends = emptyList()
+        )
     }
 
     private val blankDay = DayDetails(
-        day = Day(
-            date = date ?: LocalDate.now(),
-        ),
+        day = Day(date = date ?: LocalDate.now()),
         attachments = emptyList(),
         friends = emptyList()
     )
 
+    private val mutableWorkingCopy: MutableStateFlow<String> = MutableStateFlow("")
     private val workingCopy = workingCopyStorage.getTextContent().map {
         it?.let { mutableWorkingCopy.emit(it) }
         it
     }
     private val quote = dayQuoteProvider.latestTodayQuoteFlow()
-    private val allFriends = getAllFriendsByRecentUseCase().stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        emptyList()
-    )
-
-    private val mutableWorkingCopy: MutableStateFlow<String> = MutableStateFlow("")
-    private val mutableFriendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
-    private val mutableDay: MutableStateFlow<DayDetails?> = MutableStateFlow(blankDay)
 
     val viewState: StateFlow<AddDayState?> = combine(
         mutableDay,
         allFriends,
-        mutableFriendsSearchQuery,
+        friendsSearchQuery,
         quote,
         workingCopy,
     ) { day, allFriends, friendsSearchQuery, quote, workingCopy ->
@@ -148,11 +131,7 @@ class AddDayViewModel @AssistedInject constructor(
         }
     }
         .filterNotNull()
-        .stateIn(
-            viewModelScope,
-            WhileSubscribed(500),
-            null
-        )
+        .stateIn(viewModelScope, WhileSubscribed(500), null)
 
     private val _reinitializeText = MutableSharedFlow<Unit>()
     val reinitializeText = _reinitializeText.asSharedFlow()
@@ -197,77 +176,6 @@ class AddDayViewModel @AssistedInject constructor(
         if (newContent.isNotBlank()) {
             viewModelScope.launch {
                 workingCopyStorage.store(newContent)
-            }
-        }
-    }
-
-    private fun setNewDate(date: LocalDate) {
-        val currentDay = mutableDay.value ?: return
-        mutableDay.value =
-            currentDay.copy(day = currentDay.day.copy(date = date))
-    }
-
-    private fun setNewMood(mood: Mood) {
-        val currentDay = mutableDay.value ?: return
-        mutableDay.value = currentDay.copy(day = currentDay.day.copy(mood = mood))
-    }
-
-    private fun removeAttachment(byteHashCode: Int) {
-        val currentDay = mutableDay.value ?: return
-        val newAttachments = currentDay.attachments
-            .toMutableList()
-            .also { attachments ->
-                attachments.removeIf { it.content.hashCode() == byteHashCode }
-            }
-
-        mutableDay.value = currentDay.copy(attachments = newAttachments)
-    }
-
-    private fun addAttachments(attachments: List<Pair<ByteArray, String>>) {
-        viewModelScope.launch {
-            attachments.forEach { (content, mimeType) ->
-                launch(SupervisorJob() + exceptionHandler) {
-                    val bytes = when {
-                        mimeType.isImageMimeType() -> imageOptimization.optimizeImage(content)
-                        else -> content
-                    }
-
-                    val newAttachment = Attachment(
-                        dayId = null,
-                        content = bytes,
-                        mimeType = mimeType,
-                        id = null
-                    )
-                    mutableDay.update {
-                        it?.copy(attachments = it.attachments + newAttachment)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun searchFriend(searchQuery: String) {
-        mutableFriendsSearchQuery.update { searchQuery }
-    }
-
-    private fun addNewFriend(friendName: String) {
-        viewModelScope.launch(SupervisorJob() + exceptionHandler) {
-            addFriendUseCase.addFriend(friendName)
-        }
-    }
-
-    private fun friendSelect(friendId: Int, selected: Boolean) {
-        mutableDay.update { day ->
-            val friendInContext: Friend = allFriends.value.find { it.friendId == friendId }?.let {
-                Friend(
-                    it.friendId,
-                    it.friendName,
-                    it.friendAvatar
-                )
-            } ?: return
-            when (selected) {
-                true -> day?.copy(friends = day.friends + friendInContext)
-                false -> day?.copy(friends = day.friends.filterNot { it.id == friendId })
             }
         }
     }
