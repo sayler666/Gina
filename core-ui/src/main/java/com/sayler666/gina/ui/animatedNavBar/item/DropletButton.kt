@@ -51,6 +51,7 @@ fun DropletButton(
     icon: ImageVector,
     contentDescription: String? = null,
     iconColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    selectedIconColor: Color = MaterialTheme.colorScheme.secondary,
     dropletColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     size: Dp = 22.dp,
     animationSpec: AnimationSpec<Float> = remember { tween(400) }
@@ -90,7 +91,7 @@ fun DropletButton(
             }
 
             drawCircle(
-                color = dropletColor,
+                color = if(isSelected) selectedIconColor else dropletColor,
                 radius = dropletButtonParams.value.radius,
                 center = Offset(
                     circleCenter.value,

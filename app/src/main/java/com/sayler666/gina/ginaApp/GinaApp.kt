@@ -6,15 +6,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -24,6 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,19 +39,20 @@ import com.sayler666.core.navigation.BottomBarState
 import com.sayler666.core.navigation.BottomBarState.Shown
 import com.sayler666.gina.di.EntryProviderInstaller
 import com.sayler666.gina.di.NavEntryFallback
+import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
-import com.sayler666.gina.ginaApp.navigation.DayFab
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
-import com.sayler666.gina.ui.NavigationBarColor
 import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -78,7 +84,7 @@ fun GinaApp(
             val bottomBarState: BottomBarState by vm.bottomBarState.collectAsStateWithLifecycle()
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
                 maxOffset = BOTTOM_NAV_HEIGHT,
-                visibleColor = colorScheme.surfaceColorAtElevation(3.dp),
+                visibleColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
                 hiddenColor = Color.Transparent
             )
             val bottomBarAnimInfoState by bottomBarVisibilityAnimation.animateAsState(
@@ -97,34 +103,60 @@ fun GinaApp(
                     LocalTheme provides theme,
                     LocalSharedTransitionScope provides this,
                 ) {
-                    StatusBarColor(color = colorScheme.surface)
-                    NavigationBarColor(color = bottomBarAnimInfoState.color)
+                    StatusBarColor(color = MaterialTheme.colorScheme.surface)
+                    val hazeState = rememberHazeState()
+
                     Scaffold(
                         Modifier.fillMaxSize(),
-                        containerColor = colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background,
                         floatingActionButton = {
                             if (currentRoute?.showScaffoldElements == true)
-                                DayFab(
-                                    modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
+                                AddDayFab(
+                                    modifier = Modifier
+                                        .offset(y = bottomBarAnimInfoState.yOffset)
+                                        .scale(bottomBarAnimInfoState.alpha)
+                                        .alpha(bottomBarAnimInfoState.alpha),
                                     onNavigateToAddDay = { backStack.add(Route.AddDay()) }
                                 )
                         },
                         floatingActionButtonPosition = FabPosition.End,
                         bottomBar = {
                             if (currentRoute?.showScaffoldElements == true)
-                                BottomNavigationBar(
+                                Column(
                                     modifier = Modifier
-                                        .windowInsetsPadding(WindowInsets.navigationBars)
-                                        .offset(y = bottomBarAnimInfoState.yOffset)
-                                        .height(BOTTOM_NAV_HEIGHT)
-                                        .alpha(bottomBarAnimInfoState.alpha),
-                                    color = bottomBarAnimInfoState.color,
-                                    currentRoute = currentRoute,
-                                    backStack = backStack
-                                )
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    MaterialTheme.colorScheme.background,
+                                                )
+                                            ),
+                                        )
+//                                        .offset(y = bottomBarAnimInfoState.yOffset)
+//                                        .alpha(bottomBarAnimInfoState.alpha)
+//                                        .scale(bottomBarAnimInfoState.alpha)
+                                ) {
+                                    BottomNavigationBar(
+                                        modifier = Modifier.height(BOTTOM_NAV_HEIGHT),
+                                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(9.dp)
+                                            .copy(alpha = 0.1f),
+                                        currentRoute = currentRoute,
+                                        backStack = backStack,
+                                        hazeState = hazeState,
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                                    )
+                                }
                         },
                         content = {
-                            Column(modifier = Modifier.fillMaxSize()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .hazeSource(hazeState)
+                            ) {
                                 NavDisplay(
                                     backStack = backStack,
                                     onBack = { backStack.removeLastOrNull() },

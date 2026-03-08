@@ -14,6 +14,7 @@ import androidx.compose.material.icons.twotone.PhotoLibrary
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,6 +23,7 @@ import com.sayler666.gina.R
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
+import dev.chrisbanes.haze.HazeState
 
 enum class BottomDestinations(
     val route: Route,
@@ -66,9 +68,10 @@ fun BottomNavigationBar(
     modifier: Modifier = Modifier,
     color: Color,
     currentRoute: Any?,
-    backStack: MutableList<Route>
+    backStack: MutableList<Route>,
+    hazeState: HazeState
 ) {
-    val selectedIndex = androidx.compose.runtime.remember(currentRoute) {
+    val selectedIndex = remember(currentRoute) {
         val index = BottomDestinations.entries.indexOfFirst { it.route == currentRoute }
         if (index >= 0) index else 0
     }
@@ -77,8 +80,9 @@ fun BottomNavigationBar(
         modifier = modifier,
         selectedIndex = selectedIndex,
         barColor = color,
-        ballColor = MaterialTheme.colorScheme.secondaryContainer,
-        menuItemsSize = BottomDestinations.entries.size
+        ballColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+        menuItemsSize = BottomDestinations.entries.size,
+        hazeState = hazeState,
     ) {
         BottomDestinations.entries.forEach { dest ->
             DropletButton(

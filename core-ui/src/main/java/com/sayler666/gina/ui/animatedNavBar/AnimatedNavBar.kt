@@ -2,9 +2,12 @@ package com.sayler666.gina.ui.animatedNavBar
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -13,8 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Dp
@@ -23,6 +28,12 @@ import com.sayler666.gina.ui.animatedNavBar.animation.balltrajectory.BallAnimInf
 import com.sayler666.gina.ui.animatedNavBar.animation.balltrajectory.BallAnimation
 import com.sayler666.gina.ui.animatedNavBar.animation.balltrajectory.Linear
 import com.sayler666.gina.ui.animatedNavBar.utils.ballTransform
+import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 
 
 @Composable
@@ -33,6 +44,7 @@ fun AnimatedNavigationBar(
     ballColor: Color,
     menuItemsSize: Int,
     ballAnimation: BallAnimation = Linear(tween(200)),
+    hazeState: HazeState,
     content: @Composable () -> Unit,
 ) {
 
@@ -52,7 +64,35 @@ fun AnimatedNavigationBar(
     val ballAnimInfoState = ballAnimation.animateAsState(targetOffset = selectedItemOffset)
 
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 8.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(BOTTOM_NAV_HEIGHT/2),
+                clip = false
+            )
+            .clip(RoundedCornerShape(BOTTOM_NAV_HEIGHT/2))
+            .border(
+                width = 0.5.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
+                    )
+                ),
+                shape = RoundedCornerShape(BOTTOM_NAV_HEIGHT/2)
+            )
+            .then(modifier)
+            .hazeEffect(
+                state = hazeState,
+                style = HazeStyle(
+                    blurRadius = 16.dp,
+                    tint = HazeTint(
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    )
+                )
+            )
     ) {
         Layout(
             modifier = Modifier.background(barColor),
@@ -71,7 +111,7 @@ fun AnimatedNavigationBar(
     }
 }
 
-val ballSize = 52.dp
+val ballSize = BOTTOM_NAV_HEIGHT-8.dp
 
 @Composable
 private fun ActiveIndicator(
@@ -83,7 +123,7 @@ private fun ActiveIndicator(
     Box(
         modifier = modifier
             .ballTransform(ballAnimInfo)
-            .size(width = sizeDp, height = sizeDp * 0.7f)
+            .size(width = sizeDp, height = sizeDp-4.dp)
             .clip(shape = RoundedCornerShape(sizeDp / 2))
             .background(ballColor)
     )
