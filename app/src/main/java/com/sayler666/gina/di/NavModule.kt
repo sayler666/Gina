@@ -3,8 +3,8 @@ package com.sayler666.gina.di
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
@@ -67,12 +67,12 @@ object NavModule {
                 key = key,
                 metadata = when (key.way) {
                     Way.NEXT -> NavDisplay.transitionSpec {
-                        slideInHorizontally(tween(ANIMATION_DURATION)) { it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
-                                slideOutHorizontally(tween(ANIMATION_DURATION)) { -it } + fadeOut(tween(ANIMATION_DURATION))
+                        slideInVertically (tween(ANIMATION_DURATION)) { it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
+                                slideOutVertically(tween(ANIMATION_DURATION)) { -it } + fadeOut(tween(ANIMATION_DURATION))
                     }
                     Way.PREVIOUS -> NavDisplay.transitionSpec {
-                        slideInHorizontally(tween(ANIMATION_DURATION)) { -it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
-                                slideOutHorizontally(tween(ANIMATION_DURATION)) { it } + fadeOut(tween(ANIMATION_DURATION))
+                        slideInVertically(tween(ANIMATION_DURATION)) { -it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
+                                slideOutVertically(tween(ANIMATION_DURATION)) { it } + fadeOut(tween(ANIMATION_DURATION))
                     }
                     else -> emptyMap()
                 }

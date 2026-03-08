@@ -2,6 +2,8 @@ package com.sayler666.gina.feature.day.di
 
 import com.sayler666.gina.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.addDay.usecase.AddDayUseCaseImpl
+import com.sayler666.gina.attachments.usecase.GetAttachmentIdsBySourceUseCase
+import com.sayler666.gina.attachments.usecase.GetAttachmentIdsBySourceUseCaseImpl
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCase
 import com.sayler666.gina.attachments.usecase.GetAttachmentWithDayUseCaseImpl
 import com.sayler666.gina.dayDetails.usecaase.GetDayDetailsUseCase
@@ -39,6 +41,9 @@ abstract class DayModule {
 
     @Binds
     abstract fun provideGetAttachmentWithDayUseCase(useCase: GetAttachmentWithDayUseCaseImpl): GetAttachmentWithDayUseCase
+
+    @Binds
+    abstract fun provideGetAttachmentIdsBySourceUseCase(useCase: GetAttachmentIdsBySourceUseCaseImpl): GetAttachmentIdsBySourceUseCase
 
     @Binds
     abstract fun getWorkingCopyStorage(storage: WorkingCopyStorageImpl): WorkingCopyStorage

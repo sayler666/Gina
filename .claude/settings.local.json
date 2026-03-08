@@ -41,7 +41,8 @@
       "Bash(javap -p androidx/navigation3/runtime/EntryProviderKt.class)",
       "Bash(javap -p androidx/navigation3/runtime/EntryProviderScope.class)",
       "Bash(javap:*)",
-      "Bash(jar xf:*)"
+      "Bash(jar xf:*)",
+      "Bash(grep:*)"
     ]
   }
 }

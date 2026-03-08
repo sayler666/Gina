@@ -58,6 +58,7 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
@@ -87,7 +88,7 @@ fun GalleryScreen() {
             fetchNextPage = viewModel::fetchNextPage,
             onScrollStarted = { viewModel.onViewEvent(OnHideBottomBar) },
             onScrollEnded = { viewModel.onViewEvent(OnShowBottomBar) },
-            openImage = { imageId -> navigator.navigate(Route.ImagePreview(imageId)) },
+            openImage = { imageId -> navigator.navigate(Route.ImagePreview(imageId, ImagePreviewSource.Gallery)) },
             hazeState = hazeState,
         )
 

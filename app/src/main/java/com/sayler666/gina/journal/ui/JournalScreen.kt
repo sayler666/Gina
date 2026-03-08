@@ -67,6 +67,7 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFi
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
+import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
@@ -88,7 +89,9 @@ fun JournalScreen() {
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             is NavToDay -> navigator.navigate(Route.DayDetails(action.dayId))
-            is NavToAttachmentPreview -> navigator.navigate(Route.ImagePreview(action.imageId))
+            is NavToAttachmentPreview -> navigator.navigate(
+                Route.ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
+            )
             NavToManageAllFilesSettings -> permissionsLauncher.launch(getManageAllFilesSettingsIntent())
         }
     }

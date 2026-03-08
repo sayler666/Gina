@@ -3,10 +3,10 @@ package com.sayler666.gina.journal.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
+import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
@@ -118,7 +118,11 @@ class JournalViewModel @Inject constructor(
     }
 
     private fun navToAttachment(event: OnAttachmentClick) {
-        mutableViewActions.trySend(NavToAttachmentPreview(event.imageId))
+        val attachmentIds = (mutableViewState.value as? JournalState.DaysState)
+            ?.previousYearsAttachments
+            ?.mapNotNull { it.state.id }
+            ?: emptyList()
+        mutableViewActions.trySend(NavToAttachmentPreview(event.imageId, attachmentIds))
     }
 
     private fun refreshPermissionStatus() {
@@ -156,7 +160,7 @@ class JournalViewModel @Inject constructor(
 
     sealed interface ViewAction {
         data class NavToDay(val dayId: Int) : ViewAction
-        data class NavToAttachmentPreview(val imageId: Int) : ViewAction
+        data class NavToAttachmentPreview(val imageId: Int, val attachmentIds: List<Int>) : ViewAction
         data object NavToManageAllFilesSettings : ViewAction
     }
 }

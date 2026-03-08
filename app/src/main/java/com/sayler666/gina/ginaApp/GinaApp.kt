@@ -92,54 +92,62 @@ fun GinaApp(
             }
 
             SharedTransitionLayout {
-            CompositionLocalProvider(
-                LocalNavigator provides navigator,
-                LocalTheme provides theme,
-                LocalSharedTransitionScope provides this,
-            ) {
-                StatusBarColor(color = colorScheme.surface)
-                NavigationBarColor(color = bottomBarAnimInfoState.color)
-                Scaffold(
-                    Modifier.fillMaxSize(),
-                    containerColor = colorScheme.background,
-                    floatingActionButton = {
-                        if (currentRoute.shouldShowScaffoldElements)
-                            DayFab(
-                                modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
-                                onNavigateToAddDay = { backStack.add(Route.AddDay()) }
-                            )
-                    },
-                    floatingActionButtonPosition = FabPosition.End,
-                    bottomBar = {
-                        if (currentRoute.shouldShowScaffoldElements)
-                            BottomNavigationBar(
-                                modifier = Modifier
-                                    .windowInsetsPadding(WindowInsets.navigationBars)
-                                    .offset(y = bottomBarAnimInfoState.yOffset)
-                                    .height(BOTTOM_NAV_HEIGHT)
-                                    .alpha(bottomBarAnimInfoState.alpha),
-                                color = bottomBarAnimInfoState.color,
-                                currentRoute = currentRoute,
-                                backStack = backStack
-                            )
-                    },
-                    content = {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            NavDisplay(
-                                backStack = backStack,
-                                onBack = { backStack.removeLastOrNull() },
-                                transitionSpec = {
-                                    fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(tween(ANIMATION_DURATION))
-                                },
-                                popTransitionSpec = {
-                                    fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(tween(ANIMATION_DURATION))
-                                },
-                                entryProvider = entryProviderFn
-                            )
+                CompositionLocalProvider(
+                    LocalNavigator provides navigator,
+                    LocalTheme provides theme,
+                    LocalSharedTransitionScope provides this,
+                ) {
+                    StatusBarColor(color = colorScheme.surface)
+                    NavigationBarColor(color = bottomBarAnimInfoState.color)
+                    Scaffold(
+                        Modifier.fillMaxSize(),
+                        containerColor = colorScheme.background,
+                        floatingActionButton = {
+                            if (currentRoute.shouldShowScaffoldElements)
+                                DayFab(
+                                    modifier = Modifier.offset(y = bottomBarAnimInfoState.yOffset),
+                                    onNavigateToAddDay = { backStack.add(Route.AddDay()) }
+                                )
+                        },
+                        floatingActionButtonPosition = FabPosition.End,
+                        bottomBar = {
+                            if (currentRoute.shouldShowScaffoldElements)
+                                BottomNavigationBar(
+                                    modifier = Modifier
+                                        .windowInsetsPadding(WindowInsets.navigationBars)
+                                        .offset(y = bottomBarAnimInfoState.yOffset)
+                                        .height(BOTTOM_NAV_HEIGHT)
+                                        .alpha(bottomBarAnimInfoState.alpha),
+                                    color = bottomBarAnimInfoState.color,
+                                    currentRoute = currentRoute,
+                                    backStack = backStack
+                                )
+                        },
+                        content = {
+                            Column(modifier = Modifier.fillMaxSize()) {
+                                NavDisplay(
+                                    backStack = backStack,
+                                    onBack = { backStack.removeLastOrNull() },
+                                    transitionSpec = {
+                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(
+                                            tween(
+                                                ANIMATION_DURATION
+                                            )
+                                        )
+                                    },
+                                    popTransitionSpec = {
+                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(
+                                            tween(
+                                                ANIMATION_DURATION
+                                            )
+                                        )
+                                    },
+                                    entryProvider = entryProviderFn
+                                )
+                            }
                         }
-                    }
-                )
-            }
+                    )
+                }
             } // SharedTransitionLayout
         }
     }
@@ -152,5 +160,6 @@ private val Route?.shouldShowScaffoldElements
         is Route.Insights,
         is Route.Gallery,
         is Route.Settings -> true
+
         else -> false
     }

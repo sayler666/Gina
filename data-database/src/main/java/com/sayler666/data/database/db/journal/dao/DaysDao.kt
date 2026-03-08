@@ -67,6 +67,20 @@ interface DaysDao {
     )
     suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
 
+    @Query(
+        "SELECT attachments.attachment_id FROM attachments " +
+                "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
+                "ORDER BY days.date DESC, attachments.attachment_id DESC"
+    )
+    suspend fun getAllImageAttachmentIds(): List<Int>
+
+    @Query(
+        "SELECT attachment_id FROM attachments " +
+                "WHERE days_id = :dayId AND mime_type LIKE 'image/%' " +
+                "ORDER BY attachment_id ASC"
+    )
+    suspend fun getImageAttachmentIdsForDay(dayId: Int): List<Int>
+
     @Query("SELECT id FROM days WHERE date > :date and id != :id ORDER BY date ASC LIMIT 1")
     suspend fun getNextDayIdAfter(date: LocalDate, id: Int): Int?
 
