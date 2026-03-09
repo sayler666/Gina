@@ -167,6 +167,7 @@ private fun JournalContent(
             is DaysState -> DayList(
                 days = state.days,
                 onViewEvent = onViewEvent,
+                incognitoMode = state.incognitoMode,
                 headerContent = @Composable {
                     AttachmentCarousel(
                         state = state.previousYearsAttachments,
@@ -203,6 +204,7 @@ private fun JournalContent(
 private fun DayList(
     days: List<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
+    incognitoMode: Boolean = false,
     headerContent: @Composable LazyItemScope.() -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -243,7 +245,8 @@ private fun DayList(
                     modifier = Modifier
                         .animateItem()
                         .hazeSource(hazeState),
-                    onClick = { onViewEvent(OnDayClick(dayRowState.id)) }
+                    onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
+                    incognitoMode = incognitoMode
                 )
             }
         }

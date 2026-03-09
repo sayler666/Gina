@@ -1,8 +1,8 @@
 package com.sayler666.gina.journal.viewmodel
 
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.journal.ui.DayRowState
 import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
-import com.sayler666.domain.model.journal.Mood
 
 sealed class JournalState(val filtersActive: Boolean = false) {
     data class DaysState(
@@ -10,7 +10,8 @@ sealed class JournalState(val filtersActive: Boolean = false) {
         val searchQuery: String? = null,
         val previousYearsAttachments: HorizontalImagesCarouselState = emptyList(),
         val activeFilters: Boolean = false,
-        val moods: List<Mood> = Mood.entries
+        val moods: List<Mood> = Mood.entries,
+        val incognitoMode: Boolean = false
     ) : JournalState(activeFilters)
 
     data object LoadingState : JournalState()

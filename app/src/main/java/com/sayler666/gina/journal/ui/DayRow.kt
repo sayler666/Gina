@@ -20,6 +20,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayTitle
 
 data class DayRowState(
@@ -37,7 +38,8 @@ data class DayRowState(
 fun DayRow(
     state: DayRowState,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    incognitoMode: Boolean = false
 ) {
     Card(
         modifier = modifier,
@@ -85,11 +87,19 @@ fun DayRow(
                     )
                 }
             }
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (incognitoMode) {
+                CaesarCipherText(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            } else {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }

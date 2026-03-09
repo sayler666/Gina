@@ -17,8 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -56,6 +56,7 @@ fun SettingsScreen(
     val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()
     val reminder: ReminderState by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
     val dbCardLoader: Boolean by viewModel.showDbCardLoader.collectAsStateWithLifecycle()
+    val incognitoMode: Boolean by viewModel.incognitoMode.collectAsStateWithLifecycle()
 
     val notificationPermissionState =
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
@@ -85,13 +86,9 @@ fun SettingsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(Modifier.padding(top = 16.dp))
-                Text(
-                    text = "Database",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                DatabaseSettingsSection(
-                    databasePath,
+                SettingsSectionHeader("Database")
+                DatabaseSettingsButtonWithLauncher(
+                    databasePath = databasePath,
                     onNewDbFileSelected = { path ->
                         viewModel.openDatabase(path)
                     },
@@ -100,12 +97,13 @@ fun SettingsScreen(
                     },
                     loader = dbCardLoader
                 )
-                FriendsSettingsSection { navigator.navigate(Route.ManageFriends) }
-                Text(
-                    text = "Attachments",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                SettingsButton(
+                    header = "Friends",
+                    body = "Manage friends list",
+                    icon = Filled.People,
+                    onClick = { navigator.navigate(Route.ManageFriends) }
                 )
+                SettingsSectionHeader("Attachments")
                 ImageCompressSettingsSection(
                     imageOptimizationSettings,
                     onSetImageQuality = {
@@ -113,11 +111,7 @@ fun SettingsScreen(
                     },
                     onImageCompressionToggled = viewModel.imageOptimizationVM::toggleImageCompression
                 )
-                Text(
-                    text = "Personalize",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+                SettingsSectionHeader("Personalize")
                 ThemesSettingsSections(themes) { theme ->
                     viewModel.setTheme(theme)
                 }
@@ -131,6 +125,14 @@ fun SettingsScreen(
                     },
                     onReminderCancel = viewModel.remindersVM::removeReminders
                 )
+                SettingsButton(
+                    header = "Incognito Mode",
+                    body = if (incognitoMode) "Scrambles text content in screenshots" else "Off",
+                    icon = Filled.Visibility,
+                    onClick = { viewModel.setIncognitoMode(!incognitoMode) },
+                    checked = incognitoMode,
+                    onCheckedChange = viewModel::setIncognitoMode
+                )
                 Spacer(
                     modifier = Modifier.windowInsetsBottomHeight(
                         WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
@@ -141,7 +143,7 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun DatabaseSettingsSection(
+private fun DatabaseSettingsButtonWithLauncher(
     databasePath: String?,
     onNewDbFileSelected: (String) -> Unit,
     onLongPress: () -> Unit,
@@ -157,17 +159,5 @@ private fun DatabaseSettingsSection(
         onClick = { databaseResult.launch(Files.selectFileIntent()) },
         onLongClick = onLongPress,
         loader = loader
-    )
-}
-
-@Composable
-private fun FriendsSettingsSection(
-    onNavigateToFriends: () -> Unit
-) {
-    SettingsButton(
-        header = "Friends",
-        body = "Manage friends list",
-        icon = Filled.People,
-        onClick = onNavigateToFriends
     )
 }

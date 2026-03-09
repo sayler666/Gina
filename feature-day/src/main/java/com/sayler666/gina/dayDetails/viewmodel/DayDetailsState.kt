@@ -18,10 +18,11 @@ data class DayDetailsState(
     val content: String,
     val mood: Mood = Mood.EMPTY,
     val attachments: List<AttachmentState> = emptyList(),
-    val friends: List<FriendState> = emptyList()
+    val friends: List<FriendState> = emptyList(),
+    val incognitoMode: Boolean = false
 )
 
-fun DayDetails.toState() = DayDetailsState(
+fun DayDetails.toState(incognitoMode: Boolean = false) = DayDetailsState(
     id = this.day.id,
     dayOfMonth = getDayOfMonth(day.date),
     dayOfWeek = getDayOfWeek(day.date),
@@ -31,5 +32,6 @@ fun DayDetails.toState() = DayDetailsState(
     attachments = attachments.map { it.toState() },
     friends = friends.map {
         FriendState(id = it.id, name = it.name, avatar = it.avatar, initials = createInitials(it.name))
-    }
+    },
+    incognitoMode = incognitoMode
 )
