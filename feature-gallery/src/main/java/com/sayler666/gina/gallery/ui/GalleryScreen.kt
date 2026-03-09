@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -37,18 +36,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.AsyncImage
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
+import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.gallery.viewModel.GalleryState
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
@@ -56,10 +55,15 @@ import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewAction.NavigateToImage
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNextPage
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnImageClick
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
@@ -74,26 +78,28 @@ import dev.chrisbanes.haze.rememberHazeState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen() {
-    val viewModel: GalleryViewModel = hiltViewModel()
-    val state: GalleryState by viewModel.state.collectAsStateWithLifecycle()
+fun GalleryScreen(viewModel: GalleryViewModel = hiltViewModel()) {
+    val viewState: GalleryState by viewModel.viewState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
+
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        when (action) {
+            is NavigateToImage ->
+                navigator.navigate(Route.ImagePreview(action.id, ImagePreviewSource.Gallery))
+        }
+    }
 
     val hazeState = rememberHazeState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Gallery(
-            modifier = Modifier,
-            state = state,
-            fetchNextPage = viewModel::fetchNextPage,
-            onScrollStarted = { viewModel.onViewEvent(OnHideBottomBar) },
-            onScrollEnded = { viewModel.onViewEvent(OnShowBottomBar) },
-            openImage = { imageId -> navigator.navigate(Route.ImagePreview(imageId, ImagePreviewSource.Gallery)) },
+        Content(
+            state = viewState,
             hazeState = hazeState,
+            viewEvent = viewModel::onViewEvent,
         )
 
         TopAppBar(
-            title = { Text("Gallery") },
+            title = { Text(stringResource(R.string.gallery_label)) },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent
             ),
@@ -126,17 +132,13 @@ fun GalleryScreen() {
 }
 
 @Composable
-private fun Gallery(
-    modifier: Modifier = Modifier,
+private fun Content(
     state: GalleryState,
-    fetchNextPage: () -> Unit,
-    onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit,
-    openImage: (Int) -> Unit,
-    hazeState: HazeState
+    hazeState: HazeState,
+    viewEvent: (ViewEvent) -> Unit,
 ) {
     Column(
-        modifier
+        Modifier
             .fillMaxSize()
             .imePadding()
     ) {
@@ -146,52 +148,40 @@ private fun Gallery(
             is DataState -> ImagesGrid(
                 state = state,
                 hazeState = hazeState,
-                fetchNextPage = fetchNextPage,
-                onScrollStarted = onScrollStarted,
-                onScrollEnded = onScrollEnded,
-                openImage = openImage
+                onViewEvent = viewEvent,
             )
 
             EmptySearchState -> EmptyResult(
-                header = "Empty search result!",
-                body = "Try narrowing search criteria."
+                header = stringResource(R.string.empty_search_result_title),
+                body = stringResource(R.string.empty_search_result_body)
             )
 
             EmptyState -> EmptyResult(
-                header = "No data found!",
-                body = "Add some attachments."
+                header = stringResource(R.string.empty_state_title),
+                body = stringResource(R.string.gallery_empty_state_body)
             )
         }
     }
 }
 
 @Composable
-fun ImagesGrid(
+private fun ImagesGrid(
     state: DataState,
-    fetchNextPage: () -> Unit,
-    onScrollStarted: () -> Unit,
-    onScrollEnded: () -> Unit,
-    openImage: (Int) -> Unit,
+    onViewEvent: (ViewEvent) -> Unit,
     hazeState: HazeState
 ) {
     val gridState = rememberLazyStaggeredGridState()
 
     LaunchedEffect(key1 = gridState, block = {
         snapshotFlow { gridState.isScrolledToTheEnd() }.collect {
-            fetchNextPage()
+            onViewEvent(OnFetchNextPage)
         }
     })
 
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                if (delta > 30) onScrollEnded()
-                if (delta < -20) onScrollStarted()
-                return Offset.Zero
-            }
-        }
-    }
+    val nestedScrollConnection = rememberScrollConnection(
+        onScrollDown = { onViewEvent(OnHideBottomBar) },
+        onScrollUp = { onViewEvent(OnShowBottomBar) }
+    )
 
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -249,7 +239,9 @@ fun ImagesGrid(
                 AsyncImage(
                     model = image.content,
                     contentDescription = null,
-                    modifier = sharedModifier.clickable { imageId?.let { openImage(it) } },
+                    modifier = sharedModifier.clickable {
+                        imageId?.let { onViewEvent(OnImageClick(it)) }
+                    },
                     contentScale = ContentScale.FillWidth
                 )
             }
@@ -276,11 +268,6 @@ private fun LoadingGrid() {
 }
 
 fun LazyStaggeredGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
-    return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
-        ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
-}
-
-fun LazyGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
     return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
         ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
 }
