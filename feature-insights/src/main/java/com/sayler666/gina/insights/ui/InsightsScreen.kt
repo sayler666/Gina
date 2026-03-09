@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,7 +33,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -72,61 +73,117 @@ import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.chart.MoodLineChart
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import java.time.format.DateTimeFormatter
 
-@OptIn(
-    ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class
-)
 @Composable
 fun InsightsScreen() {
     val viewModel: InsightsViewModel = hiltViewModel()
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
-    val searchText = rememberSaveable { mutableStateOf("") }
     val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
     val filtersActive: Boolean by viewModel.filtersActive.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            FiltersBar(
-                title = "Insights",
-                searchText = searchText.value,
-                onSearchTextChanged = {
-                    searchText.value = it
-                    viewModel.searchQuery(searchText.value)
-                },
-                onClearClick = {
-                    viewModel.searchQuery("")
-                    searchText.value = ""
-                },
-                moodFilters = moodsFilters,
-                onMoodFiltersUpdate = { moods ->
-                    viewModel.updateMoodFilters(moods)
-                },
-                onResetFiltersClicked = {
-                    viewModel.resetFilters()
-                },
-                filtersActive,
-                onSearchVisibilityChanged = { show ->
-                    when (show) {
-                        true -> viewModel.onViewEvent(OnLockBottomBar)
-                        false -> viewModel.onViewEvent(OnUnlockBottomBar)
-                    }
-                }
+    Content(
+        state = state,
+        moodsFilters = moodsFilters,
+        filtersActive = filtersActive,
+        onViewEvent = viewModel::onViewEvent,
+        onSearchQuery = viewModel::searchQuery,
+        onMoodFiltersUpdate = viewModel::updateMoodFilters,
+        onResetFilters = viewModel::resetFilters
+    )
+}
+
+@Composable
+private fun Content(
+    state: InsightState,
+    moodsFilters: List<Mood>,
+    filtersActive: Boolean,
+    onViewEvent: (ViewEvent) -> Unit,
+    onSearchQuery: (String) -> Unit,
+    onMoodFiltersUpdate: (List<Mood>) -> Unit,
+    onResetFilters: () -> Unit
+) {
+    val hazeState = rememberHazeState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        InsightsContent(
+            state = state,
+            hazeState = hazeState,
+            onViewEvent = onViewEvent
+        )
+        Toolbar(
+            hazeState = hazeState,
+            moodsFilters = moodsFilters,
+            filtersActive = filtersActive,
+            onViewEvent = onViewEvent,
+            onSearchQuery = onSearchQuery,
+            onMoodFiltersUpdate = onMoodFiltersUpdate,
+            onResetFilters = onResetFilters
+        )
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+@Composable
+private fun Toolbar(
+    hazeState: HazeState,
+    moodsFilters: List<Mood>,
+    filtersActive: Boolean,
+    onViewEvent: (ViewEvent) -> Unit,
+    onSearchQuery: (String) -> Unit,
+    onMoodFiltersUpdate: (List<Mood>) -> Unit,
+    onResetFilters: () -> Unit
+) {
+    val searchText = rememberSaveable { mutableStateOf("") }
+    FiltersBar(
+        modifier = Modifier.hazeEffect(
+            state = hazeState,
+            style = HazeStyle(
+                blurRadius = 24.dp,
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                tint = HazeTint(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+                )
             )
+        ) {
+            progressive =
+                HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
         },
-        content = { padding ->
-            InsightsContent(
-                modifier = Modifier.padding(top = padding.calculateTopPadding()),
-                state = state,
-                viewModel::onViewEvent
-            )
-        })
+        hazeState = hazeState,
+        title = "Insights",
+        searchText = searchText.value,
+        onSearchTextChanged = {
+            searchText.value = it
+            onSearchQuery(it)
+        },
+        onClearClick = {
+            searchText.value = ""
+            onSearchQuery("")
+        },
+        moodFilters = moodsFilters,
+        onMoodFiltersUpdate = onMoodFiltersUpdate,
+        onResetFiltersClicked = onResetFilters,
+        filtersActive = filtersActive,
+        onSearchVisibilityChanged = { show ->
+            when (show) {
+                true -> onViewEvent(OnLockBottomBar)
+                false -> onViewEvent(OnUnlockBottomBar)
+            }
+        }
+    )
 }
 
 @Composable
 private fun InsightsContent(
     modifier: Modifier = Modifier,
     state: InsightState,
+    hazeState: HazeState,
     onViewEvent: (ViewEvent) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -142,7 +199,8 @@ private fun InsightsContent(
         modifier
             .nestedScroll(nestedScrollConnection)
             .fillMaxSize()
-            .imePadding(),
+            .imePadding()
+            .hazeSource(hazeState),
     ) {
         when (state) {
             is DataState -> Insights(state)
@@ -228,12 +286,13 @@ private fun Loading() {
 @Composable
 fun Insights(state: DataState) {
     val scrollState = rememberScrollState()
+    val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
-        Spacer(Modifier.padding(top = 12.dp))
+        Spacer(Modifier.height(topPadding))
         Summary(state)
 
         Moods(state)
@@ -246,7 +305,7 @@ fun Insights(state: DataState) {
 
         Spacer(
             modifier = Modifier.windowInsetsBottomHeight(
-                WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+                WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 12.dp)
             )
         )
     }

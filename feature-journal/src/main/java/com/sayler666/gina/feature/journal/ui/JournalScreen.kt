@@ -10,13 +10,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,6 +76,11 @@ import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
@@ -101,32 +108,55 @@ fun JournalScreen() {
         }
     }
 
-    Scaffold(
-        topBar = {
-            Toolbar(
-                viewState = viewState,
-                onViewEvent = viewModel::onViewEvent
-            )
-        },
-        content = { padding ->
-            JournalContent(
-                modifier = Modifier
-                    .padding(top = padding.calculateTopPadding()),
-                state = viewState,
-                onViewEvent = viewModel::onViewEvent
-            )
-        }
+    Content(
+        viewState = viewState,
+        viewEvent = viewModel::onViewEvent
     )
+}
+
+@Composable
+private fun Content(
+    viewState: JournalState,
+    viewEvent: (ViewEvent) -> Unit
+) {
+    val hazeState = rememberHazeState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        JournalContent(
+            state = viewState,
+            hazeState = hazeState,
+            onViewEvent = viewEvent
+        )
+        Toolbar(
+            viewState = viewState,
+            hazeState = hazeState,
+            onViewEvent = viewEvent
+        )
+    }
 }
 
 @Composable
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 private fun Toolbar(
     viewState: JournalState,
+    hazeState: HazeState,
     onViewEvent: (ViewEvent) -> Unit
 ) {
     val searchText = rememberSaveable { mutableStateOf("") }
     FiltersBar(
+        modifier = Modifier.hazeEffect(
+            state = hazeState,
+            style = HazeStyle(
+                blurRadius = 24.dp,
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                tint = HazeTint(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+                )
+            )
+        ) {
+            progressive =
+                HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+        },
+        hazeState = hazeState,
         title = "Gina",
         searchText = searchText.value,
         onSearchTextChanged = {
@@ -156,14 +186,16 @@ private fun Toolbar(
 
 @Composable
 private fun JournalContent(
-    state: JournalState,
     modifier: Modifier = Modifier,
+    state: JournalState,
+    hazeState: HazeState,
     onViewEvent: (ViewEvent) -> Unit
 ) {
     Column(
         modifier
             .fillMaxSize()
             .imePadding()
+            .hazeSource(hazeState)
     ) {
         when (state) {
             is DaysState -> DayList(
@@ -198,7 +230,6 @@ private fun JournalContent(
         ) {
             Loading()
         }
-
     }
 }
 
@@ -221,10 +252,13 @@ private fun DayList(
 
     val hazeState = rememberHazeState()
 
+    val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
+
     val daysGrouped = days.groupBy { it.header }
     LazyColumn(
         Modifier.nestedScroll(nestedScrollConnection),
-        state = listState
+        state = listState,
+        contentPadding = PaddingValues(top = topPadding)
     ) {
         item {
             headerContent()
@@ -233,8 +267,8 @@ private fun DayList(
         daysGrouped.forEach { (header, days) ->
             stickyHeader {
                 ListStickyHeader(
-                    hazeState = hazeState,
-                    text = header
+                    text = header,
+                    hazeState = hazeState
                 )
             }
 

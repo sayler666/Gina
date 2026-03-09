@@ -35,4 +35,5 @@ dependencies {
 
     // Other
     implementation(libs.timber)
+    implementation(libs.haze)
 }
