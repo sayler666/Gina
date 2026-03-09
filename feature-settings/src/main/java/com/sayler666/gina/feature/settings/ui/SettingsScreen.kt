@@ -23,8 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -33,46 +31,66 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.file.Files
-import com.sayler666.core.image.ImageOptimization.OptimizationSettings
-import com.sayler666.gina.feature.settings.reminder.ReminderState
+import com.sayler666.gina.feature.settings.viewmodel.SettingsState
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
-import com.sayler666.gina.feature.settings.viewmodel.ThemeItem
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageCompressionToggled
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageQualityChanged
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderSet
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
+import com.sayler666.gina.feature.settings.reminder.NotActive
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val navigator = LocalNavigator.current
+    val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
     val context = LocalContext.current
-    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationVM.imageOptimizationSettings.collectAsStateWithLifecycle()
-    val databasePath: String? by viewModel.databasePath.collectAsStateWithLifecycle()
-    val themes: List<ThemeItem> by viewModel.themes.collectAsStateWithLifecycle()
-    val reminder: ReminderState by viewModel.remindersVM.reminder.collectAsStateWithLifecycle()
-    val dbCardLoader: Boolean by viewModel.showDbCardLoader.collectAsStateWithLifecycle()
-    val incognitoMode: Boolean by viewModel.incognitoMode.collectAsStateWithLifecycle()
-
+    val navigator = LocalNavigator.current
     val notificationPermissionState =
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
 
-    BackHandler {
-        navigator.back()
-    }
+    BackHandler { viewModel.onViewEvent(OnBackPressed) }
 
-    LaunchedEffect(Unit) {
-        viewModel.toastMessage.collectLatest {
-            it?.let { message ->
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        when (action) {
+            Back -> navigator.back()
+            NavToManageFriends -> navigator.navigate(Route.ManageFriends)
+            is ShowToast -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    Content(
+        state = viewState,
+        viewEvent = viewModel::onViewEvent,
+        notificationPermissionState = notificationPermissionState
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@Composable
+private fun Content(
+    state: SettingsState?,
+    viewEvent: (ViewEvent) -> Unit,
+    notificationPermissionState: com.google.accompanist.permissions.PermissionState,
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Settings") })
@@ -88,54 +106,58 @@ fun SettingsScreen(
                 Spacer(Modifier.padding(top = 16.dp))
                 SettingsSectionHeader("Database")
                 DatabaseSettingsButtonWithLauncher(
-                    databasePath = databasePath,
+                    databasePath = state?.databasePath,
                     onNewDbFileSelected = { path ->
-                        viewModel.openDatabase(path)
+                        viewEvent(OnDatabaseFileSelected(path))
                     },
                     onLongPress = {
-                        viewModel.vacuumDatabase()
+                        viewEvent(OnVacuumDatabasePressed)
                     },
-                    loader = dbCardLoader
+                    loader = state?.showDbCardLoader ?: false
                 )
                 SettingsButton(
                     header = "Friends",
                     body = "Manage friends list",
                     icon = Filled.People,
-                    onClick = { navigator.navigate(Route.ManageFriends) }
+                    onClick = { viewEvent(OnManageFriendsPressed) }
                 )
                 SettingsSectionHeader("Attachments")
                 ImageCompressSettingsSection(
-                    imageOptimizationSettings,
-                    onSetImageQuality = {
-                        viewModel.imageOptimizationVM.setNewImageQuality(it)
+                    state?.imageOptimizationSettings,
+                    onSetImageQuality = { quality ->
+                        viewEvent(OnImageQualityChanged(quality))
                     },
-                    onImageCompressionToggled = viewModel.imageOptimizationVM::toggleImageCompression
+                    onImageCompressionToggled = { enabled ->
+                        viewEvent(OnImageCompressionToggled(enabled))
+                    }
                 )
                 SettingsSectionHeader("Personalize")
-                ThemesSettingsSections(themes) { theme ->
-                    viewModel.setTheme(theme)
+                ThemesSettingsSections(state?.themes ?: emptyList()) { theme ->
+                    viewEvent(OnThemeSelected(theme))
                 }
                 ReminderSettingsSections(
-                    currentReminder = reminder,
+                    currentReminder = state?.reminderState ?: NotActive,
                     onReminderSet = { time ->
-                        viewModel.remindersVM.setReminder(time)
+                        viewEvent(OnReminderSet(time))
                         if (!notificationPermissionState.status.isGranted) {
                             notificationPermissionState.launchPermissionRequest()
                         }
                     },
-                    onReminderCancel = viewModel.remindersVM::removeReminders
+                    onReminderCancel = {
+                        viewEvent(OnReminderCancel)
+                    }
                 )
                 SettingsButton(
                     header = "Incognito Mode",
-                    body = if (incognitoMode) "Scrambles text content in screenshots" else "Off",
+                    body = if (state?.incognitoMode == true) "Scrambles text content in screenshots" else "Off",
                     icon = Filled.Visibility,
-                    onClick = { viewModel.setIncognitoMode(!incognitoMode) },
-                    checked = incognitoMode,
-                    onCheckedChange = viewModel::setIncognitoMode
+                    onClick = { viewEvent(OnIncognitoModeToggled(!(state?.incognitoMode ?: false))) },
+                    checked = state?.incognitoMode ?: false,
+                    onCheckedChange = { viewEvent(OnIncognitoModeToggled(it)) }
                 )
                 Spacer(
                     modifier = Modifier.windowInsetsBottomHeight(
-                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT*2)
                     )
                 )
             }

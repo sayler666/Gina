@@ -65,13 +65,75 @@ Supporting: `ImagePreviewSource` — `Gallery`, `Day(dayId, attachmentIds)`, `Jo
 - New feature code → target `feature-*` module, never `:app`
 - `:app` gets only navigation wiring (thin wrappers, `GinaApp`, `NavDisplay`) and DI
 
-## MVI Pattern
-- `viewState: StateFlow<State?>` — built with `combine()`, `WhileSubscribed(500)`
-- `viewActions: Flow<Action>` — `Channel(BUFFERED)` + `receiveAsFlow()` for one-shot events
-- `onViewEvent(event: ViewEvent)` — single entry point for all UI events
-- `ViewEvent` / `ViewAction` — sealed interfaces nested inside ViewModel
-- Screen split: `Screen()` entry composable (side effects) + private `Content()` (pure UI)
-- `BackHandler` always delegates to ViewModel via `OnBackPressed`
+## ViewModel Pattern (Standard)
+
+Each ViewModel follows this clean, scalable pattern:
+
+**State management:**
+```kotlin
+private val mutableViewState = MutableStateFlow(createInitialState())
+val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
+
+private fun createInitialState() = ViewState(field1 = null, field2 = emptyList(), ...)
+```
+
+**Observe individual flows (not combine):**
+```kotlin
+init {
+    observeFlow1()
+    observeFlow2()
+    // ... one observer per flow
+}
+
+private fun observeFlow1() {
+    flow.onEach { value ->
+        mutableViewState.update { it.copy(field1 = value) }
+    }.launchIn(viewModelScope)
+}
+```
+
+**Events and actions:**
+- **`ViewEvent`** — user interactions. Single entry point: `fun onViewEvent(event: ViewEvent)`
+- **`ViewAction`** — one-shot side effects (navigation, toasts). Sent via `Channel(BUFFERED) + receiveAsFlow()`
+- Both nested sealed interfaces inside ViewModel
+
+## Compose Screen Pattern
+
+Split each screen into **entry composable** (side effects) + **pure `Content()`** (UI only):
+
+**Entry composable** — handles lifecycle & side effects:
+```kotlin
+@Composable
+fun MyScreen(viewModel: MyViewModel = hiltViewModel()) {
+    val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
+    val context = LocalContext.current
+    val navigator = LocalNavigator.current
+
+    BackHandler { viewModel.onViewEvent(OnBackPressed) }
+
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        when (action) {
+            Back -> navigator.back()
+            is ShowToast -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Content(state = viewState, viewEvent = viewModel::onViewEvent)
+}
+```
+
+**`Content()` composable** — pure UI:
+```kotlin
+@Composable
+private fun Content(
+    state: ViewState?,
+    viewEvent: (ViewEvent) -> Unit,
+) {
+    // All Compose layout here
+    // Call viewEvent(...) on user interactions
+    // No ViewModel access, no LaunchedEffect
+}
+```
 
 ## Naming Conventions
 - `mutable*` prefix for internal MutableStateFlow/MutableSharedFlow
