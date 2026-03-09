@@ -63,16 +63,17 @@ fun AnimatedNavigationBar(
 
     val ballAnimInfoState = ballAnimation.animateAsState(targetOffset = selectedItemOffset)
 
+    val shape = RoundedCornerShape(BOTTOM_NAV_HEIGHT / 2)
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 8.dp)
             .shadow(
                 elevation = 4.dp,
-                shape = RoundedCornerShape(BOTTOM_NAV_HEIGHT/2),
+                shape = shape,
                 clip = false
             )
-            .clip(RoundedCornerShape(BOTTOM_NAV_HEIGHT/2))
+            .clip(shape)
             .border(
                 width = 0.5.dp,
                 brush = Brush.verticalGradient(
@@ -81,7 +82,7 @@ fun AnimatedNavigationBar(
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
                     )
                 ),
-                shape = RoundedCornerShape(BOTTOM_NAV_HEIGHT/2)
+                shape = shape
             )
             .then(modifier)
             .hazeEffect(

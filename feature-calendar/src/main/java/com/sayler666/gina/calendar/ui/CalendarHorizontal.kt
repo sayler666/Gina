@@ -19,6 +19,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -78,7 +80,8 @@ fun CalendarHorizontal(
     )
     val visibleMonth = rememberFirstMostVisibleMonth(state)
     Column {
-        CalendarTopBar(visibleMonth,
+        CalendarTopBar(
+            visibleMonth,
             onSelectDate = { date ->
                 coroutineScope.launch {
                     state.scrollToMonth(date.yearMonth)
@@ -113,53 +116,6 @@ fun CalendarHorizontal(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CalendarTopBar(
-    visibleMonth: CalendarMonth,
-    onSelectDate: (LocalDate) -> Unit,
-    onTodayClick: () -> Unit
-) {
-    val showPopup = remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    TopAppBar(title = {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-            showPopup.value = true
-        }) {
-            Text(text = visibleMonth.yearMonth.displayText())
-            Icon(
-                Filled.ArrowDropDown,
-                tint = MaterialTheme.colorScheme.primary,
-                contentDescription = null
-            )
-            YearMonthSwitcherPopup(
-                showPopup = showPopup.value,
-                currentYearMonth = visibleMonth.yearMonth,
-                onDismiss = {
-                    scope.launch {
-                        delay(100)
-                        showPopup.value = false
-                    }
-                },
-                onSelectDate = {
-                    onSelectDate(it)
-                })
-        }
-    }, actions = {
-        IconButton(onClick = {
-            onTodayClick()
-        }) {
-            Icon(Filled.CalendarToday, null)
-            Text(
-                text = LocalDate.now().dayOfMonth.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-    })
-}
-
 @Composable
 private fun CalendarDay(
     day: CalendarDay,
@@ -174,35 +130,36 @@ private fun CalendarDay(
     val monthDate = day.position == DayPosition.MonthDate
     val isSelected = day.date == selected
 
-    Box(modifier = Modifier
-        .aspectRatio(1.22f)
-        .padding(1.dp)
-        .clip(shape = RoundedCornerShape(size = 32.dp))
-        .conditional(day.date == today) {
-            border(
-                width = 0.5.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.29f),
-                        Color.Transparent
-                    )
-                ),
-                shape = RoundedCornerShape(32.dp)
-            )
-        }
-        .conditional(isSelected) {
-            border(
-                width = 1.dp,
-                color = currentDayColor,
-                shape = RoundedCornerShape(8.dp)
-            ).background(currentDayColor.copy(alpha = 0.9f))
-        }
-        .clickable {
-            when (dayEntity != null) {
-                true -> onDayClick(dayEntity)
-                false -> onEmptyDayClick(day.date)
+    Box(
+        modifier = Modifier
+            .aspectRatio(1.22f)
+            .padding(1.dp)
+            .clip(shape = RoundedCornerShape(size = 32.dp))
+            .conditional(day.date == today) {
+                border(
+                    width = 0.5.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.29f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = RoundedCornerShape(32.dp)
+                )
             }
-        }, contentAlignment = Alignment.Center
+            .conditional(isSelected) {
+                border(
+                    width = 1.dp,
+                    color = currentDayColor,
+                    shape = RoundedCornerShape(8.dp)
+                ).background(currentDayColor.copy(alpha = 0.9f))
+            }
+            .clickable {
+                when (dayEntity != null) {
+                    true -> onDayClick(dayEntity)
+                    false -> onEmptyDayClick(day.date)
+                }
+            }, contentAlignment = Alignment.Center
     ) {
         val textColor = when {
             monthDate && !isSelected -> MaterialTheme.colorScheme.onSurface

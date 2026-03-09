@@ -52,17 +52,22 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sayler666.core.collections.mutate
+import com.sayler666.core.compose.conditional
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.secondaryTextColors
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 import kotlinx.coroutines.launch
 
 
@@ -71,6 +76,7 @@ import kotlinx.coroutines.launch
 @ExperimentalComposeUiApi
 @Composable
 fun FiltersBar(
+    modifier: Modifier = Modifier,
     title: String,
     searchText: String,
     onSearchTextChanged: (String) -> Unit = {},
@@ -79,7 +85,8 @@ fun FiltersBar(
     onMoodFiltersUpdate: (List<Mood>) -> Unit = {},
     onResetFiltersClicked: () -> Unit,
     filtersActive: Boolean,
-    onSearchVisibilityChanged: (Boolean) -> Unit
+    onSearchVisibilityChanged: (Boolean) -> Unit,
+    hazeState: HazeState? = null,
 ) {
     val showSearch = rememberSaveable { mutableStateOf(false) }
 
@@ -90,10 +97,20 @@ fun FiltersBar(
     })
 
     TopAppBar(
+        modifier = modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        ),
         title = {
             if (showSearch.value.not()) Text(title)
 
-            SearchField(showSearch, searchText, onSearchTextChanged, onClearClick)
+            SearchField(
+                showSearch = showSearch,
+                searchText = searchText,
+                onSearchTextChanged = onSearchTextChanged,
+                onClearClick = onClearClick,
+                hazeState = hazeState
+            )
         },
         navigationIcon = {},
         actions = {
@@ -118,53 +135,66 @@ private fun SearchField(
     showSearch: MutableState<Boolean>,
     searchText: String,
     onSearchTextChanged: (String) -> Unit,
-    onClearClick: () -> Unit
+    onClearClick: () -> Unit,
+    hazeState: HazeState? = null,
 ) {
-    var showClearButton by rememberSaveable { mutableStateOf(false) }
+    val showClearButton by remember { mutableStateOf(true) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboardDismissed = rememberSaveable { mutableStateOf(false) }
+    val hazeTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
 
-    if (showSearch.value) OutlinedTextField(modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 0.dp, end = 1.dp)
-        .defaultTextFieldBorder()
-        .onFocusChanged { focusState ->
-            showClearButton = focusState.isFocused
-        }
-        .focusRequester(focusRequester),
-        value = searchText,
-        onValueChange = onSearchTextChanged,
-        colors = secondaryTextColors(),
-        textStyle = MaterialTheme.typography.titleMedium,
-        trailingIcon = {
-            AnimatedVisibility(
-                visible = showSearch.value, enter = fadeIn(), exit = fadeOut()
-            ) {
-                IconButton(onClick = {
-                    onClearClick()
-                    showSearch.value = false
-                    keyboardDismissed.value = false
-                }) {
-                    Icon(
-                        imageVector = Filled.Close,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary
+    if (showSearch.value) {
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 0.dp, end = 1.dp)
+                .defaultTextFieldBorder()
+                .conditional(hazeState != null) {
+                    hazeEffect(
+                        state = hazeState,
+                        style = HazeStyle(
+                            blurRadius = 16.dp,
+                            tint = HazeTint(hazeTint)
+                        )
                     )
                 }
-            }
-        },
-        placeholder = { Text("Search...") },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = {
-            keyboardController?.hide()
-            focusManager.clearFocus()
-            keyboardDismissed.value = true
-        })
-    )
+                .focusRequester(focusRequester),
+            value = searchText,
+            onValueChange = onSearchTextChanged,
+            colors = secondaryTextColors(),
+            textStyle = MaterialTheme.typography.titleMedium,
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = showClearButton,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    IconButton(onClick = {
+                        onClearClick()
+                        showSearch.value = false
+                        keyboardDismissed.value = false
+                    }) {
+                        Icon(
+                            imageVector = Filled.Close,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+            },
+            placeholder = { Text("Search...") },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                keyboardDismissed.value = true
+            })
+        )
+    }
 
     LaunchedEffect(showSearch.value) {
         if (showSearch.value && keyboardDismissed.value.not()) {
