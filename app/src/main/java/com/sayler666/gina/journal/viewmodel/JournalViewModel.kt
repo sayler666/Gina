@@ -165,7 +165,9 @@ class JournalViewModel @Inject constructor(
 
     sealed interface ViewAction {
         data class NavToDay(val dayId: Int) : ViewAction
-        data class NavToAttachmentPreview(val imageId: Int, val attachmentIds: List<Int>) : ViewAction
+        data class NavToAttachmentPreview(val imageId: Int, val attachmentIds: List<Int>) :
+            ViewAction
+
         data object NavToManageAllFilesSettings : ViewAction
     }
 }

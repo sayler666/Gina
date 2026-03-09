@@ -50,7 +50,11 @@ fun SettingsButton(
                 onLongClick = { onLongClick?.invoke() }
             ),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                3.dp
+            )
+        ),
         elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Row(
@@ -91,9 +95,11 @@ fun SettingsButton(
                             modifier = Modifier.padding(end = 8.dp)
                         )
                     }
+
                     !loader -> {
                         Icon(Filled.ChevronRight, null, Modifier.padding(end = 8.dp))
                     }
+
                     else -> {
                         CircularProgressIndicator(
                             modifier = Modifier

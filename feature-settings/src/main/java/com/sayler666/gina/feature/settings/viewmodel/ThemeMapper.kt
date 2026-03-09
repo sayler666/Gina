@@ -1,6 +1,6 @@
 package com.sayler666.gina.feature.settings.viewmodel
 
-import com.sayler666.gina.feature.settings.R.string
+import com.sayler666.gina.resources.R.string
 import com.sayler666.gina.ui.theme.Theme
 import com.sayler666.gina.ui.theme.Theme.AlterBridge
 import com.sayler666.gina.ui.theme.Theme.DeepOcean

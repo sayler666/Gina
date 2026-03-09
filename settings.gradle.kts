@@ -1,4 +1,5 @@
 include(":domain-model")
+include(":resources")
 
 pluginManagement {
     includeBuild("build-logic")

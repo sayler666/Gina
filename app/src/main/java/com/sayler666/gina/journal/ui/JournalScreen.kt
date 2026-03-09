@@ -43,7 +43,6 @@ import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.gina.R
 import com.sayler666.gina.core.permission.Permissions.getManageAllFilesSettingsIntent
 import com.sayler666.gina.journal.viewmodel.JournalState
 import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
@@ -69,6 +68,7 @@ import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBot
 import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.LocalNavigator

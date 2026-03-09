@@ -38,10 +38,16 @@ fun GameOfLifeScreen() {
     Column {
         Row(modifier = Modifier.padding(16.dp)) {
             Button(onClick = { viewModel.stop() }) { Text("Stop") }
-            Button(modifier = Modifier.padding(start = 16.dp), onClick = { viewModel.resume() }) { Text("Resume") }
-            Button(modifier = Modifier.padding(start = 16.dp), onClick = { viewModel.restart() }) { Text("Restart") }
+            Button(
+                modifier = Modifier.padding(start = 16.dp),
+                onClick = { viewModel.resume() }) { Text("Resume") }
+            Button(
+                modifier = Modifier.padding(start = 16.dp),
+                onClick = { viewModel.restart() }) { Text("Restart") }
             Text(
-                modifier = Modifier.width(200.dp).padding(top = 8.dp),
+                modifier = Modifier
+                    .width(200.dp)
+                    .padding(top = 8.dp),
                 text = "${uiState.step}",
                 textAlign = TextAlign.End,
                 fontWeight = FontWeight.Bold,
@@ -49,19 +55,35 @@ fun GameOfLifeScreen() {
             )
         }
         Canvas(
-            modifier = Modifier.fillMaxSize().padding(start = 16.dp).padding(end = 16.dp).padding(top = 0.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp)
+                .padding(end = 16.dp)
+                .padding(top = 0.dp)
         ) {
             val canvasSize = minOf(size.width, size.height)
             val space = canvasSize / uiState.resolution
             drawRect(color = surfaceColor, size = Size(size.width, size.width))
             for (i in 0..uiState.resolution) {
-                drawLine(color = Color(0x4DFFFFFF), start = Offset(x = i * space, y = 0f), end = Offset(x = i * space, y = canvasSize))
-                drawLine(color = Color(0x4DFFFFFF), start = Offset(y = i * space, x = 0f), end = Offset(y = i * space, x = canvasSize))
+                drawLine(
+                    color = Color(0x4DFFFFFF),
+                    start = Offset(x = i * space, y = 0f),
+                    end = Offset(x = i * space, y = canvasSize)
+                )
+                drawLine(
+                    color = Color(0x4DFFFFFF),
+                    start = Offset(y = i * space, x = 0f),
+                    end = Offset(y = i * space, x = canvasSize)
+                )
             }
             for (x in 0 until uiState.resolution) {
                 for (y in 0 until uiState.resolution) {
                     if (uiState.data[x][y]) {
-                        drawRect(color = primaryColor, topLeft = Offset(x = x * space, y = y * space), size = Size(space, space))
+                        drawRect(
+                            color = primaryColor,
+                            topLeft = Offset(x = x * space, y = y * space),
+                            size = Size(space, space)
+                        )
                     }
                 }
             }

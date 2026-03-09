@@ -3,8 +3,6 @@ package com.sayler666.gina.feature.settings.ui
 import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,35 +21,40 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
-import com.sayler666.core.file.Files
+import com.sayler666.core.compose.scroll.rememberScrollConnection
+import com.sayler666.gina.feature.settings.reminder.NotActive
 import com.sayler666.gina.feature.settings.viewmodel.SettingsState
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageCompressionToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderSet
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
-import com.sayler666.gina.feature.settings.reminder.NotActive
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 
@@ -89,11 +91,16 @@ fun SettingsScreen(
 private fun Content(
     state: SettingsState?,
     viewEvent: (ViewEvent) -> Unit,
-    notificationPermissionState: com.google.accompanist.permissions.PermissionState,
+    notificationPermissionState: PermissionState,
 ) {
+    val nestedScrollConnection = rememberScrollConnection(
+        onScrollDown = { viewEvent(OnHideBottomBar) },
+        onScrollUp = { viewEvent(OnShowBottomBar) }
+    )
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Settings") })
+            TopAppBar(title = { Text(stringResource(R.string.settings)) })
         },
         content = { padding ->
             Column(
@@ -101,10 +108,11 @@ private fun Content(
                     .fillMaxSize()
                     .padding(padding)
                     .padding(horizontal = 16.dp)
+                    .nestedScroll(nestedScrollConnection)
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(Modifier.padding(top = 16.dp))
-                SettingsSectionHeader("Database")
+                SettingsSectionHeader(stringResource(R.string.settings_section_database))
                 DatabaseSettingsButtonWithLauncher(
                     databasePath = state?.databasePath,
                     onNewDbFileSelected = { path ->
@@ -116,12 +124,12 @@ private fun Content(
                     loader = state?.showDbCardLoader ?: false
                 )
                 SettingsButton(
-                    header = "Friends",
-                    body = "Manage friends list",
+                    header = stringResource(R.string.settings_friends),
+                    body = stringResource(R.string.settings_manage_friends_list),
                     icon = Filled.People,
                     onClick = { viewEvent(OnManageFriendsPressed) }
                 )
-                SettingsSectionHeader("Attachments")
+                SettingsSectionHeader(stringResource(R.string.settings_section_attachments))
                 ImageCompressSettingsSection(
                     state?.imageOptimizationSettings,
                     onSetImageQuality = { quality ->
@@ -131,7 +139,7 @@ private fun Content(
                         viewEvent(OnImageCompressionToggled(enabled))
                     }
                 )
-                SettingsSectionHeader("Personalize")
+                SettingsSectionHeader(stringResource(R.string.settings_section_personalize))
                 ThemesSettingsSections(state?.themes ?: emptyList()) { theme ->
                     viewEvent(OnThemeSelected(theme))
                 }
@@ -148,38 +156,27 @@ private fun Content(
                     }
                 )
                 SettingsButton(
-                    header = "Incognito Mode",
-                    body = if (state?.incognitoMode == true) "Scrambles text content in screenshots" else "Off",
+                    header = stringResource(R.string.settings_incognito_mode),
+                    body = if (state?.incognitoMode == true) stringResource(R.string.settings_incognito_enabled) else stringResource(
+                        R.string.settings_incognito_disabled
+                    ),
                     icon = Filled.Visibility,
-                    onClick = { viewEvent(OnIncognitoModeToggled(!(state?.incognitoMode ?: false))) },
+                    onClick = {
+                        viewEvent(
+                            OnIncognitoModeToggled(
+                                !(state?.incognitoMode ?: false)
+                            )
+                        )
+                    },
                     checked = state?.incognitoMode ?: false,
                     onCheckedChange = { viewEvent(OnIncognitoModeToggled(it)) }
                 )
                 Spacer(
                     modifier = Modifier.windowInsetsBottomHeight(
-                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT*2)
+                        WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT * 2)
                     )
                 )
             }
         })
 }
 
-@Composable
-private fun DatabaseSettingsButtonWithLauncher(
-    databasePath: String?,
-    onNewDbFileSelected: (String) -> Unit,
-    onLongPress: () -> Unit,
-    loader: Boolean,
-) {
-    val databaseResult = rememberLauncherForActivityResult(StartActivityForResult()) {
-        it.data?.data?.path?.let { path -> onNewDbFileSelected(path) }
-    }
-    SettingsButton(
-        header = "Database file",
-        body = databasePath ?: "",
-        icon = Filled.Book,
-        onClick = { databaseResult.launch(Files.selectFileIntent()) },
-        onLongClick = onLongPress,
-        loader = loader
-    )
-}

@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.feature.settings.viewmodel.ColorsPreview
 import com.sayler666.gina.feature.settings.viewmodel.ThemeItem
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.theme.Theme
 import kotlinx.coroutines.launch
 
@@ -51,8 +52,8 @@ fun ThemesSettingsSections(
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val current = themes.firstOrNull { it.selected }?.name
     SettingsButton(
-        header = "Theme",
-        body = current?.let { stringResource(id = it) } ?: "Theme",
+        header = stringResource(R.string.settings_theme),
+        body = current?.let { stringResource(id = it) } ?: stringResource(R.string.settings_theme),
         icon = Filled.ColorLens,
         onClick = {
             openBottomSheet = true
@@ -86,7 +87,7 @@ private fun ThemesBottomSheet(
             Column {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text("Theme")
+                        Text(stringResource(R.string.settings_theme))
                     }, actions = {
                         IconButton(onClick = {
                             scope.launch {
@@ -95,7 +96,10 @@ private fun ThemesBottomSheet(
                                 if (!sheetState.isVisible) onDismiss()
                             }
                         }) {
-                            Icon(Rounded.Close, contentDescription = "Close")
+                            Icon(
+                                Rounded.Close,
+                                contentDescription = stringResource(R.string.settings_close)
+                            )
                         }
                     }, colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)

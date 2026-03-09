@@ -33,9 +33,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.feature.settings.reminder.Active
 import com.sayler666.gina.feature.settings.reminder.ReminderState
+import com.sayler666.gina.resources.R
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
@@ -51,8 +53,10 @@ fun ReminderSettingsSections(
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     SettingsButton(
-        header = "Reminder",
-        body = if (currentReminder is Active) currentReminder.time.format(ISO_LOCAL_TIME) else "Off",
+        header = stringResource(R.string.settings_reminder),
+        body = if (currentReminder is Active) currentReminder.time.format(ISO_LOCAL_TIME) else stringResource(
+            R.string.settings_incognito_disabled
+        ),
         icon = if (currentReminder is Active) Filled.AlarmOn else Filled.AlarmOff,
         onClick = { showBottomSheet = true }
     )
@@ -72,7 +76,7 @@ fun ReminderSettingsSections(
         ) {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Reminder")
+                    Text(stringResource(R.string.settings_reminder))
                 }, actions = {
                     IconButton(onClick = {
                         scope.launch {
@@ -81,7 +85,10 @@ fun ReminderSettingsSections(
                             if (!sheetState.isVisible) showBottomSheet = false
                         }
                     }) {
-                        Icon(Rounded.Close, contentDescription = "Close")
+                        Icon(
+                            Rounded.Close,
+                            contentDescription = stringResource(R.string.settings_close)
+                        )
                     }
                 }, colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
@@ -113,7 +120,7 @@ fun ReminderSettingsSections(
                                 if (!sheetState.isVisible) showBottomSheet = false
                             }
                         }
-                    ) { Text("Remove") }
+                    ) { Text(stringResource(R.string.settings_reminder_remove)) }
                     Spacer(modifier = Modifier.width(16.dp))
                 }
                 Button(
@@ -129,7 +136,13 @@ fun ReminderSettingsSections(
                             if (!sheetState.isVisible) showBottomSheet = false
                         }
                     }
-                ) { Text(if (currentReminder is Active) "Update" else "Set") }
+                ) {
+                    Text(
+                        if (currentReminder is Active) stringResource(R.string.settings_reminder_update) else stringResource(
+                            R.string.settings_reminder_set
+                        )
+                    )
+                }
             }
         }
     }
