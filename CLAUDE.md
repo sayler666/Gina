@@ -104,6 +104,8 @@ private fun Content(state: ViewState?, viewEvent: (ViewEvent) -> Unit) {
 }
 ```
 
+- All string and resources are in :resources module
+
 ---
 
 ## Navigation (Jetpack Nav3)
