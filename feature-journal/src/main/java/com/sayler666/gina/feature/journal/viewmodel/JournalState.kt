@@ -1,8 +1,8 @@
-package com.sayler666.gina.journal.viewmodel
+package com.sayler666.gina.feature.journal.viewmodel
 
 import com.sayler666.domain.model.journal.Mood
-import com.sayler666.gina.journal.ui.DayRowState
-import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
+import com.sayler666.gina.feature.journal.ui.DayRowState
+import com.sayler666.gina.feature.journal.ui.HorizontalImagesCarouselState
 
 sealed class JournalState(val filtersActive: Boolean = false) {
     data class DaysState(
@@ -19,5 +19,3 @@ sealed class JournalState(val filtersActive: Boolean = false) {
     data class EmptySearchState(val activeFilters: Boolean = false) : JournalState(activeFilters)
     data object PermissionNeededState : JournalState()
 }
-
-

@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.viewmodel
+package com.sayler666.gina.feature.journal.viewmodel
 
 import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.getDayOfMonth
@@ -10,12 +10,12 @@ import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.viewmodel.toState
-import com.sayler666.gina.journal.ui.DayRowState
-import com.sayler666.gina.journal.ui.HorizontalImagesCarouselState
-import com.sayler666.gina.journal.ui.ImageAttachmentState
-import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
-import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
-import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
+import com.sayler666.gina.feature.journal.ui.DayRowState
+import com.sayler666.gina.feature.journal.ui.HorizontalImagesCarouselState
+import com.sayler666.gina.feature.journal.ui.ImageAttachmentState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.DaysState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptyState
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -108,4 +108,3 @@ class DaysMapper @Inject constructor() {
             }
     }
 }
-

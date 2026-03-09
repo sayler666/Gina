@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.usecase
+package com.sayler666.gina.feature.journal.usecase
 
 import com.sayler666.data.database.db.journal.JournalRepository
 import com.sayler666.domain.model.journal.AttachmentWithDay

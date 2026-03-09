@@ -23,6 +23,7 @@ dependencies {
     implementation(projects.featureInsights)
     implementation(projects.featureGallery)
     implementation(projects.featureDay)
+    implementation(projects.featureJournal)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

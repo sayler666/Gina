@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.ui
+package com.sayler666.gina.feature.journal.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -35,6 +35,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -43,29 +44,29 @@ import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.gina.core.permission.Permissions.getManageAllFilesSettingsIntent
-import com.sayler666.gina.journal.viewmodel.JournalState
-import com.sayler666.gina.journal.viewmodel.JournalState.DaysState
-import com.sayler666.gina.journal.viewmodel.JournalState.EmptySearchState
-import com.sayler666.gina.journal.viewmodel.JournalState.EmptyState
-import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
-import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
-import com.sayler666.gina.journal.viewmodel.JournalViewModel
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
+import com.sayler666.core.permission.Permissions
+import com.sayler666.gina.feature.journal.viewmodel.JournalState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.DaysState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptyState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.PermissionNeededState
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.resources.R
@@ -81,6 +82,7 @@ fun JournalScreen() {
     val viewModel: JournalViewModel = hiltViewModel()
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
+    val context = LocalContext.current
 
     val permissionsLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
         viewModel.onViewEvent(OnRefreshPermissionStatus)
@@ -94,7 +96,7 @@ fun JournalScreen() {
             )
 
             NavToManageAllFilesSettings -> permissionsLauncher.launch(
-                getManageAllFilesSettingsIntent()
+                Permissions.getManageAllFilesSettingsIntent(context)
             )
         }
     }
@@ -266,7 +268,7 @@ private fun AttachmentCarousel(
     state: HorizontalImagesCarouselState,
     onViewEvent: (ViewEvent) -> Unit,
 ) {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     HorizontalImagesCarousel(
         state = state,
         onImageClick = { id -> onViewEvent(OnAttachmentClick(id)) },

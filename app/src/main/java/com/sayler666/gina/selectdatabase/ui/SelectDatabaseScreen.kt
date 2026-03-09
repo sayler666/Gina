@@ -15,12 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.core.file.Files
-import com.sayler666.gina.core.permission.Permissions
+import com.sayler666.core.permission.Permissions
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.resources.R.string.select_database_grant_permission
 import com.sayler666.gina.resources.R.string.select_database_open_database
@@ -33,6 +34,7 @@ fun SelectDatabaseScreen(
     viewModel: SelectDatabaseViewModel = hiltViewModel()
 ) {
     val navigator = LocalNavigator.current
+    val context = LocalContext.current
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -57,7 +59,7 @@ fun SelectDatabaseScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                onClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent()) },
+                onClick = { permissionsResult.launch(Permissions.getManageAllFilesSettingsIntent(context)) },
             ) {
                 Text(
                     style = typography.labelLarge,
