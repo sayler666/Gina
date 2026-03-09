@@ -17,11 +17,11 @@ import com.sayler666.gina.attachments.ImagePreviewTmpScreen
 import com.sayler666.gina.calendar.CalendarScreen
 import com.sayler666.gina.dayDetails.DayDetailsScreen
 import com.sayler666.gina.dayDetailsEdit.DayDetailsEditScreen
+import com.sayler666.gina.feature.journal.ui.JournalScreen
 import com.sayler666.gina.friends.ManageFriendsScreen
 import com.sayler666.gina.gallery.GalleryScreen
 import com.sayler666.gina.gameoflife.ui.GameOfLifeScreen
 import com.sayler666.gina.insights.InsightsScreen
-import com.sayler666.gina.journal.ui.JournalScreen
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.selectdatabase.ui.SelectDatabaseScreen
 import com.sayler666.gina.settings.ui.SettingsScreen

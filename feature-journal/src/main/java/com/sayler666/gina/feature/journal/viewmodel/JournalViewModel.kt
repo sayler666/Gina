@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.viewmodel
+package com.sayler666.gina.feature.journal.viewmodel
 
 import android.os.Environment
 import androidx.lifecycle.ViewModel
@@ -7,24 +7,24 @@ import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.gina.feature.journal.usecase.PreviousYearsAttachmentsUseCase
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
+import com.sayler666.gina.feature.journal.viewmodel.JournalState.PermissionNeededState
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.feature.settings.SettingsStorage
-import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
-import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
-import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -63,7 +63,6 @@ class JournalViewModel @Inject constructor(
 
     init {
         initDb()
-
         observeJournalState()
     }
 

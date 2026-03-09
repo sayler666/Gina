@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.ui
+package com.sayler666.gina.feature.journal.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,8 +36,8 @@ data class DayRowState(
 
 @Composable
 fun DayRow(
-    state: DayRowState,
     modifier: Modifier = Modifier,
+    state: DayRowState,
     onClick: () -> Unit,
     incognitoMode: Boolean = false
 ) {

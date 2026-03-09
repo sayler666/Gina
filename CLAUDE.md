@@ -10,13 +10,19 @@ Crashlytics
 ## Modules
 
 - `:app` — Nav wiring, DI, `GinaApp`, `NavDisplay`, thin route wrappers
-- `:core` — Pure Kotlin utils (no Compose)
+- `:core` — Pure Kotlin utils (no Compose), `Permissions` utility
 - `:core-ui` — Shared Compose components, theme, `LocalNavigator`
 - `:resources` — All string resources (centralized `strings.xml`)
 - `:navigation` — `Route` sealed interface, `Navigator` backstack
 - `:domain-model` — Pure data models
 - `:data-database` — Room, DAOs, `JournalRepository`, use cases
-- `:feature-*` — UI, ViewModels, mappers, use cases per feature
+- `:feature-journal` — Journal list screen, VM, state, mappers, use cases
+- `:feature-day` — Day details, edit, add screens (with attachments, mood)
+- `:feature-calendar` — Calendar screen & VM
+- `:feature-gallery` — Gallery screen
+- `:feature-insights` — Insights/stats screen
+- `:feature-settings` — Settings screen, storage, view models
+- `:feature-friends` — Friends management
 - `:build-logic` — Gradle plugins
 
 **Module dependencies:** `:domain-model` ← `:navigation` ← `:core` ← `:resources` ← `:core-ui` ←
@@ -147,5 +153,3 @@ private fun Content(state: ViewState?, viewEvent: (ViewEvent) -> Unit) {
 ## Refactoring (Planned)
 
 1. **Split `JournalRepository`** — 4 concerns (days, attachments, friends, mood) → 4 repos
-2. **Extract `Journal` feature** — `JournalScreen`, `JournalViewModel`, `JournalState` currently in
-   `:app` → new `:feature-journal`

@@ -1,4 +1,4 @@
-package com.sayler666.gina.journal.ui
+package com.sayler666.gina.feature.journal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,10 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 
 @Composable
-fun ListStickyHeader(hazeState: HazeState, text: String) {
+fun ListStickyHeader(
+    text: String,
+    hazeState: HazeState
+) {
     Box {
         Box(
             Modifier
