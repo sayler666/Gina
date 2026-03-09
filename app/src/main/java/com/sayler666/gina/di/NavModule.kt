@@ -67,18 +67,35 @@ object NavModule {
                 key = key,
                 metadata = when (key.way) {
                     Way.NEXT -> NavDisplay.transitionSpec {
-                        slideInVertically (tween(ANIMATION_DURATION)) { it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
-                                slideOutVertically(tween(ANIMATION_DURATION)) { -it } + fadeOut(tween(ANIMATION_DURATION))
+                        slideInVertically(tween(ANIMATION_DURATION)) { it } + fadeIn(
+                            tween(
+                                ANIMATION_DURATION
+                            )
+                        ) togetherWith
+                                slideOutVertically(tween(ANIMATION_DURATION)) { -it } + fadeOut(
+                            tween(ANIMATION_DURATION)
+                        )
                     }
+
                     Way.PREVIOUS -> NavDisplay.transitionSpec {
-                        slideInVertically(tween(ANIMATION_DURATION)) { -it } + fadeIn(tween(ANIMATION_DURATION)) togetherWith
-                                slideOutVertically(tween(ANIMATION_DURATION)) { it } + fadeOut(tween(ANIMATION_DURATION))
+                        slideInVertically(tween(ANIMATION_DURATION)) { -it } + fadeIn(
+                            tween(
+                                ANIMATION_DURATION
+                            )
+                        ) togetherWith
+                                slideOutVertically(tween(ANIMATION_DURATION)) { it } + fadeOut(
+                            tween(
+                                ANIMATION_DURATION
+                            )
+                        )
                     }
+
                     else -> emptyMap()
                 }
             ) {
                 DayDetailsScreen(route = key)
             }
+
             else -> error("Unknown route: $key")
         }
     }

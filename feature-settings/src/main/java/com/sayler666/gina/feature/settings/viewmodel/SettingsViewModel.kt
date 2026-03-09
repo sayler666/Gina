@@ -2,26 +2,25 @@ package com.sayler666.gina.feature.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.withRawDao
-import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.feature.settings.reminder.NotActive
 import com.sayler666.gina.feature.settings.reminder.RemindersViewModel
-import com.sayler666.gina.feature.settings.reminder.ReminderState
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageCompressionToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderSet
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
 import com.sayler666.gina.ui.theme.Theme
@@ -46,6 +45,7 @@ class SettingsViewModel @Inject constructor(
     private val setting: SettingsStorage,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val themeMapper: ThemeMapper,
+    private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
     imageOptimizationViewModel: ImageOptimizationViewModel,
     remindersViewModel: RemindersViewModel
 ) : ViewModel() {
@@ -135,9 +135,16 @@ class SettingsViewModel @Inject constructor(
             OnBackPressed -> mutableViewActions.trySend(Back)
             OnManageFriendsPressed -> mutableViewActions.trySend(NavToManageFriends)
             OnVacuumDatabasePressed -> vacuumDatabase()
+            OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
+            OnShowBottomBar -> bottomNavigationVisibilityManager.show()
             is OnThemeSelected -> viewModelScope.launch { setting.saveTheme(event.theme) }
             is OnIncognitoModeToggled -> viewModelScope.launch { setting.saveIncognitoMode(event.enabled) }
-            is OnDatabaseFileSelected -> viewModelScope.launch { ginaDatabaseProvider.openAndRememberDB(event.path) }
+            is OnDatabaseFileSelected -> viewModelScope.launch {
+                ginaDatabaseProvider.openAndRememberDB(
+                    event.path
+                )
+            }
+
             is OnImageQualityChanged -> imageOptimizationVM.setNewImageQuality(event.quality)
             is OnImageCompressionToggled -> imageOptimizationVM.toggleImageCompression(event.enabled)
             is OnReminderSet -> remindersVM.setReminder(event.time)
@@ -168,6 +175,8 @@ class SettingsViewModel @Inject constructor(
         data object OnBackPressed : ViewEvent
         data object OnManageFriendsPressed : ViewEvent
         data object OnVacuumDatabasePressed : ViewEvent
+        data object OnHideBottomBar : ViewEvent
+        data object OnShowBottomBar : ViewEvent
         data class OnThemeSelected(val theme: Theme) : ViewEvent
         data class OnIncognitoModeToggled(val enabled: Boolean) : ViewEvent
         data class OnDatabaseFileSelected(val path: String) : ViewEvent

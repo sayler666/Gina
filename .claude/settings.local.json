@@ -44,7 +44,8 @@
       "Bash(jar xf:*)",
       "Bash(grep:*)",
       "Bash(xargs wc:*)",
-      "Bash(read f:*)"
+      "Bash(read f:*)",
+      "Bash(cp:*)"
     ]
   }
 }

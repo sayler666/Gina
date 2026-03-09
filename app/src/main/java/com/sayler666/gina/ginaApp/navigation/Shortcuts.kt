@@ -10,9 +10,9 @@ import android.content.Intent.ACTION_VIEW
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
-import com.sayler666.gina.R
 import com.sayler666.gina.addDay.ui.ADD_DAY_URL
 import com.sayler666.gina.ginaApp.MainActivity
+import com.sayler666.gina.resources.R
 
 fun addDayShortcut(context: Context) = ShortcutInfoCompat.Builder(context, "AddDay")
     .setShortLabel("Add new entry")

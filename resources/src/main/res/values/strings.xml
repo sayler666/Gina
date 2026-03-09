@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common -->
+    <string name="app_name">Gina</string>
+    <string name="days_label">Journal</string>
+    <string name="calendar_label">Calendar</string>
+    <string name="insights_label">Insights</string>
+    <string name="settings_label">Settings</string>
+    <string name="gallery_label">Gallery</string>
+    <string name="today">Today</string>
+    <string name="empty_search_result_title">Empty search result!</string>
+    <string name="empty_search_result_body">Try narrowing search criteria.</string>
+    <string name="empty_state_title">No data found!</string>
+    <string name="empty_state_body">Add some entries.</string>
+    <plurals name="years_ago_label">
+        <item quantity="one">Last year</item>
+        <item quantity="other">%1$d years ago</item>
+    </plurals>
+
+    <!-- Theme names -->
+    <string name="theme_firewatch">Firewatch</string>
+    <string name="theme_mountain_view">Mountain View</string>
+    <string name="theme_dynamic">Dynamic</string>
+    <string name="theme_legacy">Legacy</string>
+    <string name="theme_deep_ocean">Deep Ocean</string>
+    <string name="theme_golden_meadow_twilight">Golden Meadow Twilight</string>
+    <string name="theme_golden_alter_bridge">Alter Bridge</string>
+
+    <!-- SelectDatabase -->
+    <string name="select_database_open_database">Open database</string>
+    <string name="select_database_grant_permission">Grant files permission</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_section_database">Database</string>
+    <string name="settings_section_attachments">Attachments</string>
+    <string name="settings_section_personalize">Personalize</string>
+    <string name="settings_database_file">Database file</string>
+    <string name="settings_friends">Friends</string>
+    <string name="settings_manage_friends_list">Manage friends list</string>
+    <string name="settings_incognito_mode">Incognito Mode</string>
+    <string name="settings_incognito_enabled">Scrambles text</string>
+    <string name="settings_incognito_disabled">Off</string>
+    <string name="settings_image_optimization">Image optimization</string>
+    <string name="settings_image_quality">Quality</string>
+    <string name="settings_image_quality_percent">%</string>
+    <string name="settings_image_enable_optimization">Enable optimization:</string>
+    <string name="settings_image_disabled">Disabled</string>
+    <string name="settings_reminder">Reminder</string>
+    <string name="settings_reminder_remove">Remove</string>
+    <string name="settings_reminder_update">Update</string>
+    <string name="settings_reminder_set">Set</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_close">Close</string>
+</resources>

@@ -10,9 +10,9 @@ import android.graphics.BitmapFactory.decodeResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
-import com.sayler666.gina.R
 import com.sayler666.gina.ginaApp.navigation.addDayDestinationPendingIntent
 import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDERS_CHANNEL_ID
+import com.sayler666.gina.resources.R
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -77,7 +77,7 @@ class NotificationUseCaseImpl @Inject constructor(
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun createMainActivityIntent(context: Context): PendingIntent? =
+    private fun createMainActivityIntent(context: Context): PendingIntent =
         addDayDestinationPendingIntent(context)
 
     override fun hideNotificationById(notificationId: Int) {

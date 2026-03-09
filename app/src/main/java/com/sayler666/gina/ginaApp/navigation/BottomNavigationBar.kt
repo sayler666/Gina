@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.zIndex
-import com.sayler666.gina.R
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 import dev.chrisbanes.haze.HazeState

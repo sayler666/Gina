@@ -30,8 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
+import com.sayler666.gina.resources.R
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,8 +45,10 @@ fun ImageCompressSettingsSection(
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
     imageOptimizationSettings?.let {
         SettingsButton(
-            header = "Image optimization",
-            body = if (imageOptimizationSettings.compressionEnabled) "Quality: ${it.quality}%" else "Disabled",
+            header = stringResource(R.string.settings_image_optimization),
+            body = if (imageOptimizationSettings.compressionEnabled) stringResource(R.string.settings_image_quality) + ": ${it.quality}" + stringResource(
+                R.string.settings_image_quality_percent
+            ) else stringResource(R.string.settings_image_disabled),
             icon = Filled.PhotoSizeSelectLarge,
             onClick = { showImageCompressSettingsDialog.value = true }
         )
@@ -80,7 +84,7 @@ fun ImageCompressBottomSheet(
                 Column {
                     CenterAlignedTopAppBar(
                         title = {
-                            Text("Image optimization")
+                            Text(stringResource(R.string.settings_image_optimization))
                         }, actions = {
                             IconButton(onClick = {
                                 scope.launch {
@@ -89,7 +93,10 @@ fun ImageCompressBottomSheet(
                                     if (!sheetState.isVisible) onDismiss()
                                 }
                             }) {
-                                Icon(Rounded.Close, contentDescription = "Close")
+                                Icon(
+                                    Rounded.Close,
+                                    contentDescription = stringResource(R.string.settings_close)
+                                )
                             }
                         }, colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
@@ -101,11 +108,12 @@ fun ImageCompressBottomSheet(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Enable optimization:",
+                                text = stringResource(R.string.settings_image_enable_optimization),
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            Switch(checked = imageOptimizationSettings.compressionEnabled,
+                            Switch(
+                                checked = imageOptimizationSettings.compressionEnabled,
                                 onCheckedChange = {
                                     onImageCompressionToggled(it)
                                 })
@@ -113,7 +121,7 @@ fun ImageCompressBottomSheet(
                         var qualitySliderPosition by remember { mutableStateOf(it.quality.toFloat()) }
                         Row(modifier = Modifier.padding(8.dp)) {
                             Text(
-                                text = "Quality:",
+                                text = stringResource(R.string.settings_image_quality) + ":",
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Text(
