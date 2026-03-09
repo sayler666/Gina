@@ -18,15 +18,19 @@ import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnD
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
+import com.sayler666.gina.feature.settings.SettingsStorage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DayDetailsViewModel.Factory::class)
@@ -35,10 +39,22 @@ class DayDetailsViewModel @AssistedInject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousIdDayUseCase: GetNextPreviousIdDayUseCase,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
+    settingsStorage: SettingsStorage,
 ) : ViewModel() {
 
     private val mutableViewState: MutableStateFlow<DayDetailsState?> = MutableStateFlow(null)
-    val viewState: StateFlow<DayDetailsState?> = mutableViewState.asStateFlow()
+    val viewState: StateFlow<DayDetailsState?> = combine(
+        mutableViewState,
+        settingsStorage.getIncognitoModeFlow()
+    ) { dayState, incognito ->
+        dayState?.copy(incognitoMode = incognito)
+    }.distinctUntilChanged { previous, current ->
+        previous?.incognitoMode == current?.incognitoMode && previous?.id == current?.id
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(500),
+        null
+    )
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()

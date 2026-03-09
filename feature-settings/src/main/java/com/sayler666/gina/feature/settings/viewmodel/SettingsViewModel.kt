@@ -58,9 +58,19 @@ class SettingsViewModel @Inject constructor(
         viewModelScope, WhileSubscribed(500), emptyList()
     )
 
+    val incognitoMode: StateFlow<Boolean> = setting.getIncognitoModeFlow().stateIn(
+        viewModelScope, WhileSubscribed(500), false
+    )
+
     fun setTheme(theme: Theme) {
         viewModelScope.launch {
             setting.saveTheme(theme)
+        }
+    }
+
+    fun setIncognitoMode(enabled: Boolean) {
+        viewModelScope.launch {
+            setting.saveIncognitoMode(enabled)
         }
     }
 

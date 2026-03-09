@@ -48,7 +48,7 @@ fun YearMonthSwitcherPopup(
     onSelectDate: (LocalDate) -> Unit,
     currentYearMonth: YearMonth
 ) {
-    val viewModel = YearMonthSwitcherViewModel(currentYearMonth)
+    val viewModel = remember(currentYearMonth) { YearMonthSwitcherViewModel(currentYearMonth) }
     val date: LocalDate by viewModel.date.collectAsStateWithLifecycle()
 
     LaunchedEffect(currentYearMonth) {

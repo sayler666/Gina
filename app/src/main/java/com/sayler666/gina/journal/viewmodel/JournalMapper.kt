@@ -24,7 +24,8 @@ class DaysMapper @Inject constructor() {
         days: List<Day>,
         searchQuery: String,
         moods: List<Mood>,
-        previousYearsAttachments: List<AttachmentWithDay>
+        previousYearsAttachments: List<AttachmentWithDay>,
+        incognitoMode: Boolean = false
     ): JournalState {
 
         val daysResult = days.pmap {
@@ -58,7 +59,8 @@ class DaysMapper @Inject constructor() {
                 searchQuery = searchQuery,
                 previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
                 activeFilters = moods.size != Mood.entries.size,
-                moods = moods
+                moods = moods,
+                incognitoMode = incognitoMode
             )
 
             else -> EmptyState(activeFilters = moods.size != Mood.entries.size)

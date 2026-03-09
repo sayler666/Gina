@@ -7,6 +7,7 @@ import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.journal.viewmodel.JournalState.PermissionNeededState
@@ -47,7 +48,8 @@ class JournalViewModel @Inject constructor(
     private val getDaysUseCase: GetDaysUseCase,
     private val daysMapper: DaysMapper,
     private val previousYearsAttachmentsUseCase: PreviousYearsAttachmentsUseCase,
-    private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager
+    private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
+    private val settingsStorage: SettingsStorage
 ) : ViewModel() {
 
     private val mutableViewState = MutableStateFlow(createInitialState())
@@ -73,11 +75,13 @@ class JournalViewModel @Inject constructor(
         combine(
             mutableMoodFilters,
             mutableSearchQuery,
-            previousYearsAttachmentsUseCase()
-        ) { moods, search, attachments ->
-            Triple(moods, search, attachments)
+            previousYearsAttachmentsUseCase(),
+            settingsStorage.getIncognitoModeFlow()
+        ) { moods, search, attachments, incognito ->
+            Triple(moods, search, attachments) to incognito
         }
-            .flatMapLatest { (moods, search, attachments) ->
+            .flatMapLatest { (params, incognito) ->
+                val (moods, search, attachments) = params
                 getDaysUseCase
                     .getFilteredDaysFlow(search, moods)
                     .map { days ->
@@ -85,7 +89,8 @@ class JournalViewModel @Inject constructor(
                             days = days,
                             searchQuery = search,
                             moods = moods,
-                            previousYearsAttachments = attachments
+                            previousYearsAttachments = attachments,
+                            incognitoMode = incognito
                         )
                     }
             }

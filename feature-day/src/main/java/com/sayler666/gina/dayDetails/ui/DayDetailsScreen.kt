@@ -85,6 +85,7 @@ import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayTitle
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
@@ -232,17 +233,24 @@ private suspend fun onViewAction(
 
 @Composable
 private fun Text(state: DayDetailsState) {
-    val richTextState = rememberRichTextState()
-    richTextState.setTextOrHtml(state.content)
-
     Column(modifier = Modifier.padding(16.dp, 8.dp)) {
         WordCharsCounter(text = state.content.getTextWithoutHtml())
         SelectionContainer {
-            RichText(
-                state = richTextState,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            if (state.incognitoMode) {
+                CaesarCipherText(
+                    text = state.content.getTextWithoutHtml(),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            } else {
+                val richTextState = rememberRichTextState()
+                richTextState.setTextOrHtml(state.content)
+                RichText(
+                    state = richTextState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
