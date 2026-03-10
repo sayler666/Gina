@@ -10,16 +10,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sayler666.gina.calendar.viewmodel.CalendarDayEntity
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
+import com.sayler666.gina.resources.R
 import java.time.LocalDate
 
 @Composable
@@ -30,7 +30,7 @@ fun DatePickerDialog(
     onDateChanged: (LocalDate) -> Unit,
 ) {
     val viewModel: CalendarViewModel = hiltViewModel()
-    val days: List<CalendarDayEntity> by viewModel.days.collectAsStateWithLifecycle()
+    val days = viewModel.viewState.collectAsStateWithLifecycle().value.days
     val selectedDay = remember { mutableStateOf(initialDate) }
 
     if (showPopup) {
@@ -57,7 +57,7 @@ fun DatePickerDialog(
                         modifier = Modifier.weight(0.5f),
                         shape = MaterialTheme.shapes.medium,
                         onClick = { onDismiss() }
-                    ) { Text("Cancel") }
+                    ) { Text(stringResource(R.string.calendar_cancel)) }
                     Spacer(modifier = Modifier.weight(.025f))
                     Button(
                         modifier = Modifier.weight(0.5f),
@@ -66,7 +66,7 @@ fun DatePickerDialog(
                             onDismiss()
                             onDateChanged(selectedDay.value)
                         }
-                    ) { Text("Save") }
+                    ) { Text(stringResource(R.string.calendar_save)) }
                 }
             }
         }

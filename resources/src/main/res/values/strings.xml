@@ -54,6 +54,11 @@
     <string name="settings_theme">Theme</string>
     <string name="settings_close">Close</string>
 
+    <!-- Calendar -->
+    <string name="calendar_cancel">Cancel</string>
+    <string name="calendar_ok">OK</string>
+    <string name="calendar_save">Save</string>
+
     <!-- Day -->
     <string name="day_discard_changes_title">Discard changes</string>
     <string name="day_discard_changes_text">Do you really want to discard changes?</string>
