@@ -65,7 +65,7 @@ import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.resources.R
-import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.DayDateHeader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -109,7 +109,7 @@ fun TopBar(
                     onChangeDateClicked()
                 }
             ) {
-                DayTitle(
+                DayDateHeader(
                     dayOfMonth = dayOfMonth,
                     dayOfWeek = dayOfWeek,
                     yearAndMonth = yearAndMonth

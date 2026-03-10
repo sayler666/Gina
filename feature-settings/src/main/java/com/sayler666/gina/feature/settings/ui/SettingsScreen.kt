@@ -3,6 +3,7 @@ package com.sayler666.gina.feature.settings.ui
 import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,11 +17,14 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -100,11 +104,17 @@ private fun Content(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.settings)) })
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                title = { Text(stringResource(R.string.settings)) }
+            )
         },
         content = { padding ->
             Column(
                 modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
                     .fillMaxSize()
                     .padding(padding)
                     .padding(horizontal = 16.dp)

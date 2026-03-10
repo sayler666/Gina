@@ -147,9 +147,9 @@ private fun Toolbar(
             state = hazeState,
             style = HazeStyle(
                 blurRadius = 24.dp,
-                backgroundColor = MaterialTheme.colorScheme.surface,
+                backgroundColor = MaterialTheme.colorScheme.background,
                 tint = HazeTint(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 )
             )
         ) {
@@ -251,12 +251,10 @@ private fun DayList(
     }
 
     val hazeState = rememberHazeState()
-
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
-
     val daysGrouped = days.groupBy { it.header }
     LazyColumn(
-        Modifier.nestedScroll(nestedScrollConnection),
+        modifier = Modifier.nestedScroll(nestedScrollConnection),
         state = listState,
         contentPadding = PaddingValues(top = topPadding)
     ) {

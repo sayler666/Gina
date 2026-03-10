@@ -24,6 +24,9 @@ dependencies {
     ksp(libs.dagger.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
 
+    // Navigation3
+    implementation(libs.navigation3.ui)
+
     // AndroidX
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.runtime.compose)

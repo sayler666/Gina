@@ -111,7 +111,11 @@ private fun Content(
     onResetFilters: () -> Unit
 ) {
     val hazeState = rememberHazeState()
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorScheme.background)
+    ) {
         InsightsContent(
             state = state,
             hazeState = hazeState,
@@ -146,10 +150,8 @@ private fun Toolbar(
             state = hazeState,
             style = HazeStyle(
                 blurRadius = 24.dp,
-                backgroundColor = MaterialTheme.colorScheme.surface,
-                tint = HazeTint(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 1f),
-                )
+                backgroundColor = colorScheme.background,
+                tint = HazeTint(colorScheme.background.copy(alpha = 0.7f))
             )
         ) {
             progressive =
