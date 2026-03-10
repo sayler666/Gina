@@ -27,10 +27,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DayDetailsViewModel.Factory::class)
@@ -55,21 +53,13 @@ class DayDetailsViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
-        observeIncognitoMode()
-    }
-
-    private fun observeIncognitoMode() {
-        settingsStorage.getIncognitoModeFlow()
-            .onEach { incognito ->
-                mutableViewState.update { it?.copy(incognitoMode = incognito) }
-            }
-            .launchIn(viewModelScope)
     }
 
     private fun fetchDayDetails() {
         viewModelScope.launch {
+            val incognito = settingsStorage.getIncognitoModeFlow().first()
             getDayDetailsUseCase.getDayDetails(dayId)
-                .onSuccess { mutableViewState.emit(it.toState()) }
+                .onSuccess { mutableViewState.emit(it.toState(incognito)) }
         }
     }
 
