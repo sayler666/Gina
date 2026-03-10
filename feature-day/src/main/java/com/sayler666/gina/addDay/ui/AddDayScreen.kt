@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -39,6 +40,7 @@ import com.sayler666.gina.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.Back
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowDiscardDialog
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent
@@ -73,6 +75,7 @@ import com.sayler666.gina.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -80,7 +83,6 @@ import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -98,16 +100,7 @@ fun AddDayScreen(
     val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
 
-    var content by remember {
-        mutableStateOf(TextFieldValue(state?.content ?: ""))
-    }
-    LaunchedEffect(Unit) {
-        viewModel.reinitializeText.collectLatest {
-            state?.content?.let {
-                content = TextFieldValue(it)
-            }
-        }
-    }
+    var content by remember { mutableStateOf(TextFieldValue(state?.content ?: "")) }
 
     val showDiscardConfirmationDialog = rememberDiscardDialog()
 
@@ -126,7 +119,8 @@ fun AddDayScreen(
             navigator,
             addAttachmentLauncher,
             addAttachmentRequest,
-            showDiscardConfirmationDialog
+            showDiscardConfirmationDialog,
+            onReinitializeText = { content = TextFieldValue(it) }
         )
     }
 
@@ -146,19 +140,20 @@ private fun onViewAction(
     addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     addAttachmentRequest: PickVisualMediaRequest,
     showDiscardConfirmationDialog: MutableState<Boolean>,
+    onReinitializeText: (String) -> Unit,
 ) {
     when (action) {
         Back -> navigator.back()
-
         is NavToAttachment -> navigator.navigate(
-            Route.ImagePreviewTmp(action.image, action.mimeType)
+            Route.ImagePreviewTmp(
+                action.image,
+                action.mimeType
+            )
         )
 
-        ShowAttachmentPicker -> {
-            addAttachmentLauncher.launch(addAttachmentRequest)
-        }
-
+        ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
         ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
+        is ReinitializeText -> onReinitializeText(action.content)
     }
 }
 
@@ -264,10 +259,10 @@ private fun rememberDiscardDialog(): MutableState<Boolean> {
     val navigator = LocalNavigator.current
     val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
     ConfirmationDialog(
-        title = "Discard changes",
-        text = "Do you really want to discard changes?",
-        confirmButtonText = "Discard",
-        dismissButtonText = "Cancel",
+        title = stringResource(R.string.day_discard_changes_title),
+        text = stringResource(R.string.day_discard_changes_text),
+        confirmButtonText = stringResource(R.string.day_discard_confirm),
+        dismissButtonText = stringResource(R.string.day_cancel),
         showDialog = showDiscardConfirmationDialog
     ) { navigator.back() }
     return showDiscardConfirmationDialog

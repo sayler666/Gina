@@ -25,12 +25,12 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DayDetailsViewModel.Factory::class)
@@ -39,22 +39,11 @@ class DayDetailsViewModel @AssistedInject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousIdDayUseCase: GetNextPreviousIdDayUseCase,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
-    settingsStorage: SettingsStorage,
+    private val settingsStorage: SettingsStorage,
 ) : ViewModel() {
 
     private val mutableViewState: MutableStateFlow<DayDetailsState?> = MutableStateFlow(null)
-    val viewState: StateFlow<DayDetailsState?> = combine(
-        mutableViewState,
-        settingsStorage.getIncognitoModeFlow()
-    ) { dayState, incognito ->
-        dayState?.copy(incognitoMode = incognito)
-    }.distinctUntilChanged { previous, current ->
-        previous?.incognitoMode == current?.incognitoMode && previous?.id == current?.id
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(500),
-        null
-    )
+    val viewState: StateFlow<DayDetailsState?> = mutableViewState.asStateFlow()
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
@@ -66,6 +55,15 @@ class DayDetailsViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
+        observeIncognitoMode()
+    }
+
+    private fun observeIncognitoMode() {
+        settingsStorage.getIncognitoModeFlow()
+            .onEach { incognito ->
+                mutableViewState.update { it?.copy(incognitoMode = incognito) }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun fetchDayDetails() {
@@ -96,24 +94,16 @@ class DayDetailsViewModel @AssistedInject constructor(
     private fun goToNextDay() {
         viewModelScope.launch {
             getNextPreviousIdDayUseCase.getNextDayId(dayId)
-                .onSuccess { dayId ->
-                    mutableViewActions.trySend(NavToNextDay(dayId))
-                }
-                .onFailure { error ->
-                    mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty()))
-                }
+                .onSuccess { dayId -> mutableViewActions.trySend(NavToNextDay(dayId)) }
+                .onFailure { error -> mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty())) }
         }
     }
 
     private fun goToPreviousDay() {
         viewModelScope.launch {
             getNextPreviousIdDayUseCase.getPreviousDayId(dayId)
-                .onSuccess { dayId ->
-                    mutableViewActions.trySend(NavToPreviousDay(dayId))
-                }
-                .onFailure { error ->
-                    mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty()))
-                }
+                .onSuccess { dayId -> mutableViewActions.trySend(NavToPreviousDay(dayId)) }
+                .onFailure { error -> mutableViewActions.trySend(ShowSnackBar(error.message.orEmpty())) }
         }
     }
 
@@ -127,7 +117,12 @@ class DayDetailsViewModel @AssistedInject constructor(
     }
 
     sealed interface ViewAction {
-        data class NavToAttachment(val attachmentId: Int, val dayId: Int, val attachmentIds: List<Int>) : ViewAction
+        data class NavToAttachment(
+            val attachmentId: Int,
+            val dayId: Int,
+            val attachmentIds: List<Int>
+        ) : ViewAction
+
         data class NavToDayDetails(val dayId: Int) : ViewAction
         data class NavToNextDay(val dayId: Int) : ViewAction
         data class NavToPreviousDay(val dayId: Int) : ViewAction

@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
@@ -63,6 +64,7 @@ import com.sayler666.gina.friends.ui.FriendsPicker
 import com.sayler666.gina.mood.ui.MoodIcon
 import com.sayler666.gina.mood.ui.MoodPicker
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.DayTitle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,7 +84,7 @@ fun rememberLauncherForMultipleImages(
 @Composable
 fun AttachmentsCountLabel(count: Int) {
     Text(
-        text = "Attachments: $count",
+        text = stringResource(R.string.day_attachments_count, count),
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary),
         modifier = Modifier.padding(start = 16.dp, top = 16.dp)
     )
@@ -257,7 +259,7 @@ fun Friends(
 fun Mood(
     mood: Mood,
     showMoodPopup: MutableState<Boolean>,
-    onMoodChanged: (com.sayler666.domain.model.journal.Mood) -> Unit
+    onMoodChanged: (Mood) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val moodIcon: MoodIcon = mood.mapToMoodIcon()
@@ -301,7 +303,7 @@ class MoodIconAnimation(
 ) {
     @Composable
     fun animateMoodIconAsState(
-        mood: com.sayler666.domain.model.journal.Mood?,
+        mood: Mood?,
         active: Boolean
     ): State<MoodIconAnimParam> {
         val fraction = remember { Animatable(0f) }

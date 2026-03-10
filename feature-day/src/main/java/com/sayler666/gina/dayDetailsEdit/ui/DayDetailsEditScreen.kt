@@ -29,12 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.image.ImageOptimization
 import com.sayler666.domain.model.journal.Mood
@@ -44,114 +46,148 @@ import com.sayler666.gina.attachments.ui.ImageThumbnail
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentsAdded
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendSearchQueryChanged
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageCompressionToggled
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageQualityChanged
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
+import com.sayler666.gina.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DayDetailsEditScreen(
     dayId: Int,
 ) {
-    val viewModel: DayDetailsEditViewModel = hiltViewModel<DayDetailsEditViewModel, DayDetailsEditViewModel.Factory>(key = dayId.toString()) { it.create(dayId) }
-    val context = LocalContext.current
+    val viewModel: DayDetailsEditViewModel =
+        hiltViewModel<DayDetailsEditViewModel, DayDetailsEditViewModel.Factory>(key = dayId.toString()) {
+            it.create(dayId)
+        }
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
+    val context = LocalContext.current
+
     val addAttachmentLauncher =
         rememberLauncherForMultipleImages(context = context) { attachments ->
-            viewModel.addAttachments(attachments)
+            viewModel.onViewEvent(OnAttachmentsAdded(attachments))
         }
-    val addAttachmentRequest: PickVisualMediaRequest = Builder()
-        .setMediaType(ImageOnly)
-        .build()
+    val addAttachmentRequest: PickVisualMediaRequest = Builder().setMediaType(ImageOnly).build()
 
-    val dayStored: DayDetailsEntity? by viewModel.day.collectAsStateWithLifecycle()
-    val dayTemp: DayDetailsEntity? by viewModel.tempDay.collectAsStateWithLifecycle()
-    val currentDay = dayTemp ?: dayStored
-    val changesExist: Boolean by viewModel.changesExist.collectAsStateWithLifecycle()
+    var content by remember { mutableStateOf(TextFieldValue()) }
+    LaunchedEffect(viewState.currentDay?.content != null) {
+        viewState.currentDay?.content?.let { content = TextFieldValue(it) }
+    }
 
-    LaunchedEffect(Unit) {
-        viewModel.navigateToList.collectLatest {
-            navigator.popUntil { it !is Route.DayDetails && it !is Route.DayDetailsEdit }
+    val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
+    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
+
+    ConfirmationDialog(
+        title = stringResource(R.string.day_discard_changes_title),
+        text = stringResource(R.string.day_discard_changes_text),
+        confirmButtonText = stringResource(R.string.day_discard_confirm),
+        dismissButtonText = stringResource(R.string.day_cancel),
+        showDialog = showDiscardConfirmationDialog,
+    ) { navigator.back() }
+
+    ConfirmationDialog(
+        title = stringResource(R.string.day_remove_title),
+        text = stringResource(R.string.day_remove_text),
+        confirmButtonText = stringResource(R.string.day_remove_confirm),
+        dismissButtonText = stringResource(R.string.day_cancel),
+        showDialog = showDeleteConfirmationDialog,
+    ) { viewModel.onViewEvent(OnRemoveDayPressed) }
+
+    BackHandler { viewModel.onViewEvent(OnBackPressed) }
+
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        when (action) {
+            Back -> navigator.back()
+            NavToList -> navigator.popUntil { it !is Route.DayDetails && it !is Route.DayDetailsEdit }
+            ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
+            ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
+            is ReinitializeText -> content = TextFieldValue(action.content)
         }
     }
 
-    val showDeleteConfirmationDialog = rememberConfirmationDialog(viewModel)
-    val showDiscardConfirmationDialog = rememberDiscardDialog()
+    Content(
+        viewState = viewState,
+        textFieldValue = content,
+        viewEvent = viewModel::onViewEvent,
+        imageOptimizationSettings = imageOptimizationSettings,
+        showDeleteConfirmationDialog = showDeleteConfirmationDialog,
+    )
+}
+
+@Composable
+private fun Content(
+    viewState: DayDetailsEditViewModel.ViewState,
+    textFieldValue: TextFieldValue,
+    viewEvent: (ViewEvent) -> Unit,
+    imageOptimizationSettings: ImageOptimization.OptimizationSettings?,
+    showDeleteConfirmationDialog: MutableState<Boolean>,
+) {
     val showDatePickerPopup = remember { mutableStateOf(false) }
-    val workingCopy: Boolean by viewModel.hasWorkingCopy.collectAsStateWithLifecycle(false)
-
-    fun onBackPress() {
-        handleBackPress(changesExist, showDiscardConfirmationDialog, navigator::back)
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.navigateBack.collectLatest { navigator.back() }
-    }
-
-    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
-
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
     val showFormatRow = remember { mutableStateOf(false) }
-    var content by remember { mutableStateOf(TextFieldValue()) }
-    LaunchedEffect(dayTemp?.content != null) {
-        dayTemp?.content?.let { content = TextFieldValue(it) }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.reinitializeText.collectLatest {
-            dayTemp?.content?.let {
-                content = TextFieldValue(it)
-            }
-        }
-    }
-
-    BackHandler(onBack = ::onBackPress)
 
     Scaffold(
         Modifier.imePadding(),
         topBar = {
-            currentDay?.let { day ->
+            viewState.currentDay?.let { day ->
                 TopBar(
                     dayOfMonth = day.dayOfMonth,
                     dayOfWeek = day.dayOfWeek,
                     yearAndMonth = day.yearAndMonth,
-                    hasWorkingCopy = workingCopy,
-                    onNavigateBackClicked = ::onBackPress,
-                    onChangeDateClicked = {
-                        showDatePickerPopup.value = true
-                    },
-                    onRestoreWorkingCopyClicked = {
-                        viewModel.restoreWorkingCopy()
-                    }
+                    hasWorkingCopy = viewState.hasWorkingCopy,
+                    onNavigateBackClicked = { viewEvent(OnBackPressed) },
+                    onChangeDateClicked = { showDatePickerPopup.value = true },
+                    onRestoreWorkingCopyClicked = { viewEvent(OnRestoreWorkingCopyPressed) }
                 )
             }
         },
         bottomBar = {
-            currentDay?.let { day ->
+            viewState.currentDay?.let { day ->
                 BottomBar(
                     day,
                     showDeleteConfirmationDialog,
-                    addAttachmentAction = { addAttachmentLauncher.launch(addAttachmentRequest) },
+                    addAttachmentAction = { viewEvent(OnAttachmentPickerPressed) },
                     addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
-                    onSaveChanges = viewModel::saveChanges,
-                    onMoodChanged = viewModel::setNewMood,
-                    onSearchChanged = viewModel::searchFriend,
-                    onAddNewFriend = viewModel::addNewFriend,
-                    onFriendClicked = viewModel::friendSelect,
+                    onSaveChanges = { viewEvent(OnSaveChangesPressed) },
+                    onMoodChanged = { viewEvent(OnMoodChanged(it)) },
+                    onSearchChanged = { viewEvent(OnFriendSearchQueryChanged(it)) },
+                    onAddNewFriend = { viewEvent(ViewEvent.OnAddNewFriend(it)) },
+                    onFriendClicked = { id, selected -> viewEvent(OnFriendPressed(id, selected)) },
                     richTextState = richTextState,
                     showFormatRow = showFormatRow
                 )
             }
         },
         content = { scaffoldPadding ->
-            currentDay?.let { day ->
+            viewState.currentDay?.let { day ->
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -160,28 +196,22 @@ fun DayDetailsEditScreen(
                     DatePickerDialog(
                         showDatePickerPopup.value,
                         initialDate = day.localDate,
-                        onDismiss = {
-                            showDatePickerPopup.value = false
-                        },
-                        onDateChanged = viewModel::setNewDate
+                        onDismiss = { showDatePickerPopup.value = false },
+                        onDateChanged = { viewEvent(OnSetNewDate(it)) }
                     )
                     Column {
-                        AnimatedVisibility(
-                            visible = !isKeyboardOpen
-                        ) {
+                        AnimatedVisibility(visible = !isKeyboardOpen) {
                             Attachments(day) { attachmentHash ->
-                                viewModel.removeAttachment(attachmentHash)
+                                viewEvent(OnAttachmentRemove(attachmentHash))
                             }
                         }
-                        AnimatedVisibility(
-                            visible = isKeyboardOpen && day.attachments.isNotEmpty()
-                        ) {
+                        AnimatedVisibility(visible = isKeyboardOpen && day.attachments.isNotEmpty()) {
                             AttachmentsCountLabel(day.attachments.size)
                         }
                         RichTextEditor(
-                            textFieldValue = content,
+                            textFieldValue = textFieldValue,
                             richTextState = richTextState,
-                            onContentChanged = viewModel::setNewContent
+                            onContentChanged = { viewEvent(OnContentChanged(it)) }
                         )
                     }
                 }
@@ -191,37 +221,10 @@ fun DayDetailsEditScreen(
                 showDialog = showImageCompressSettingsDialog.value,
                 imageOptimizationSettings = imageOptimizationSettings,
                 onDismiss = { showImageCompressSettingsDialog.value = false },
-                onSetImageQuality = viewModel::setNewImageQuality,
-                onImageCompressionToggled = viewModel::toggleImageCompression
+                onSetImageQuality = { viewEvent(OnImageQualityChanged(it)) },
+                onImageCompressionToggled = { viewEvent(OnImageCompressionToggled(it)) }
             )
         })
-}
-
-@Composable
-private fun rememberDiscardDialog(): MutableState<Boolean> {
-    val navigator = LocalNavigator.current
-    val showDiscardConfirmationDialog = remember { mutableStateOf(false) }
-    ConfirmationDialog(
-        title = "Discard changes",
-        text = "Do you really want to discard changes?",
-        confirmButtonText = "Discard",
-        dismissButtonText = "Cancel",
-        showDialog = showDiscardConfirmationDialog,
-    ) { navigator.back() }
-    return showDiscardConfirmationDialog
-}
-
-@Composable
-private fun rememberConfirmationDialog(viewModel: DayDetailsEditViewModel): MutableState<Boolean> {
-    val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
-    ConfirmationDialog(
-        title = "Remove day",
-        text = "Do you really want to remove this day?",
-        confirmButtonText = "Remove",
-        dismissButtonText = "Cancel",
-        showDialog = showDeleteConfirmationDialog,
-    ) { viewModel.removeDay() }
-    return showDeleteConfirmationDialog
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -244,7 +247,12 @@ fun Attachments(
                         attachment,
                         onClick = {
                             attachment.content.let { image ->
-                                navigator.navigate(Route.ImagePreviewTmp(image, attachment.mimeType))
+                                navigator.navigate(
+                                    Route.ImagePreviewTmp(
+                                        image,
+                                        attachment.mimeType
+                                    )
+                                )
                             }
                         },
                         onRemoveClicked = {
@@ -255,9 +263,7 @@ fun Attachments(
                         attachment,
                         onClick = {
                             attachment.content.let { image ->
-                                openFileIntent(
-                                    context, image, attachment.mimeType
-                                )
+                                openFileIntent(context, image, attachment.mimeType)
                             }
                         },
                         onRemoveClicked = {
@@ -321,17 +327,5 @@ private fun BottomBar(
 private fun Delete(showDeleteConfirmationDialog: MutableState<Boolean>) {
     IconButton(onClick = { showDeleteConfirmationDialog.value = true }) {
         Icon(Filled.Delete, null)
-    }
-}
-
-fun handleBackPress(
-    changesExist: Boolean,
-    showDiscardConfirmationDialog: MutableState<Boolean>,
-    onNavigateBack: () -> Unit
-) {
-    if (changesExist) {
-        showDiscardConfirmationDialog.value = true
-    } else {
-        onNavigateBack()
     }
 }

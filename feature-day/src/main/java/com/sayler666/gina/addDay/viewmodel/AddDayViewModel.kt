@@ -17,6 +17,7 @@ import com.sayler666.gina.addDay.usecase.DayQuoteProvider
 import com.sayler666.gina.addDay.usecase.ReminderDismissUseCase
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.Back
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewAction.ShowDiscardDialog
 import com.sayler666.gina.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAddNewFriend
@@ -44,16 +45,14 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -76,8 +75,20 @@ class AddDayViewModel @AssistedInject constructor(
         fun create(date: LocalDate?): AddDayViewModel
     }
 
+    private val mutableViewState = MutableStateFlow<AddDayState?>(null)
+    val viewState: StateFlow<AddDayState?> = mutableViewState.asStateFlow()
+
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
+
+    private val blankDay = DayDetails(
+        day = Day(date = date ?: LocalDate.now()),
+        attachments = emptyList(),
+        friends = emptyList()
+    )
+
+    private val mutableWorkingCopy = MutableStateFlow("")
+    private val quote = dayQuoteProvider.latestTodayQuoteFlow()
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
@@ -88,58 +99,51 @@ class AddDayViewModel @AssistedInject constructor(
             attachments = emptyList(),
             friends = emptyList()
         )
+        observeViewState()
+        observeWorkingCopy()
     }
 
-    private val blankDay = DayDetails(
-        day = Day(date = date ?: LocalDate.now()),
-        attachments = emptyList(),
-        friends = emptyList()
-    )
-
-    private val mutableWorkingCopy: MutableStateFlow<String> = MutableStateFlow("")
-    private val workingCopy = workingCopyStorage.getTextContent().map {
-        it?.let { mutableWorkingCopy.emit(it) }
-        it
+    private fun observeViewState() {
+        combine(
+            mutableDay,
+            allFriends,
+            friendsSearchQuery,
+            quote,
+            mutableWorkingCopy
+        ) { day, friends, query, q, workingCopy ->
+            day?.let {
+                AddDayState(
+                    id = it.day.id,
+                    dayOfMonth = getDayOfMonth(it.day.date),
+                    dayOfWeek = getDayOfWeek(it.day.date),
+                    yearAndMonth = getYearAndMonth(it.day.date),
+                    localDate = it.day.date,
+                    content = it.day.content,
+                    attachments = it.attachments.map(Attachment::toState),
+                    mood = it.day.mood,
+                    friendsAll = friendsMapper.mapToDayFriends(it.friends, friends, query),
+                    quote = q,
+                    workingCopyExists = workingCopy.isNotEmpty()
+                )
+            }
+        }.filterNotNull()
+            .onEach { mutableViewState.value = it }
+            .launchIn(viewModelScope)
     }
-    private val quote = dayQuoteProvider.latestTodayQuoteFlow()
 
-    val viewState: StateFlow<AddDayState?> = combine(
-        mutableDay,
-        allFriends,
-        friendsSearchQuery,
-        quote,
-        workingCopy,
-    ) { day, allFriends, friendsSearchQuery, quote, workingCopy ->
-        day?.let {
-            AddDayState(
-                id = it.day.id,
-                dayOfMonth = getDayOfMonth(it.day.date),
-                dayOfWeek = getDayOfWeek(it.day.date),
-                yearAndMonth = getYearAndMonth(it.day.date),
-                localDate = it.day.date,
-                content = it.day.content,
-                attachments = it.attachments.map(Attachment::toState),
-                mood = it.day.mood,
-                friendsAll = friendsMapper.mapToDayFriends(
-                    it.friends,
-                    allFriends,
-                    friendsSearchQuery
-                ),
-                quote = quote,
-                workingCopyExists = !workingCopy.isNullOrEmpty()
-            )
-        }
+    private fun observeWorkingCopy() {
+        workingCopyStorage.getTextContent()
+            .onEach { content -> content?.let { mutableWorkingCopy.value = it } }
+            .launchIn(viewModelScope)
     }
-        .filterNotNull()
-        .stateIn(viewModelScope, WhileSubscribed(500), null)
-
-    private val _reinitializeText = MutableSharedFlow<Unit>()
-    val reinitializeText = _reinitializeText.asSharedFlow()
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {
             is OnAttachmentPressed -> mutableViewActions.trySend(
-                NavToAttachment(event.image, event.mimeType)
+                NavToAttachment(
+                    event.image,
+                    event.mimeType
+                )
             )
 
             is OnAttachmentRemove -> removeAttachment(event.attachmentHash)
@@ -172,18 +176,13 @@ class AddDayViewModel @AssistedInject constructor(
         val temp = mutableDay.value ?: return
         mutableDay.value = temp.copy(day = temp.day.copy(content = newContent))
 
-        // create "Working Copy" with WorkingCopyStorage
         if (newContent.isNotBlank()) {
-            viewModelScope.launch {
-                workingCopyStorage.store(newContent)
-            }
+            viewModelScope.launch { workingCopyStorage.store(newContent) }
         }
     }
 
     private fun saveChanges() {
-        // hide reminder notification if shown
         reminderDismissUseCase.dismissReminderNotification()
-
         mutableDay.value?.let {
             viewModelScope.launch {
                 addDayUseCase.addDay(it)
@@ -196,10 +195,9 @@ class AddDayViewModel @AssistedInject constructor(
     private fun restoreWorkingCopy() {
         val temp = mutableDay.value ?: return
         if (mutableWorkingCopy.value.isNotEmpty()) {
-            mutableDay.value = temp.copy(day = temp.day.copy(content = mutableWorkingCopy.value))
-            viewModelScope.launch {
-                _reinitializeText.emit(Unit)
-            }
+            val content = mutableWorkingCopy.value
+            mutableDay.value = temp.copy(day = temp.day.copy(content = content))
+            mutableViewActions.trySend(ReinitializeText(content))
         }
     }
 
@@ -226,5 +224,6 @@ class AddDayViewModel @AssistedInject constructor(
         data class NavToAttachment(val image: ByteArray, val mimeType: String) : ViewAction
         data object ShowDiscardDialog : ViewAction
         data object Back : ViewAction
+        data class ReinitializeText(val content: String) : ViewAction
     }
 }

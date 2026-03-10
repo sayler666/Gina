@@ -53,4 +53,14 @@
     <string name="settings_reminder_set">Set</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_close">Close</string>
+
+    <!-- Day -->
+    <string name="day_discard_changes_title">Discard changes</string>
+    <string name="day_discard_changes_text">Do you really want to discard changes?</string>
+    <string name="day_discard_confirm">Discard</string>
+    <string name="day_remove_title">Remove day</string>
+    <string name="day_remove_text">Do you really want to remove this day?</string>
+    <string name="day_remove_confirm">Remove</string>
+    <string name="day_cancel">Cancel</string>
+    <string name="day_attachments_count">Attachments: %d</string>
 </resources>
