@@ -1,16 +1,23 @@
 package com.sayler666.gina.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -39,7 +46,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sayler666.core.collections.mutate
@@ -63,7 +70,7 @@ import com.sayler666.core.compose.conditional
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
-import com.sayler666.gina.ui.theme.secondaryTextColors
+import com.sayler666.gina.ui.theme.defaultTextFieldColors
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
@@ -88,10 +95,10 @@ fun FiltersBar(
     onSearchVisibilityChanged: (Boolean) -> Unit,
     hazeState: HazeState? = null,
 ) {
-    val showSearch = rememberSaveable { mutableStateOf(false) }
+    val searchVisible = rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = showSearch, block = {
-        snapshotFlow { showSearch.value }.collect { isVisible ->
+    LaunchedEffect(key1 = searchVisible, block = {
+        snapshotFlow { searchVisible.value }.collect { isVisible ->
             onSearchVisibilityChanged(isVisible)
         }
     })
@@ -102,40 +109,84 @@ fun FiltersBar(
             containerColor = Color.Transparent
         ),
         title = {
-            if (showSearch.value.not()) Text(title)
-
-            SearchField(
-                showSearch = showSearch,
+            Content(
+                searchVisible = searchVisible.value,
+                title = title,
                 searchText = searchText,
                 onSearchTextChanged = onSearchTextChanged,
                 onClearClick = onClearClick,
+                onHideSearchClick = { searchVisible.value = false },
+                onShowSearchClick = { searchVisible.value = true },
                 hazeState = hazeState
             )
         },
-        navigationIcon = {},
         actions = {
-            if (showSearch.value.not()) IconButton(onClick = { showSearch.value = true }) {
-                Icon(
-                    imageVector = Filled.Search,
-                    contentDescription = null
-                )
-            }
             Filters(
-                filtersActive,
-                moodFilters,
+                filtersActive = filtersActive,
+                moodFilters = moodFilters,
                 onResetFiltersClicked = onResetFiltersClicked,
                 onMoodsSelected = onMoodFiltersUpdate
             )
-        })
+        }
+    )
+}
+
+@ExperimentalComposeUiApi
+
+@Composable
+private fun Content(
+    searchVisible: Boolean,
+    title: String,
+    searchText: String,
+    onSearchTextChanged: (String) -> Unit,
+    onClearClick: () -> Unit,
+    onHideSearchClick: () -> Unit,
+    onShowSearchClick: () -> Unit,
+    hazeState: HazeState?
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        AnimatedContent(
+            targetState = searchVisible,
+            transitionSpec = {
+                slideInVertically(tween(300)) + fadeIn(tween(200)) togetherWith fadeOut(tween(200))
+            },
+        ) { isSearchVisible ->
+            if (!isSearchVisible) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(text = title, modifier = Modifier.padding(top = 10.dp))
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(onClick = { onShowSearchClick() }) {
+                        Icon(
+                            imageVector = Filled.Search,
+                            contentDescription = null
+                        )
+                    }
+                }
+            } else {
+                SearchField(
+                    visible = searchVisible,
+                    searchText = searchText,
+                    onSearchTextChanged = onSearchTextChanged,
+                    onClearClick = onClearClick,
+                    onHideSearchClick = onHideSearchClick,
+                    hazeState = hazeState
+                )
+            }
+        }
+    }
 }
 
 @ExperimentalComposeUiApi
 @Composable
 private fun SearchField(
-    showSearch: MutableState<Boolean>,
+    visible: Boolean,
     searchText: String,
     onSearchTextChanged: (String) -> Unit,
     onClearClick: () -> Unit,
+    onHideSearchClick: () -> Unit,
     hazeState: HazeState? = null,
 ) {
     val showClearButton by remember { mutableStateOf(true) }
@@ -145,59 +196,61 @@ private fun SearchField(
     val keyboardDismissed = rememberSaveable { mutableStateOf(false) }
     val hazeTint = MaterialTheme.colorScheme.background.copy(alpha = 0.7f)
 
-    if (showSearch.value) {
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 0.dp, end = 1.dp)
-                .defaultTextFieldBorder()
-                .conditional(hazeState != null) {
-                    hazeEffect(
-                        state = hazeState,
-                        style = HazeStyle(
-                            blurRadius = 16.dp,
-                            tint = HazeTint(hazeTint)
-                        )
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(46.dp)
+            .defaultTextFieldBorder()
+            .conditional(hazeState != null) {
+                hazeEffect(
+                    state = hazeState,
+                    style = HazeStyle(
+                        blurRadius = 16.dp,
+                        tint = HazeTint(hazeTint)
+                    )
+                )
+            }
+            .focusRequester(focusRequester),
+        value = searchText,
+        onValueChange = onSearchTextChanged,
+        colors = defaultTextFieldColors(),
+        textStyle = MaterialTheme.typography.labelLarge,
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = showClearButton,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                IconButton(onClick = {
+                    onClearClick()
+                    onHideSearchClick()
+                    keyboardDismissed.value = false
+                }) {
+                    Icon(
+                        imageVector = Filled.Close,
+                        contentDescription = null,
                     )
                 }
-                .focusRequester(focusRequester),
-            value = searchText,
-            onValueChange = onSearchTextChanged,
-            colors = secondaryTextColors(),
-            textStyle = MaterialTheme.typography.titleMedium,
-            trailingIcon = {
-                AnimatedVisibility(
-                    visible = showClearButton,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    IconButton(onClick = {
-                        onClearClick()
-                        showSearch.value = false
-                        keyboardDismissed.value = false
-                    }) {
-                        Icon(
-                            imageVector = Filled.Close,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                }
-            },
-            placeholder = { Text("Search...") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {
-                keyboardController?.hide()
-                focusManager.clearFocus()
-                keyboardDismissed.value = true
-            })
-        )
-    }
+            }
+        },
+        placeholder = {
+            Text(
+                text = "Search...",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal)
+            )
+        },
+        maxLines = 1,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = {
+            keyboardController?.hide()
+            focusManager.clearFocus()
+            keyboardDismissed.value = true
+        })
+    )
 
-    LaunchedEffect(showSearch.value) {
-        if (showSearch.value && keyboardDismissed.value.not()) {
+    LaunchedEffect(visible) {
+        if (visible && keyboardDismissed.value.not()) {
             focusRequester.requestFocus()
         }
     }

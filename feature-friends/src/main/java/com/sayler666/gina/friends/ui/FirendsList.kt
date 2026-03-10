@@ -69,7 +69,7 @@ import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
-import com.sayler666.gina.ui.theme.secondaryTextColors
+import com.sayler666.gina.ui.theme.defaultTextFieldColors
 
 @Composable
 fun FriendsList(
@@ -205,7 +205,7 @@ fun FriendEdit(
                                 name.value = it
                                 viewModel.changeName(it)
                             },
-                            colors = secondaryTextColors(),
+                            colors = defaultTextFieldColors(),
                             maxLines = 1,
                             singleLine = true,
                             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
@@ -262,7 +262,7 @@ private fun SearchTextField(
         modifier = modifier.defaultTextFieldBorder(),
         value = searchValue,
         onValueChange = onValueChanged,
-        colors = secondaryTextColors(),
+        colors = defaultTextFieldColors(),
         trailingIcon = {
             AnimatedVisibility(
                 visible = searchValue.isNotBlank(), enter = fadeIn(), exit = fadeOut()

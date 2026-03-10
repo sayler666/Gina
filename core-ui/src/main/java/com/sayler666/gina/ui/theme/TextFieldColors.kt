@@ -16,19 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun secondaryTextColors(): TextFieldColors {
+fun defaultTextFieldColors(): TextFieldColors {
     val containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(9.dp).copy(alpha = 0.3f)
     return TextFieldDefaults.colors(
-        focusedTextColor = MaterialTheme.colorScheme.secondary,
         focusedContainerColor = containerColor,
         unfocusedContainerColor = containerColor,
         disabledContainerColor = containerColor,
-        cursorColor = MaterialTheme.colorScheme.secondary,
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
 }
-
 
 fun Modifier.defaultTextFieldBorder() = composed {
     val shape = RoundedCornerShape(32.dp)
@@ -37,6 +34,7 @@ fun Modifier.defaultTextFieldBorder() = composed {
             width = 0.5.dp,
             brush = Brush.verticalGradient(
                 colors = listOf(
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                     Color.Transparent,
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
                 )
