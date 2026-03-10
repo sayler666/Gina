@@ -10,7 +10,7 @@ data class ScaledBitmapInfo(
     val height: Int
 )
 
-fun ByteArray.scaleToMinSize(minWidth: Int = 1080, minHeight: Int = 1920): ScaledBitmapInfo {
+fun ByteArray.scaleToMinSize(minWidth: Int = 1080, minHeight: Int = 2340): ScaledBitmapInfo {
     var scaledBitmap: Bitmap?
 
     BitmapFactory.decodeByteArray(

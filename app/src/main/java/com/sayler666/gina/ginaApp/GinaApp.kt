@@ -47,7 +47,6 @@ import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
-import com.sayler666.gina.ui.StatusBarColor
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.hideNavBar.VerticalBottomBarAnimation
 import com.sayler666.gina.ui.theme.GinaTheme
@@ -103,7 +102,6 @@ fun GinaApp(
                     LocalTheme provides theme,
                     LocalSharedTransitionScope provides this,
                 ) {
-                    StatusBarColor(color = MaterialTheme.colorScheme.surface)
                     val hazeState = rememberHazeState()
 
                     Scaffold(

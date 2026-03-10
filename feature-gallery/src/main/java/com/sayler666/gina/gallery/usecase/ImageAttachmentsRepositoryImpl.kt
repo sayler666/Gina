@@ -62,12 +62,20 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
         Result.failure(e)
     }
 
+    private fun decodeAspectRatio(bytes: ByteArray): Float {
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+        return if (options.outWidth > 0 && options.outHeight > 0)
+            options.outWidth.toFloat() / options.outHeight.toFloat()
+        else 1f
+    }
+
     private suspend fun List<Int>.mapToThumbnails(): List<Thumbnail?> =
         pmap { attachmentId ->
             (getThumbnailFromCacheIfExist(attachmentId)
                 ?: createThumbnailForId(attachmentId)
                     .also { thumbnail -> thumbnail?.let { saveFile(attachmentId, it) } }
-                    )?.let { Thumbnail(it, attachmentId) }
+                    )?.let { bytes -> Thumbnail(bytes, attachmentId, decodeAspectRatio(bytes)) }
         }
 
     private fun getThumbnailFromCacheIfExist(id: Int): ByteArray? =

@@ -190,6 +190,13 @@ class JournalRepository @Inject constructor(
         }
     }.flowOn(dispatcher)
 
+    suspend fun getAttachmentWithDay(attachmentId: Int): AttachmentWithDay? = try {
+        ginaDatabaseProvider.returnWithDaysDao { getAttachmentDay(attachmentId).toModel() }
+    } catch (e: SQLException) {
+        Timber.e(e, "Database error")
+        null
+    }
+
     suspend fun deleteDay(dayDetails: DayDetails) {
         try {
             ginaDatabaseProvider.withDaysDao {
