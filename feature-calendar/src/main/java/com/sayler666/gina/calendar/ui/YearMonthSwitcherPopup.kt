@@ -28,11 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sayler666.gina.resources.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -159,7 +161,7 @@ fun YearMonthSwitcherPopup(
                             shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.weight(0.45f),
                             onClick = { onDismiss() }
-                        ) { Text("Cancel") }
+                        ) { Text(stringResource(R.string.calendar_cancel)) }
                         Spacer(modifier = Modifier.weight(0.025f))
                         Button(
                             shape = MaterialTheme.shapes.medium,
@@ -168,7 +170,7 @@ fun YearMonthSwitcherPopup(
                                 onDismiss()
                                 onSelectDate(date)
                             }
-                        ) { Text("OK") }
+                        ) { Text(stringResource(R.string.calendar_ok)) }
                     }
                 }
             }
