@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -108,25 +107,16 @@ fun GalleryScreen(viewModel: GalleryViewModel = hiltViewModel()) {
                     state = hazeState,
                     style = HazeStyle(
                         blurRadius = 24.dp,
-                        backgroundColor = MaterialTheme.colorScheme.surface,
+                        backgroundColor = MaterialTheme.colorScheme.background,
                         tint = HazeTint(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                         )
                     )
                 ) {
                     progressive =
                         HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
                 }
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.99f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-                        )
-                    )
-                )
+
         )
     }
 }

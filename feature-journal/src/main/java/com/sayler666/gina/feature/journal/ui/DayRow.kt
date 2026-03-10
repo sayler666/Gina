@@ -18,10 +18,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.CaesarCipherText
-import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.DayDateHeader
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 
 data class DayRowState(
     val id: Int,
@@ -41,6 +43,8 @@ fun DayRow(
     onClick: () -> Unit,
     incognitoMode: Boolean = false
 ) {
+    val sharedScope = LocalSharedTransitionScope.current
+
     Card(
         modifier = modifier,
         shape = RectangleShape,
@@ -56,16 +60,49 @@ fun DayRow(
                 .fillMaxWidth()
         ) {
             Row(Modifier.fillMaxWidth()) {
-                DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
+
+                val sharedModifier = if (sharedScope != null) {
+                    val sharedState =
+                        sharedScope.rememberSharedContentState("dayDateHeader_${state.id}")
+                    with(sharedScope) {
+                        Modifier
+                            .sharedElement(
+                                sharedContentState = sharedState,
+                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                            )
+                    }
+                } else {
+                    Modifier
+                }
+
+                DayDateHeader(
+                    modifier = sharedModifier,
+                    dayOfMonth = state.dayOfMonth,
+                    dayOfWeek = state.dayOfWeek,
+                    yearAndMonth = state.yearAndMonth
+                )
                 icon.let {
+                    val sharedModifier = if (sharedScope != null) {
+                        val sharedState =
+                            sharedScope.rememberSharedContentState("mood_${state.id}")
+                        with(sharedScope) {
+                            Modifier
+                                .size(18.dp)
+                                .sharedElement(
+                                    sharedContentState = sharedState,
+                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                )
+                        }
+                    } else {
+                        Modifier.size(18.dp)
+                    }
+
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        painter = rememberVectorPainter(
-                            image = icon.icon
-                        ),
+                        modifier = sharedModifier,
+                        painter = rememberVectorPainter(image = icon.icon),
                         tint = icon.color,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
                     )
                 }
             }

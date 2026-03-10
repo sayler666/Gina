@@ -16,7 +16,7 @@ object AlterBridgeColors {
     private val dark_onSecondaryContainer = Color(0xFFCDE5FF)
 
     private val dark_background = Color(0xFF0D1116)
-    private val dark_surface = Color(0xFF11171A)
+    private val dark_surface = Color(0xFF141C1F)
     private val dark_onSurface = Color(0xFFE2E2E6)
 
     private val dark_surfaceVariant = Color(0xFF1C2226)

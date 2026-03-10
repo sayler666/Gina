@@ -28,7 +28,7 @@ fun HorizontalImagesCarousel(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(start = 14.dp, end = 14.dp),
         content = {
             items(state, key = { it.state.id ?: it.hashCode() }) { attachment ->

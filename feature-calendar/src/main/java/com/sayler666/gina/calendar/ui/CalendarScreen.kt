@@ -130,7 +130,7 @@ private fun Content(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         VerticalCalendar(
             modifier = Modifier
@@ -156,9 +156,9 @@ private fun Content(
                     state = hazeState,
                     style = HazeStyle(
                         blurRadius = 24.dp,
-                        backgroundColor = MaterialTheme.colorScheme.surface,
+                        backgroundColor = MaterialTheme.colorScheme.background,
                         tint = HazeTint(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 1f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.7f)
                         )
                     )
                 ) {

@@ -70,7 +70,7 @@ import com.sayler666.gina.attachments.viewmodel.ImagePreviewWithDayEntity
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Route
-import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.StatusBarColor
@@ -170,7 +170,8 @@ fun ImagePreviewScreen(
             val pageData = viewState.pages[pageId]
 
             if (pageData != null) {
-                val scaledBitmapInfo = remember(pageId) { pageData.attachment.content.scaleToMinSize() }
+                val scaledBitmapInfo =
+                    remember(pageId) { pageData.attachment.content.scaleToMinSize() }
                 val isInitialPage = pageId == initialAttachmentId
                 val sharedScope = LocalSharedTransitionScope.current
                 val sharedElementModifier: Modifier = if (sharedScope != null && isInitialPage) {
@@ -185,7 +186,9 @@ fun ImagePreviewScreen(
                 } else Modifier
 
                 ZoomableBox(
-                    modifier = Modifier.fillMaxSize().then(sharedElementModifier),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(sharedElementModifier),
                     click = { barsVisible = !barsVisible }
                 ) {
                     Image(
@@ -218,7 +221,9 @@ fun ImagePreviewTmpScreen(
     val context = LocalContext.current
     StatusBarColor(color = Color.Transparent, theme = null)
 
-    val imagePreview: ImagePreviewTmpEntity? by viewModel.imagePreview.collectAsStateWithLifecycle(null)
+    val imagePreview: ImagePreviewTmpEntity? by viewModel.imagePreview.collectAsStateWithLifecycle(
+        null
+    )
     var barsVisible by rememberSaveable { mutableStateOf(false) }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -227,7 +232,11 @@ fun ImagePreviewTmpScreen(
                 remember(it.attachment.id) { it.attachment.content.scaleToMinSize() }
             val (zoomableBox, bottomBar) = createRefs()
 
-            ZoomablePreview(zoomableBox, null, scaledBitmapInfo, onClick = { barsVisible = !barsVisible })
+            ZoomablePreview(
+                zoomableBox,
+                null,
+                scaledBitmapInfo,
+                onClick = { barsVisible = !barsVisible })
             BottomBar(barsVisible, bottomBar, context, it)
         }
     }
@@ -244,7 +253,12 @@ private fun ConstraintLayoutScope.ZoomablePreview(
     val sharedElementModifier: Modifier = if (sharedScope != null && attachmentId != null) {
         val state = sharedScope.rememberSharedContentState("attachment_$attachmentId")
         val animScope = LocalNavAnimatedContentScope.current
-        with(sharedScope) { Modifier.sharedElement(sharedContentState = state, animatedVisibilityScope = animScope) }
+        with(sharedScope) {
+            Modifier.sharedElement(
+                sharedContentState = state,
+                animatedVisibilityScope = animScope
+            )
+        }
     } else Modifier
 
     ZoomableBox(
@@ -307,7 +321,11 @@ private fun ConstraintLayoutScope.TopBar(
                                 clickable { onNavigateToDayDetails(entity.dayId) }
                             }
                     ) {
-                        DayTitle(entity.dayOfMonth, entity.dayOfWeek, entity.yearAndMonth)
+                        DayDateHeader(
+                            dayOfMonth = entity.dayOfMonth,
+                            dayOfWeek = entity.dayOfWeek,
+                            yearAndMonth = entity.yearAndMonth
+                        )
                         if (allowNavigationToDayDetails)
                             Icon(
                                 Icons.Filled.LocalLibrary,

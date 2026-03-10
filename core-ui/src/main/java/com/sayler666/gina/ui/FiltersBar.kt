@@ -143,7 +143,7 @@ private fun SearchField(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboardDismissed = rememberSaveable { mutableStateOf(false) }
-    val hazeTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+    val hazeTint = MaterialTheme.colorScheme.background.copy(alpha = 0.7f)
 
     if (showSearch.value) {
         OutlinedTextField(

@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
@@ -86,8 +87,9 @@ import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.CaesarCipherText
-import com.sayler666.gina.ui.DayTitle
+import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import kotlinx.coroutines.delay
@@ -134,6 +136,7 @@ private fun Content(
     snackbarHostState: SnackbarHostState,
 ) {
     val requester = remember { FocusRequester() }
+    val sharedScope = LocalSharedTransitionScope.current
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
@@ -142,7 +145,25 @@ private fun Content(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        DayTitle(state.dayOfMonth, state.dayOfWeek, state.yearAndMonth)
+                        val sharedModifier = if (sharedScope != null) {
+                            val sharedState =
+                                sharedScope.rememberSharedContentState("dayDateHeader_${state.id}")
+                            with(sharedScope) {
+                                Modifier
+                                    .sharedElement(
+                                        sharedContentState = sharedState,
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    )
+                            }
+                        } else {
+                            Modifier
+                        }
+                        DayDateHeader(
+                            modifier = sharedModifier,
+                            dayOfMonth = state.dayOfMonth,
+                            dayOfWeek = state.dayOfWeek,
+                            yearAndMonth = state.yearAndMonth
+                        )
                     }
                 }, navigationIcon = {
                     IconButton(onClick = { viewEvent(OnBackPressed) }) {
@@ -150,8 +171,24 @@ private fun Content(
                     }
                 }, actions = {
                     state.mood.mapToMoodIcon().let { icon ->
+
+                        val sharedModifier = if (sharedScope != null) {
+                            val sharedState =
+                                sharedScope.rememberSharedContentState("mood_${state.id}")
+                            with(sharedScope) {
+                                Modifier
+                                    .sharedElement(
+                                        sharedContentState = sharedState,
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    )
+                            }
+                        } else {
+                            Modifier
+                        }
+
                         Icon(
-                            rememberVectorPainter(image = icon.icon),
+                            modifier = sharedModifier,
+                            painter = rememberVectorPainter(image = icon.icon),
                             tint = icon.color,
                             contentDescription = null
                         )
