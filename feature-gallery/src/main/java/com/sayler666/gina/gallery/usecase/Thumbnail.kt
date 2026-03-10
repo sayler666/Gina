@@ -1,6 +1,6 @@
 package com.sayler666.gina.gallery.usecase
 
-data class Thumbnail(val bytes: ByteArray, val id: Int) {
+data class Thumbnail(val bytes: ByteArray, val id: Int, val aspectRatio: Float) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -9,6 +9,7 @@ data class Thumbnail(val bytes: ByteArray, val id: Int) {
 
         if (!bytes.contentEquals(other.bytes)) return false
         if (id != other.id) return false
+        if (aspectRatio != other.aspectRatio) return false
 
         return true
     }
@@ -16,6 +17,7 @@ data class Thumbnail(val bytes: ByteArray, val id: Int) {
     override fun hashCode(): Int {
         var result = bytes.contentHashCode()
         result = 31 * result + id
+        result = 31 * result + aspectRatio.hashCode()
         return result
     }
 }

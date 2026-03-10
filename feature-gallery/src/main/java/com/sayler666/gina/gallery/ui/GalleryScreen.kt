@@ -1,7 +1,5 @@
 package com.sayler666.gina.gallery.ui
 
-import android.graphics.BitmapFactory.Options
-import android.graphics.BitmapFactory.decodeByteArray
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +31,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -197,24 +194,13 @@ private fun ImagesGrid(
                 key = { it.id ?: it.hashCode() },
                 contentType = { "image_cell" }
             ) { image ->
-                val aspectRatio: Float = remember(image.content) {
-                    val options = Options().apply { inJustDecodeBounds = true }
-                    decodeByteArray(image.content, 0, image.content.size, options)
-
-                    if (options.outWidth > 0 && options.outHeight > 0) {
-                        options.outWidth.toFloat() / options.outHeight.toFloat()
-                    } else {
-                        1f
-                    }
-                }
-
                 val imageId = image.id
                 val sharedModifier = if (sharedScope != null && imageId != null) {
                     val state = sharedScope.rememberSharedContentState("attachment_$imageId")
                     with(sharedScope) {
                         Modifier
                             .fillMaxWidth()
-                            .aspectRatio(aspectRatio)
+                            .aspectRatio(image.aspectRatio)
                             .sharedElement(
                                 sharedContentState = state,
                                 animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -223,7 +209,7 @@ private fun ImagesGrid(
                 } else {
                     Modifier
                         .fillMaxWidth()
-                        .aspectRatio(aspectRatio)
+                        .aspectRatio(image.aspectRatio)
                 }
 
                 AsyncImage(

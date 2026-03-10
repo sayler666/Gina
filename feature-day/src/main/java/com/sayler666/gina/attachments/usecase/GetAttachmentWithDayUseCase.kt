@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 interface GetAttachmentWithDayUseCase {
     fun getAttachmentWithDayFlow(attachmentId: Int): Flow<AttachmentWithDay?>
+    suspend fun getAttachmentWithDay(attachmentId: Int): AttachmentWithDay?
 }
 
 class GetAttachmentWithDayUseCaseImpl @Inject constructor(
@@ -14,4 +15,7 @@ class GetAttachmentWithDayUseCaseImpl @Inject constructor(
 ) : GetAttachmentWithDayUseCase {
     override fun getAttachmentWithDayFlow(attachmentId: Int) =
         journalRepository.getAttachmentWithDayFlow(attachmentId)
+
+    override suspend fun getAttachmentWithDay(attachmentId: Int) =
+        journalRepository.getAttachmentWithDay(attachmentId)
 }
