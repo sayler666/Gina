@@ -1,45 +1,46 @@
-package com.sayler666.gina.quotes
+package com.sayler666.gina.day.addDay.usecase
 
 import com.sayler666.data.database.db.quotes.QuoteEntity
 import com.sayler666.data.database.db.quotes.QuotesDatabaseProvider
 import com.sayler666.data.database.db.quotes.returnWithQuotesDao
-import com.sayler666.data.database.db.quotes.withQuotesDao
-import com.sayler666.gina.quotes.api.ZenQuotesService
+import com.sayler666.domain.model.quotes.Quote
+import com.sayler666.gina.network.quotes.ZenQuotesService
+import com.sayler666.gina.network.quotes.model.QuoteApiModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.sayler666.gina.quotes.api.model.Quote as QuoteApiModel
+
+interface GetQuoteUseCase {
+    suspend fun getQuote(): Quote?
+}
 
 @Singleton
-class QuotesRepository @Inject constructor(
+class GetQuoteUseCaseImpl @Inject constructor(
     private val quotesDatabaseProvider: QuotesDatabaseProvider,
     private val quotesService: ZenQuotesService,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
-) : com.sayler666.gina.day.addDay.usecase.DayQuoteProvider {
+) : GetQuoteUseCase {
 
-    override fun latestTodayQuoteFlow(): Flow<QuoteEntity?> = flow {
+    override suspend fun getQuote(): Quote? = withContext(coroutineDispatcher) {
         val todayDate = LocalDate.now()
-        quotesDatabaseProvider.withQuotesDao {
-            getLatestQuoteFlow()
-                .collect { quote ->
-                    when (quote?.date) {
-                        todayDate -> emit(quote)
-                        else -> with(fetchAndSaveNewQuote(todayDate)) {
-                            if (this == null) emit(getRandomQuote())
-                        }
-                    }
+        val latestQuote = quotesDatabaseProvider.returnWithQuotesDao { getLatestQuoteFlow().first() }
+        when (latestQuote?.date) {
+            todayDate -> latestQuote.toDomain()
+            else -> {
+                val newQuoteId = fetchAndSaveNewQuote(todayDate)
+                if (newQuoteId == null) {
+                    quotesDatabaseProvider.returnWithQuotesDao { getRandomQuote()?.toDomain() }
+                } else {
+                    quotesDatabaseProvider.returnWithQuotesDao { getLatestQuoteFlow().first()?.toDomain() }
                 }
+            }
         }
     }
-        .distinctUntilChanged()
-        .flowOn(coroutineDispatcher)
 
     private suspend fun fetchAndSaveNewQuote(todayDate: LocalDate): Long? = try {
         val dbQuote = mapToDbModel(quotesService.fetchToday().first(), todayDate)
@@ -52,4 +53,6 @@ class QuotesRepository @Inject constructor(
 
     private fun mapToDbModel(quoteApiModel: QuoteApiModel, date: LocalDate) =
         QuoteEntity(null, quoteApiModel.quote, quoteApiModel.author, date)
+
+    private fun QuoteEntity.toDomain() = Quote(quote = quote, author = author)
 }

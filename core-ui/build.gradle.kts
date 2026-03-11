@@ -10,7 +10,6 @@ android {
 dependencies {
     implementation(projects.core)
     implementation(projects.domainModel)
-    implementation(projects.dataDatabase)
     implementation(projects.navigation)
 
     // Kotlin Coroutines

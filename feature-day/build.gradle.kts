@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.coreUi)
     implementation(projects.domainModel)
     implementation(projects.dataDatabase)
+    implementation(projects.dataNetwork)
     implementation(projects.navigation)
     implementation(projects.featureFriends)
     implementation(projects.featureSettings)

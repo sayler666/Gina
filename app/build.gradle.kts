@@ -3,7 +3,6 @@ plugins {
     id("plugins.android.compose")
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.hilt)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -24,11 +23,9 @@ dependencies {
     implementation(projects.featureGallery)
     implementation(projects.featureDay)
     implementation(projects.featureJournal)
+    implementation(projects.dataNetwork)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-
-    // Kotlin
-    implementation(libs.kotlin.serialization.json)
 
     // Dagger hilt
     implementation(libs.dagger.hilt)
@@ -66,11 +63,6 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-
-    // Network
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.serialization.converter)
-    implementation(libs.okhttp3.logging.interceptor)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

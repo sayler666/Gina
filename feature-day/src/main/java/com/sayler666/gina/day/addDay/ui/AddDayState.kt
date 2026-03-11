@@ -1,7 +1,7 @@
 package com.sayler666.gina.day.addDay.ui
 
-import com.sayler666.data.database.db.quotes.QuoteEntity
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.domain.model.quotes.Quote
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.friends.ui.FriendState
 import java.time.LocalDate
@@ -16,7 +16,7 @@ data class AddDayState(
     val mood: Mood = Mood.EMPTY,
     val attachments: List<AttachmentState> = emptyList(),
     val friendsAll: List<FriendState> = emptyList(),
-    val quote: QuoteEntity?,
+    val quote: Quote?,
     val workingCopyExists: Boolean
 ) {
     val friendsSelected: List<FriendState>

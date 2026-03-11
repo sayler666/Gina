@@ -85,6 +85,7 @@ import com.sayler666.gina.ui.richeditor.RichTextStyleRow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 
 const val ADD_DAY_URL = "gina://add_day"
 
@@ -92,8 +93,9 @@ const val ADD_DAY_URL = "gina://add_day"
 fun AddDayScreen(
     date: LocalDate?,
 ) {
+    val key = remember { UUID.randomUUID().toString() }
     val viewModel: AddDayViewModel =
-        hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = date.toString()) {
+        hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = key) {
             it.create(date)
         }
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()

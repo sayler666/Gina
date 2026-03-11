@@ -11,9 +11,10 @@ import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.DayDetails
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.domain.model.quotes.Quote
 import com.sayler666.gina.day.addDay.ui.AddDayState
 import com.sayler666.gina.day.addDay.usecase.AddDayUseCase
-import com.sayler666.gina.day.addDay.usecase.DayQuoteProvider
+import com.sayler666.gina.day.addDay.usecase.GetQuoteUseCase
 import com.sayler666.gina.day.addDay.usecase.ReminderDismissUseCase
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.Back
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
@@ -66,7 +67,7 @@ class AddDayViewModel @AssistedInject constructor(
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
     private val dayEditingSlice: DayEditingViewModelSlice,
-    dayQuoteProvider: DayQuoteProvider,
+    getQuoteUseCase: GetQuoteUseCase,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
     DayEditingViewModelSlice by dayEditingSlice {
 
@@ -88,7 +89,7 @@ class AddDayViewModel @AssistedInject constructor(
     )
 
     private val mutableWorkingCopy = MutableStateFlow("")
-    private val quote = dayQuoteProvider.latestTodayQuoteFlow()
+    private val quote = MutableStateFlow<Quote?>(null)
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
@@ -99,6 +100,7 @@ class AddDayViewModel @AssistedInject constructor(
             attachments = emptyList(),
             friends = emptyList()
         )
+        viewModelScope.launch { quote.value = getQuoteUseCase.getQuote() }
         observeViewState()
         observeWorkingCopy()
     }
