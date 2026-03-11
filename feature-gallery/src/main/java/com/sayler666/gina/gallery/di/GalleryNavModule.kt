@@ -1,8 +1,7 @@
 package com.sayler666.gina.gallery.di
 
-import com.sayler666.gina.gallery.ui.GalleryScreen
+import com.sayler666.gina.gallery.navigation.featureGalleryEntryBuilder
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.routes.Gallery
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +15,6 @@ object GalleryNavModule {
     @Provides
     @IntoSet
     fun provideInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<Gallery> { GalleryScreen() }
+        featureGalleryEntryBuilder()
     }
 }

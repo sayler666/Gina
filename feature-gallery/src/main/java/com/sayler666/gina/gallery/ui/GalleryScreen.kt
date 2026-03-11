@@ -106,7 +106,7 @@ fun GalleryScreen(viewModel: GalleryViewModel = hiltViewModel()) {
                         blurRadius = 24.dp,
                         backgroundColor = MaterialTheme.colorScheme.background,
                         tint = HazeTint(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                         )
                     )
                 ) {

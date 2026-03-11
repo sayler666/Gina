@@ -31,10 +31,10 @@ class MainActivity : ComponentActivity() {
     private val vm: GinaMainViewModel by viewModels()
 
     @Inject
-    lateinit var installers: Set<@JvmSuppressWildcards EntryProviderInstaller>
+    lateinit var entryProviderInstallers: Set<@JvmSuppressWildcards EntryProviderInstaller>
 
     @Inject
-    lateinit var fallback: @JvmSuppressWildcards CombinedNavEntryFallback
+    lateinit var combinedNavEntryFallback: @JvmSuppressWildcards CombinedNavEntryFallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +63,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             GinaApp(
                 vm = vm,
-                installers = installers,
-                fallback = fallback
+                installers = entryProviderInstallers,
+                fallback = combinedNavEntryFallback
             )
         }
     }

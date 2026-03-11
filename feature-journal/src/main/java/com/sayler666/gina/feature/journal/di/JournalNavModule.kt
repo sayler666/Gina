@@ -1,8 +1,7 @@
 package com.sayler666.gina.feature.journal.di
 
-import com.sayler666.gina.feature.journal.ui.JournalScreen
+import com.sayler666.gina.feature.journal.navigation.featureJournalEntryBuilder
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.routes.Journal
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +15,6 @@ object JournalNavModule {
     @Provides
     @IntoSet
     fun provideInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<Journal> { JournalScreen() }
+        featureJournalEntryBuilder()
     }
 }

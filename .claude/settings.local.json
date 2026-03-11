@@ -46,7 +46,12 @@
       "Bash(xargs wc:*)",
       "Bash(read f:*)",
       "Bash(cp:*)",
-      "Bash(cd \"F:/Android Projects/Gina\" && find . -name \"*.kt\" -not -path \"*/navigation/routes/*\" -not -path \"*/navigation/Route.kt\" | xargs grep -l \"import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)\" | xargs sed -i 's|import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)|import com.sayler666.gina.navigation.routes.\\\\1|g')"
+      "Bash(cd \"F:/Android Projects/Gina\" && find . -name \"*.kt\" -not -path \"*/navigation/routes/*\" -not -path \"*/navigation/Route.kt\" | xargs grep -l \"import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)\" | xargs sed -i 's|import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)|import com.sayler666.gina.navigation.routes.\\\\1|g')",
+      "Bash(find \"/d/Android Projects/Gina/.gradle\" -name \"navigation3-runtime*.jar\" 2>/dev/null | grep -v sources | head -5)",
+      "Bash(find \"/mnt/c/Users/lukas\" -name \"navigation3-runtime*\" 2>/dev/null | head -5)",
+      "Bash(find \"D:/Android Projects/Gina\" -path \"*/navigation3*/*.kt\" -name \"NavDisplay*\" 2>/dev/null | head -5)",
+      "Bash(find \"D:/Android Projects/Gina\" -path \"*/.gradle/caches\" -name \"*.jar\" 2>/dev/null | grep \"navigation3-ui\" | head -5; ls ~/.gradle/caches/modules-*/files-*/androidx.navigation3/navigation3-ui/ 2>/dev/null | head -10)",
+      "Bash(find /c/Users -name \"navigation3-ui-1.0.1*\" 2>/dev/null | head -5; find /d -maxdepth 6 -name \"navigation3-ui-1.0.1*\" 2>/dev/null | head -5)"
     ]
   }
 }
