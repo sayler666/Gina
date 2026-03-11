@@ -3,6 +3,8 @@ package com.sayler666.gina.day.di
 
 import com.sayler666.gina.day.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.day.addDay.usecase.AddDayUseCaseImpl
+import com.sayler666.gina.day.addDay.usecase.GetQuoteUseCase
+import com.sayler666.gina.day.addDay.usecase.GetQuoteUseCaseImpl
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentIdsBySourceUseCase
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentIdsBySourceUseCaseImpl
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentWithDayUseCase
@@ -53,4 +55,7 @@ abstract class DayModule {
 
     @Binds
     abstract fun provideDayEditingViewModelSlice(slice: DayEditingViewModelSliceImpl): DayEditingViewModelSlice
+
+    @Binds
+    abstract fun provideDayQuoteProvider(repo: GetQuoteUseCaseImpl): GetQuoteUseCase
 }

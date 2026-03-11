@@ -1,8 +1,7 @@
-package com.sayler666.gina.di
-
+package com.sayler666.gina.network.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.sayler666.gina.quotes.api.ZenQuotesService
+import com.sayler666.gina.network.quotes.ZenQuotesService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -51,5 +50,4 @@ class NetworkModule {
     @Singleton
     fun provideZenQuotesService(retrofit: Retrofit): ZenQuotesService =
         retrofit.create(ZenQuotesService::class.java)
-
 }

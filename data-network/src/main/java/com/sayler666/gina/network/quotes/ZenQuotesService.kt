@@ -1,6 +1,6 @@
-package com.sayler666.gina.quotes.api
+package com.sayler666.gina.network.quotes
 
-import com.sayler666.gina.quotes.api.model.Quote
+import com.sayler666.gina.network.quotes.model.QuoteApiModel
 import retrofit2.http.GET
 
 interface ZenQuotesService {
@@ -9,5 +9,5 @@ interface ZenQuotesService {
     }
 
     @GET("today")
-    suspend fun fetchToday(): List<Quote>
+    suspend fun fetchToday(): List<QuoteApiModel>
 }
