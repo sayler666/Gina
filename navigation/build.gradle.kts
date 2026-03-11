@@ -1,5 +1,6 @@
 plugins {
     id("plugins.android.library")
+    id("plugins.android.compose")
 }
 
 android {
@@ -8,4 +9,5 @@ android {
 
 dependencies {
     implementation(projects.domainModel)
+    api(libs.navigation3.ui)
 }

@@ -22,7 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.core.file.Files
 import com.sayler666.core.permission.Permissions
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.Journal
 import com.sayler666.gina.resources.R.string.select_database_grant_permission
 import com.sayler666.gina.resources.R.string.select_database_open_database
 import com.sayler666.gina.selectdatabase.viewmodel.SelectDatabaseViewModel
@@ -38,7 +38,7 @@ fun SelectDatabaseScreen(
     val permissionGranted: Boolean by viewModel.permissionGranted.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.navigateToHome.collectLatest { navigator.navigateToRoot(Route.Journal) }
+        viewModel.navigateToHome.collectLatest { navigator.navigateToRoot(Journal) }
     }
 
     val databaseResult =

@@ -1,0 +1,359 @@
+package com.sayler666.gina.day.dayDetails.ui
+
+import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.key.Key.Companion.VolumeDown
+import androidx.compose.ui.input.key.Key.Companion.VolumeUp
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
+import com.sayler666.core.file.Files
+import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.domain.model.Way.NEXT
+import com.sayler666.domain.model.Way.PREVIOUS
+import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.day.attachments.ui.FileThumbnail
+import com.sayler666.gina.day.attachments.ui.ImageThumbnail
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsState
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToNextDay
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToPreviousDay
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.ShowSnackBar
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnAttachmentPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
+import com.sayler666.gina.friends.ui.FriendIcon
+import com.sayler666.gina.friends.ui.FriendState
+import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.navigation.DayDetails
+import com.sayler666.gina.navigation.DayDetailsEdit
+import com.sayler666.gina.navigation.ImagePreview
+import com.sayler666.gina.navigation.ImagePreviewSource
+import com.sayler666.gina.navigation.Navigator
+import com.sayler666.gina.ui.CaesarCipherText
+import com.sayler666.gina.ui.DayDateHeader
+import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.LocalSharedTransitionScope
+import com.sayler666.gina.ui.richeditor.WordCharsCounter
+import com.sayler666.gina.ui.richeditor.setTextOrHtml
+import kotlinx.coroutines.delay
+
+
+@Composable
+fun DayDetailsScreen(
+    dayId: Int,
+) {
+    val viewModel: DayDetailsViewModel =
+        hiltViewModel<DayDetailsViewModel, DayDetailsViewModel.Factory>(key = dayId.toString()) {
+            it.create(dayId)
+        }
+    val viewState: DayDetailsState? = viewModel.viewState.collectAsStateWithLifecycle().value
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val navigator = LocalNavigator.current
+
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        onViewAction(
+            action = action,
+            navigator = navigator,
+            snackbarHostState = snackbarHostState,
+        )
+    }
+
+    LifecycleStartEffect(Unit) {
+        viewModel.onViewEvent(OnResume)
+        onStopOrDispose {}
+    }
+
+    Content(
+        state = viewState,
+        viewEvent = viewModel::onViewEvent,
+        snackbarHostState = snackbarHostState,
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun Content(
+    state: DayDetailsState?,
+    viewEvent: (ViewEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
+    val requester = remember { FocusRequester() }
+    val sharedScope = LocalSharedTransitionScope.current
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
+            state?.let {
+                TopAppBar(title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        val sharedModifier = if (sharedScope != null) {
+                            val sharedState =
+                                sharedScope.rememberSharedContentState("dayDateHeader_${state.id}")
+                            with(sharedScope) {
+                                Modifier
+                                    .sharedElement(
+                                        sharedContentState = sharedState,
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    )
+                            }
+                        } else {
+                            Modifier
+                        }
+                        DayDateHeader(
+                            modifier = sharedModifier,
+                            dayOfMonth = state.dayOfMonth,
+                            dayOfWeek = state.dayOfWeek,
+                            yearAndMonth = state.yearAndMonth
+                        )
+                    }
+                }, navigationIcon = {
+                    IconButton(onClick = { viewEvent(OnBackPressed) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                }, actions = {
+                    state.mood.mapToMoodIcon().let { icon ->
+
+                        val sharedModifier = if (sharedScope != null) {
+                            val sharedState =
+                                sharedScope.rememberSharedContentState("mood_${state.id}")
+                            with(sharedScope) {
+                                Modifier
+                                    .sharedElement(
+                                        sharedContentState = sharedState,
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    )
+                            }
+                        } else {
+                            Modifier
+                        }
+
+                        Icon(
+                            modifier = sharedModifier,
+                            painter = rememberVectorPainter(image = icon.icon),
+                            tint = icon.color,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    IconButton(onClick = {
+                        viewEvent(OnDayDetailsPressed)
+                    }) {
+                        Icon(Icons.Filled.Edit, null)
+                    }
+                })
+            }
+        }, content = { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                state?.let {
+                    AttachmentsRow(state, viewEvent)
+                    Text(state)
+                }
+            }
+        }, bottomBar = {
+            state?.let {
+                FriendsRow(state.friends)
+            }
+        }, modifier = Modifier
+            .onKeyEvent {
+                if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
+                when (it.key) {
+                    VolumeUp -> {
+                        viewEvent(OnNextDayPressed)
+                        return@onKeyEvent true
+                    }
+
+                    VolumeDown -> {
+                        viewEvent(OnPreviousDayPressed)
+                        return@onKeyEvent true
+                    }
+
+                    else -> return@onKeyEvent false
+                }
+            }
+            .focusRequester(requester)
+            .focusable()
+    )
+
+    LaunchedEffect(Unit) {
+        delay(300)
+        requester.requestFocus()
+    }
+}
+
+private suspend fun onViewAction(
+    action: ViewAction,
+    navigator: Navigator,
+    snackbarHostState: SnackbarHostState,
+) {
+    when (action) {
+        Back -> navigator.back()
+        is NavToNextDay -> navigator.replace(DayDetails(action.dayId, NEXT))
+        is NavToPreviousDay -> navigator.replace(DayDetails(action.dayId, PREVIOUS))
+        is ShowSnackBar -> snackbarHostState.showSnackbar(
+            message = action.message,
+            duration = SnackbarDuration.Short
+        )
+
+        is NavToDayDetails -> navigator.navigate(DayDetailsEdit(action.dayId))
+        is NavToAttachment -> navigator.navigate(
+            ImagePreview(
+                action.attachmentId,
+                ImagePreviewSource.Day(action.dayId, action.attachmentIds)
+            )
+        )
+    }
+}
+
+@Composable
+private fun Text(state: DayDetailsState) {
+    Column(modifier = Modifier.padding(16.dp, 8.dp)) {
+        WordCharsCounter(text = state.content.getTextWithoutHtml())
+        SelectionContainer {
+            if (state.incognitoMode) {
+                CaesarCipherText(
+                    text = state.content.getTextWithoutHtml(),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            } else {
+                val richTextState = rememberRichTextState()
+                richTextState.setTextOrHtml(state.content)
+                RichText(
+                    state = richTextState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AttachmentsRow(
+    state: DayDetailsState,
+    viewEvent: (ViewEvent) -> Unit
+) {
+    if (state.attachments.isNotEmpty()) {
+        val context = LocalContext.current
+        FlowRow(
+            modifier = Modifier
+                .padding(16.dp, 0.dp)
+                .padding(top = 16.dp)
+        ) {
+            state.attachments.forEach { attachment ->
+                when (attachment) {
+                    is AttachmentState.AttachmentImageState -> ImageThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.id?.let {
+                                viewEvent(OnAttachmentPressed(it))
+                            }
+                        })
+
+                    is AttachmentState.AttachmentNonImageState -> FileThumbnail(
+                        attachment,
+                        onClick = {
+                            attachment.content.let {
+                                Files.openFileIntent(context, it, attachment.mimeType)
+                            }
+                        })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FriendsRow(friends: List<FriendState>) {
+    val context = LocalContext.current
+
+    if (friends.isNotEmpty())
+        BottomAppBar(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            content = {
+                LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
+                    items(friends) { friend ->
+                        FriendIcon(
+                            friend = friend,
+                            size = 42.dp,
+                            modifier = Modifier
+                                .padding(end = 8.dp, top = 0.dp)
+                                .clickable(
+                                    indication = ripple(bounded = false),
+                                    interactionSource = remember { MutableInteractionSource() }) {
+                                    Toast
+                                        .makeText(context, friend.name, Toast.LENGTH_SHORT)
+                                        .show()
+                                })
+                    }
+                })
+            }
+        )
+}

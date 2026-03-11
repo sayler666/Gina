@@ -9,7 +9,7 @@ import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
-import com.sayler666.gina.attachments.viewmodel.toState
+import com.sayler666.gina.day.attachments.viewmodel.toState
 import com.sayler666.gina.feature.journal.ui.DayRowState
 import com.sayler666.gina.feature.journal.ui.HorizontalImagesCarouselState
 import com.sayler666.gina.feature.journal.ui.ImageAttachmentState

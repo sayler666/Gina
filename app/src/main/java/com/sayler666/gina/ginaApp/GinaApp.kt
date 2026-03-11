@@ -37,11 +37,12 @@ import androidx.navigation3.ui.NavDisplay
 import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.core.navigation.BottomBarState
 import com.sayler666.core.navigation.BottomBarState.Shown
-import com.sayler666.gina.di.EntryProviderInstaller
-import com.sayler666.gina.di.NavEntryFallback
 import com.sayler666.gina.ginaApp.navigation.AddDayFab
 import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
+import com.sayler666.gina.navigation.AddDay
+import com.sayler666.gina.navigation.CombinedNavEntryFallback
+import com.sayler666.gina.navigation.EntryProviderInstaller
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.ui.LocalNavigator
@@ -58,7 +59,7 @@ import dev.chrisbanes.haze.rememberHazeState
 fun GinaApp(
     vm: GinaMainViewModel,
     installers: Set<@JvmSuppressWildcards EntryProviderInstaller>,
-    fallback: NavEntryFallback
+    fallback: CombinedNavEntryFallback
 ) {
     val theme by vm.theme.collectAsStateWithLifecycle()
     GinaTheme(theme) {
@@ -74,7 +75,7 @@ fun GinaApp(
             val pendingDeepLink: Route? by vm.pendingDeepLink.collectAsStateWithLifecycle()
             LaunchedEffect(pendingDeepLink) {
                 val route = pendingDeepLink ?: return@LaunchedEffect
-                if (backStack.none { it is Route.AddDay }) {
+                if (backStack.none { it is AddDay }) {
                     navigator.navigate(route)
                 }
                 vm.consumeDeepLink()
@@ -114,7 +115,7 @@ fun GinaApp(
                                         .offset(y = bottomBarAnimInfoState.yOffset)
                                         .scale(bottomBarAnimInfoState.alpha)
                                         .alpha(bottomBarAnimInfoState.alpha),
-                                    onNavigateToAddDay = { backStack.add(Route.AddDay()) }
+                                    onNavigateToAddDay = { backStack.add(AddDay()) }
                                 )
                         },
                         floatingActionButtonPosition = FabPosition.End,
@@ -159,18 +160,12 @@ fun GinaApp(
                                     backStack = backStack,
                                     onBack = { backStack.removeLastOrNull() },
                                     transitionSpec = {
-                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(
-                                            tween(
-                                                ANIMATION_DURATION
-                                            )
-                                        )
+                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith
+                                                fadeOut(tween(ANIMATION_DURATION))
                                     },
                                     popTransitionSpec = {
-                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith fadeOut(
-                                            tween(
-                                                ANIMATION_DURATION
-                                            )
-                                        )
+                                        fadeIn(tween(ANIMATION_DURATION)) togetherWith
+                                                fadeOut(tween(ANIMATION_DURATION))
                                     },
                                     entryProvider = entryProviderFn
                                 )

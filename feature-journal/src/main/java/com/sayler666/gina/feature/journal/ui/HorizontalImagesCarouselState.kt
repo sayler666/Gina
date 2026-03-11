@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.attachments.ui.AttachmentState
-import com.sayler666.gina.attachments.ui.PreviousYearsAttachmentThumbnail
+import com.sayler666.gina.day.attachments.ui.PreviousYearsAttachmentThumbnail
 
 data class ImageAttachmentState(
     val state: AttachmentState.AttachmentImageState,

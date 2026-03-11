@@ -10,7 +10,6 @@ import android.content.Intent.ACTION_VIEW
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
-import com.sayler666.gina.addDay.ui.ADD_DAY_URL
 import com.sayler666.gina.ginaApp.MainActivity
 import com.sayler666.gina.resources.R
 
@@ -29,7 +28,7 @@ fun addDayDestinationPendingIntent(context: Context): PendingIntent =
 
 fun addDayDestinationIntent(context: Context): Intent = Intent(
     ACTION_VIEW,
-    ADD_DAY_URL.toUri(),
+    _root_ide_package_.com.sayler666.gina.day.addDay.ui.ADD_DAY_URL.toUri(),
     context,
     MainActivity::class.java
 )
