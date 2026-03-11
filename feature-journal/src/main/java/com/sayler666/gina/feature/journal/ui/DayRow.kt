@@ -60,23 +60,7 @@ fun DayRow(
                 .fillMaxWidth()
         ) {
             Row(Modifier.fillMaxWidth()) {
-
-                val sharedModifier = if (sharedScope != null) {
-                    val sharedState =
-                        sharedScope.rememberSharedContentState("dayDateHeader_${state.id}")
-                    with(sharedScope) {
-                        Modifier
-                            .sharedElement(
-                                sharedContentState = sharedState,
-                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                            )
-                    }
-                } else {
-                    Modifier
-                }
-
                 DayDateHeader(
-                    modifier = sharedModifier,
                     dayOfMonth = state.dayOfMonth,
                     dayOfWeek = state.dayOfWeek,
                     yearAndMonth = state.yearAndMonth

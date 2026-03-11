@@ -1,8 +1,7 @@
 package com.sayler666.gina.insights.di
 
-import com.sayler666.gina.insights.ui.InsightsScreen
+import com.sayler666.gina.insights.navigation.featureInsightsEntryBuilder
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.routes.Insights
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +15,6 @@ object InsightsNavModule {
     @Provides
     @IntoSet
     fun provideInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<Insights> { InsightsScreen() }
+        featureInsightsEntryBuilder()
     }
 }

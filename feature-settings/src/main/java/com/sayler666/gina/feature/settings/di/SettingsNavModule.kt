@@ -1,8 +1,7 @@
 package com.sayler666.gina.feature.settings.di
 
-import com.sayler666.gina.feature.settings.ui.SettingsScreen
+import com.sayler666.gina.feature.settings.navigation.featureSettingsEntryBuilder
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.routes.Settings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +15,6 @@ object SettingsNavModule {
     @Provides
     @IntoSet
     fun provideInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<Settings> { SettingsScreen() }
+        featureSettingsEntryBuilder()
     }
 }
