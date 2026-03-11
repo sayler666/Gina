@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gina.Splash">
         <activity
-            android:name=".ginaApp.MainActivity"
+            android:name=".ginaApp.ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Gina.Splash"
             android:windowSoftInputMode="adjustResize">

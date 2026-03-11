@@ -56,7 +56,7 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
-import com.sayler666.gina.navigation.ManageFriends
+import com.sayler666.gina.navigation.routes.ManageFriends
 import com.sayler666.gina.reminders.viewmodel.NotActive
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator

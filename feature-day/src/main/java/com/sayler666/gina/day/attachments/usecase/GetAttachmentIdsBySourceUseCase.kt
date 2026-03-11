@@ -1,7 +1,7 @@
 package com.sayler666.gina.day.attachments.usecase
 
 import com.sayler666.data.database.db.journal.JournalRepository
-import com.sayler666.gina.navigation.ImagePreviewSource
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import javax.inject.Inject
 
 interface GetAttachmentIdsBySourceUseCase {

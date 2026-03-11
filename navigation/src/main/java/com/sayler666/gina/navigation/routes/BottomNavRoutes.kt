@@ -1,4 +1,4 @@
-package com.sayler666.gina.navigation
+package com.sayler666.gina.navigation.routes
 
 data object Journal : Route { override val showScaffoldElements = true }
 data object Calendar : Route { override val showScaffoldElements = true }

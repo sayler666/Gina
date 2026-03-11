@@ -13,7 +13,7 @@ Crashlytics
 - `:core` — Pure Kotlin utils (no Compose), `Permissions` utility
 - `:core-ui` — Shared Compose components, theme, `LocalNavigator`
 - `:resources` — All string resources (centralized `strings.xml`)
-- `:navigation` — `Route` sealed interface + all route data classes/objects, `Navigator` (navigate/back/replace/navigateToRoot/popUntil), `ImagePreviewSource` sealed interface, `EntryProviderInstaller`/`NavEntryFallback` typealiases; routes split across `BottomNavRoutes.kt`, `SystemRoutes.kt`, `DayRoutes.kt`; `Route.showScaffoldElements` property controls bottom bar visibility
+- `:navigation` — `Route` sealed interface + all route data classes/objects, `Navigator` (navigate/back/replace/navigateToRoot/popUntil), `ImagePreviewSource` sealed interface, `EntryProviderInstaller`/`NavEntryFallback` typealiases; routes in `routes/` sub-package; `Route.showScaffoldElements` property controls bottom bar visibility
 - `:domain-model` — Pure data models
 - `:data-database` — Room, DAOs, `JournalRepository`, use cases
 - `:data-network` — Retrofit network layer: `ZenQuotesService`, `QuoteApiModel` (`@Serializable`), `NetworkModule` DI; package `com.sayler666.gina.network`; no database deps
@@ -25,6 +25,7 @@ Crashlytics
 - `:feature-settings` — Settings screen, storage, view models
 - `:feature-friends` — Friends management
 - `:feature-reminders` — All reminder logic: use cases, receivers, state, DI
+- `:feature-setup` — App startup/setup flow: permission grant + database selection; `SetupScreen`, `SetupViewModel`, `SetupNavModule`
 - `:build-logic` — Gradle plugins
 
 **Module dependencies:** `:domain-model` ← `:navigation` ← `:core` ← `:resources` ← `:core-ui` ←
@@ -34,11 +35,15 @@ Crashlytics
 
 ## Routes
 
-**Bottom nav:** `Journal`, `Calendar`, `Gallery`, `Insights`, `Settings` — all have `showScaffoldElements = true`
-**Other:** `SelectDatabase`, `ManageFriends`, `GameOfLife`
-**Parameterized:** `DayDetails(dayId, way: Way)`, `DayDetailsEdit(dayId)`, `AddDay(date?: LocalDate)`,
-`ImagePreview(initialAttachmentId, source: ImagePreviewSource)`, `ImagePreviewTmp(image: ByteArray, mimeType)`
-**`ImagePreviewSource`:** `Gallery`, `Day(dayId, attachmentIds)`, `Journal(attachmentIds)`
+All routes in package `com.sayler666.gina.navigation.routes`, organized by feature file:
+
+- `BottomNavRoutes.kt` — `Journal`, `Calendar`, `Gallery`, `Insights`, `Settings` (`showScaffoldElements = true`)
+- `DayRoutes.kt` — `DayDetails(dayId, way: Way)`, `DayDetailsEdit(dayId)`, `AddDay(date?: LocalDate)`, `ImagePreview(initialAttachmentId, source: ImagePreviewSource)`, `ImagePreviewTmp(image: ByteArray, mimeType)`; also `ImagePreviewSource` sealed interface (`Gallery`, `Day(dayId, attachmentIds)`, `Journal(attachmentIds)`)
+- `SetupRoutes.kt` — `Startup`
+- `FriendsRoutes.kt` — `ManageFriends`
+- `GameRoutes.kt` — `GameOfLife`
+
+`Route.kt` (sealed interface) also lives in the `routes/` sub-package.
 
 ---
 
@@ -113,9 +118,9 @@ private fun Content(state: ViewState?, viewEvent: (ViewEvent) -> Unit) {
 
 ## Navigation (Jetpack Nav3)
 
-- All routes in `Route` sealed interface (`:navigation`)
-- `GinaApp` owns backstack + `Navigator`
-- `Navigator` provided via `LocalNavigator` composition local
+- All routes in `routes/` sub-package of `:navigation` (`com.sayler666.gina.navigation.routes`)
+- `GinaMainViewModel` owns `backStack: SnapshotStateList<Route>` (survives config changes); determines start route (`Startup` or `Journal`) on first load
+- `GinaApp` owns `Navigator` wrapping backStack; provides it via `LocalNavigator`
 - `:app` thin wrappers extract Route params, pass to feature screens
 - Feature screens get Route data directly, no SavedStateHandle
 - Route params via `@AssistedInject` + `@HiltViewModel(assistedFactory = ...)`

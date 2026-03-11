@@ -1,4 +1,4 @@
-package com.sayler666.gina.ginaApp
+package com.sayler666.gina.ginaApp.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.SharedTransitionLayout
@@ -37,14 +37,11 @@ import androidx.navigation3.ui.NavDisplay
 import com.sayler666.core.compose.ANIMATION_DURATION
 import com.sayler666.core.navigation.BottomBarState
 import com.sayler666.core.navigation.BottomBarState.Shown
-import com.sayler666.gina.ginaApp.navigation.AddDayFab
-import com.sayler666.gina.ginaApp.navigation.BottomNavigationBar
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.navigation.AddDay
 import com.sayler666.gina.navigation.CombinedNavEntryFallback
 import com.sayler666.gina.navigation.EntryProviderInstaller
 import com.sayler666.gina.navigation.Navigator
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.routes.AddDay
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
@@ -61,8 +58,8 @@ fun GinaApp(
     installers: Set<@JvmSuppressWildcards EntryProviderInstaller>,
     fallback: CombinedNavEntryFallback
 ) {
-    val theme by vm.theme.collectAsStateWithLifecycle()
-    GinaTheme(theme) {
+    val viewState by vm.viewState.collectAsStateWithLifecycle()
+    GinaTheme(viewState.theme) {
         // ViewModel-owned backStack survives configuration changes.
         val backStack = vm.backStack
         val navigator = remember { Navigator(backStack) }
@@ -72,16 +69,16 @@ fun GinaApp(
 
             // Handle deep links arriving via onNewIntent (app already running).
             // Fresh-start deep links are already baked into backStack by the ViewModel.
-            val pendingDeepLink: Route? by vm.pendingDeepLink.collectAsStateWithLifecycle()
+            val pendingDeepLink = viewState.pendingDeepLink
             LaunchedEffect(pendingDeepLink) {
                 val route = pendingDeepLink ?: return@LaunchedEffect
                 if (backStack.none { it is AddDay }) {
                     navigator.navigate(route)
                 }
-                vm.consumeDeepLink()
+                vm.onViewEvent(GinaMainViewModel.ViewEvent.ConsumeDeepLink)
             }
 
-            val bottomBarState: BottomBarState by vm.bottomBarState.collectAsStateWithLifecycle()
+            val bottomBarState: BottomBarState = viewState.bottomBarState
             val bottomBarVisibilityAnimation = VerticalBottomBarAnimation(
                 maxOffset = BOTTOM_NAV_HEIGHT,
                 visibleColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
@@ -100,7 +97,7 @@ fun GinaApp(
             SharedTransitionLayout {
                 CompositionLocalProvider(
                     LocalNavigator provides navigator,
-                    LocalTheme provides theme,
+                    LocalTheme provides viewState.theme,
                     LocalSharedTransitionScope provides this,
                 ) {
                     val hazeState = rememberHazeState()

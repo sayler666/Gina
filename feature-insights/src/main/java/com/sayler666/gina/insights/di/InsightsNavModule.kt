@@ -2,7 +2,7 @@ package com.sayler666.gina.insights.di
 
 import com.sayler666.gina.insights.ui.InsightsScreen
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.Insights
+import com.sayler666.gina.navigation.routes.Insights
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

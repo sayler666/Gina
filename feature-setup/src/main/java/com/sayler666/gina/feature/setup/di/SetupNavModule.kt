@@ -1,8 +1,8 @@
-package com.sayler666.gina.feature.settings.di
+package com.sayler666.gina.feature.setup.di
 
-import com.sayler666.gina.feature.settings.ui.SettingsScreen
+import com.sayler666.gina.feature.setup.ui.SetupScreen
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.routes.Settings
+import com.sayler666.gina.navigation.routes.Startup
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,11 +11,11 @@ import dagger.multibindings.IntoSet
 
 @Module
 @InstallIn(SingletonComponent::class)
-object SettingsNavModule {
+object SetupNavModule {
 
     @Provides
     @IntoSet
     fun provideInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<Settings> { SettingsScreen() }
+        entry<Startup> { SetupScreen() }
     }
 }

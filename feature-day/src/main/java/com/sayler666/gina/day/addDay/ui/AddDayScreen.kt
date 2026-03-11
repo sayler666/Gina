@@ -74,7 +74,7 @@ import com.sayler666.gina.day.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.day.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.day.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
-import com.sayler666.gina.navigation.ImagePreviewTmp
+import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider

@@ -3,10 +3,8 @@ package com.sayler666.gina.di
 import com.sayler666.gina.gameoflife.ui.GameOfLifeScreen
 import com.sayler666.gina.navigation.CombinedNavEntryFallback
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.GameOfLife
 import com.sayler666.gina.navigation.NavEntryFallback
-import com.sayler666.gina.navigation.SelectDatabase
-import com.sayler666.gina.selectdatabase.ui.SelectDatabaseScreen
+import com.sayler666.gina.navigation.routes.GameOfLife
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +18,6 @@ object NavModule {
     @Provides
     @IntoSet
     fun provideSystemInstaller(): @JvmSuppressWildcards EntryProviderInstaller = {
-        entry<SelectDatabase> { SelectDatabaseScreen() }
         entry<GameOfLife> { GameOfLifeScreen() }
     }
 

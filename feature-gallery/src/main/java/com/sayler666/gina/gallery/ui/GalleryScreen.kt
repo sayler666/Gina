@@ -57,8 +57,8 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNe
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnImageClick
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.navigation.ImagePreview
-import com.sayler666.gina.navigation.ImagePreviewSource
+import com.sayler666.gina.navigation.routes.ImagePreview
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
