@@ -13,9 +13,10 @@ Crashlytics
 - `:core` — Pure Kotlin utils (no Compose), `Permissions` utility
 - `:core-ui` — Shared Compose components, theme, `LocalNavigator`
 - `:resources` — All string resources (centralized `strings.xml`)
-- `:navigation` — `Route` sealed interface, `Navigator` backstack
+- `:navigation` — `Route` sealed interface + all route data classes/objects, `Navigator` (navigate/back/replace/navigateToRoot/popUntil), `ImagePreviewSource` sealed interface, `EntryProviderInstaller`/`NavEntryFallback` typealiases; routes split across `BottomNavRoutes.kt`, `SystemRoutes.kt`, `DayRoutes.kt`; `Route.showScaffoldElements` property controls bottom bar visibility
 - `:domain-model` — Pure data models
 - `:data-database` — Room, DAOs, `JournalRepository`, use cases
+- `:data-network` — Retrofit network layer: `ZenQuotesService`, `QuoteApiModel` (`@Serializable`), `NetworkModule` DI; package `com.sayler666.gina.network`; no database deps
 - `:feature-journal` — Journal list screen, VM, state, mappers, use cases
 - `:feature-day` — Day details, edit, add screens (with attachments, mood)
 - `:feature-calendar` — Calendar screen & VM
@@ -23,6 +24,7 @@ Crashlytics
 - `:feature-insights` — Insights/stats screen
 - `:feature-settings` — Settings screen, storage, view models
 - `:feature-friends` — Friends management
+- `:feature-reminders` — All reminder logic: use cases, receivers, state, DI
 - `:build-logic` — Gradle plugins
 
 **Module dependencies:** `:domain-model` ← `:navigation` ← `:core` ← `:resources` ← `:core-ui` ←
@@ -32,10 +34,11 @@ Crashlytics
 
 ## Routes
 
-**Bottom nav:** `Journal`, `Calendar`, `Gallery`, `Insights`, `Settings`
+**Bottom nav:** `Journal`, `Calendar`, `Gallery`, `Insights`, `Settings` — all have `showScaffoldElements = true`
 **Other:** `SelectDatabase`, `ManageFriends`, `GameOfLife`
-**Parameterized:** `DayDetails(dayId, way)`, `DayDetailsEdit(dayId)`, `AddDay(date?)`,
-`ImagePreview(attachmentId, source)`, `ImagePreviewTmp(image, mimeType)`
+**Parameterized:** `DayDetails(dayId, way: Way)`, `DayDetailsEdit(dayId)`, `AddDay(date?: LocalDate)`,
+`ImagePreview(initialAttachmentId, source: ImagePreviewSource)`, `ImagePreviewTmp(image: ByteArray, mimeType)`
+**`ImagePreviewSource`:** `Gallery`, `Day(dayId, attachmentIds)`, `Journal(attachmentIds)`
 
 ---
 

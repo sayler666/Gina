@@ -5,9 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.withRawDao
+import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.gina.feature.settings.SettingsStorage
-import com.sayler666.gina.feature.settings.reminder.NotActive
-import com.sayler666.gina.feature.settings.reminder.RemindersViewModel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
@@ -23,6 +22,11 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
+import com.sayler666.gina.reminders.usecase.AddReminderUseCase
+import com.sayler666.gina.reminders.usecase.GetLastReminderUseCase
+import com.sayler666.gina.reminders.usecase.RemoveAllRemindersUseCase
+import com.sayler666.gina.reminders.usecase.toReminderState
+import com.sayler666.gina.reminders.viewmodel.NotActive
 import com.sayler666.gina.ui.theme.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -46,12 +50,13 @@ class SettingsViewModel @Inject constructor(
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val themeMapper: ThemeMapper,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
+    private val getLastReminderUseCase: GetLastReminderUseCase,
+    private val addReminderUseCase: AddReminderUseCase,
+    private val removeAllRemindersUseCase: RemoveAllRemindersUseCase,
     imageOptimizationViewModel: ImageOptimizationViewModel,
-    remindersViewModel: RemindersViewModel
 ) : ViewModel() {
 
     private val imageOptimizationVM: ImageOptimizationViewModel = imageOptimizationViewModel
-    private val remindersVM: RemindersViewModel = remindersViewModel
 
     private val mutableShowDbCardLoader = MutableStateFlow(false)
 
@@ -63,7 +68,6 @@ class SettingsViewModel @Inject constructor(
 
     init {
         with(imageOptimizationViewModel) { initialize() }
-        with(remindersViewModel) { initialize() }
 
         observeDatabasePath()
         observeThemes()
@@ -123,7 +127,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun observeReminderState() {
-        remindersVM.reminder
+        getLastReminderUseCase()
+            .map { it.toReminderState() }
             .onEach { reminder ->
                 mutableViewState.update { it.copy(reminderState = reminder) }
             }
@@ -140,15 +145,17 @@ class SettingsViewModel @Inject constructor(
             is OnThemeSelected -> viewModelScope.launch { setting.saveTheme(event.theme) }
             is OnIncognitoModeToggled -> viewModelScope.launch { setting.saveIncognitoMode(event.enabled) }
             is OnDatabaseFileSelected -> viewModelScope.launch {
-                ginaDatabaseProvider.openAndRememberDB(
-                    event.path
-                )
+                ginaDatabaseProvider.openAndRememberDB(event.path)
             }
-
             is OnImageQualityChanged -> imageOptimizationVM.setNewImageQuality(event.quality)
             is OnImageCompressionToggled -> imageOptimizationVM.toggleImageCompression(event.enabled)
-            is OnReminderSet -> remindersVM.setReminder(event.time)
-            OnReminderCancel -> remindersVM.removeReminders()
+            is OnReminderSet -> viewModelScope.launch {
+                removeAllRemindersUseCase()
+                addReminderUseCase(ReminderEntity(time = event.time))
+            }
+            OnReminderCancel -> viewModelScope.launch {
+                removeAllRemindersUseCase()
+            }
         }
     }
 

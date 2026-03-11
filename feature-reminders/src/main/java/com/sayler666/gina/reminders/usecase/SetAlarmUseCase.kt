@@ -1,4 +1,4 @@
-package com.sayler666.gina.reminder.usecase
+package com.sayler666.gina.reminders.usecase
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import com.sayler666.core.date.MILLIS_IN_DAY
 import com.sayler666.data.database.db.reminders.ReminderEntity
-import com.sayler666.gina.reminder.receiver.ReminderReceiver
+import com.sayler666.gina.reminders.receiver.ReminderReceiver
 import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDate

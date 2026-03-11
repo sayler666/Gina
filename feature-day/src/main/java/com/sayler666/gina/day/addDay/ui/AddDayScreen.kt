@@ -87,7 +87,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.UUID
 
-const val ADD_DAY_URL = "gina://add_day"
 
 @Composable
 fun AddDayScreen(

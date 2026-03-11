@@ -38,7 +38,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
-import com.sayler666.gina.feature.settings.reminder.NotActive
 import com.sayler666.gina.feature.settings.viewmodel.SettingsState
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
@@ -58,6 +57,7 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
 import com.sayler666.gina.navigation.ManageFriends
+import com.sayler666.gina.reminders.viewmodel.NotActive
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
