@@ -9,12 +9,14 @@ import com.sayler666.gina.day.dayDetails.usecase.GetNextPreviousIdDayUseCase
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToGameOfLife
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToNextDay
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToPreviousDay
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.ShowSnackBar
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnAttachmentPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnGameOfLifePressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
@@ -70,6 +72,9 @@ class DayDetailsViewModel @AssistedInject constructor(
             OnNextDayPressed -> goToNextDay()
             OnPreviousDayPressed -> goToPreviousDay()
             OnDayDetailsPressed -> mutableViewActions.trySend(NavToDayDetails(dayId))
+            OnGameOfLifePressed -> mutableViewActions.trySend(
+                NavToGameOfLife(mutableViewState.value?.content.orEmpty())
+            )
             is OnAttachmentPressed -> {
                 val imageIds = mutableViewState.value
                     ?.attachments
@@ -100,6 +105,7 @@ class DayDetailsViewModel @AssistedInject constructor(
     sealed interface ViewEvent {
         data object OnResume : ViewEvent
         data object OnDayDetailsPressed : ViewEvent
+        data object OnGameOfLifePressed : ViewEvent
         data object OnNextDayPressed : ViewEvent
         data object OnPreviousDayPressed : ViewEvent
         data object OnBackPressed : ViewEvent
@@ -114,6 +120,7 @@ class DayDetailsViewModel @AssistedInject constructor(
         ) : ViewAction
 
         data class NavToDayDetails(val dayId: Int) : ViewAction
+        data class NavToGameOfLife(val content: String) : ViewAction
         data class NavToNextDay(val dayId: Int) : ViewAction
         data class NavToPreviousDay(val dayId: Int) : ViewAction
         data class ShowSnackBar(val message: String) : ViewAction

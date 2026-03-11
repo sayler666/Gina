@@ -1,0 +1,35 @@
+plugins {
+    id("plugins.android.library")
+    id("plugins.android.compose")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.android.hilt)
+}
+
+android {
+    namespace = "com.sayler666.gina.feature.gameoflife"
+}
+
+dependencies {
+    implementation(projects.core)
+    implementation(projects.resources)
+    implementation(projects.navigation)
+    implementation(projects.coreUi)
+
+    // Navigation3
+    implementation(libs.navigation3.ui)
+    implementation(libs.lifecycle.viewmodel.navigation3)
+
+    // Dagger hilt
+    implementation(libs.dagger.hilt)
+    ksp(libs.dagger.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
+
+    // AndroidX
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.compose.material.icons)
+
+    // Compose
+    implementation(libs.compose.material3)
+}
