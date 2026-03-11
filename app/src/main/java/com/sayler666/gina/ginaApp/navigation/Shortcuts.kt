@@ -6,7 +6,7 @@ import android.content.Intent.ACTION_VIEW
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
-import com.sayler666.gina.ginaApp.MainActivity
+import com.sayler666.gina.ginaApp.ui.MainActivity
 import com.sayler666.gina.navigation.ADD_DAY_URL
 import com.sayler666.gina.resources.R
 

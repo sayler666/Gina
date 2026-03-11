@@ -45,7 +45,8 @@
       "Bash(grep:*)",
       "Bash(xargs wc:*)",
       "Bash(read f:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(cd \"F:/Android Projects/Gina\" && find . -name \"*.kt\" -not -path \"*/navigation/routes/*\" -not -path \"*/navigation/Route.kt\" | xargs grep -l \"import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)\" | xargs sed -i 's|import com\\\\.sayler666\\\\.gina\\\\.navigation\\\\.\\\\\\(Journal\\\\|Calendar\\\\|Gallery\\\\|Insights\\\\|Settings\\\\|DayDetails\\\\|DayDetailsEdit\\\\|AddDay\\\\|ImagePreview\\\\|ImagePreviewTmp\\\\|ImagePreviewSource\\\\|Startup\\\\|ManageFriends\\\\|GameOfLife\\\\\\)|import com.sayler666.gina.navigation.routes.\\\\1|g')"
     ]
   }
 }

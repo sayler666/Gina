@@ -69,9 +69,9 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.O
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
-import com.sayler666.gina.navigation.DayDetails
-import com.sayler666.gina.navigation.ImagePreview
-import com.sayler666.gina.navigation.ImagePreviewSource
+import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.ImagePreview
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar

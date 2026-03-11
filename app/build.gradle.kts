@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.featureDay)
     implementation(projects.featureJournal)
     implementation(projects.featureReminders)
+    implementation(projects.featureSetup)
     implementation(projects.dataNetwork)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)

@@ -1,4 +1,4 @@
-package com.sayler666.gina.navigation
+package com.sayler666.gina.navigation.routes
 
 import com.sayler666.domain.model.Way
 import java.time.LocalDate
@@ -11,3 +11,9 @@ data class ImagePreview(
     val source: ImagePreviewSource,
 ) : Route
 data class ImagePreviewTmp(val image: ByteArray, val mimeType: String) : Route
+
+sealed interface ImagePreviewSource {
+    data object Gallery : ImagePreviewSource
+    data class Day(val dayId: Int, val attachmentIds: List<Int>) : ImagePreviewSource
+    data class Journal(val attachmentIds: List<Int>) : ImagePreviewSource
+}

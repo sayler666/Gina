@@ -83,11 +83,11 @@ import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.mood.ui.mapToMoodIcon
-import com.sayler666.gina.navigation.DayDetails
-import com.sayler666.gina.navigation.DayDetailsEdit
-import com.sayler666.gina.navigation.ImagePreview
-import com.sayler666.gina.navigation.ImagePreviewSource
 import com.sayler666.gina.navigation.Navigator
+import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.DayDetailsEdit
+import com.sayler666.gina.navigation.routes.ImagePreview
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalNavigator

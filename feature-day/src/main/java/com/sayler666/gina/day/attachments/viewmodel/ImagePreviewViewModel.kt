@@ -7,7 +7,7 @@ import com.sayler666.core.image.scaleToMinSize
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentIdsBySourceUseCase
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentWithDayUseCase
-import com.sayler666.gina.navigation.ImagePreviewSource
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

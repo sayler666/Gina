@@ -1,5 +1,7 @@
 package com.sayler666.gina.navigation
 
+import com.sayler666.gina.navigation.routes.Route
+
 class Navigator(private val backStack: MutableList<Route>) {
     fun navigate(route: Route) { backStack.add(route) }
     fun back() { backStack.removeLastOrNull() }

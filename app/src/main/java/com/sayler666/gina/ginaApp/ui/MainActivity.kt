@@ -1,4 +1,4 @@
-package com.sayler666.gina.ginaApp
+package com.sayler666.gina.ginaApp.ui
 
 import android.content.Intent
 import android.graphics.Color
@@ -16,11 +16,12 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.sayler666.gina.ginaApp.navigation.addDayShortcut
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.navigation.AddDay
 import com.sayler666.gina.navigation.CombinedNavEntryFallback
 import com.sayler666.gina.navigation.EntryProviderInstaller
+import com.sayler666.gina.navigation.routes.AddDay
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,7 +43,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().setKeepOnScreenCondition { showSplash }
 
         lifecycleScope.launch {
-            vm.hasRememberedDatabase
+            vm.viewState
+                .map { it.databaseReady }
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     delay(300)
@@ -56,10 +58,14 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) handleDeepLinkIntent(intent)
 
         enableEdgeToEdge(
-            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+            navigationBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT)
         )
         setContent {
-            GinaApp(vm, installers, fallback)
+            GinaApp(
+                vm = vm,
+                installers = installers,
+                fallback = fallback
+            )
         }
     }
 
@@ -73,7 +79,7 @@ class MainActivity : ComponentActivity() {
             intent.data?.scheme == "gina" &&
             intent.data?.host == "add_day"
         ) {
-            vm.setDeepLink(AddDay())
+            vm.onViewEvent(GinaMainViewModel.ViewEvent.SetDeepLink(AddDay()))
         }
     }
 

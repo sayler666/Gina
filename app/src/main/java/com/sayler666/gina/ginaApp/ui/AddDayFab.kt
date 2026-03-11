@@ -1,4 +1,4 @@
-package com.sayler666.gina.ginaApp.navigation
+package com.sayler666.gina.ginaApp.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding

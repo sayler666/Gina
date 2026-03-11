@@ -6,7 +6,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sayler666.gina.friends.ui.ManageFriendsScreen
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel
 import com.sayler666.gina.navigation.EntryProviderInstaller
-import com.sayler666.gina.navigation.ManageFriends
+import com.sayler666.gina.navigation.routes.ManageFriends
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

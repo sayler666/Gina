@@ -5,8 +5,8 @@ import androidx.activity.compose.LocalActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sayler666.gina.calendar.ui.CalendarScreen
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel
-import com.sayler666.gina.navigation.Calendar
 import com.sayler666.gina.navigation.EntryProviderInstaller
+import com.sayler666.gina.navigation.routes.Calendar
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

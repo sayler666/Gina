@@ -64,8 +64,8 @@ import com.sayler666.gina.mood.ui.goodColor
 import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
-import com.sayler666.gina.navigation.AddDay
-import com.sayler666.gina.navigation.DayDetails
+import com.sayler666.gina.navigation.routes.AddDay
+import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive

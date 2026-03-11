@@ -1,4 +1,4 @@
-package com.sayler666.gina.ginaApp.navigation
+package com.sayler666.gina.ginaApp.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -19,16 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.zIndex
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.routes.Route
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 import dev.chrisbanes.haze.HazeState
-import com.sayler666.gina.navigation.Calendar as RouteCalendar
-import com.sayler666.gina.navigation.Gallery as RouteGallery
-import com.sayler666.gina.navigation.Insights as RouteInsights
-import com.sayler666.gina.navigation.Journal as RouteJournal
-import com.sayler666.gina.navigation.Settings as RouteSettings
+import com.sayler666.gina.navigation.routes.Calendar as RouteCalendar
+import com.sayler666.gina.navigation.routes.Gallery as RouteGallery
+import com.sayler666.gina.navigation.routes.Insights as RouteInsights
+import com.sayler666.gina.navigation.routes.Journal as RouteJournal
+import com.sayler666.gina.navigation.routes.Settings as RouteSettings
 
 enum class BottomDestinations(
     val route: Route,

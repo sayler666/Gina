@@ -67,9 +67,9 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
-import com.sayler666.gina.navigation.DayDetails
-import com.sayler666.gina.navigation.DayDetailsEdit
-import com.sayler666.gina.navigation.ImagePreviewTmp
+import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.DayDetailsEdit
+import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider

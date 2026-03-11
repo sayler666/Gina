@@ -30,11 +30,11 @@ import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewAc
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnLoadPage
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnNavigateToDayDetails
-import com.sayler666.gina.navigation.DayDetails
-import com.sayler666.gina.navigation.ImagePreviewSource
-import com.sayler666.gina.navigation.ImagePreviewSource.Day
-import com.sayler666.gina.navigation.ImagePreviewSource.Gallery
-import com.sayler666.gina.navigation.ImagePreviewSource.Journal
+import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.ImagePreviewSource
+import com.sayler666.gina.navigation.routes.ImagePreviewSource.Day
+import com.sayler666.gina.navigation.routes.ImagePreviewSource.Gallery
+import com.sayler666.gina.navigation.routes.ImagePreviewSource.Journal
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.ZoomableBox
