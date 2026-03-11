@@ -26,6 +26,7 @@ Crashlytics
 - `:feature-friends` — Friends management
 - `:feature-reminders` — All reminder logic: use cases, receivers, state, DI
 - `:feature-setup` — App startup/setup flow: permission grant + database selection; `SetupScreen`, `SetupViewModel`, `SetupNavModule`
+- `:feature-game-of-life` — Conway's Game of Life simulation; `GameOfLifeViewModel` (MVI, `@AssistedInject content: String` seeds grid from day content), `GameOfLifeScreen`, `GameOfLifeNavModule`; no database deps
 - `:build-logic` — Gradle plugins
 
 **Module dependencies:** `:domain-model` ← `:navigation` ← `:core` ← `:resources` ← `:core-ui` ←
@@ -41,7 +42,7 @@ All routes in package `com.sayler666.gina.navigation.routes`, organized by featu
 - `DayRoutes.kt` — `DayDetails(dayId, way: Way)`, `DayDetailsEdit(dayId)`, `AddDay(date?: LocalDate)`, `ImagePreview(initialAttachmentId, source: ImagePreviewSource)`, `ImagePreviewTmp(image: ByteArray, mimeType)`; also `ImagePreviewSource` sealed interface (`Gallery`, `Day(dayId, attachmentIds)`, `Journal(attachmentIds)`)
 - `SetupRoutes.kt` — `Startup`
 - `FriendsRoutes.kt` — `ManageFriends`
-- `GameRoutes.kt` — `GameOfLife`
+- `GameOfLifeRoutes.kt` — `GameOfLife(content: String)`
 
 `Route.kt` (sealed interface) also lives in the `routes/` sub-package.
 

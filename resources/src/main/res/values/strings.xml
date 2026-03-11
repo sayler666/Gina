@@ -72,4 +72,11 @@
     <string name="day_remove_confirm">Remove</string>
     <string name="day_cancel">Cancel</string>
     <string name="day_attachments_count">Attachments: %d</string>
+
+    <!-- Game of Life -->
+    <string name="game_of_life_title">Game of Life</string>
+    <string name="game_of_life_generation">Gen %d</string>
+    <string name="game_of_life_pause">Pause</string>
+    <string name="game_of_life_resume">Resume</string>
+    <string name="game_of_life_restart">Restart</string>
 </resources>

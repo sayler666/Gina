@@ -15,7 +15,6 @@ dependencies {
     implementation(projects.navigation)
     implementation(projects.coreUi)
     implementation(projects.dataDatabase)
-    implementation(projects.domainModel)
     implementation(projects.featureSettings)
     implementation(projects.featureCalendar)
     implementation(projects.featureFriends)
@@ -26,6 +25,7 @@ dependencies {
     implementation(projects.featureReminders)
     implementation(projects.featureSetup)
     implementation(projects.dataNetwork)
+    implementation(projects.featureGameOfLife)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
@@ -36,16 +36,12 @@ dependencies {
 
     // Android X
     implementation(libs.androidx.core)
-    implementation(libs.androidx.datastore)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.compiler)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.constraintLayout.compose)
     implementation(libs.androidx.compose.material.icons)
 
     // Nav3
@@ -54,17 +50,6 @@ dependencies {
 
     // Compose
     implementation(libs.compose.material3)
-    implementation(libs.coil.compose)
-    implementation(libs.calendar.compose)
-    implementation(libs.richeditor.compose)
-
-    // Accompanist
-    implementation(libs.accompanist.permissions)
-
-    // Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -74,7 +59,6 @@ dependencies {
     // Other
     implementation(libs.timber)
     implementation(libs.haze)
-    implementation(libs.haze.materials)
 
     testImplementation(libs.junit)
 }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -70,6 +71,7 @@ import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewActio
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToDayDetails
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToGameOfLife
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToNextDay
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.NavToPreviousDay
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewAction.ShowSnackBar
@@ -77,6 +79,7 @@ import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnAttachmentPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnDayDetailsPressed
+import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnGameOfLifePressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnNextDayPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnPreviousDayPressed
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsViewModel.ViewEvent.OnResume
@@ -86,6 +89,7 @@ import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.DayDetailsEdit
+import com.sayler666.gina.navigation.routes.GameOfLife
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.ui.CaesarCipherText
@@ -197,6 +201,11 @@ private fun Content(
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                     IconButton(onClick = {
+                        viewEvent(OnGameOfLifePressed)
+                    }) {
+                        Icon(Icons.Filled.GridOn, null)
+                    }
+                    IconButton(onClick = {
                         viewEvent(OnDayDetailsPressed)
                     }) {
                         Icon(Icons.Filled.Edit, null)
@@ -261,6 +270,7 @@ private suspend fun onViewAction(
         )
 
         is NavToDayDetails -> navigator.navigate(DayDetailsEdit(action.dayId))
+        is NavToGameOfLife -> navigator.navigate(GameOfLife(action.content))
         is NavToAttachment -> navigator.navigate(
             ImagePreview(
                 action.attachmentId,
