@@ -35,8 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.sayler666.gina.feature.settings.reminder.Active
-import com.sayler666.gina.feature.settings.reminder.ReminderState
+import com.sayler666.gina.reminders.viewmodel.Active
+import com.sayler666.gina.reminders.viewmodel.ReminderState
 import com.sayler666.gina.resources.R
 import kotlinx.coroutines.launch
 import java.time.LocalTime

@@ -1,10 +1,10 @@
-package com.sayler666.gina.reminder.receiver
+package com.sayler666.gina.reminders.receiver
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.sayler666.gina.reminder.usecase.RefreshAlarmsUseCase
+import com.sayler666.gina.reminders.usecase.RefreshAlarmsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main

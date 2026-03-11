@@ -1,4 +1,4 @@
-package com.sayler666.gina.reminder.receiver
+package com.sayler666.gina.reminders.receiver
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -8,8 +8,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.sayler666.core.date.MILLIS_IN_DAY
-import com.sayler666.gina.reminder.usecase.NotificationUseCase
-import com.sayler666.gina.reminder.usecase.TodayEntryExistUseCase
+import com.sayler666.gina.reminders.usecase.NotificationUseCase
+import com.sayler666.gina.reminders.usecase.TodayEntryExistUseCase
+import com.sayler666.gina.resources.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -41,7 +42,7 @@ class ReminderReceiver : BroadcastReceiver() {
             if (todayEntryExistUseCase().not()) {
                 Timber.d("ReminderReceiver: no entry today, showing notification")
                 createNotificationChannel(context)
-                createNotification()
+                createNotification(context)
             } else {
                 Timber.d("ReminderReceiver: entry exists.")
             }
@@ -52,15 +53,15 @@ class ReminderReceiver : BroadcastReceiver() {
         notificationUseCase.createNotificationChannel(
             context = context,
             channelId = REMINDERS_CHANNEL_ID,
-            name = "Reminders",
-            desc = "Reminders channel"
+            name = context.getString(R.string.reminders_channel_name),
+            desc = context.getString(R.string.reminders_channel_description)
         )
     }
 
-    private fun createNotification() {
+    private fun createNotification(context: Context) {
         notificationUseCase.showNotification(
-            title = "Hey, Gina here",
-            content = "Don't forget to write something today!",
+            title = context.getString(R.string.reminders_notification_title),
+            content = context.getString(R.string.reminders_notification_content),
             notificationId = REMINDER_NOTIFICATION_ID,
             notificationChannel = REMINDERS_CHANNEL_ID
         )

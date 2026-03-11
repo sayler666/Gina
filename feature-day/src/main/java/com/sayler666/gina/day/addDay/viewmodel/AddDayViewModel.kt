@@ -15,7 +15,6 @@ import com.sayler666.domain.model.quotes.Quote
 import com.sayler666.gina.day.addDay.ui.AddDayState
 import com.sayler666.gina.day.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.day.addDay.usecase.GetQuoteUseCase
-import com.sayler666.gina.day.addDay.usecase.ReminderDismissUseCase
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.Back
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
@@ -41,6 +40,7 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayEditingViewModelSlice
 import com.sayler666.gina.day.workinCopy.WorkingCopyStorage
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
+import com.sayler666.gina.reminders.usecase.ReminderDismissUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

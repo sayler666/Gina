@@ -1,17 +1,22 @@
-package com.sayler666.gina.reminder.usecase
+package com.sayler666.gina.reminders.usecase
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.BitmapFactory.decodeResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
-import com.sayler666.gina.ginaApp.navigation.addDayDestinationPendingIntent
-import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDERS_CHANNEL_ID
+import androidx.core.net.toUri
+import com.sayler666.gina.navigation.ADD_DAY_URL
+import com.sayler666.gina.reminders.receiver.ReminderReceiver.Companion.REMINDERS_CHANNEL_ID
 import com.sayler666.gina.resources.R
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,9 +48,7 @@ class NotificationUseCaseImpl @Inject constructor(
         notificationChannel: String
     ) {
         val notificationManager = NotificationManagerCompat.from(context)
-        // Intent
-        val pendingIntent = createMainActivityIntent(context)
-        // Notification
+        val pendingIntent = createAddDayPendingIntent(context)
         val notification = NotificationCompat.Builder(context, REMINDERS_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
@@ -77,12 +80,16 @@ class NotificationUseCaseImpl @Inject constructor(
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun createMainActivityIntent(context: Context): PendingIntent =
-        addDayDestinationPendingIntent(context)
+    private fun createAddDayPendingIntent(context: Context): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            1,
+            Intent(ACTION_VIEW, ADD_DAY_URL.toUri()),
+            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+        )
 
     override fun hideNotificationById(notificationId: Int) {
         val notificationManager = NotificationManagerCompat.from(context)
         notificationManager.cancel(notificationId)
     }
-
 }

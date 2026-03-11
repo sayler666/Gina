@@ -1,8 +1,11 @@
-package com.sayler666.gina.reminder.usecase
+package com.sayler666.gina.reminders.usecase
 
-import com.sayler666.gina.day.addDay.usecase.ReminderDismissUseCase
-import com.sayler666.gina.reminder.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
+import com.sayler666.gina.reminders.receiver.ReminderReceiver.Companion.REMINDER_NOTIFICATION_ID
 import javax.inject.Inject
+
+interface ReminderDismissUseCase {
+    fun dismissReminderNotification()
+}
 
 class ReminderDismissUseCaseImpl @Inject constructor(
     private val notificationUseCase: NotificationUseCase

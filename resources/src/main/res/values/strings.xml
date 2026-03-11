@@ -48,6 +48,10 @@
     <string name="settings_image_enable_optimization">Enable optimization:</string>
     <string name="settings_image_disabled">Disabled</string>
     <string name="settings_reminder">Reminder</string>
+    <string name="reminders_channel_name">Reminders</string>
+    <string name="reminders_channel_description">Reminders channel</string>
+    <string name="reminders_notification_title">Hey, Gina here</string>
+    <string name="reminders_notification_content">Don\'t forget to write something today!</string>
     <string name="settings_reminder_remove">Remove</string>
     <string name="settings_reminder_update">Update</string>
     <string name="settings_reminder_set">Set</string>

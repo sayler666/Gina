@@ -1,7 +1,7 @@
 package com.sayler666.gina.feature.settings.viewmodel
 
 import com.sayler666.core.image.ImageOptimization.OptimizationSettings
-import com.sayler666.gina.feature.settings.reminder.ReminderState
+import com.sayler666.gina.reminders.viewmodel.ReminderState
 
 data class SettingsState(
     val databasePath: String?,

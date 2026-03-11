@@ -1,4 +1,4 @@
-package com.sayler666.gina.reminder.usecase
+package com.sayler666.gina.reminders.usecase
 
 import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.data.database.db.reminders.RemindersDatabaseProvider
