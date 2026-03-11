@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.dataDatabase)
     implementation(projects.featureFriends)
     implementation(projects.featureCalendar)
+    implementation(projects.navigation)
 
     // Dagger hilt
     implementation(libs.dagger.hilt)

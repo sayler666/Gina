@@ -22,6 +22,7 @@ dependencies {
 
     // Navigation3
     implementation(libs.navigation3.ui)
+    implementation(libs.lifecycle.viewmodel.navigation3)
 
     // Dagger hilt
     implementation(libs.dagger.hilt)

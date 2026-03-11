@@ -24,6 +24,11 @@ import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 import dev.chrisbanes.haze.HazeState
+import com.sayler666.gina.navigation.Calendar as RouteCalendar
+import com.sayler666.gina.navigation.Gallery as RouteGallery
+import com.sayler666.gina.navigation.Insights as RouteInsights
+import com.sayler666.gina.navigation.Journal as RouteJournal
+import com.sayler666.gina.navigation.Settings as RouteSettings
 
 enum class BottomDestinations(
     val route: Route,
@@ -32,31 +37,31 @@ enum class BottomDestinations(
     val label: Int
 ) {
     Journal(
-        Route.Journal,
+        RouteJournal,
         Icons.TwoTone.AutoStories,
         Icons.Filled.AutoStories,
         R.string.days_label
     ),
     Calendar(
-        Route.Calendar,
+        RouteCalendar,
         Icons.TwoTone.CalendarMonth,
         Icons.Filled.CalendarMonth,
         R.string.calendar_label
     ),
     Gallery(
-        Route.Gallery,
+        RouteGallery,
         Icons.TwoTone.PhotoLibrary,
         Icons.Filled.PhotoLibrary,
         R.string.gallery_label
     ),
     Insights(
-        Route.Insights,
+        RouteInsights,
         Icons.TwoTone.Insights,
         Icons.Filled.Insights,
         R.string.insights_label
     ),
     Settings(
-        Route.Settings,
+        RouteSettings,
         Icons.TwoTone.Settings,
         Icons.Filled.Settings,
         R.string.settings_label
@@ -99,7 +104,7 @@ fun BottomNavigationBar(
                     } else {
                         // pop to Journal, then push destination
                         while (backStack.size > 1) backStack.removeLastOrNull()
-                        if (dest.route != Route.Journal) backStack.add(dest.route)
+                        if (dest.route != RouteJournal) backStack.add(dest.route)
                     }
                 }
             )

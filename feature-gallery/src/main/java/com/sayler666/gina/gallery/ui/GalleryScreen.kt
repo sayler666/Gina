@@ -57,8 +57,8 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNe
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnImageClick
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.navigation.ImagePreview
 import com.sayler666.gina.navigation.ImagePreviewSource
-import com.sayler666.gina.navigation.Route
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
@@ -81,7 +81,7 @@ fun GalleryScreen(viewModel: GalleryViewModel = hiltViewModel()) {
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             is NavigateToImage ->
-                navigator.navigate(Route.ImagePreview(action.id, ImagePreviewSource.Gallery))
+                navigator.navigate(ImagePreview(action.id, ImagePreviewSource.Gallery))
         }
     }
 

@@ -14,11 +14,11 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.sayler666.gina.di.EntryProviderInstaller
-import com.sayler666.gina.di.NavEntryFallback
 import com.sayler666.gina.ginaApp.navigation.addDayShortcut
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.AddDay
+import com.sayler666.gina.navigation.CombinedNavEntryFallback
+import com.sayler666.gina.navigation.EntryProviderInstaller
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
     lateinit var installers: Set<@JvmSuppressWildcards EntryProviderInstaller>
 
     @Inject
-    lateinit var fallback: @JvmSuppressWildcards NavEntryFallback
+    lateinit var fallback: @JvmSuppressWildcards CombinedNavEntryFallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
             intent.data?.scheme == "gina" &&
             intent.data?.host == "add_day"
         ) {
-            vm.setDeepLink(Route.AddDay())
+            vm.setDeepLink(AddDay())
         }
     }
 

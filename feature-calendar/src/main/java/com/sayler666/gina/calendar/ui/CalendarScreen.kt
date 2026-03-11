@@ -64,7 +64,8 @@ import com.sayler666.gina.mood.ui.goodColor
 import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.AddDay
+import com.sayler666.gina.navigation.DayDetails
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
@@ -85,8 +86,8 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            is NavToDayDetails -> navigator.navigate(Route.DayDetails(action.dayId))
-            is NavToAddDay -> navigator.navigate(Route.AddDay(action.date))
+            is NavToDayDetails -> navigator.navigate(DayDetails(action.dayId))
+            is NavToAddDay -> navigator.navigate(AddDay(action.date))
         }
     }
 

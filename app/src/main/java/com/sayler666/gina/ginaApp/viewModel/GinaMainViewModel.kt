@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.feature.settings.SettingsStorage
+import com.sayler666.gina.navigation.Journal
 import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.SelectDatabase
 import com.sayler666.gina.ui.theme.Theme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +57,7 @@ class GinaMainViewModel @Inject constructor(
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
             val hasDb = hasRememberedDatabase.filterNotNull().first()
-            val startRoute = if (hasDb) Route.Journal else Route.SelectDatabase
+            val startRoute = if (hasDb) Journal else SelectDatabase
             val deepLink = if (hasDb) _pendingDeepLink.value else null
             if (backStack.isEmpty()) {
                 backStack.add(startRoute)

@@ -4,7 +4,6 @@ import com.sayler666.data.database.db.quotes.QuoteEntity
 import com.sayler666.data.database.db.quotes.QuotesDatabaseProvider
 import com.sayler666.data.database.db.quotes.returnWithQuotesDao
 import com.sayler666.data.database.db.quotes.withQuotesDao
-import com.sayler666.gina.addDay.usecase.DayQuoteProvider
 import com.sayler666.gina.quotes.api.ZenQuotesService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +22,7 @@ class QuotesRepository @Inject constructor(
     private val quotesDatabaseProvider: QuotesDatabaseProvider,
     private val quotesService: ZenQuotesService,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
-) : DayQuoteProvider {
+) : com.sayler666.gina.day.addDay.usecase.DayQuoteProvider {
 
     override fun latestTodayQuoteFlow(): Flow<QuoteEntity?> = flow {
         val todayDate = LocalDate.now()

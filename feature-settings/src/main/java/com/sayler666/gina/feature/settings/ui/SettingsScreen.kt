@@ -57,7 +57,7 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnThemeSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnVacuumDatabasePressed
-import com.sayler666.gina.navigation.Route
+import com.sayler666.gina.navigation.ManageFriends
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
@@ -78,7 +78,7 @@ fun SettingsScreen(
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             Back -> navigator.back()
-            NavToManageFriends -> navigator.navigate(Route.ManageFriends)
+            NavToManageFriends -> navigator.navigate(ManageFriends)
             is ShowToast -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
         }
     }
