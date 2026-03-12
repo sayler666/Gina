@@ -27,6 +27,9 @@ data class AttachmentEntity(
 
     @ColumnInfo(name = "mime_type", typeAffinity = ColumnInfo.TEXT)
     val mimeType: String?,
+
+    @ColumnInfo(name = "hidden", typeAffinity = ColumnInfo.INTEGER)
+    val hidden: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -40,7 +43,8 @@ data class AttachmentEntity(
             if (other.content == null) return false
             if (!content.contentEquals(other.content)) return false
         } else if (other.content != null) return false
-        return mimeType == other.mimeType
+        if (mimeType != other.mimeType) return false
+        return hidden == other.hidden
     }
 
     override fun hashCode(): Int {
@@ -48,6 +52,7 @@ data class AttachmentEntity(
         result = 31 * result + (dayId ?: 0)
         result = 31 * result + (content?.contentHashCode() ?: 0)
         result = 31 * result + (mimeType?.hashCode() ?: 0)
+        result = 31 * result + hidden.hashCode()
         return result
     }
 
@@ -57,6 +62,7 @@ data class AttachmentEntity(
             dayId = dayId,
             content = content!!,
             mimeType = mimeType!!,
+            hidden = hidden,
         )
 
         fun Attachment.toEntity() = AttachmentEntity(
@@ -64,6 +70,7 @@ data class AttachmentEntity(
             dayId = dayId,
             content = content,
             mimeType = mimeType,
+            hidden = hidden,
         )
     }
 }

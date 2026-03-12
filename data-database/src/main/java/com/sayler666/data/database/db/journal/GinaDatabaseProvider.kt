@@ -24,6 +24,7 @@ class GinaDatabaseProvider(
                         databaseInstance =
                             Room.databaseBuilder(application, GinaDatabase::class.java, savedPath)
                                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                                .addMigrations(GinaDatabase.MIGRATION_1_2)
                                 .build()
                         Timber.d("GinaDatabaseProvider: Database instance created")
                     }
@@ -44,6 +45,7 @@ class GinaDatabaseProvider(
                     databaseInstance =
                         Room.databaseBuilder(application, GinaDatabase::class.java, path)
                             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                            .addMigrations(GinaDatabase.MIGRATION_1_2)
                             .build()
                 }
             }

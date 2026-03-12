@@ -56,13 +56,14 @@ interface DaysDao {
     @Query(
         "SELECT * FROM attachments JOIN days ON attachments.days_id = days.id" +
                 " WHERE strftime('%m-%d', datetime(date/1000, 'unixepoch', 'localtime'))" +
-                " = :currentDate"
+                " = :currentDate AND attachments.hidden = 0"
     )
     fun getPreviousYearsAttachments(currentDate: String): Flow<List<AttachmentWithDayEntity>>
 
     @Query(
         "SELECT attachments.attachment_id FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
+                "AND hidden = 0 " +
                 "ORDER BY days.date DESC, attachments.attachment_id DESC LIMIT :offset, 100"
     )
     suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
@@ -70,9 +71,13 @@ interface DaysDao {
     @Query(
         "SELECT attachments.attachment_id FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
+                "AND hidden = 0 " +
                 "ORDER BY days.date DESC, attachments.attachment_id DESC"
     )
     suspend fun getAllImageAttachmentIds(): List<Int>
+
+    @Query("UPDATE attachments SET hidden = :hidden WHERE attachment_id = :id")
+    suspend fun updateAttachmentHidden(id: Int, hidden: Boolean)
 
     @Query(
         "SELECT attachment_id FROM attachments " +

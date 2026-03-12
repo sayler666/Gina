@@ -29,7 +29,9 @@ fun DayDetails.toState(incognitoMode: Boolean = false) = DayDetailsState(
     yearAndMonth = getYearAndMonth(day.date),
     content = day.content,
     mood = day.mood,
-    attachments = attachments.map { it.toState() },
+    attachments = attachments
+        .filterNot { it.hidden && incognitoMode }
+        .map { it.toState() },
     friends = friends.map {
         FriendState(id = it.id, name = it.name, avatar = it.avatar, initials = createInitials(it.name))
     },

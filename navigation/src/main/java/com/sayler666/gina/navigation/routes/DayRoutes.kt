@@ -10,7 +10,12 @@ data class ImagePreview(
     val initialAttachmentId: Int,
     val source: ImagePreviewSource,
 ) : Route
-data class ImagePreviewTmp(val image: ByteArray, val mimeType: String) : Route
+data class ImagePreviewTmp(
+    val image: ByteArray,
+    val mimeType: String,
+    val attachmentId: Int? = null,
+    val hidden: Boolean = false,
+) : Route
 
 sealed interface ImagePreviewSource {
     data object Gallery : ImagePreviewSource

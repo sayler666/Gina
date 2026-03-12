@@ -48,10 +48,12 @@ import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOpen
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentsAdded
@@ -129,6 +131,15 @@ fun DayDetailsEditScreen(
             NavToList -> navigator.popUntil { it !is DayDetails && it !is DayDetailsEdit }
             ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
             ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
+            is OpenImagePreview -> navigator.navigate(
+                ImagePreviewTmp(
+                    image = action.attachmentState.content,
+                    mimeType = action.attachmentState.mimeType,
+                    attachmentId = action.attachmentState.id,
+                    hidden = action.attachmentState.hidden,
+                )
+            )
+
             is ReinitializeText -> content = TextFieldValue(action.content)
         }
     }
@@ -203,9 +214,10 @@ private fun Content(
                     )
                     Column {
                         AnimatedVisibility(visible = !isKeyboardOpen) {
-                            Attachments(day) { attachmentHash ->
-                                viewEvent(OnAttachmentRemove(attachmentHash))
-                            }
+                            Attachments(
+                                attachments = day.attachments,
+                                onViewEvent = viewEvent
+                            )
                         }
                         AnimatedVisibility(visible = isKeyboardOpen && day.attachments.isNotEmpty()) {
                             AttachmentsCountLabel(day.attachments.size)
@@ -232,45 +244,39 @@ private fun Content(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Attachments(
-    day: DayDetailsEntity,
-    onRemoveAttachment: (Int) -> Unit
+    attachments: List<AttachmentState>,
+    onViewEvent: (ViewEvent) -> Unit,
 ) {
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
-    if (day.attachments.isNotEmpty()) {
+    if (attachments.isNotEmpty()) {
         FlowRow(
             modifier = Modifier
-                .padding(16.dp, 0.dp)
+                .padding(horizontal = 16.dp)
                 .padding(top = 16.dp)
         ) {
-            day.attachments.forEach { attachment ->
+            attachments.forEach { attachment ->
                 when (attachment) {
                     is AttachmentState.AttachmentImageState -> ImageThumbnail(
-                        attachment,
+                        state = attachment,
                         onClick = {
-                            attachment.content.let { image ->
-                                navigator.navigate(
-                                    ImagePreviewTmp(
-                                        image,
-                                        attachment.mimeType
-                                    )
-                                )
-                            }
+                            onViewEvent(OnAttachmentOpen(attachment))
                         },
                         onRemoveClicked = {
-                            onRemoveAttachment(attachment.content.hashCode())
-                        })
+                            onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                        }
+                    )
 
                     is AttachmentState.AttachmentNonImageState -> FileThumbnail(
-                        attachment,
+                        state = attachment,
                         onClick = {
                             attachment.content.let { image ->
                                 openFileIntent(context, image, attachment.mimeType)
                             }
                         },
                         onRemoveClicked = {
-                            onRemoveAttachment(attachment.content.hashCode())
-                        })
+                            onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                        }
+                    )
                 }
             }
         }

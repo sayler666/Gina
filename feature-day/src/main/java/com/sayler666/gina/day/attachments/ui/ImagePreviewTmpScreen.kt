@@ -15,22 +15,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.core.image.scaleToMinSize
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewTmpEntity
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewTmpViewModel
+import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewTmpViewModel.ViewEvent.OnToggleHidden
 
 @Composable
 fun ImagePreviewTmpScreen(
     image: ByteArray,
     mimeType: String,
+    attachmentId: Int? = null,
+    hidden: Boolean = false,
 ) {
     val viewModel: ImagePreviewTmpViewModel =
         hiltViewModel<ImagePreviewTmpViewModel, ImagePreviewTmpViewModel.Factory>(key = image.hashCode().toString()) {
-            it.create(image, mimeType)
+            it.create(image, mimeType, attachmentId, hidden)
         }
     val context = LocalContext.current
 
     val imagePreview: ImagePreviewTmpEntity? by viewModel.imagePreview.collectAsStateWithLifecycle(
         null
     )
-    var barsVisible by rememberSaveable { mutableStateOf(false) }
+    val currentHidden by viewModel.hidden.collectAsStateWithLifecycle()
+    var barsVisible by rememberSaveable { mutableStateOf(true) }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         imagePreview?.let {
@@ -42,7 +46,14 @@ fun ImagePreviewTmpScreen(
                 null,
                 scaledBitmapInfo,
                 onClick = { barsVisible = !barsVisible })
-            BottomBar(barsVisible, bottomBar, context, it)
+            BottomBar(
+                barsVisible = barsVisible,
+                bottomBarRef = bottomBar,
+                context = context,
+                imagePreviewEntity = it,
+                hidden = currentHidden,
+                onToggleHidden = { newHidden -> viewModel.onViewEvent(OnToggleHidden(newHidden)) }
+            )
         }
     }
 }

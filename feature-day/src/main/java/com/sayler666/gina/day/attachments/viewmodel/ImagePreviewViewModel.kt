@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ScaledBitmapInfo
 import com.sayler666.core.image.scaleToMinSize
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
+import com.sayler666.data.database.db.journal.usecase.UpdateAttachmentHiddenUseCase
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentIdsBySourceUseCase
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentWithDayUseCase
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
@@ -15,12 +17,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +32,7 @@ class ImagePreviewViewModel @AssistedInject constructor(
     private val getAttachmentWithDayUseCase: GetAttachmentWithDayUseCase,
     private val getAttachmentIdsBySourceUseCase: GetAttachmentIdsBySourceUseCase,
     private val imagePreviewMapper: ImagePreviewMapper,
+    private val updateAttachmentHiddenUseCase: UpdateAttachmentHiddenUseCase,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -64,6 +64,20 @@ class ImagePreviewViewModel @AssistedInject constructor(
             is ViewEvent.OnLoadPage -> loadPage(event.attachmentId)
             ViewEvent.OnBackPressed -> mutableViewActions.trySend(ViewAction.Back)
             is ViewEvent.OnNavigateToDayDetails -> mutableViewActions.trySend(ViewAction.NavToDayDetails(event.dayId))
+            is ViewEvent.OnToggleHidden -> toggleHidden(event.attachmentId, event.hidden)
+        }
+    }
+
+    private fun toggleHidden(attachmentId: Int, hidden: Boolean) {
+        viewModelScope.launch {
+            updateAttachmentHiddenUseCase(attachmentId, hidden)
+            mutableViewState.update { state ->
+                val pageData = state.pages[attachmentId] ?: return@update state
+                val updatedAttachment = (pageData.entity.attachment as? AttachmentState.AttachmentImageState)
+                    ?.copy(hidden = hidden) ?: pageData.entity.attachment
+                val updatedEntity = pageData.entity.copy(attachment = updatedAttachment)
+                state.copy(pages = state.pages + (attachmentId to pageData.copy(entity = updatedEntity)))
+            }
         }
     }
 
@@ -104,27 +118,11 @@ class ImagePreviewViewModel @AssistedInject constructor(
         data class OnLoadPage(val attachmentId: Int) : ViewEvent
         data object OnBackPressed : ViewEvent
         data class OnNavigateToDayDetails(val dayId: Int) : ViewEvent
+        data class OnToggleHidden(val attachmentId: Int, val hidden: Boolean) : ViewEvent
     }
 
     sealed interface ViewAction {
         data object Back : ViewAction
         data class NavToDayDetails(val dayId: Int) : ViewAction
     }
-}
-
-@HiltViewModel(assistedFactory = ImagePreviewTmpViewModel.Factory::class)
-class ImagePreviewTmpViewModel @AssistedInject constructor(
-    @Assisted val image: ByteArray,
-    @Assisted val mimeType: String,
-    private val mapper: ImagePreviewTmpMapper,
-) : ViewModel() {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(image: ByteArray, mimeType: String): ImagePreviewTmpViewModel
-    }
-
-    val imagePreview = flow {
-        emit(mapper.mapToVm(image, mimeType))
-    }.stateIn(viewModelScope, WhileSubscribed(5000), null)
 }

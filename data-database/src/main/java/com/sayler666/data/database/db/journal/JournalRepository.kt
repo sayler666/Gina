@@ -309,4 +309,14 @@ class JournalRepository @Inject constructor(
         emptyList()
     }
 
+    suspend fun updateAttachmentHidden(id: Int, hidden: Boolean) {
+        try {
+            ginaDatabaseProvider.withDaysDao {
+                updateAttachmentHidden(id, hidden)
+            }
+        } catch (e: SQLException) {
+            Timber.e(e, "Database error")
+        }
+    }
+
 }

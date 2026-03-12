@@ -24,35 +24,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewAction.Back
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewAction.NavToDayDetails
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnLoadPage
 import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnNavigateToDayDetails
+import com.sayler666.gina.day.attachments.viewmodel.ImagePreviewViewModel.ViewEvent.OnToggleHidden
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.navigation.routes.ImagePreviewSource.Day
-import com.sayler666.gina.navigation.routes.ImagePreviewSource.Gallery
-import com.sayler666.gina.navigation.routes.ImagePreviewSource.Journal
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.ZoomableBox
 import com.sayler666.gina.ui.hideSystemBars
 import com.sayler666.gina.ui.showSystemBars
+import java.util.UUID
 
 @Composable
 fun ImagePreviewScreen(
     initialAttachmentId: Int,
     source: ImagePreviewSource,
 ) {
-    val viewModelKey = when (source) {
-        Gallery -> "gallery_$initialAttachmentId"
-        is Day -> "day_${source.dayId}_$initialAttachmentId"
-        is Journal -> "journal_$initialAttachmentId"
-    }
+    val vmKey = rememberSaveable { UUID.randomUUID().toString() }
     val viewModel: ImagePreviewViewModel =
-        hiltViewModel<ImagePreviewViewModel, ImagePreviewViewModel.Factory>(key = viewModelKey) {
+        hiltViewModel<ImagePreviewViewModel, ImagePreviewViewModel.Factory>(key = vmKey) {
             it.create(initialAttachmentId, source)
         }
     val navigator = LocalNavigator.current
@@ -154,11 +151,14 @@ private fun Content(
             }
         }
 
+        val currentHidden = (currentPageData?.entity?.attachment as? AttachmentState.AttachmentImageState)?.hidden ?: false
         BottomBar(
             barsVisible = barsVisible && currentPageData != null,
             bottomBarRef = bottomBarRef,
             context = context,
-            imagePreviewEntity = currentPageData?.entity
+            imagePreviewEntity = currentPageData?.entity,
+            hidden = currentHidden,
+            onToggleHidden = { newHidden -> viewEvent(OnToggleHidden(currentPageId, newHidden)) }
         )
     }
 }

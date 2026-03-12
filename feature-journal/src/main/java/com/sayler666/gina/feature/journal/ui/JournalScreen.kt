@@ -345,7 +345,8 @@ private fun FilePermissionPermissionPrompt(
 
 @Composable
 private fun Loading() {
-    Column(Modifier.fillMaxSize()) {
+    val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
+    Column(Modifier.fillMaxSize().padding(top = topPadding)) {
         repeat(3) {
             Column(Modifier.padding(12.dp)) {
                 Box(
