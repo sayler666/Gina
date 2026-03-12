@@ -36,6 +36,7 @@ import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnResto
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.day.attachments.viewmodel.toState
+import com.sayler666.gina.day.dayDetailsEdit.usecase.TmpAttachmentHiddenStore
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayEditingViewModelSlice
 import com.sayler666.gina.day.workinCopy.WorkingCopyStorage
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
@@ -54,6 +55,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -67,6 +69,7 @@ class AddDayViewModel @AssistedInject constructor(
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
     private val dayEditingSlice: DayEditingViewModelSlice,
+    private val tmpAttachmentHiddenStore: TmpAttachmentHiddenStore,
     getQuoteUseCase: GetQuoteUseCase,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
     DayEditingViewModelSlice by dayEditingSlice {
@@ -103,6 +106,7 @@ class AddDayViewModel @AssistedInject constructor(
         viewModelScope.launch { quote.value = getQuoteUseCase.getQuote() }
         observeViewState()
         observeWorkingCopy()
+        observeTmpHiddenChanges()
     }
 
     private fun observeViewState() {
@@ -139,12 +143,25 @@ class AddDayViewModel @AssistedInject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun observeTmpHiddenChanges() {
+        tmpAttachmentHiddenStore.updates.onEach { (contentHash, hidden) ->
+            mutableDay.update { day ->
+                day?.copy(attachments = day.attachments.map { attachment ->
+                    if (attachment.content.contentHashCode() == contentHash)
+                        attachment.copy(hidden = hidden)
+                    else attachment
+                })
+            }
+        }.launchIn(viewModelScope)
+    }
+
     fun onViewEvent(event: ViewEvent) {
         when (event) {
             is OnAttachmentPressed -> mutableViewActions.trySend(
                 NavToAttachment(
                     event.image,
-                    event.mimeType
+                    event.mimeType,
+                    event.hidden,
                 )
             )
 
@@ -215,7 +232,7 @@ class AddDayViewModel @AssistedInject constructor(
         data class OnFriendPressed(val friendId: Int, val selected: Boolean) : ViewEvent
         data object OnAttachmentPickerPressed : ViewEvent
         data class OnAttachmentRemove(val attachmentHash: Int) : ViewEvent
-        data class OnAttachmentPressed(val image: ByteArray, val mimeType: String) : ViewEvent
+        data class OnAttachmentPressed(val image: ByteArray, val mimeType: String, val hidden: Boolean) : ViewEvent
         data class OnAttachmentsAdded(val attachments: List<Pair<ByteArray, String>>) : ViewEvent
         data class OnImageQualityChanged(val quality: Int) : ViewEvent
         data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
@@ -223,7 +240,7 @@ class AddDayViewModel @AssistedInject constructor(
 
     sealed interface ViewAction {
         data object ShowAttachmentPicker : ViewAction
-        data class NavToAttachment(val image: ByteArray, val mimeType: String) : ViewAction
+        data class NavToAttachment(val image: ByteArray, val mimeType: String, val hidden: Boolean) : ViewAction
         data object ShowDiscardDialog : ViewAction
         data object Back : ViewAction
         data class ReinitializeText(val content: String) : ViewAction

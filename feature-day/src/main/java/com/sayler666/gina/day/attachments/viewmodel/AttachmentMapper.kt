@@ -13,6 +13,7 @@ fun Attachment.toState(): AttachmentState {
             id = this.id,
             content = this.content,
             mimeType = this.mimeType,
+            hidden = this.hidden,
         )
 
         else -> AttachmentState.AttachmentNonImageState(

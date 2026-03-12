@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +33,9 @@ internal fun ConstraintLayoutScope.BottomBar(
     barsVisible: Boolean,
     bottomBarRef: ConstrainedLayoutReference,
     context: Context,
-    imagePreviewEntity: ImagePreviewEntity?
+    imagePreviewEntity: ImagePreviewEntity?,
+    hidden: Boolean = false,
+    onToggleHidden: ((Boolean) -> Unit)? = null,
 ) {
     AnimatedVisibility(
         visible = barsVisible,
@@ -72,6 +76,14 @@ internal fun ConstraintLayoutScope.BottomBar(
                     }
                 }) {
                     Icon(Icons.Filled.Share, null)
+                }
+                if (onToggleHidden != null) {
+                    IconButton(onClick = { onToggleHidden(!hidden) }) {
+                        Icon(
+                            imageVector = if (hidden) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility,
+                            contentDescription = null
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(

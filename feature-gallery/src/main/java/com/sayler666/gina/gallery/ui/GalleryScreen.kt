@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
@@ -13,10 +12,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -31,6 +31,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,10 +73,13 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen(viewModel: GalleryViewModel = hiltViewModel()) {
+fun GalleryScreen() {
+    val vmKey = rememberSaveable { UUID.randomUUID().toString() }
+    val viewModel: GalleryViewModel = hiltViewModel(key = vmKey)
     val viewState: GalleryState by viewModel.viewState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
 
@@ -215,9 +220,11 @@ private fun ImagesGrid(
                 AsyncImage(
                     model = image.content,
                     contentDescription = null,
-                    modifier = sharedModifier.clickable {
-                        imageId?.let { onViewEvent(OnImageClick(it)) }
-                    },
+                    modifier = sharedModifier
+                        .animateItem()
+                        .clickable {
+                            imageId?.let { onViewEvent(OnImageClick(it)) }
+                        },
                     contentScale = ContentScale.FillWidth
                 )
             }
@@ -227,18 +234,40 @@ private fun ImagesGrid(
 
 @Composable
 private fun LoadingGrid() {
-    FlowRow(
-        Modifier
-            .fillMaxSize()
-            .padding(top = 120.dp)
+    val lazyGridState = rememberLazyStaggeredGridState()
+    val dummyHeights = remember {
+        buildList {
+            repeat(20) {
+                add(
+                    (Math.random() * 350)
+                        .coerceAtLeast(200.0).dp
+                )
+            }
+        }
+    }
+    val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
+    LazyVerticalStaggeredGrid(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = lazyGridState,
+        columns = StaggeredGridCells.Fixed(2),
+        contentPadding = WindowInsets.systemBars
+            .only(WindowInsetsSides.Vertical)
+            .add(WindowInsets(top = topPadding))
+            .asPaddingValues(),
+        verticalItemSpacing = 2.dp,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        repeat(18) {
-            Box(
-                Modifier
-                    .size(120.dp)
-                    .padding(start = 1.dp, bottom = 1.dp)
-                    .background(shimmerBrush(true))
-            )
+        dummyHeights.forEach {
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(it)
+                        .padding(start = 1.dp, bottom = 1.dp)
+                        .background(shimmerBrush(true))
+                )
+            }
         }
     }
 }

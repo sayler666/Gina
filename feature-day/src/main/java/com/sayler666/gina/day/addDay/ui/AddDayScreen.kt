@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -92,7 +93,7 @@ import java.util.UUID
 fun AddDayScreen(
     date: LocalDate?,
 ) {
-    val key = remember { UUID.randomUUID().toString() }
+    val key = rememberSaveable { UUID.randomUUID().toString() }
     val viewModel: AddDayViewModel =
         hiltViewModel<AddDayViewModel, AddDayViewModel.Factory>(key = key) {
             it.create(date)
@@ -147,8 +148,9 @@ private fun onViewAction(
         Back -> navigator.back()
         is NavToAttachment -> navigator.navigate(
             ImagePreviewTmp(
-                action.image,
-                action.mimeType
+                image = action.image,
+                mimeType = action.mimeType,
+                hidden = action.hidden,
             )
         )
 
@@ -219,17 +221,13 @@ private fun Content(
                     .padding(padding)
             ) {
                 state?.let { day ->
-                    AnimatedVisibility(
-                        visible = !isKeyboardOpen
-                    ) {
-                        AttachmentsRow(
+                    AnimatedVisibility(visible = !isKeyboardOpen) {
+                        Attachments(
                             attachments = day.attachments,
                             viewEvent = viewEvent,
                         )
                     }
-                    AnimatedVisibility(
-                        visible = isKeyboardOpen && day.attachments.isNotEmpty()
-                    ) {
+                    AnimatedVisibility(visible = isKeyboardOpen && day.attachments.isNotEmpty()) {
                         AttachmentsCountLabel(day.attachments.size)
                     }
 
@@ -332,33 +330,49 @@ private fun BottomBar(
 
 
 @Composable
-fun AttachmentsRow(
+fun Attachments(
     attachments: List<AttachmentState>,
     viewEvent: (ViewEvent) -> Unit,
 ) {
     val context = LocalContext.current
-    if (attachments.isNotEmpty()) FlowRow(modifier = Modifier.padding(16.dp, 0.dp)) {
-        attachments.forEach { attachment ->
-            when (attachment) {
-                is AttachmentImageState -> ImageThumbnail(
-                    state = attachment,
-                    onClick = {
-                        viewEvent(OnAttachmentPressed(attachment.content, attachment.mimeType))
-                    },
-                    onRemoveClicked = {
-                        viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
-                    })
+    if (attachments.isNotEmpty()) {
+        FlowRow(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp)
+        ) {
+            attachments.forEach { attachment ->
+                when (attachment) {
+                    is AttachmentImageState -> ImageThumbnail(
+                        state = attachment,
+                        onClick = {
+                            viewEvent(
+                                OnAttachmentPressed(
+                                    image = attachment.content,
+                                    mimeType = attachment.mimeType,
+                                    hidden = attachment.hidden,
+                                )
+                            )
+                        },
+                        onRemoveClicked = {
+                            viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                        }
+                    )
 
-                is AttachmentNonImageState -> FileThumbnail(
-                    state = attachment,
-                    onClick = {
-                        openFileIntent(
-                            context, attachment.content, attachment.mimeType
-                        )
-                    },
-                    onRemoveClicked = {
-                        viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
-                    })
+                    is AttachmentNonImageState -> FileThumbnail(
+                        state = attachment,
+                        onClick = {
+                            openFileIntent(
+                                context = context,
+                                bytes = attachment.content,
+                                mimeType = attachment.mimeType
+                            )
+                        },
+                        onRemoveClicked = {
+                            viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
+                        }
+                    )
+                }
             }
         }
     }

@@ -4,11 +4,13 @@ sealed class AttachmentState(
     open val id: Int?,
     open val content: ByteArray,
     open val mimeType: String,
+    open val hidden: Boolean = false,
 ) {
     data class AttachmentImageState(
         override val id: Int?,
         override val content: ByteArray,
         override val mimeType: String,
+        override val hidden: Boolean = false,
     ) : AttachmentState(id, content, mimeType)
 
     data class AttachmentNonImageState(

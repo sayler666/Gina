@@ -6,16 +6,20 @@ import com.sayler666.core.image.ImageOptimization
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.Mood
+import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.dayDetails.usecase.GetDayDetailsUseCase
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.day.dayDetails.viewmodel.toEditState
 import com.sayler666.gina.day.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.usecase.EditDayUseCase
+import com.sayler666.gina.day.dayDetailsEdit.usecase.TmpAttachmentHiddenStore
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOpen
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOptimize
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
@@ -62,6 +66,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
     private val imageOptimizationViewModel: ImageOptimizationViewModel,
     private val workingCopyStorage: WorkingCopyStorage,
     private val dayEditingSlice: DayEditingViewModelSlice,
+    private val tmpAttachmentHiddenStore: TmpAttachmentHiddenStore,
 ) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
     DayEditingViewModelSlice by dayEditingSlice {
 
@@ -92,6 +97,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         observeStoredDay()
         observeTempDay()
         observeWorkingCopy()
+        observeTmpHiddenChanges()
     }
 
     private fun observeStoredDay() {
@@ -100,7 +106,19 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             allFriends,
             friendsSearchQuery
         ) { day, friends, query ->
-            if (mutableDay.value == null) mutableDay.value = day
+            if (mutableDay.value == null) {
+                mutableDay.value = day
+            } else {
+                day?.let { storedDay ->
+                    val current = mutableDay.value ?: return@let
+                    val updatedAttachments = current.attachments.map { attachment ->
+                        storedDay.attachments.find { it.id == attachment.id }
+                            ?.let { stored -> attachment.copy(hidden = stored.hidden) }
+                            ?: attachment
+                    }
+                    mutableDay.value = current.copy(attachments = updatedAttachments)
+                }
+            }
             day?.toEditState(friendsMapper, friends, query)
         }.onEach { stored ->
             latestStoredDay = stored
@@ -132,6 +150,18 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeTmpHiddenChanges() {
+        tmpAttachmentHiddenStore.updates.onEach { (contentHash, hidden) ->
+            mutableDay.update { day ->
+                day?.copy(attachments = day.attachments.map { attachment ->
+                    if (attachment.id == null && attachment.content.contentHashCode() == contentHash)
+                        attachment.copy(hidden = hidden)
+                    else attachment
+                })
+            }
+        }.launchIn(viewModelScope)
+    }
+
     fun onViewEvent(event: ViewEvent) {
         when (event) {
             OnBackPressed -> if (viewState.value.changesExist) {
@@ -155,6 +185,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             is OnImageQualityChanged -> imageOptimizationViewModel.setNewImageQuality(event.quality)
             is OnImageCompressionToggled -> imageOptimizationViewModel.toggleImageCompression(event.enabled)
             is OnAttachmentOptimize -> optimizeAttachment(event.attachmentHash)
+            is OnAttachmentOpen -> mutableViewActions.trySend(OpenImagePreview(event.attachment))
         }
     }
 
@@ -250,6 +281,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         data class OnImageQualityChanged(val quality: Int) : ViewEvent
         data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
         data class OnAttachmentOptimize(val attachmentHash: Int) : ViewEvent
+        data class OnAttachmentOpen(val attachment: AttachmentState) : ViewEvent
     }
 
     sealed interface ViewAction {
@@ -257,6 +289,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         data object NavToList : ViewAction
         data object ShowAttachmentPicker : ViewAction
         data object ShowDiscardDialog : ViewAction
+        data class OpenImagePreview(val attachmentState: AttachmentState) :  ViewAction
         data class ReinitializeText(val content: String) : ViewAction
     }
 }

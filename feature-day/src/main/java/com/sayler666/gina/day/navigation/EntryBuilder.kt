@@ -25,6 +25,8 @@ fun EntryProviderScope<Route>.featureDayEntryBuilder(){
         ImagePreviewTmpScreen(
             image = it.image,
             mimeType = it.mimeType,
+            attachmentId = it.attachmentId,
+            hidden = it.hidden,
         )
     }
 }
