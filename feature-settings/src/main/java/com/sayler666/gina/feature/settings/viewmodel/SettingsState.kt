@@ -4,6 +4,7 @@ import com.sayler666.gina.reminders.viewmodel.ReminderState
 
 data class SettingsState(
     val databasePath: String?,
+    val databaseSize: Long? = null,
     val themes: List<ThemeItem>,
     val incognitoMode: Boolean,
     val showDbCardLoader: Boolean,
