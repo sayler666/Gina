@@ -5,14 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewEvent.OnAddNewFriend
+import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewEvent.OnSearchChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -20,8 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManageFriendsViewModel @Inject constructor(
-    getAllFriendsUseCase: GetAllFriendsUseCase,
-    friendsMapper: FriendsMapper,
+    private val getAllFriendsUseCase: GetAllFriendsUseCase,
+    private val friendsMapper: FriendsMapper,
     private val addFriendUseCase: AddFriendUseCase
 ) : ViewModel() {
 
@@ -29,32 +32,47 @@ class ManageFriendsViewModel @Inject constructor(
         Timber.e(exception)
     }
 
-    private val _friends = getAllFriendsUseCase.getAllFriendsWithCount().stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        emptyList()
-    )
+    private val searchQuery = MutableStateFlow("")
 
-    private val friendsSearchQuery: MutableStateFlow<String?> = MutableStateFlow(null)
-    val friends: StateFlow<List<FriendState>> = combine(
-        _friends,
-        friendsSearchQuery
-    ) { friends, friendsSearchQuery ->
-        friendsMapper.mapToFriends(friends, friendsSearchQuery)
-    }.stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        emptyList()
-    )
+    private val mutableViewState = MutableStateFlow(ViewState())
+    val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
 
-    fun searchFriend(searchQuery: String) {
-        friendsSearchQuery.update { searchQuery }
+    init {
+        observeFriends()
     }
 
-    fun addNewFriend(friendName: String) {
-        viewModelScope.launch(SupervisorJob() + exceptionHandler) {
-            addFriendUseCase.addFriend(friendName)
+    private fun observeFriends() {
+        combine(getAllFriendsUseCase.getAllFriendsWithCount(), searchQuery) { friends, query ->
+            friendsMapper.mapToFriends(friends, query)
+        }.onEach { friends ->
+            mutableViewState.update { it.copy(friends = friends) }
+        }.launchIn(viewModelScope)
+    }
+
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            is OnSearchChanged -> {
+                searchQuery.value = event.query
+                mutableViewState.update { it.copy(searchQuery = event.query) }
+            }
+
+            is OnAddNewFriend -> {
+                searchQuery.value = ""
+                mutableViewState.update { it.copy(searchQuery = "") }
+                viewModelScope.launch(SupervisorJob() + exceptionHandler) {
+                    addFriendUseCase.addFriend(event.name)
+                }
+            }
         }
     }
 
+    data class ViewState(
+        val friends: List<FriendState> = emptyList(),
+        val searchQuery: String = ""
+    )
+
+    sealed interface ViewEvent {
+        data class OnSearchChanged(val query: String) : ViewEvent
+        data class OnAddNewFriend(val name: String) : ViewEvent
+    }
 }
