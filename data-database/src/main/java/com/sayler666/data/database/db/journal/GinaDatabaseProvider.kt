@@ -1,6 +1,7 @@
 package com.sayler666.data.database.db.journal
 
 import android.app.Application
+import android.os.Environment
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
@@ -16,6 +17,7 @@ class GinaDatabaseProvider(
     private var databaseInstance: GinaDatabase? = null
 
     suspend fun openSavedDB(): Boolean {
+        if (!Environment.isExternalStorageManager()) return false
         val savedPath = databaseSettingsStorage.getDatabasePathFlow().first()
         savedPath?.let {
             try {

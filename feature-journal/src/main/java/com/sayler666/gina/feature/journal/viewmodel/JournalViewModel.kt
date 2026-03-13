@@ -28,6 +28,7 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.O
 import com.sayler666.gina.feature.settings.SettingsStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,14 +62,13 @@ class JournalViewModel @Inject constructor(
 
     private val mutableSearchQuery = MutableStateFlow("")
     private val mutableMoodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
+    private var journalStateJob: Job? = null
 
     init {
-        initDb()
-        observeJournalState()
-    }
-
-    private fun initDb() {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
+        viewModelScope.launch {
+            ginaDatabaseProvider.openSavedDB()
+            observeJournalState()
+        }
     }
 
     private data class JournalParams(
@@ -79,7 +79,8 @@ class JournalViewModel @Inject constructor(
     )
 
     private fun observeJournalState() {
-        combine(
+        journalStateJob?.cancel()
+        journalStateJob = combine(
             mutableMoodFilters,
             mutableSearchQuery,
             previousYearsAttachmentsUseCase(),
@@ -134,7 +135,13 @@ class JournalViewModel @Inject constructor(
     }
 
     private fun refreshPermissionStatus() {
-        if (Environment.isExternalStorageManager()) initDb()
+        if (Environment.isExternalStorageManager()) {
+            viewModelScope.launch {
+                ginaDatabaseProvider.openSavedDB()
+                mutableViewState.update { LoadingState }
+                observeJournalState()
+            }
+        }
     }
 
     private fun searchQuery(searchQuery: String) {
