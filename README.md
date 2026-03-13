@@ -29,18 +29,24 @@ Apps like OneSync, Dropsync, etc., could be used to back up database file to you
 
 | Module | Description |
 |---|---|
-| `:app` | Navigation wiring, DI graph, `MainActivity` |
-| `:navigation` | `Route` sealed interface, `Navigator` |
-| `:domain-model` | Pure Kotlin models |
-| `:core` | Pure Kotlin utilities, `ViewModelSlice` |
-| `:core-ui` | Shared Compose components, theme |
-| `:data-database` | Room, DAOs, repositories, use cases |
-| `:feature-calendar` | Calendar screen |
-| `:feature-day` | Day details, edit, add, image preview |
+| `:app` | Nav wiring, DI, `GinaApp`, `NavDisplay`, thin route wrappers |
+| `:core` | Pure Kotlin utils (no Compose), `Permissions` utility |
+| `:core-ui` | Shared Compose components, theme, `LocalNavigator` |
+| `:resources` | All string resources (centralized `strings.xml`) |
+| `:navigation` | `Route` sealed interface, `Navigator`, routes in `routes/` sub-package |
+| `:domain-model` | Pure data models |
+| `:data-database` | Room, DAOs, `JournalRepository`, use cases |
+| `:data-network` | Retrofit: `ZenQuotesService`, `NetworkModule` DI; no database deps |
+| `:feature-journal` | Journal list screen, VM, state, mappers, use cases |
+| `:feature-day` | Day details, edit, add screens (with attachments, mood) |
+| `:feature-calendar` | Calendar screen & VM |
+| `:feature-gallery` | Gallery screen |
+| `:feature-insights` | Insights/stats screen |
+| `:feature-settings` | Settings screen, storage, view models |
 | `:feature-friends` | Friends management |
-| `:feature-gallery` | Image gallery |
-| `:feature-insights` | Mood and activity insights |
-| `:feature-settings` | App settings, reminders |
+| `:feature-reminders` | All reminder logic: use cases, receivers, state, DI |
+| `:feature-setup` | App startup/setup flow: `SetupScreen`, `SetupViewModel` |
+| `:feature-game-of-life` | Conway's Game of Life simulation |
 | `:build-logic` | Gradle convention plugins |
 
 ## Building
