@@ -29,8 +29,6 @@ import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnBackP
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnContentChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendSearchQueryChanged
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
@@ -39,7 +37,6 @@ import com.sayler666.gina.day.attachments.viewmodel.toState
 import com.sayler666.gina.day.dayDetailsEdit.usecase.TmpAttachmentHiddenStore
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayEditingViewModelSlice
 import com.sayler666.gina.day.workinCopy.WorkingCopyStorage
-import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.reminders.usecase.ReminderDismissUseCase
 import dagger.assisted.Assisted
@@ -64,15 +61,13 @@ class AddDayViewModel @AssistedInject constructor(
     @Assisted val date: LocalDate?,
     private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addDayUseCase: AddDayUseCase,
-    private val imageOptimizationViewModel: ImageOptimizationViewModel,
     private val reminderDismissUseCase: ReminderDismissUseCase,
     private val workingCopyStorage: WorkingCopyStorage,
     private val friendsMapper: FriendsMapper,
     private val dayEditingSlice: DayEditingViewModelSlice,
     private val tmpAttachmentHiddenStore: TmpAttachmentHiddenStore,
     getQuoteUseCase: GetQuoteUseCase,
-) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
-    DayEditingViewModelSlice by dayEditingSlice {
+) : ViewModel(), DayEditingViewModelSlice by dayEditingSlice {
 
     @AssistedFactory
     interface Factory {
@@ -96,7 +91,6 @@ class AddDayViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
-        with(imageOptimizationViewModel) { initialize() }
         dayEditingSlice.initializeSlice(viewModelScope)
         mutableDay.value = DayDetails(
             day = Day(date = date ?: LocalDate.now()),
@@ -176,8 +170,6 @@ class AddDayViewModel @AssistedInject constructor(
             OnSaveChangesPressed -> saveChanges()
             is OnSetNewDate -> setNewDate(event.date)
             is OnContentChanged -> setNewContent(event.content)
-            is OnImageCompressionToggled -> imageOptimizationViewModel.toggleImageCompression(event.enabled)
-            is OnImageQualityChanged -> imageOptimizationViewModel.setNewImageQuality(event.quality)
             OnBackPressed -> if (changesExists()) {
                 mutableViewActions.trySend(ShowDiscardDialog)
             } else {
@@ -234,8 +226,6 @@ class AddDayViewModel @AssistedInject constructor(
         data class OnAttachmentRemove(val attachmentHash: Int) : ViewEvent
         data class OnAttachmentPressed(val image: ByteArray, val mimeType: String, val hidden: Boolean) : ViewEvent
         data class OnAttachmentsAdded(val attachments: List<Pair<ByteArray, String>>) : ViewEvent
-        data class OnImageQualityChanged(val quality: Int) : ViewEvent
-        data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
     }
 
     sealed interface ViewAction {

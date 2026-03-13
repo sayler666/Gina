@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
+import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.feature.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
@@ -70,29 +71,32 @@ class JournalViewModel @Inject constructor(
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
+    private data class JournalParams(
+        val moods: List<Mood>,
+        val search: String,
+        val attachments: List<AttachmentWithDay>,
+        val incognito: Boolean
+    )
+
     private fun observeJournalState() {
         combine(
             mutableMoodFilters,
             mutableSearchQuery,
             previousYearsAttachmentsUseCase(),
-            settingsStorage.getIncognitoModeFlow()
-        ) { moods, search, attachments, incognito ->
-            Triple(moods, search, attachments) to incognito
+            settingsStorage.getIncognitoModeFlow(),
+            ::JournalParams
+        ).flatMapLatest { (moods, search, attachments, incognito) ->
+            getDaysUseCase.getFilteredDaysFlow(search, moods)
+                .map { days ->
+                    daysMapper.toJournalState(
+                        days = days,
+                        searchQuery = search,
+                        moods = moods,
+                        previousYearsAttachments = attachments,
+                        incognitoMode = incognito
+                    )
+                }
         }
-            .flatMapLatest { (params, incognito) ->
-                val (moods, search, attachments) = params
-                getDaysUseCase
-                    .getFilteredDaysFlow(search, moods)
-                    .map { days ->
-                        daysMapper.toJournalState(
-                            days = days,
-                            searchQuery = search,
-                            moods = moods,
-                            previousYearsAttachments = attachments,
-                            incognitoMode = incognito
-                        )
-                    }
-            }
             .onEach(mutableViewState::tryEmit)
             .launchIn(viewModelScope)
     }

@@ -28,15 +28,12 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendSearchQueryChanged
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.day.workinCopy.WorkingCopyStorage
-import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -63,12 +60,10 @@ class DayDetailsEditViewModel @AssistedInject constructor(
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
     private val imageOptimization: ImageOptimization,
-    private val imageOptimizationViewModel: ImageOptimizationViewModel,
     private val workingCopyStorage: WorkingCopyStorage,
     private val dayEditingSlice: DayEditingViewModelSlice,
     private val tmpAttachmentHiddenStore: TmpAttachmentHiddenStore,
-) : ViewModel(), ImageOptimizationViewModel by imageOptimizationViewModel,
-    DayEditingViewModelSlice by dayEditingSlice {
+) : ViewModel(), DayEditingViewModelSlice by dayEditingSlice {
 
     @AssistedFactory
     interface Factory {
@@ -91,7 +86,6 @@ class DayDetailsEditViewModel @AssistedInject constructor(
     private var latestTempDay: DayDetailsEntity? = null
 
     init {
-        with(imageOptimizationViewModel) { initialize() }
         dayEditingSlice.initializeSlice(viewModelScope)
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         observeStoredDay()
@@ -119,7 +113,11 @@ class DayDetailsEditViewModel @AssistedInject constructor(
                     mutableDay.value = current.copy(attachments = updatedAttachments)
                 }
             }
-            day?.toEditState(friendsMapper, friends, query)
+            day?.toEditState(
+                friendsMapper = friendsMapper,
+                allFriends = friends,
+                friendsSearchQuery = query
+            )
         }.onEach { stored ->
             latestStoredDay = stored
             updateCurrentDayState()
@@ -182,8 +180,6 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             is OnAttachmentRemove -> removeAttachment(event.attachmentHash)
             is OnAttachmentsAdded -> addAttachments(event.attachments)
             is OnSetNewDate -> setNewDate(event.date)
-            is OnImageQualityChanged -> imageOptimizationViewModel.setNewImageQuality(event.quality)
-            is OnImageCompressionToggled -> imageOptimizationViewModel.toggleImageCompression(event.enabled)
             is OnAttachmentOptimize -> optimizeAttachment(event.attachmentHash)
             is OnAttachmentOpen -> mutableViewActions.trySend(OpenImagePreview(event.attachment))
         }
@@ -278,8 +274,6 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         data class OnAttachmentRemove(val attachmentHash: Int) : ViewEvent
         data class OnAttachmentsAdded(val attachments: List<Pair<ByteArray, String>>) : ViewEvent
         data class OnSetNewDate(val date: LocalDate) : ViewEvent
-        data class OnImageQualityChanged(val quality: Int) : ViewEvent
-        data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
         data class OnAttachmentOptimize(val attachmentHash: Int) : ViewEvent
         data class OnAttachmentOpen(val attachment: AttachmentState) : ViewEvent
     }

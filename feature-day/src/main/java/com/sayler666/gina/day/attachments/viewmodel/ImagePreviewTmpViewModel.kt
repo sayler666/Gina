@@ -42,7 +42,7 @@ class ImagePreviewTmpViewModel @AssistedInject constructor(
 
     val imagePreview = flow {
         emit(mapper.mapToVm(image, mimeType))
-    }.stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), null)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {

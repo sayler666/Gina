@@ -48,8 +48,6 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
@@ -141,15 +139,7 @@ private fun Content(
                     onClick = { viewEvent(OnManageFriendsPressed) }
                 )
                 SettingsSectionHeader(stringResource(R.string.settings_section_attachments))
-                ImageCompressSettingsSection(
-                    state?.imageOptimizationSettings,
-                    onSetImageQuality = { quality ->
-                        viewEvent(OnImageQualityChanged(quality))
-                    },
-                    onImageCompressionToggled = { enabled ->
-                        viewEvent(OnImageCompressionToggled(enabled))
-                    }
-                )
+                ImageOptimizationSettingsSection()
                 SettingsSectionHeader(stringResource(R.string.settings_section_personalize))
                 ThemesSettingsSections(state?.themes ?: emptyList()) { theme ->
                     viewEvent(OnThemeSelected(theme))

@@ -1,54 +1,64 @@
 package com.sayler666.gina.feature.settings.viewmodel
 
-import com.sayler666.core.image.ImageOptimization
-import com.sayler666.core.viewmodel.ViewModelSlice
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.feature.settings.SettingsStorage
-import kotlinx.coroutines.CoroutineScope
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageCompressionToggled
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageQualityChanged
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface ImageOptimizationViewModel : ViewModelSlice {
+@HiltViewModel
+class ImageOptimizationViewModel @Inject constructor(
+    private val setting: SettingsStorage
+) : ViewModel() {
 
-    fun setNewImageQuality(quality: Int)
+    private val mutableViewState = MutableStateFlow(ViewState())
+    val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
 
-    fun toggleImageCompression(enabled: Boolean)
-
-    val imageOptimizationSettings: StateFlow<ImageOptimization.OptimizationSettings?>
-}
-
-class ImageOptimizationViewModelImpl @Inject constructor(
-    private val setting: SettingsStorage,
-    override var sliceScope: CoroutineScope
-) : ImageOptimizationViewModel {
-
-    private val _tempImageOptimizationSettings: MutableStateFlow<ImageOptimization.OptimizationSettings> =
-        MutableStateFlow(ImageOptimization.OptimizationSettings())
-    override val imageOptimizationSettings: StateFlow<ImageOptimization.OptimizationSettings?> by lazy {
-        setting.getImageCompressorSettingsFlow().map {
-            _tempImageOptimizationSettings.value = it
-            it
-        }.stateIn(
-            sliceScope, SharingStarted.WhileSubscribed(500), null
-        )
+    init {
+        observeSettings()
     }
 
-    override fun setNewImageQuality(quality: Int) {
-        val settings = _tempImageOptimizationSettings.value
+    private fun observeSettings() {
+        setting.getImageCompressorSettingsFlow()
+            .onEach { settings -> mutableViewState.update { it.copy(optimizationSettings = settings) } }
+            .launchIn(viewModelScope)
+    }
 
-        sliceScope.launch {
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            is OnImageQualityChanged -> setNewImageQuality(event.quality)
+            is OnImageCompressionToggled -> toggleImageCompression(event.enabled)
+        }
+    }
+
+    private fun setNewImageQuality(quality: Int) {
+        viewModelScope.launch {
+            val settings = mutableViewState.value.optimizationSettings ?: return@launch
             setting.saveImageCompressorSettings(settings.copy(quality = quality))
         }
     }
 
-    override fun toggleImageCompression(enabled: Boolean) {
-        val settings = _tempImageOptimizationSettings.value
-        sliceScope.launch {
+    private fun toggleImageCompression(enabled: Boolean) {
+        viewModelScope.launch {
+            val settings = mutableViewState.value.optimizationSettings ?: return@launch
             setting.saveImageCompressorSettings(settings.copy(compressionEnabled = enabled))
         }
+    }
+
+    data class ViewState(val optimizationSettings: OptimizationSettings? = null)
+
+    sealed interface ViewEvent {
+        data class OnImageQualityChanged(val quality: Int) : ViewEvent
+        data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
     }
 }

@@ -38,7 +38,6 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
-import com.sayler666.core.image.ImageOptimization
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.calendar.ui.DatePickerDialog
@@ -61,14 +60,12 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendSearchQueryChanged
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
-import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
+import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
@@ -89,7 +86,6 @@ fun DayDetailsEditScreen(
             it.create(dayId)
         }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val imageOptimizationSettings: ImageOptimization.OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
 
@@ -148,7 +144,6 @@ fun DayDetailsEditScreen(
         viewState = viewState,
         textFieldValue = content,
         viewEvent = viewModel::onViewEvent,
-        imageOptimizationSettings = imageOptimizationSettings,
         showDeleteConfirmationDialog = showDeleteConfirmationDialog,
     )
 }
@@ -158,7 +153,6 @@ private fun Content(
     viewState: DayDetailsEditViewModel.ViewState,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
-    imageOptimizationSettings: ImageOptimization.OptimizationSettings?,
     showDeleteConfirmationDialog: MutableState<Boolean>,
 ) {
     val showDatePickerPopup = remember { mutableStateOf(false) }
@@ -231,12 +225,9 @@ private fun Content(
                 }
             }
 
-            ImageCompressBottomSheet(
+            ImageOptimizationBottomSheet(
                 showDialog = showImageCompressSettingsDialog.value,
-                imageOptimizationSettings = imageOptimizationSettings,
                 onDismiss = { showImageCompressSettingsDialog.value = false },
-                onSetImageQuality = { viewEvent(OnImageQualityChanged(it)) },
-                onImageCompressionToggled = { viewEvent(OnImageCompressionToggled(it)) }
             )
         })
 }

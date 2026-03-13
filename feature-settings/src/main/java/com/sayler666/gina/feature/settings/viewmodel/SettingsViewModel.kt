@@ -13,8 +13,6 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewActio
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
@@ -53,10 +51,7 @@ class SettingsViewModel @Inject constructor(
     private val getLastReminderUseCase: GetLastReminderUseCase,
     private val addReminderUseCase: AddReminderUseCase,
     private val removeAllRemindersUseCase: RemoveAllRemindersUseCase,
-    imageOptimizationViewModel: ImageOptimizationViewModel,
 ) : ViewModel() {
-
-    private val imageOptimizationVM: ImageOptimizationViewModel = imageOptimizationViewModel
 
     private val mutableShowDbCardLoader = MutableStateFlow(false)
 
@@ -67,13 +62,10 @@ class SettingsViewModel @Inject constructor(
     val viewActions = mutableViewActions.receiveAsFlow()
 
     init {
-        with(imageOptimizationViewModel) { initialize() }
-
         observeDatabasePath()
         observeThemes()
         observeIncognitoMode()
         observeShowDbCardLoader()
-        observeImageOptimizationSettings()
         observeReminderState()
     }
 
@@ -82,7 +74,6 @@ class SettingsViewModel @Inject constructor(
         themes = emptyList(),
         incognitoMode = false,
         showDbCardLoader = false,
-        imageOptimizationSettings = null,
         reminderState = NotActive
     )
 
@@ -118,14 +109,6 @@ class SettingsViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun observeImageOptimizationSettings() {
-        imageOptimizationVM.imageOptimizationSettings
-            .onEach { imgOpts ->
-                mutableViewState.update { it.copy(imageOptimizationSettings = imgOpts) }
-            }
-            .launchIn(viewModelScope)
-    }
-
     private fun observeReminderState() {
         getLastReminderUseCase()
             .map { it.toReminderState() }
@@ -147,8 +130,6 @@ class SettingsViewModel @Inject constructor(
             is OnDatabaseFileSelected -> viewModelScope.launch {
                 ginaDatabaseProvider.openAndRememberDB(event.path)
             }
-            is OnImageQualityChanged -> imageOptimizationVM.setNewImageQuality(event.quality)
-            is OnImageCompressionToggled -> imageOptimizationVM.toggleImageCompression(event.enabled)
             is OnReminderSet -> viewModelScope.launch {
                 removeAllRemindersUseCase()
                 addReminderUseCase(ReminderEntity(time = event.time))
@@ -187,8 +168,6 @@ class SettingsViewModel @Inject constructor(
         data class OnThemeSelected(val theme: Theme) : ViewEvent
         data class OnIncognitoModeToggled(val enabled: Boolean) : ViewEvent
         data class OnDatabaseFileSelected(val path: String) : ViewEvent
-        data class OnImageQualityChanged(val quality: Int) : ViewEvent
-        data class OnImageCompressionToggled(val enabled: Boolean) : ViewEvent
         data class OnReminderSet(val time: LocalTime) : ViewEvent
         data object OnReminderCancel : ViewEvent
     }
