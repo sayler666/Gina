@@ -36,7 +36,6 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
-import com.sayler666.core.image.ImageOptimization.OptimizationSettings
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
@@ -58,8 +57,6 @@ import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnBackP
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnContentChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendSearchQueryChanged
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageCompressionToggled
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
@@ -74,7 +71,7 @@ import com.sayler666.gina.day.dayDetailsEdit.ui.SaveFab
 import com.sayler666.gina.day.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.day.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.day.dayDetailsEdit.ui.rememberLauncherForMultipleImages
-import com.sayler666.gina.feature.settings.ui.ImageCompressBottomSheet
+import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
@@ -99,7 +96,6 @@ fun AddDayScreen(
             it.create(date)
         }
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
-    val imageOptimizationSettings: OptimizationSettings? by viewModel.imageOptimizationSettings.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
 
     var content by remember { mutableStateOf(TextFieldValue(state?.content ?: "")) }
@@ -132,7 +128,6 @@ fun AddDayScreen(
         state = state,
         textFieldValue = content,
         viewEvent = viewModel::onViewEvent,
-        imageOptimizationSettings = imageOptimizationSettings,
     )
 }
 
@@ -165,7 +160,6 @@ private fun Content(
     state: AddDayState?,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
-    imageOptimizationSettings: OptimizationSettings?,
 ) {
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
@@ -243,12 +237,9 @@ private fun Content(
                 }
             }
 
-            ImageCompressBottomSheet(
+            ImageOptimizationBottomSheet(
                 showDialog = showImageCompressSettingsDialog.value,
-                imageOptimizationSettings = imageOptimizationSettings,
                 onDismiss = { showImageCompressSettingsDialog.value = false },
-                onSetImageQuality = { viewEvent(OnImageQualityChanged(it)) },
-                onImageCompressionToggled = { viewEvent(OnImageCompressionToggled(it)) },
             )
         })
 }
