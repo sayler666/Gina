@@ -50,10 +50,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -65,8 +67,12 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
+import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewAction
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.defaultTextFieldColors
@@ -151,17 +157,23 @@ fun FriendEdit(
 
     val addAvatar = rememberLauncherForActivityResult(PickVisualMedia()) {
         handleAvatar(it, context) { avatar ->
-            viewModel.changeAvatar(avatar)
+            viewModel.onViewEvent(ViewEvent.OnChangeAvatar(avatar))
         }
     }
     val request: PickVisualMediaRequest = PickVisualMediaRequest(ImageOnly)
 
     LaunchedEffect(friendId) {
-        viewModel.loadFriend(friendId)
+        viewModel.onViewEvent(ViewEvent.OnLoadFriend(friendId))
     }
 
-    val friendEntity: FriendState? by viewModel.friend.collectAsStateWithLifecycle()
-    friendEntity?.let { friend ->
+    CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
+        when (action) {
+            ViewAction.Dismiss -> onDismiss()
+        }
+    }
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+    viewState.friend?.let { friend ->
         val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
         if (showPopup) {
             Dialog(onDismissRequest = { onDismiss() }) {
@@ -191,7 +203,7 @@ fun FriendEdit(
                                     .align(Alignment.TopEnd)
                                     .combinedClickable(
                                         onClick = { addAvatar.launch(request) },
-                                        onLongClick = { viewModel.clearAvatar() }
+                                        onLongClick = { viewModel.onViewEvent(ViewEvent.OnClearAvatar) }
                                     )
                             )
                         }
@@ -203,7 +215,7 @@ fun FriendEdit(
                             value = name.value,
                             onValueChange = {
                                 name.value = it
-                                viewModel.changeName(it)
+                                viewModel.onViewEvent(ViewEvent.OnChangeName(it))
                             },
                             colors = defaultTextFieldColors(),
                             maxLines = 1,
@@ -227,22 +239,20 @@ fun FriendEdit(
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
-                            viewModel.updateFriend()
-                            onDismiss()
+                            viewModel.onViewEvent(ViewEvent.OnUpdateFriend)
                         }) {
                             Icon(Filled.Save, null, tint = MaterialTheme.colorScheme.primary)
                         }
 
                         ConfirmationDialog(
-                            title = "Remove ${friend.name}",
-                            text = "Do you really want to remove this friend?",
-                            confirmButtonText = "Remove",
-                            dismissButtonText = "Cancel",
+                            title = stringResource(R.string.friends_remove_dialog_title, friend.name),
+                            text = stringResource(R.string.friends_remove_dialog_text),
+                            confirmButtonText = stringResource(R.string.friends_remove_dialog_confirm),
+                            dismissButtonText = stringResource(R.string.friends_remove_dialog_cancel),
                             showDialog = showDeleteConfirmationDialog,
                         ) {
                             showDeleteConfirmationDialog.value = false
-                            viewModel.deleteFriend()
-                            onDismiss()
+                            viewModel.onViewEvent(ViewEvent.OnDeleteFriend)
                         }
                     }
                 }
@@ -278,7 +288,7 @@ private fun SearchTextField(
                 }
             }
         },
-        placeholder = { Text(text = "Search or add new friend...") },
+        placeholder = { Text(text = stringResource(R.string.friends_search_placeholder)) },
         maxLines = 1,
         singleLine = true
     )
@@ -332,7 +342,8 @@ fun FriendIcon(friend: FriendState, modifier: Modifier = Modifier, size: Dp = 38
                 painter = rememberAsyncImagePainter(friend.avatar),
                 contentDescription = "",
                 modifier = Modifier
-                    .shadow(elevation = 4.dp, shape = CircleShape)
+                    .fillMaxSize()
+                    .clip(CircleShape)
             )
         } else {
             Text(

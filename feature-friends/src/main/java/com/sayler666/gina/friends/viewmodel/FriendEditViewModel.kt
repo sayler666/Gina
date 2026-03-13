@@ -8,15 +8,26 @@ import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.usecase.DeleteFriendUseCase
 import com.sayler666.gina.friends.usecase.EditFriendUseCase
 import com.sayler666.gina.friends.usecase.GetFriendUseCase
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewAction.Dismiss
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnChangeAvatar
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnChangeName
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnClearAvatar
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnDeleteFriend
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnLoadFriend
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnUpdateFriend
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -36,52 +47,83 @@ class FriendEditViewModel @Inject constructor(
     }
 
     private val _friend = MutableStateFlow<Friend?>(null)
-    val friend: StateFlow<FriendState?> = _friend
-        .filterNotNull()
-        .map(friendsMapper::mapToFriend)
-        .stateIn(
-            viewModelScope,
-            WhileSubscribed(500),
-            null
-        )
+    private var loadFriendJob: Job? = null
 
-    fun loadFriend(id: Int) {
-        viewModelScope.launch {
-            getFriendUseCase.getFriendFlow(id).collect {
-                _friend.value = it
-            }
+    private val mutableViewState = MutableStateFlow(ViewState())
+    val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
+
+    private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
+    val viewActions = mutableViewActions.receiveAsFlow()
+
+    init {
+        observeFriend()
+    }
+
+    private fun observeFriend() {
+        _friend
+            .filterNotNull()
+            .map(friendsMapper::mapToFriend)
+            .onEach { friend ->
+                mutableViewState.update { it.copy(friend = friend) }
+            }.launchIn(viewModelScope)
+    }
+
+    fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            is OnLoadFriend -> observeFriend(event.id)
+            is OnChangeName -> _friend.update { it?.copy(name = event.name) }
+            is OnUpdateFriend -> updateFriend()
+            is OnDeleteFriend -> deleteFriend()
+            is OnChangeAvatar -> changeAvatar(event.avatar)
+            is OnClearAvatar -> _friend.update { it?.copy(avatar = null) }
         }
     }
 
-    fun changeName(newName: String) {
-        _friend.update { it?.copy(name = newName) }
+    private fun observeFriend(id: Int) {
+        loadFriendJob?.cancel()
+        loadFriendJob = getFriendUseCase.getFriendFlow(id)
+            .onEach { _friend.value = it }
+            .launchIn(viewModelScope)
     }
 
-    fun updateFriend() {
+    private fun updateFriend() {
         viewModelScope.launch(SupervisorJob() + exceptionHandler) {
             _friend.value?.let {
                 editFriendUseCase.editFriend(it)
             }
+            mutableViewActions.trySend(Dismiss)
         }
     }
 
-    fun deleteFriend() {
+    private fun deleteFriend() {
+        loadFriendJob?.cancel()
         viewModelScope.launch(SupervisorJob() + exceptionHandler) {
             _friend.value?.let {
                 deleteFriendUseCase.deleteFriend(it)
             }
+            mutableViewActions.trySend(Dismiss)
         }
     }
 
-    fun changeAvatar(avatar: ByteArray) {
+    private fun changeAvatar(avatar: ByteArray) {
         viewModelScope.launch {
             val compressedAvatar = imageOptimization.optimizeImage(avatar)
             _friend.update { it?.copy(avatar = compressedAvatar) }
         }
     }
 
-    fun clearAvatar() {
-        _friend.update { it?.copy(avatar = null) }
+    data class ViewState(val friend: FriendState? = null)
+
+    sealed interface ViewEvent {
+        data class OnLoadFriend(val id: Int) : ViewEvent
+        data class OnChangeName(val name: String) : ViewEvent
+        data object OnUpdateFriend : ViewEvent
+        data object OnDeleteFriend : ViewEvent
+        data class OnChangeAvatar(val avatar: ByteArray) : ViewEvent
+        data object OnClearAvatar : ViewEvent
     }
 
+    sealed interface ViewAction {
+        data object Dismiss : ViewAction
+    }
 }

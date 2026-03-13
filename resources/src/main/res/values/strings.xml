@@ -73,6 +73,14 @@
     <string name="day_cancel">Cancel</string>
     <string name="day_attachments_count">Attachments: %d</string>
 
+    <!-- Friends -->
+    <string name="friends_screen_title">Friends</string>
+    <string name="friends_search_placeholder">Search or add new friend…</string>
+    <string name="friends_remove_dialog_title">Remove %1$s</string>
+    <string name="friends_remove_dialog_text">Do you really want to remove this friend?</string>
+    <string name="friends_remove_dialog_confirm">Remove</string>
+    <string name="friends_remove_dialog_cancel">Cancel</string>
+
     <!-- Game of Life -->
     <string name="game_of_life_title">Game of Life</string>
     <string name="game_of_life_generation">Gen %d</string>
