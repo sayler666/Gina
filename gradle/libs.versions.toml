@@ -10,7 +10,7 @@ agp = "9.1.0"
 versionCode = "9"
 versionMajor = "3"
 versionMinor = "1"
-versionRevision = "0"
+versionRevision = "1"
 
 # Kotlin
 kotlin = "2.3.10"
