@@ -107,7 +107,6 @@ class AndroidApplicationPlugin : Plugin<Project> {
                         getDefaultProguardFile("proguard-android-optimize.txt"),
                         "proguard-rules.pro"
                     )
-                    manifestPlaceholders["crashlytics_enabled"] = true
                 }
                 getByName("debug") {
                     isDefault = true
@@ -118,7 +117,6 @@ class AndroidApplicationPlugin : Plugin<Project> {
                     isShrinkResources = false
                     isDebuggable = true
                     matchingFallbacks += "release"
-                    manifestPlaceholders["crashlytics_enabled"] = false
                 }
             }
         }

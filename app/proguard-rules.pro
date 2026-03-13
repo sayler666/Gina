@@ -85,3 +85,7 @@
 
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+
+# Firebase Crashlytics — keep registrar so R8 doesn't strip no-arg constructor
+-keep class com.google.firebase.crashlytics.CrashlyticsRegistrar { *; }
+-keep class com.google.firebase.components.ComponentRegistrar
