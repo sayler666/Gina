@@ -12,6 +12,7 @@ import com.sayler666.gina.resources.R
 @Composable
 internal fun DatabaseSettingsButtonWithLauncher(
     databasePath: String?,
+    databaseSize: Long?,
     onNewDbFileSelected: (String) -> Unit,
     onLongPress: () -> Unit,
     loader: Boolean,
@@ -20,12 +21,26 @@ internal fun DatabaseSettingsButtonWithLauncher(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             it.data?.data?.path?.let { path -> onNewDbFileSelected(path) }
         }
+    val body = buildString {
+        databasePath?.let { append(it) }
+        databaseSize?.let {
+            if (isNotEmpty()) append("\n")
+            append(formatBinarySize(it))
+        }
+    }
     SettingsButton(
         header = stringResource(R.string.settings_database_file),
-        body = databasePath ?: "",
+        body = body,
         icon = Icons.Filled.Book,
         onClick = { databaseResult.launch(Files.selectFileIntent()) },
         onLongClick = onLongPress,
         loader = loader
     )
+}
+
+private fun formatBinarySize(bytes: Long): String = when {
+    bytes >= 1024L * 1024 * 1024 -> "%.1f GB".format(bytes / (1024.0 * 1024 * 1024))
+    bytes >= 1024L * 1024 -> "%.1f MB".format(bytes / (1024.0 * 1024))
+    bytes >= 1024L -> "%.1f KB".format(bytes / 1024.0)
+    else -> "$bytes B"
 }

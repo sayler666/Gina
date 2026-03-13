@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.time.LocalTime
 import javax.inject.Inject
 import kotlin.time.measureTime
@@ -80,7 +81,12 @@ class SettingsViewModel @Inject constructor(
     private fun observeDatabasePath() {
         setting.getDatabasePathFlow()
             .onEach { db ->
-                mutableViewState.update { it.copy(databasePath = db) }
+                mutableViewState.update {
+                    it.copy(
+                        databasePath = db,
+                        databaseSize = db?.let { path -> File(path).length().takeIf { it > 0L } }
+                    )
+                }
             }
             .launchIn(viewModelScope)
     }
@@ -153,6 +159,10 @@ class SettingsViewModel @Inject constructor(
                     Timber.e(e)
                 } finally {
                     mutableShowDbCardLoader.value = false
+                    val path = mutableViewState.value.databasePath
+                    mutableViewState.update {
+                        it.copy(databaseSize = path?.let { p -> File(p).length().takeIf { s -> s > 0L } })
+                    }
                 }
             }
             Timber.d("Vacuum ended in: $time")

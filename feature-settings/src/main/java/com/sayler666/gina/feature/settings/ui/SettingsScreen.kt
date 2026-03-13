@@ -124,6 +124,7 @@ private fun Content(
                 SettingsSectionHeader(stringResource(R.string.settings_section_database))
                 DatabaseSettingsButtonWithLauncher(
                     databasePath = state?.databasePath,
+                    databaseSize = state?.databaseSize,
                     onNewDbFileSelected = { path ->
                         viewEvent(OnDatabaseFileSelected(path))
                     },
