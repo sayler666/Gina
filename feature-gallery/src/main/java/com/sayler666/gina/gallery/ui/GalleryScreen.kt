@@ -36,7 +36,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,6 +70,7 @@ import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
+import com.sayler666.gina.ui.ScrollIndicator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -79,8 +79,11 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.math.sqrt
+
+private val monthYearFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,11 +174,11 @@ private fun ImagesGrid(
 ) {
     val gridState = rememberLazyStaggeredGridState()
     var columns by rememberSaveable { mutableIntStateOf(2) }
-    val maxColumns = 8
-    val minColumns = 1
+    val maxColumns = 6
+    val minColumns = 2
 
-    LaunchedEffect(key1 = gridState, block = {
-        snapshotFlow { gridState.isScrolledToTheEnd() }.collect {
+    LaunchedEffect(key1 = gridState, key2 = columns, block = {
+        snapshotFlow { gridState.isScrolledToTheEnd((columns - 1) * 20) }.collect {
             onViewEvent(OnFetchNextPage)
         }
     })
@@ -186,8 +189,9 @@ private fun ImagesGrid(
     )
 
     val sharedScope = LocalSharedTransitionScope.current
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
-    Column(
+    Box(
         Modifier
             .fillMaxSize()
             .pointerInput(columns) {
@@ -275,6 +279,25 @@ private fun ImagesGrid(
                 )
             }
         }
+
+        val layoutInfo = gridState.layoutInfo
+        val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+        val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        val visibleCount = (lastVisible - firstVisible + 1).coerceAtLeast(1)
+
+        ScrollIndicator(
+            firstVisibleItemIndex = firstVisible,
+            totalItemsCount = state.images.size,
+            visibleItemsCount = visibleCount,
+            isScrollInProgress = gridState.isScrollInProgress,
+            scrollToItem = { gridState.scrollToItem(it) },
+            labelForIndex = { index ->
+                state.images.getOrNull(index)?.date?.format(monthYearFormatter) ?: ""
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = statusBarTop + 64.dp, bottom = BOTTOM_NAV_HEIGHT + 64.dp),
+        )
     }
 }
 
@@ -318,7 +341,7 @@ private fun LoadingGrid() {
     }
 }
 
-fun LazyStaggeredGridState.isScrolledToTheEnd(offset: Int = 12): Boolean {
+fun LazyStaggeredGridState.isScrolledToTheEnd(offset: Int = 20): Boolean {
     return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
         ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
 }

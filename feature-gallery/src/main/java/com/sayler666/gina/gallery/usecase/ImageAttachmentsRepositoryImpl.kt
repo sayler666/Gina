@@ -8,6 +8,7 @@ import coil.decode.DecodeUtils.calculateInSampleSize
 import coil.size.Scale.FILL
 import com.sayler666.core.collections.pmap
 import com.sayler666.data.database.db.journal.JournalRepository
+import com.sayler666.data.database.db.journal.entity.AttachmentIdWithDate
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.gina.feature.gallery.BuildConfig
 import kotlinx.coroutines.CoroutineScope
@@ -70,12 +71,13 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
         else 1f
     }
 
-    private suspend fun List<Int>.mapToThumbnails(): List<Thumbnail?> =
-        pmap { attachmentId ->
+    private suspend fun List<AttachmentIdWithDate>.mapToThumbnails(): List<Thumbnail?> =
+        pmap { attachment ->
+            val attachmentId = attachment.id
             (getThumbnailFromCacheIfExist(attachmentId)
                 ?: createThumbnailForId(attachmentId)
                     .also { thumbnail -> thumbnail?.let { saveFile(attachmentId, it) } }
-                    )?.let { bytes -> Thumbnail(bytes, attachmentId, decodeAspectRatio(bytes)) }
+                    )?.let { bytes -> Thumbnail(bytes, attachmentId, decodeAspectRatio(bytes), attachment.date) }
         }
 
     private fun getThumbnailFromCacheIfExist(id: Int): ByteArray? =
