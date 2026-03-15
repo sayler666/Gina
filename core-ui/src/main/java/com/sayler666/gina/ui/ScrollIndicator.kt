@@ -99,7 +99,9 @@ fun ScrollIndicator(
                 .width(3.dp)
                 .fillMaxHeight()
                 .background(
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                    MaterialTheme.colorScheme.onSurface.copy(
+                        alpha = if (isScrolling || isDragging) 0.08f else 0.04f
+                    ),
                     RoundedCornerShape(1.5.dp)
                 )
         )
@@ -146,7 +148,7 @@ fun ScrollIndicator(
 
         // Month/year label — shown when scrolling or dragging, to the left of the handle
         AnimatedVisibility(
-            visible = showIndicator,
+            visible = showIndicator && labelText.isNotBlank(),
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier

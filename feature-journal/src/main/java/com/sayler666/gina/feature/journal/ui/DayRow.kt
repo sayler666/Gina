@@ -71,6 +71,7 @@ fun DayRow(
                             sharedScope.rememberSharedContentState("mood_${state.id}")
                         with(sharedScope) {
                             Modifier
+                                .padding(end = 6.dp)
                                 .size(18.dp)
                                 .sharedElement(
                                     sharedContentState = sharedState,
@@ -78,7 +79,9 @@ fun DayRow(
                                 )
                         }
                     } else {
-                        Modifier.size(18.dp)
+                        Modifier
+                            .padding(end = 6.dp)
+                            .size(18.dp)
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
