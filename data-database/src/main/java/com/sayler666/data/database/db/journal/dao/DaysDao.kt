@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity
+import com.sayler666.data.database.db.journal.entity.AttachmentIdWithDate
 import com.sayler666.data.database.db.journal.entity.AttachmentWithDayEntity
 import com.sayler666.data.database.db.journal.entity.DayDetailsEntity
 import com.sayler666.data.database.db.journal.entity.DayEntity
@@ -61,12 +62,12 @@ interface DaysDao {
     fun getPreviousYearsAttachments(currentDate: String): Flow<List<AttachmentWithDayEntity>>
 
     @Query(
-        "SELECT attachments.attachment_id FROM attachments " +
+        "SELECT attachments.attachment_id, days.date FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
                 "AND hidden = 0 " +
                 "ORDER BY days.date DESC, attachments.attachment_id DESC LIMIT :offset, 100"
     )
-    suspend fun getImageAttachmentsIds(offset: Int = 0): List<Int>
+    suspend fun getImageAttachmentsIds(offset: Int = 0): List<AttachmentIdWithDate>
 
     @Query(
         "SELECT attachments.attachment_id FROM attachments " +

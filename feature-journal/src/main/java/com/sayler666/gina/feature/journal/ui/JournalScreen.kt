@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -76,6 +77,7 @@ import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.LocalNavigator
+import com.sayler666.gina.ui.ScrollIndicator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -253,46 +255,82 @@ private fun DayList(
 
     val hazeState = rememberHazeState()
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
+    val bottomPadding =
+        WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + BOTTOM_NAV_HEIGHT
     val daysGrouped = days.groupBy { it.header }
-    LazyColumn(
-        modifier = Modifier.nestedScroll(nestedScrollConnection),
-        state = listState,
-        contentPadding = PaddingValues(top = topPadding)
-    ) {
-        item {
-            headerContent()
-        }
 
-        daysGrouped.forEach { (header, days) ->
-            stickyHeader {
-                ListStickyHeader(
-                    text = header,
-                    hazeState = hazeState
-                )
+    // Flat label list mirroring the LazyColumn item order: carousel, sticky headers + day rows, spacer
+    val flatLabels = remember(daysGrouped) {
+        buildList {
+            add("")  // carousel / headerContent item
+            daysGrouped.forEach { (header, days) ->
+                add(header)              // sticky header
+                repeat(days.size) { add(header) }  // day rows in this group
+            }
+            add("")  // bottom spacer
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection),
+            state = listState,
+            contentPadding = PaddingValues(top = topPadding)
+        ) {
+            item {
+                headerContent()
             }
 
-            items(
-                items = days,
-                key = { item -> item.id }
-            ) { dayRowState ->
-                DayRow(
-                    state = dayRowState,
-                    modifier = Modifier
-                        .animateItem()
-                        .hazeSource(hazeState),
-                    onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
-                    incognitoMode = incognitoMode
-                )
-            }
-        }
-        item {
-            Spacer(
-                modifier = Modifier
-                    .windowInsetsBottomHeight(
-                        insets = WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT)
+            daysGrouped.forEach { (header, days) ->
+                stickyHeader {
+                    ListStickyHeader(
+                        text = header,
+                        hazeState = hazeState
                     )
-            )
+                }
+
+                items(
+                    items = days,
+                    key = { item -> item.id }
+                ) { dayRowState ->
+                    DayRow(
+                        state = dayRowState,
+                        modifier = Modifier
+                            .animateItem()
+                            .hazeSource(hazeState),
+                        onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
+                        incognitoMode = incognitoMode
+                    )
+                }
+            }
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .windowInsetsBottomHeight(
+                            insets = WindowInsets.systemBars + WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 12.dp)
+                        )
+                )
+            }
         }
+
+        val layoutInfo = listState.layoutInfo
+        val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+        val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        val visibleCount = (lastVisible - firstVisible + 1).coerceAtLeast(1)
+
+        ScrollIndicator(
+            firstVisibleItemIndex = firstVisible,
+            totalItemsCount = flatLabels.size,
+            visibleItemsCount = visibleCount,
+            isScrollInProgress = listState.isScrollInProgress,
+            scrollToItem = { listState.scrollToItem(it) },
+            labelForIndex = { flatLabels.getOrElse(it) { "" } },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topPadding, bottom = bottomPadding),
+        )
     }
 }
 
@@ -346,7 +384,9 @@ private fun FilePermissionPermissionPrompt(
 @Composable
 private fun Loading() {
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
-    Column(Modifier.fillMaxSize().padding(top = topPadding)) {
+    Column(Modifier
+        .fillMaxSize()
+        .padding(top = topPadding)) {
         repeat(3) {
             Column(Modifier.padding(12.dp)) {
                 Box(

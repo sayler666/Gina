@@ -3,6 +3,7 @@ package com.sayler666.data.database.db.journal
 import android.database.SQLException
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity.Companion.toEntity
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity.Companion.toModel
+import com.sayler666.data.database.db.journal.entity.AttachmentIdWithDate
 import com.sayler666.data.database.db.journal.entity.AttachmentWithDayEntity.Companion.toModel
 import com.sayler666.data.database.db.journal.entity.DayDetailsEntity.Companion.toModel
 import com.sayler666.data.database.db.journal.entity.DayEntity.Companion.toEntity
@@ -248,7 +249,7 @@ class JournalRepository @Inject constructor(
         }
     }
 
-    suspend fun getImageAttachmentsIds(offset: Int): List<Int> = try {
+    suspend fun getImageAttachmentsIds(offset: Int): List<AttachmentIdWithDate> = try {
         ginaDatabaseProvider.returnWithDaysDao {
             getImageAttachmentsIds(offset)
         } ?: emptyList()
