@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -141,15 +141,16 @@ private fun Content(
 ) {
     Column(
         Modifier
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .imePadding()
+            .hazeSource(hazeState)
     ) {
         when (state) {
             LoadingState -> LoadingGrid()
 
             is DataState -> ImagesGrid(
                 state = state,
-                hazeState = hazeState,
                 onViewEvent = viewEvent,
             )
 
@@ -170,11 +171,10 @@ private fun Content(
 private fun ImagesGrid(
     state: DataState,
     onViewEvent: (ViewEvent) -> Unit,
-    hazeState: HazeState,
 ) {
-    val gridState = rememberLazyStaggeredGridState()
-    var columns by rememberSaveable { mutableIntStateOf(2) }
-    val maxColumns = 6
+    val gridState = rememberLazyGridState()
+    var columns by rememberSaveable { mutableIntStateOf(3) }
+    val maxColumns = 10
     val minColumns = 2
 
     LaunchedEffect(key1 = gridState, key2 = columns, block = {
@@ -214,13 +214,13 @@ private fun ImagesGrid(
                             zoom = 1f
                         }
                         when {
-                            zoom > 1.5f -> {
+                            zoom > 1.3f -> {
                                 columns = (columns - 1).coerceAtLeast(minColumns)
                                 event.changes.forEach { it.consume() }
                                 return@awaitEachGesture
                             }
 
-                            zoom < 0.6f -> {
+                            zoom < 0.7f -> {
                                 columns = (columns + 1).coerceAtMost(maxColumns)
                                 event.changes.forEach { it.consume() }
                                 return@awaitEachGesture
@@ -230,24 +230,21 @@ private fun ImagesGrid(
                 }
             }
     ) {
-        LazyVerticalStaggeredGrid(
+        LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
-                .nestedScroll(nestedScrollConnection)
-                .hazeSource(state = hazeState),
+                .nestedScroll(nestedScrollConnection),
             state = gridState,
-            columns = StaggeredGridCells.Fixed(columns),
+            columns = GridCells.Fixed(columns),
             contentPadding = WindowInsets.systemBars
                 .only(WindowInsetsSides.Vertical)
                 .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 18.dp, top = 64.dp))
                 .asPaddingValues(),
-            verticalItemSpacing = 2.dp,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             items(
-                items = state.images,
-                key = { it.id ?: it.hashCode() },
-                contentType = { "image_cell" }
+                items = state.images
             ) { image ->
                 val imageId = image.id
                 val sharedModifier = if (sharedScope != null && imageId != null) {
@@ -255,7 +252,6 @@ private fun ImagesGrid(
                     with(sharedScope) {
                         Modifier
                             .fillMaxWidth()
-                            .aspectRatio(image.aspectRatio)
                             .sharedElement(
                                 sharedContentState = state,
                                 animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -264,21 +260,22 @@ private fun ImagesGrid(
                 } else {
                     Modifier
                         .fillMaxWidth()
-                        .aspectRatio(image.aspectRatio)
                 }
 
                 AsyncImage(
                     model = image.content,
                     contentDescription = null,
                     modifier = sharedModifier
+                        .aspectRatio(1f)
                         .animateItem()
                         .clickable {
                             imageId?.let { onViewEvent(OnImageClick(it)) }
                         },
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.Crop
                 )
             }
         }
+
 
         val layoutInfo = gridState.layoutInfo
         val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
@@ -303,7 +300,7 @@ private fun ImagesGrid(
 
 @Composable
 private fun LoadingGrid() {
-    val lazyGridState = rememberLazyStaggeredGridState()
+    val lazyGridState = rememberLazyGridState()
     val dummyHeights = remember {
         buildList {
             repeat(20) {
@@ -315,16 +312,16 @@ private fun LoadingGrid() {
         }
     }
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
-    LazyVerticalStaggeredGrid(
+    LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize(),
         state = lazyGridState,
-        columns = StaggeredGridCells.Fixed(2),
+        columns = GridCells.Fixed(3),
         contentPadding = WindowInsets.systemBars
             .only(WindowInsetsSides.Vertical)
             .add(WindowInsets(top = topPadding))
             .asPaddingValues(),
-        verticalItemSpacing = 2.dp,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         dummyHeights.forEach {
@@ -341,7 +338,7 @@ private fun LoadingGrid() {
     }
 }
 
-fun LazyStaggeredGridState.isScrolledToTheEnd(offset: Int = 20): Boolean {
+fun LazyGridState.isScrolledToTheEnd(offset: Int = 20): Boolean {
     return (layoutInfo.visibleItemsInfo.lastOrNull()?.index
         ?: 0) >= layoutInfo.totalItemsCount - 1 - offset
 }
