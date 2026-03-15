@@ -2,6 +2,7 @@ package com.sayler666.gina.gallery.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,12 +32,17 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -74,6 +80,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import java.util.UUID
+import kotlin.math.sqrt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -160,9 +167,12 @@ private fun Content(
 private fun ImagesGrid(
     state: DataState,
     onViewEvent: (ViewEvent) -> Unit,
-    hazeState: HazeState
+    hazeState: HazeState,
 ) {
     val gridState = rememberLazyStaggeredGridState()
+    var columns by rememberSaveable { mutableIntStateOf(2) }
+    val maxColumns = 8
+    val minColumns = 1
 
     LaunchedEffect(key1 = gridState, block = {
         snapshotFlow { gridState.isScrolledToTheEnd() }.collect {
@@ -178,7 +188,43 @@ private fun ImagesGrid(
     val sharedScope = LocalSharedTransitionScope.current
 
     Column(
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
+            .pointerInput(columns) {
+                awaitEachGesture {
+                    // Wait for first touch without consuming it (scroll must still work)
+                    awaitPointerEvent(pass = PointerEventPass.Initial)
+                    var zoom = 1f
+                    var prevDistance = 0f
+                    do {
+                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                        val pressed = event.changes.filter { it.pressed }
+                        if (pressed.size >= 2) {
+                            val dx = pressed[0].position.x - pressed[1].position.x
+                            val dy = pressed[0].position.y - pressed[1].position.y
+                            val distance = sqrt(dx * dx + dy * dy)
+                            if (prevDistance > 0f) zoom *= distance / prevDistance
+                            prevDistance = distance
+                        } else {
+                            prevDistance = 0f
+                            zoom = 1f
+                        }
+                        when {
+                            zoom > 1.5f -> {
+                                columns = (columns - 1).coerceAtLeast(minColumns)
+                                event.changes.forEach { it.consume() }
+                                return@awaitEachGesture
+                            }
+
+                            zoom < 0.6f -> {
+                                columns = (columns + 1).coerceAtMost(maxColumns)
+                                event.changes.forEach { it.consume() }
+                                return@awaitEachGesture
+                            }
+                        }
+                    } while (event.changes.any { it.pressed })
+                }
+            }
     ) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier
@@ -186,10 +232,10 @@ private fun ImagesGrid(
                 .nestedScroll(nestedScrollConnection)
                 .hazeSource(state = hazeState),
             state = gridState,
-            columns = StaggeredGridCells.Fixed(2),
+            columns = StaggeredGridCells.Fixed(columns),
             contentPadding = WindowInsets.systemBars
                 .only(WindowInsetsSides.Vertical)
-                .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT, top = 64.dp))
+                .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 18.dp, top = 64.dp))
                 .asPaddingValues(),
             verticalItemSpacing = 2.dp,
             horizontalArrangement = Arrangement.spacedBy(2.dp)
