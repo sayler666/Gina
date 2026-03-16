@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -43,6 +46,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -111,6 +115,7 @@ fun GalleryScreen() {
 
         TopAppBar(
             title = { Text(stringResource(R.string.gallery_label)) },
+            windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent
             ),
@@ -190,6 +195,12 @@ private fun ImagesGrid(
 
     val sharedScope = LocalSharedTransitionScope.current
     val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val layoutDirection = LocalLayoutDirection.current
+    val horizontalInsetsPadding = WindowInsets.safeDrawing
+        .only(WindowInsetsSides.Horizontal)
+        .asPaddingValues()
+    val startPadding = horizontalInsetsPadding.calculateStartPadding(layoutDirection)
+    val endPadding = horizontalInsetsPadding.calculateEndPadding(layoutDirection)
 
     Box(
         Modifier
@@ -238,10 +249,11 @@ private fun ImagesGrid(
             columns = GridCells.Fixed(columns),
             contentPadding = WindowInsets.systemBars
                 .only(WindowInsetsSides.Vertical)
+                .add(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 18.dp, top = 64.dp))
                 .asPaddingValues(),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp/columns),
+            horizontalArrangement = Arrangement.spacedBy(4.dp/columns)
         ) {
             items(
                 items = state.images
@@ -293,7 +305,12 @@ private fun ImagesGrid(
             },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = statusBarTop + 64.dp, bottom = BOTTOM_NAV_HEIGHT + 64.dp),
+                .padding(
+                    start = startPadding,
+                    end = endPadding,
+                    top = statusBarTop + 64.dp,
+                    bottom = BOTTOM_NAV_HEIGHT + 64.dp
+                ),
         )
     }
 }
@@ -319,6 +336,7 @@ private fun LoadingGrid() {
         columns = GridCells.Fixed(3),
         contentPadding = WindowInsets.systemBars
             .only(WindowInsetsSides.Vertical)
+            .add(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .add(WindowInsets(top = topPadding))
             .asPaddingValues(),
         verticalArrangement = Arrangement.spacedBy(2.dp),

@@ -13,11 +13,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
@@ -38,6 +43,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -257,17 +263,21 @@ private fun DayList(
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
     val bottomPadding =
         WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + BOTTOM_NAV_HEIGHT
+    val layoutDirection = LocalLayoutDirection.current
+    val horizontalInsetsPadding = WindowInsets.safeDrawing
+        .only(WindowInsetsSides.Horizontal)
+        .asPaddingValues()
+    val startPadding = horizontalInsetsPadding.calculateStartPadding(layoutDirection)
+    val endPadding = horizontalInsetsPadding.calculateEndPadding(layoutDirection)
     val daysGrouped = days.groupBy { it.header }
 
-    // Flat label list mirroring the LazyColumn item order: carousel, sticky headers + day rows, spacer
     val flatLabels = remember(daysGrouped) {
         buildList {
-            add("")  // carousel / headerContent item
+            add("")
             daysGrouped.forEach { (header, days) ->
-                add(header)              // sticky header
-                repeat(days.size) { add(header) }  // day rows in this group
+                add(header)
+                repeat(days.size) { add(header) }
             }
-            add("")  // bottom spacer
         }
     }
 
@@ -277,7 +287,11 @@ private fun DayList(
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection),
             state = listState,
-            contentPadding = PaddingValues(top = topPadding)
+            contentPadding = PaddingValues(
+                start = startPadding,
+                end = endPadding,
+                top = topPadding,
+            )
         ) {
             item {
                 headerContent()
@@ -329,7 +343,12 @@ private fun DayList(
             labelForIndex = { flatLabels.getOrElse(it) { "" } },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = topPadding, bottom = bottomPadding),
+                .padding(
+                    start = startPadding,
+                    end = endPadding,
+                    top = topPadding,
+                    bottom = bottomPadding
+                ),
         )
     }
 }
@@ -384,9 +403,11 @@ private fun FilePermissionPermissionPrompt(
 @Composable
 private fun Loading() {
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
-    Column(Modifier
-        .fillMaxSize()
-        .padding(top = topPadding)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(top = topPadding)
+    ) {
         repeat(3) {
             Column(Modifier.padding(12.dp)) {
                 Box(
