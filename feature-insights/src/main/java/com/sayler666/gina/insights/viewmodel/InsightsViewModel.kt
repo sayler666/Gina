@@ -5,27 +5,24 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import com.sayler666.gina.insights.usecase.GetAvgMoodByMonthsUseCase
 import com.sayler666.gina.insights.usecase.GetAvgMoodByWeeksUseCase
 import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnResetFilters
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
+import com.sayler666.gina.ui.filters.FiltersState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -44,17 +41,8 @@ class InsightsViewModel @Inject constructor(
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
 ) : ViewModel() {
 
-    private val _searchQuery = MutableStateFlow("")
-    private val _moodFilters = MutableStateFlow<List<Mood>>(Mood.entries)
-    val moodFilters: StateFlow<List<Mood>> = _moodFilters.asStateFlow()
-
-    val filtersActive: StateFlow<Boolean> = _moodFilters.map { moods ->
-        moods.size != Mood.entries.size
-    }.stateIn(
-        viewModelScope,
-        WhileSubscribed(500),
-        false
-    )
+    private val mutableFiltersState = MutableStateFlow(FiltersState())
+    val filtersState: StateFlow<FiltersState> = mutableFiltersState.asStateFlow()
 
     private val _state = MutableStateFlow<InsightState>(LoadingState)
     val state: StateFlow<InsightState> = _state
@@ -65,80 +53,72 @@ class InsightsViewModel @Inject constructor(
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {
-            OnLockBottomBar -> bottomNavigationVisibilityManager.lockHide()
-            OnUnlockBottomBar -> bottomNavigationVisibilityManager.unlockAndShow()
+            is OnFiltersChanged -> updateFilters(event.filters)
+            OnResetFilters -> updateFilters(FiltersState())
             OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
             OnShowBottomBar -> bottomNavigationVisibilityManager.show()
         }
     }
 
+    private fun updateFilters(new: FiltersState) {
+        val old = mutableFiltersState.value
+        if (old.searchVisible != new.searchVisible) {
+            if (new.searchVisible) bottomNavigationVisibilityManager.lockHide()
+            else bottomNavigationVisibilityManager.unlockAndShow()
+        }
+        mutableFiltersState.update { new }
+    }
+
     private fun initDb() {
         viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
-            combine(
-                _moodFilters,
-                _searchQuery
-            ) { moods, search ->
-                moods to search
-            }.flatMapLatest { (moods, search) ->
-                val friendsLastMonthDeferred = async {
-                    getAllFriendsUseCase
-                        .getAllFriendsWithCount(
-                            searchQuery = search,
-                            moods = moods,
-                            dateFrom = LocalDate.now().minusMonths(1),
-                            dateTo = LocalDate.now()
-                        )
-                        .let { friendsMapper.mapToFriends(it) }
-                }
-                val friendsAllTimeDeferred = async {
-                    getAllFriendsUseCase
-                        .getAllFriendsWithCount(
-                            searchQuery = search,
-                            moods = moods,
-                            dateFrom = LocalDate.now().minusYears(100),
-                            dateTo = LocalDate.now()
-                        )
-                        .let { friendsMapper.mapToFriends(it) }
-                }
-
-                val avgMoodByMonth = async { getAvgMoodByMonthsUseCase() }
-                val avgMoodByWeek = async { getAvgMoodByWeeksUseCase() }
-
-                getDaysUseCase
-                    .getFilteredDaysFlow(search, moods)
-                    .map {
-                        insightsMapper.toInsightsState(
-                            days = it,
-                            searchQuery = search,
-                            moods = moods,
-                            moodsByMonth = avgMoodByMonth.await(),
-                            moodsByWeek = avgMoodByWeek.await(),
-                            friendsLastMonth = friendsLastMonthDeferred.await(),
-                            friendsAllTime = friendsAllTimeDeferred.await()
-                        )
+            mutableFiltersState
+                .flatMapLatest { filters ->
+                    val friendsLastMonthDeferred = async {
+                        getAllFriendsUseCase
+                            .getAllFriendsWithCount(
+                                searchQuery = filters.searchQuery,
+                                moods = filters.moods,
+                                dateFrom = LocalDate.now().minusMonths(1),
+                                dateTo = LocalDate.now()
+                            )
+                            .let { friendsMapper.mapToFriends(it) }
                     }
-            }.collect(_state::tryEmit)
+                    val friendsAllTimeDeferred = async {
+                        getAllFriendsUseCase
+                            .getAllFriendsWithCount(
+                                searchQuery = filters.searchQuery,
+                                moods = filters.moods,
+                                dateFrom = LocalDate.now().minusYears(100),
+                                dateTo = LocalDate.now()
+                            )
+                            .let { friendsMapper.mapToFriends(it) }
+                    }
+
+                    val avgMoodByMonth = async { getAvgMoodByMonthsUseCase() }
+                    val avgMoodByWeek = async { getAvgMoodByWeeksUseCase() }
+
+                    getDaysUseCase
+                        .getFilteredDaysFlow(filters.searchQuery, filters.moods)
+                        .map {
+                            insightsMapper.toInsightsState(
+                                days = it,
+                                searchQuery = filters.searchQuery,
+                                moods = filters.moods,
+                                moodsByMonth = avgMoodByMonth.await(),
+                                moodsByWeek = avgMoodByWeek.await(),
+                                friendsLastMonth = friendsLastMonthDeferred.await(),
+                                friendsAllTime = friendsAllTimeDeferred.await()
+                            )
+                        }
+                }.collect(_state::tryEmit)
         }
     }
 
-    fun searchQuery(searchQuery: String) {
-        _searchQuery.update { searchQuery }
-    }
-
-    fun updateMoodFilters(moods: List<Mood>) {
-        _moodFilters.update { moods }
-    }
-
-    fun resetFilters() {
-        _moodFilters.update { Mood.entries }
-    }
-
     sealed interface ViewEvent {
-        // TODO add rest of the events
+        data class OnFiltersChanged(val filters: FiltersState) : ViewEvent
+        data object OnResetFilters : ViewEvent
         data object OnHideBottomBar : ViewEvent
         data object OnShowBottomBar : ViewEvent
-        data object OnLockBottomBar : ViewEvent
-        data object OnUnlockBottomBar : ViewEvent
     }
 }

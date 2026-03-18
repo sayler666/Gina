@@ -46,24 +46,17 @@ class DaysMapper @Inject constructor() {
         }
 
         return when {
-            daysResult.isEmpty() && (searchQuery.isEmpty() && moods.containsAll(Mood.entries)) -> EmptyState(
-                activeFilters = moods.size != Mood.entries.size
-            )
+            daysResult.isEmpty() && searchQuery.isEmpty() && moods.containsAll(Mood.entries) -> EmptyState
 
-            daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(
-                Mood.entries
-            )) -> EmptySearchState(activeFilters = moods.size != Mood.entries.size)
+            daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(Mood.entries)) -> EmptySearchState
 
             daysResult.isNotEmpty() -> DaysState(
                 days = daysResult,
-                searchQuery = searchQuery,
                 previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
-                activeFilters = moods.size != Mood.entries.size,
-                moods = moods,
                 incognitoMode = incognitoMode
             )
 
-            else -> EmptyState(activeFilters = moods.size != Mood.entries.size)
+            else -> EmptyState
         }
     }
 

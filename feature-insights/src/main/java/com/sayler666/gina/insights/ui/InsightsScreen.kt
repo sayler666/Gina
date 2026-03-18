@@ -45,7 +45,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,16 +56,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent
+import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnLockBottomBar
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.insights.viewmodel.Level
 import com.sayler666.gina.insights.viewmodel.MoodLevel
 import com.sayler666.gina.mood.ui.awesomeColor
@@ -76,8 +73,9 @@ import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
 import com.sayler666.gina.ui.EmptyResult
-import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.chart.MoodLineChart
+import com.sayler666.gina.ui.filters.FiltersBar
+import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -92,29 +90,20 @@ import java.time.format.DateTimeFormatter
 fun InsightsScreen() {
     val viewModel: InsightsViewModel = hiltViewModel()
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
-    val moodsFilters: List<Mood> by viewModel.moodFilters.collectAsStateWithLifecycle()
-    val filtersActive: Boolean by viewModel.filtersActive.collectAsStateWithLifecycle()
+    val filtersState: FiltersState by viewModel.filtersState.collectAsStateWithLifecycle()
 
     Content(
         state = state,
-        moodsFilters = moodsFilters,
-        filtersActive = filtersActive,
+        filtersState = filtersState,
         onViewEvent = viewModel::onViewEvent,
-        onSearchQuery = viewModel::searchQuery,
-        onMoodFiltersUpdate = viewModel::updateMoodFilters,
-        onResetFilters = viewModel::resetFilters
     )
 }
 
 @Composable
 private fun Content(
     state: InsightState,
-    moodsFilters: List<Mood>,
-    filtersActive: Boolean,
+    filtersState: FiltersState,
     onViewEvent: (ViewEvent) -> Unit,
-    onSearchQuery: (String) -> Unit,
-    onMoodFiltersUpdate: (List<Mood>) -> Unit,
-    onResetFilters: () -> Unit
 ) {
     val hazeState = rememberHazeState()
     Box(
@@ -129,12 +118,8 @@ private fun Content(
         )
         Toolbar(
             hazeState = hazeState,
-            moodsFilters = moodsFilters,
-            filtersActive = filtersActive,
+            filtersState = filtersState,
             onViewEvent = onViewEvent,
-            onSearchQuery = onSearchQuery,
-            onMoodFiltersUpdate = onMoodFiltersUpdate,
-            onResetFilters = onResetFilters
         )
     }
 }
@@ -143,14 +128,9 @@ private fun Content(
 @Composable
 private fun Toolbar(
     hazeState: HazeState,
-    moodsFilters: List<Mood>,
-    filtersActive: Boolean,
+    filtersState: FiltersState,
     onViewEvent: (ViewEvent) -> Unit,
-    onSearchQuery: (String) -> Unit,
-    onMoodFiltersUpdate: (List<Mood>) -> Unit,
-    onResetFilters: () -> Unit
 ) {
-    val searchText = rememberSaveable { mutableStateOf("") }
     FiltersBar(
         modifier = Modifier.hazeEffect(
             state = hazeState,
@@ -165,25 +145,8 @@ private fun Toolbar(
         },
         hazeState = hazeState,
         title = "Insights",
-        searchText = searchText.value,
-        onSearchTextChanged = {
-            searchText.value = it
-            onSearchQuery(it)
-        },
-        onClearClick = {
-            searchText.value = ""
-            onSearchQuery("")
-        },
-        moodFilters = moodsFilters,
-        onMoodFiltersUpdate = onMoodFiltersUpdate,
-        onResetFiltersClicked = onResetFilters,
-        filtersActive = filtersActive,
-        onSearchVisibilityChanged = { show ->
-            when (show) {
-                true -> onViewEvent(OnLockBottomBar)
-                false -> onViewEvent(OnUnlockBottomBar)
-            }
-        }
+        filtersState = filtersState,
+        onFiltersChanged = { onViewEvent(OnFiltersChanged(it)) },
     )
 }
 
