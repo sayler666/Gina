@@ -5,6 +5,30 @@
     <string name="days_label">Journal</string>
     <string name="calendar_label">Calendar</string>
     <string name="insights_label">Insights</string>
+    <string name="insights_empty_search_title">Empty search result!</string>
+    <string name="insights_empty_search_subtitle">Try narrowing search criteria.</string>
+    <string name="insights_no_data_found">No data found!</string>
+    <string name="insights_empty_subtitle">Add some entries.</string>
+    <string name="insights_contributions_title">Contributions</string>
+    <string name="insights_contributions_legend_less">Less</string>
+    <string name="insights_contributions_legend_more">More</string>
+    <string name="insights_moods_title">Moods</string>
+    <string name="insights_moods_by_month">By month</string>
+    <string name="insights_moods_by_week">By week</string>
+    <string name="insights_moods_by_day">By day</string>
+    <string name="insights_moods_heatmap_legend_worse">Worse</string>
+    <string name="insights_moods_heatmap_legend_better">Better</string>
+    <string name="insights_moods_graph_title">Moods graph</string>
+    <string name="insights_moods_graph_no_moods">No moods found within given filters.</string>
+    <string name="insights_summary_title">Summary</string>
+    <string name="insights_summary_entries">Entries</string>
+    <string name="insights_summary_current_streak">Current Streak</string>
+    <string name="insights_summary_longest_streak">Longest Streak</string>
+    <string name="insights_friends_title">Friends</string>
+    <string name="insights_friends_last_month">Last month</string>
+    <string name="insights_friends_all_time">All time</string>
+    <string name="insights_friends_no_friends">No friends found within given filters.</string>
+    <string name="insights_friends_show_more">Show more</string>
     <string name="settings_label">Settings</string>
     <string name="gallery_label">Gallery</string>
     <string name="gallery_empty_state_body">Add some attachments.</string>
@@ -80,6 +104,21 @@
     <string name="friends_remove_dialog_text">Do you really want to remove this friend?</string>
     <string name="friends_remove_dialog_confirm">Remove</string>
     <string name="friends_remove_dialog_cancel">Cancel</string>
+
+    <!-- Filters -->
+    <string name="filters_title">Filters</string>
+    <string name="filters_reset_content_description">Reset filters</string>
+    <string name="filters_save_content_description">Save</string>
+    <string name="filters_section_mood">Mood</string>
+    <string name="filters_section_date_range">Date Range</string>
+    <string name="filters_date_last_week">Last week</string>
+    <string name="filters_date_last_month">Last month</string>
+    <string name="filters_date_last_year">Last year</string>
+    <string name="filters_date_custom_range">Custom range</string>
+    <string name="filters_date_ok">OK</string>
+    <string name="filters_date_cancel">Cancel</string>
+    <string name="filters_date_select_dates">Select dates</string>
+    <string name="filters_search_placeholder">Search…</string>
 
     <!-- Game of Life -->
     <string name="game_of_life_title">Game of Life</string>

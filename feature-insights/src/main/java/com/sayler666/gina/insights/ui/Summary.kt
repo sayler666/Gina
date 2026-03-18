@@ -19,9 +19,11 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.insights.viewmodel.InsightState
+import com.sayler666.gina.resources.R
 
 @Composable
 fun Summary(it: InsightState.DataState) {
@@ -34,7 +36,7 @@ fun Summary(it: InsightState.DataState) {
     ) {
         Column {
             Text(
-                text = "Summary",
+                text = stringResource(R.string.insights_summary_title),
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.labelMedium
                     .copy(color = MaterialTheme.colorScheme.onSurface)
@@ -64,7 +66,7 @@ fun Summary(it: InsightState.DataState) {
                         )
                     }
                     Text(
-                        text = "Entries",
+                        text = stringResource(R.string.insights_summary_entries),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall
                     )
@@ -88,7 +90,7 @@ fun Summary(it: InsightState.DataState) {
                         )
                     }
                     Text(
-                        text = "Moods",
+                        text = stringResource(R.string.insights_moods_title),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall
                     )
@@ -112,7 +114,7 @@ fun Summary(it: InsightState.DataState) {
                         )
                     }
                     Text(
-                        text = "Current Streak",
+                        text = stringResource(R.string.insights_summary_current_streak),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall
                     )
@@ -136,7 +138,7 @@ fun Summary(it: InsightState.DataState) {
                         )
                     }
                     Text(
-                        text = "Longest Streak",
+                        text = stringResource(R.string.insights_summary_longest_streak),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall
                     )

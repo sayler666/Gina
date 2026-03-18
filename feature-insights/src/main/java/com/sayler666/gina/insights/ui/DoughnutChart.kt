@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.insights.viewmodel.MoodChartData
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 
 @Composable
@@ -47,7 +49,7 @@ fun DoughnutChart(
     ) {
         Column(Modifier.padding(bottom = 8.dp)) {
             Text(
-                text = "Moods graph",
+                text = stringResource(R.string.insights_moods_graph_title),
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.labelLarge
                     .copy(color = MaterialTheme.colorScheme.onSurface)
@@ -56,8 +58,8 @@ fun DoughnutChart(
                 Chart(values, size, thickness)
             } else {
                 EmptyResult(
-                    "No data found!",
-                    "No moods found within given filters.",
+                    stringResource(R.string.insights_no_data_found),
+                    stringResource(R.string.insights_moods_graph_no_moods),
                     headerStyle = MaterialTheme.typography.titleLarge
                 )
             }

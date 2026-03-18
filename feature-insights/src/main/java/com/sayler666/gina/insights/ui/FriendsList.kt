@@ -32,11 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.friends.ui.FriendIcon
 import com.sayler666.gina.friends.ui.FriendState
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 
 @Composable
@@ -48,7 +50,11 @@ fun FriendsList(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                3.dp
+            )
+        ),
         elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(
@@ -59,7 +65,7 @@ fun FriendsList(
             val lastMonth = remember { mutableStateOf(true) }
             Row {
                 Text(
-                    text = "Friends",
+                    text = stringResource(R.string.insights_friends_title),
                     modifier = Modifier.padding(12.dp),
                     style = MaterialTheme.typography.labelLarge
                         .copy(color = MaterialTheme.colorScheme.onSurface)
@@ -70,7 +76,7 @@ fun FriendsList(
                     FilterChip(
                         label = {
                             Text(
-                                "Last month",
+                                text = stringResource(R.string.insights_friends_last_month),
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
@@ -83,7 +89,7 @@ fun FriendsList(
                     FilterChip(
                         label = {
                             Text(
-                                "All time",
+                                text = stringResource(R.string.insights_friends_all_time),
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
@@ -109,8 +115,8 @@ private fun FriendsStats(data: List<FriendState>) {
         FriendsChart(data)
     } else {
         EmptyResult(
-            "No data found!",
-            "No friends found within given filters.",
+            stringResource(R.string.insights_no_data_found),
+            stringResource(R.string.insights_friends_no_friends),
             headerStyle = MaterialTheme.typography.titleLarge
         )
     }
@@ -128,7 +134,10 @@ private fun FriendsChart(
     if (friends.count() > friendsToShow) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             TextButton(onClick = { friendsToShow += 5 }) {
-                Text(text = "Show more", style = MaterialTheme.typography.labelMedium)
+                Text(
+                    text = stringResource(R.string.insights_friends_show_more),
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         }
     }

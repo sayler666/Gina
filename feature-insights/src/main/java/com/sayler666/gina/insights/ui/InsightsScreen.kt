@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +60,9 @@ import com.sayler666.core.compose.shimmerBrush
 import com.sayler666.gina.insights.viewmodel.ContributionLevel
 import com.sayler666.gina.insights.viewmodel.InsightState
 import com.sayler666.gina.insights.viewmodel.InsightState.DataState
+import com.sayler666.gina.insights.viewmodel.InsightState.EmptySearchState
+import com.sayler666.gina.insights.viewmodel.InsightState.EmptyState
+import com.sayler666.gina.insights.viewmodel.InsightState.LoadingState
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnFiltersChanged
@@ -72,6 +76,7 @@ import com.sayler666.gina.mood.ui.goodColor
 import com.sayler666.gina.mood.ui.lowColor
 import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.chart.MoodLineChart
 import com.sayler666.gina.ui.filters.FiltersBar
@@ -144,7 +149,7 @@ private fun Toolbar(
                 HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
         },
         hazeState = hazeState,
-        title = "Insights",
+        title = stringResource(R.string.insights_label),
         filtersState = filtersState,
         onFiltersChanged = { onViewEvent(OnFiltersChanged(it)) },
     )
@@ -175,20 +180,20 @@ private fun InsightsContent(
     ) {
         when (state) {
             is DataState -> Insights(state)
-            InsightState.EmptySearchState -> EmptyResult(
-                "Empty search result!",
-                "Try narrowing search criteria."
+            EmptySearchState -> EmptyResult(
+                stringResource(R.string.insights_empty_search_title),
+                stringResource(R.string.insights_empty_search_subtitle)
             )
 
-            InsightState.EmptyState -> EmptyResult(
-                "No data found!",
-                "Add some entries."
+            EmptyState -> EmptyResult(
+                stringResource(R.string.insights_no_data_found),
+                stringResource(R.string.insights_empty_subtitle)
             )
 
-            InsightState.LoadingState -> {}
+            LoadingState -> {}
         }
         AnimatedVisibility(
-            visible = state is InsightState.LoadingState,
+            visible = state is LoadingState,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -301,17 +306,17 @@ fun Contribution(state: DataState) {
     ) {
         Column {
             Text(
-                text = "Contributions",
+                text = stringResource(R.string.insights_contributions_title),
                 modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.labelLarge
                     .copy(color = colorScheme.onSurface)
             )
             HeatMapCalendar(
                 modifier = Modifier.height(190.dp),
-                state.contributionHeatMapData,
-                "Less",
-                "More",
-                arrayOf<Level>(*ContributionLevel.entries.toTypedArray()).copyOfRange(
+                heatMapData = state.contributionHeatMapData,
+                legendLeft = stringResource(R.string.insights_contributions_legend_less),
+                legendRight = stringResource(R.string.insights_contributions_legend_more),
+                legend = arrayOf<Level>(*ContributionLevel.entries.toTypedArray()).copyOfRange(
                     1,
                     ContributionLevel.entries.size
                 ),
@@ -343,7 +348,7 @@ private fun Moods(state: DataState) {
             val mode = remember { mutableStateOf(Mode.Month) }
             Row {
                 Text(
-                    text = "Moods",
+                    text = stringResource(R.string.insights_moods_title),
                     modifier = Modifier.padding(12.dp),
                     style = MaterialTheme.typography.labelLarge
                         .copy(color = colorScheme.onSurface)
@@ -357,7 +362,7 @@ private fun Moods(state: DataState) {
                     FilterChip(
                         label = {
                             Text(
-                                "By month",
+                                text = "By month",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
@@ -368,7 +373,7 @@ private fun Moods(state: DataState) {
                     FilterChip(
                         label = {
                             Text(
-                                "By week",
+                                text = "By week",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
@@ -379,7 +384,7 @@ private fun Moods(state: DataState) {
                     FilterChip(
                         label = {
                             Text(
-                                "By day",
+                                text = "By day",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
@@ -398,13 +403,11 @@ private fun Moods(state: DataState) {
                     when (mode) {
                         Mode.Day -> HeatMapCalendar(
                             modifier = Modifier.height(190.dp),
-                            state.moodHeatMapData,
-                            "Worse",
-                            "Better",
-                            arrayOf<Level>(*MoodLevel.entries.toTypedArray()).copyOfRange(
-                                1,
-                                MoodLevel.entries.size
-                            ),
+                            heatMapData = state.moodHeatMapData,
+                            legendLeft = stringResource(R.string.insights_moods_heatmap_legend_worse),
+                            legendRight = stringResource(R.string.insights_moods_heatmap_legend_better),
+                            legend = arrayOf<Level>(*MoodLevel.entries.toTypedArray())
+                                .copyOfRange(1, MoodLevel.entries.size),
                             colorProvider = { level -> moodLevelColor(level as MoodLevel) }
                         )
 

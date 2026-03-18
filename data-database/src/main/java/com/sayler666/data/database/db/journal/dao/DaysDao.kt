@@ -26,9 +26,17 @@ interface DaysDao {
 
     @Query(
         "SELECT * FROM days WHERE content LIKE '%' || :searchQuery || '%' " +
-                "AND mood IN (:moods) ORDER by date DESC"
+                "AND mood IN (:moods) " +
+                "AND (:dateFrom IS NULL OR date >= :dateFrom) " +
+                "AND (:dateTo IS NULL OR date <= :dateTo) " +
+                "ORDER by date DESC"
     )
-    fun getDaysWithFiltersFlow(searchQuery: String?, vararg moods: Mood): Flow<List<DayEntity>>
+    fun getDaysWithFiltersFlow(
+        searchQuery: String?,
+        dateFrom: LocalDate?,
+        dateTo: LocalDate?,
+        vararg moods: Mood,
+    ): Flow<List<DayEntity>>
 
     @Transaction
     @Query("SELECT * FROM days WHERE id = :id")

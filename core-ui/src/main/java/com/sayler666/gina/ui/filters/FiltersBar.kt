@@ -42,10 +42,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sayler666.core.compose.conditional
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.defaultTextFieldColors
 import dev.chrisbanes.haze.HazeState
@@ -175,7 +177,7 @@ private fun SearchField(
         },
         placeholder = {
             Text(
-                text = "Search...",
+                text = stringResource(R.string.filters_search_placeholder),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal)
             )
         },

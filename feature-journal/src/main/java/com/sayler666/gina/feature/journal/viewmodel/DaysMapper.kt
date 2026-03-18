@@ -7,7 +7,6 @@ import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Day
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.viewmodel.toState
 import com.sayler666.gina.feature.journal.ui.DayRowState
@@ -23,7 +22,7 @@ class DaysMapper @Inject constructor() {
     suspend fun toJournalState(
         days: List<Day>,
         searchQuery: String,
-        moods: List<Mood>,
+        filtersActive: Boolean,
         previousYearsAttachments: List<AttachmentWithDay>,
         incognitoMode: Boolean = false
     ): JournalState {
@@ -46,17 +45,13 @@ class DaysMapper @Inject constructor() {
         }
 
         return when {
-            daysResult.isEmpty() && searchQuery.isEmpty() && moods.containsAll(Mood.entries) -> EmptyState
-
-            daysResult.isEmpty() && (searchQuery.isNotEmpty() || !moods.containsAll(Mood.entries)) -> EmptySearchState
-
-            daysResult.isNotEmpty() -> DaysState(
+            daysResult.isEmpty() && !filtersActive && searchQuery.isEmpty() -> EmptyState
+            daysResult.isEmpty() -> EmptySearchState
+            else -> DaysState(
                 days = daysResult,
                 previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
                 incognitoMode = incognitoMode
             )
-
-            else -> EmptyState
         }
     }
 
