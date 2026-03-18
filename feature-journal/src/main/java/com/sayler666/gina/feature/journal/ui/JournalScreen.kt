@@ -36,9 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -67,23 +65,20 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnLockBottomBar
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnMoodFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnSearchQueryChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnUnlockBottomBar
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
-import com.sayler666.gina.ui.FiltersBar
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
+import com.sayler666.gina.ui.filters.FiltersBar
+import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -97,6 +92,7 @@ import dev.chrisbanes.haze.rememberHazeState
 fun JournalScreen() {
     val viewModel: JournalViewModel = hiltViewModel()
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
+    val filtersState: FiltersState = viewModel.filtersState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
     val context = LocalContext.current
 
@@ -119,6 +115,7 @@ fun JournalScreen() {
 
     Content(
         viewState = viewState,
+        filtersState = filtersState,
         viewEvent = viewModel::onViewEvent
     )
 }
@@ -126,6 +123,7 @@ fun JournalScreen() {
 @Composable
 private fun Content(
     viewState: JournalState,
+    filtersState: FiltersState,
     viewEvent: (ViewEvent) -> Unit
 ) {
     val hazeState = rememberHazeState()
@@ -136,7 +134,7 @@ private fun Content(
             onViewEvent = viewEvent
         )
         Toolbar(
-            viewState = viewState,
+            filtersState = filtersState,
             hazeState = hazeState,
             onViewEvent = viewEvent
         )
@@ -146,11 +144,10 @@ private fun Content(
 @Composable
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 private fun Toolbar(
-    viewState: JournalState,
+    filtersState: FiltersState,
     hazeState: HazeState,
     onViewEvent: (ViewEvent) -> Unit
 ) {
-    val searchText = rememberSaveable { mutableStateOf("") }
     FiltersBar(
         modifier = Modifier.hazeEffect(
             state = hazeState,
@@ -167,29 +164,8 @@ private fun Toolbar(
         },
         hazeState = hazeState,
         title = "Gina",
-        searchText = searchText.value,
-        onSearchTextChanged = {
-            searchText.value = it
-            onViewEvent(OnSearchQueryChanged(searchText.value))
-        },
-        onClearClick = {
-            searchText.value = ""
-            onViewEvent(OnSearchQueryChanged(""))
-        },
-        moodFilters = if (viewState is DaysState) viewState.moods else emptyList(),
-        onMoodFiltersUpdate = { moods ->
-            onViewEvent(OnMoodFiltersChanged(moods))
-        },
-        onResetFiltersClicked = {
-            onViewEvent(OnResetFilters)
-        },
-        filtersActive = viewState.filtersActive,
-        onSearchVisibilityChanged = { show ->
-            when (show) {
-                true -> onViewEvent(OnLockBottomBar)
-                false -> onViewEvent(OnUnlockBottomBar)
-            }
-        }
+        filtersState = filtersState,
+        onFiltersChanged = { onViewEvent(OnFiltersChanged(it)) },
     )
 }
 
