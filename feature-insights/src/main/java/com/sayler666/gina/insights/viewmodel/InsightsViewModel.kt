@@ -15,6 +15,7 @@ import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnHideB
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnResetFilters
 import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.ui.filters.FiltersState
+import com.sayler666.gina.ui.filters.toDateBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -74,6 +75,7 @@ class InsightsViewModel @Inject constructor(
         viewModelScope.launch {
             mutableFiltersState
                 .flatMapLatest { filters ->
+                    val (dateFrom, dateTo) = filters.dateRange?.toDateBounds() ?: (null to null)
                     val friendsLastMonthDeferred = async {
                         getAllFriendsUseCase
                             .getAllFriendsWithCount(
@@ -99,7 +101,12 @@ class InsightsViewModel @Inject constructor(
                     val avgMoodByWeek = async { getAvgMoodByWeeksUseCase() }
 
                     getDaysUseCase
-                        .getFilteredDaysFlow(filters.searchQuery, filters.moods)
+                        .getFilteredDaysFlow(
+                            searchQuery = filters.searchQuery,
+                            moods = filters.moods,
+                            dateFrom = dateFrom,
+                            dateTo = dateTo,
+                        )
                         .map {
                             insightsMapper.toInsightsState(
                                 days = it,

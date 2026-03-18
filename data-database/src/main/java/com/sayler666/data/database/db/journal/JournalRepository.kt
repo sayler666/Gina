@@ -42,9 +42,14 @@ class JournalRepository @Inject constructor(
         }
     }.flowOn(dispatcher)
 
-    fun daysWithFiltersFlow(searchQuery: String?, vararg moods: Mood): Flow<List<Day>> = flow {
+    fun daysWithFiltersFlow(
+        searchQuery: String?,
+        dateFrom: LocalDate?,
+        dateTo: LocalDate?,
+        vararg moods: Mood,
+    ): Flow<List<Day>> = flow {
         ginaDatabaseProvider.withDaysDao {
-            emitAll(getDaysWithFiltersFlow(searchQuery, *moods).map { dayEntities ->
+            emitAll(getDaysWithFiltersFlow(searchQuery, dateFrom, dateTo, *moods).map { dayEntities ->
                 dayEntities.map { it.toModel() }
             })
         }

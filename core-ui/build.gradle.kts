@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.core)
     implementation(projects.domainModel)
     implementation(projects.navigation)
+    implementation(projects.resources)
 
     // Kotlin Coroutines
     implementation(libs.kotlin.coroutines.core)

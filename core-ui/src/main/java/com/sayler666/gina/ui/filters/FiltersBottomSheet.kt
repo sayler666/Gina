@@ -30,7 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sayler666.gina.resources.R
 import kotlinx.coroutines.launch
 
 @Composable
@@ -69,10 +71,13 @@ internal fun FiltersButton(
                 CenterAlignedTopAppBar(
                     navigationIcon = {
                         IconButton(onClick = { onFiltersChanged(FiltersState()) }) {
-                            Icon(Rounded.FilterListOff, contentDescription = "Reset filters")
+                            Icon(
+                                Rounded.FilterListOff,
+                                contentDescription = stringResource(R.string.filters_reset_content_description)
+                            )
                         }
                     },
-                    title = { Text("Filters") },
+                    title = { Text(stringResource(R.string.filters_title)) },
                     actions = {
                         IconButton(onClick = {
                             scope.launch {
@@ -81,19 +86,26 @@ internal fun FiltersButton(
                                 if (!sheetState.isVisible) openBottomSheet = false
                             }
                         }) {
-                            Icon(Rounded.Check, contentDescription = "Save")
+                            Icon(
+                                Rounded.Check,
+                                contentDescription = stringResource(R.string.filters_save_content_description)
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
                 )
-                FilterSection("Mood") {
+                FilterSection(stringResource(R.string.filters_section_mood)) {
                     MoodFilter(filtersState.moods) { newMoods ->
                         onFiltersChanged(filtersState.copy(moods = newMoods))
                     }
                 }
-                // Future: FilterSection("Date Range") { DateRangeFilter(...) }
+                FilterSection(stringResource(R.string.filters_section_date_range)) {
+                    DateRangeFilter(filtersState.dateRange) { newRange ->
+                        onFiltersChanged(filtersState.copy(dateRange = newRange))
+                    }
+                }
                 // Future: FilterSection("Friends") { FriendsFilter(...) }
             }
         }

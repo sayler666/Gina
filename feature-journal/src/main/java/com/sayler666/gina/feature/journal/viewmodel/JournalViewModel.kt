@@ -23,6 +23,7 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.O
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.ui.filters.FiltersState
+import com.sayler666.gina.ui.filters.toDateBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -83,16 +84,21 @@ class JournalViewModel @Inject constructor(
             settingsStorage.getIncognitoModeFlow(),
             ::JournalParams
         ).flatMapLatest { (filters, attachments, incognito) ->
-            getDaysUseCase.getFilteredDaysFlow(filters.searchQuery, filters.moods)
-                .map { days ->
-                    daysMapper.toJournalState(
-                        days = days,
-                        searchQuery = filters.searchQuery,
-                        moods = filters.moods,
-                        previousYearsAttachments = attachments,
-                        incognitoMode = incognito
-                    )
-                }
+            val (dateFrom, dateTo) = filters.dateRange?.toDateBounds() ?: (null to null)
+            getDaysUseCase.getFilteredDaysFlow(
+                searchQuery = filters.searchQuery,
+                moods = filters.moods,
+                dateFrom = dateFrom,
+                dateTo = dateTo,
+            ).map { days ->
+                daysMapper.toJournalState(
+                    days = days,
+                    searchQuery = filters.searchQuery,
+                    filtersActive = filters.filtersActive,
+                    previousYearsAttachments = attachments,
+                    incognitoMode = incognito
+                )
+            }
         }
             .onEach(mutableViewState::tryEmit)
             .launchIn(viewModelScope)

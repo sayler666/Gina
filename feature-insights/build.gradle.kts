@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation(projects.core)
     implementation(projects.coreUi)
+    implementation(projects.resources)
     implementation(projects.domainModel)
     implementation(projects.dataDatabase)
     implementation(projects.featureFriends)
