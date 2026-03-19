@@ -1,6 +1,5 @@
 package com.sayler666.gina.feature.journal.viewmodel
 
-import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
@@ -9,16 +8,12 @@ import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.gina.feature.journal.usecase.PreviousYearsAttachmentsUseCase
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
-import com.sayler666.gina.feature.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.feature.settings.SettingsStorage
@@ -52,7 +47,7 @@ class JournalViewModel @Inject constructor(
     private val settingsStorage: SettingsStorage
 ) : ViewModel() {
 
-    private val mutableViewState = MutableStateFlow(createInitialState())
+    private val mutableViewState = MutableStateFlow<JournalState>(createInitialState())
     val viewState: StateFlow<JournalState> = mutableViewState.asStateFlow()
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
@@ -108,10 +103,8 @@ class JournalViewModel @Inject constructor(
         when (event) {
             is OnFiltersChanged -> updateFilters(event.filters)
             OnResetFilters -> updateFilters(FiltersState())
-            OnRefreshPermissionStatus -> refreshPermissionStatus()
             is OnAttachmentClick -> navToAttachment(event)
             is OnDayClick -> navToDay(event)
-            OnManageAllFilesSettingsClick -> navToManageAllFilesSettings()
             OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
             OnShowBottomBar -> bottomNavigationVisibilityManager.show()
         }
@@ -126,10 +119,6 @@ class JournalViewModel @Inject constructor(
         mutableFiltersState.update { new }
     }
 
-    private fun navToManageAllFilesSettings() {
-        mutableViewActions.trySend(NavToManageAllFilesSettings)
-    }
-
     private fun navToDay(event: OnDayClick) {
         mutableViewActions.trySend(NavToDay(event.dayId))
     }
@@ -142,24 +131,11 @@ class JournalViewModel @Inject constructor(
         mutableViewActions.trySend(NavToAttachmentPreview(event.imageId, attachmentIds))
     }
 
-    private fun refreshPermissionStatus() {
-        if (Environment.isExternalStorageManager()) {
-            viewModelScope.launch {
-                ginaDatabaseProvider.openSavedDB()
-                mutableViewState.update { LoadingState }
-                observeJournalState()
-            }
-        }
-    }
-
-    private fun createInitialState() =
-        if (Environment.isExternalStorageManager()) LoadingState else PermissionNeededState
+    private fun createInitialState() = LoadingState
 
     sealed interface ViewEvent {
         data class OnDayClick(val dayId: Int) : ViewEvent
         data class OnAttachmentClick(val imageId: Int) : ViewEvent
-        data object OnRefreshPermissionStatus : ViewEvent
-        data object OnManageAllFilesSettingsClick : ViewEvent
         data class OnFiltersChanged(val filters: FiltersState) : ViewEvent
         data object OnResetFilters : ViewEvent
         data object OnHideBottomBar : ViewEvent
@@ -170,7 +146,5 @@ class JournalViewModel @Inject constructor(
         data class NavToDay(val dayId: Int) : ViewAction
         data class NavToAttachmentPreview(val imageId: Int, val attachmentIds: List<Int>) :
             ViewAction
-
-        data object NavToManageAllFilesSettings : ViewAction
     }
 }

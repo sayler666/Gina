@@ -13,5 +13,4 @@ sealed class JournalState {
     data object LoadingState : JournalState()
     data object EmptyState : JournalState()
     data object EmptySearchState : JournalState()
-    data object PermissionNeededState : JournalState()
 }
