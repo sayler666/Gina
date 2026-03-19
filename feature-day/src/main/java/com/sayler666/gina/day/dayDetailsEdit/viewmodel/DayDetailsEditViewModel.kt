@@ -3,7 +3,6 @@ package com.sayler666.gina.day.dayDetailsEdit.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ImageOptimization
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
@@ -55,7 +54,6 @@ import java.time.LocalDate
 class DayDetailsEditViewModel @AssistedInject constructor(
     @Assisted val dayId: Int,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val friendsMapper: FriendsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
@@ -87,7 +85,6 @@ class DayDetailsEditViewModel @AssistedInject constructor(
 
     init {
         dayEditingSlice.initializeSlice(viewModelScope)
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         observeStoredDay()
         observeTempDay()
         observeWorkingCopy()

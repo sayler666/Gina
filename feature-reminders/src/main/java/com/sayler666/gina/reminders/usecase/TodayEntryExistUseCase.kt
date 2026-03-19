@@ -1,12 +1,9 @@
 package com.sayler666.gina.reminders.usecase
 
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.data.database.db.journal.returnWithDaysDao
+import com.sayler666.data.database.db.journal.dao.DaysDao
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.sql.SQLException
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -15,24 +12,13 @@ interface TodayEntryExistUseCase {
 }
 
 class TodayEntryExistUseCaseImpl @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
+    private val daysDao: DaysDao,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : TodayEntryExistUseCase {
 
     override suspend fun invoke(): Boolean = withContext(dispatcher) {
         try {
-            ginaDatabaseProvider.openSavedDB()
-            return@withContext ginaDatabaseProvider.returnWithDaysDao {
-                val lastDay = getLastDay()
-                val lastDate = lastDay.day.date
-                val todayDate = LocalDate.now()
-                Timber.d("TodayEntryExistUseCaseImpl: ${lastDate == todayDate}")
-
-                lastDate == todayDate
-            } ?: false
-        } catch (e: SQLException) {
-            Timber.e(e, "Database error")
-        }
-        return@withContext false
+            daysDao.getLastDay().day.date == LocalDate.now()
+        } catch (e: Exception) { false }
     }
 }

@@ -3,7 +3,6 @@ package com.sayler666.gina.feature.journal.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.gina.feature.journal.usecase.PreviousYearsAttachmentsUseCase
@@ -33,13 +32,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class JournalViewModel @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
     private val daysMapper: DaysMapper,
     private val previousYearsAttachmentsUseCase: PreviousYearsAttachmentsUseCase,
@@ -59,10 +56,7 @@ class JournalViewModel @Inject constructor(
     private var journalStateJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            ginaDatabaseProvider.openSavedDB()
-            observeJournalState()
-        }
+        observeJournalState()
     }
 
     private data class JournalParams(

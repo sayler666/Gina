@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.image.ScaledBitmapInfo
 import com.sayler666.core.image.scaleToMinSize
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.UpdateAttachmentHiddenUseCase
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.usecase.GetAttachmentIdsBySourceUseCase
@@ -28,7 +27,6 @@ import kotlinx.coroutines.withContext
 class ImagePreviewViewModel @AssistedInject constructor(
     @Assisted val initialAttachmentId: Int,
     @Assisted val source: ImagePreviewSource,
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getAttachmentWithDayUseCase: GetAttachmentWithDayUseCase,
     private val getAttachmentIdsBySourceUseCase: GetAttachmentIdsBySourceUseCase,
     private val imagePreviewMapper: ImagePreviewMapper,
@@ -49,7 +47,6 @@ class ImagePreviewViewModel @AssistedInject constructor(
     private val loadingPages = mutableSetOf<Int>()
 
     init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch { loadIds() }
     }
 

@@ -3,7 +3,6 @@ package com.sayler666.gina.insights.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
 import com.sayler666.gina.friends.viewmodel.FriendsMapper
@@ -32,7 +31,6 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InsightsViewModel @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getDaysUseCase: GetDaysUseCase,
     private val insightsMapper: InsightsMapper,
     private val getAllFriendsUseCase: GetAllFriendsUseCase,
@@ -71,7 +69,6 @@ class InsightsViewModel @Inject constructor(
     }
 
     private fun initDb() {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         viewModelScope.launch {
             mutableFiltersState
                 .flatMapLatest { filters ->
