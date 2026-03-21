@@ -1,6 +1,8 @@
 package com.sayler666.data.database.db.journal
 
 import android.database.SQLException
+import androidx.room.withTransaction
+import com.sayler666.data.database.db.journal.dao.DaysDao
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity.Companion.toEntity
 import com.sayler666.data.database.db.journal.entity.AttachmentEntity.Companion.toModel
 import com.sayler666.data.database.db.journal.entity.AttachmentIdWithDate
@@ -32,14 +34,12 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class JournalRepository @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
+    private val daysDao: DaysDao,
+    private val db: GinaDatabase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     fun daysFlow(): Flow<List<Day>> = flow {
-        val daysFlow = ginaDatabaseProvider.returnWithDaysDao { getDaysFlow() }
-        daysFlow?.let { flow ->
-            emitAll(flow.map { dayEntities -> dayEntities.map { it.toModel() } })
-        }
+        emitAll(daysDao.getDaysFlow().map { dayEntities -> dayEntities.map { it.toModel() } })
     }.flowOn(dispatcher)
 
     fun daysWithFiltersFlow(
@@ -48,25 +48,21 @@ class JournalRepository @Inject constructor(
         dateTo: LocalDate?,
         vararg moods: Mood,
     ): Flow<List<Day>> = flow {
-        ginaDatabaseProvider.withDaysDao {
-            emitAll(getDaysWithFiltersFlow(searchQuery, dateFrom, dateTo, *moods).map { dayEntities ->
-                dayEntities.map { it.toModel() }
-            })
-        }
+        emitAll(daysDao.getDaysWithFiltersFlow(searchQuery, dateFrom, dateTo, *moods).map { dayEntities ->
+            dayEntities.map { it.toModel() }
+        })
     }.flowOn(dispatcher)
 
     fun previousYearsAttachments(date: LocalDate): Flow<List<AttachmentWithDay>> = flow {
         val dateString = date.format(DateTimeFormatter.ofPattern("MM-dd"))
-        ginaDatabaseProvider.withDaysDao {
-            emitAll(getPreviousYearsAttachments(dateString).map { attachments ->
-                attachments.map { it.toModel() }
-            })
-        }
+        emitAll(daysDao.getPreviousYearsAttachments(dateString).map { attachments ->
+            attachments.map { it.toModel() }
+        })
     }.flowOn(dispatcher)
 
     suspend fun addDay(dayDetails: DayDetails) {
-        ginaDatabaseProvider.transactionWithDaysDao {
-            val dayId = addDay(dayDetails.day.toEntity()).toInt()
+        db.withTransaction {
+            val dayId = daysDao.addDay(dayDetails.day.toEntity()).toInt()
             addAttachments(dayDetails, dayId)
             addFriends(dayDetails, dayId)
         }
@@ -74,8 +70,8 @@ class JournalRepository @Inject constructor(
 
     suspend fun updateDay(dayDetails: DayDetails, attachmentsToDelete: List<Attachment>) {
         try {
-            ginaDatabaseProvider.transactionWithDaysDao {
-                updateDay(dayDetails.day.toEntity())
+            db.withTransaction {
+                daysDao.updateDay(dayDetails.day.toEntity())
                 updateAttachments(dayDetails, attachmentsToDelete)
                 updateFriends(dayDetails)
             }
@@ -91,40 +87,30 @@ class JournalRepository @Inject constructor(
         val attachmentsToAdd = dayDetails.attachments.toMutableList()
             .filter { it.dayId == null }
             .map { it.copy(dayId = dayDetails.day.id) }
-        ginaDatabaseProvider.withDaysDao {
-            if (attachmentsToAdd.isNotEmpty()) insertAttachments(attachmentsToAdd.map { it.toEntity() })
-            if (attachmentsToDelete.isNotEmpty()) removeAttachments(attachmentsToDelete.map { it.toEntity() })
-        }
+        if (attachmentsToAdd.isNotEmpty()) daysDao.insertAttachments(attachmentsToAdd.map { it.toEntity() })
+        if (attachmentsToDelete.isNotEmpty()) daysDao.removeAttachments(attachmentsToDelete.map { it.toEntity() })
     }
 
     private suspend fun updateFriends(dayDetails: DayDetails) {
         dayDetails.day.id.let { dayId ->
-            ginaDatabaseProvider.withDaysDao {
-                deleteFriendsForDay(dayDetails.day.id)
-                val dayFriends = dayDetails.friends.map { friend ->
-                    DayFriendsEntity(dayId, friend.id)
-                }
-                if (dayDetails.friends.isNotEmpty()) addFriendsToDay(dayFriends)
+            daysDao.deleteFriendsForDay(dayDetails.day.id)
+            val dayFriends = dayDetails.friends.map { friend ->
+                DayFriendsEntity(dayId, friend.id)
             }
+            if (dayDetails.friends.isNotEmpty()) daysDao.addFriendsToDay(dayFriends)
         }
     }
 
     fun daysFlow(id: Int): Flow<DayDetails?> = flow {
-        ginaDatabaseProvider.withDaysDao {
-            emitAll(getDayFlow(id).map { dayDetails ->
-                dayDetails?.toModel()
-            })
-        }
+        emitAll(daysDao.getDayFlow(id).map { dayDetails ->
+            dayDetails?.toModel()
+        })
     }.flowOn(dispatcher)
 
     suspend fun getNextDayId(currentDatId: Int): Result<Int> = try {
-        val currentDay = ginaDatabaseProvider.returnWithDaysDao {
-            getDay(currentDatId)
-        }
-        val nextDayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            if (currentDay?.day?.id != null && currentDay.day.date != null)
-                getNextDayIdAfter(currentDay.day.date, currentDay.day.id) else null
-        }
+        val currentDay = daysDao.getDay(currentDatId)
+        val nextDayId: Int? = if (currentDay?.day?.id != null && currentDay.day.date != null)
+            daysDao.getNextDayIdAfter(currentDay.day.date, currentDay.day.id) else null
         nextDayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No next day found"))
     } catch (e: SQLException) {
@@ -133,30 +119,21 @@ class JournalRepository @Inject constructor(
     }
 
     suspend fun getPreviousDayId(currentDatId: Int): Result<Int> = try {
-        val currentDay = ginaDatabaseProvider.returnWithDaysDao {
-            getDay(currentDatId)
-        }
-        val previousDayId: Int? = ginaDatabaseProvider.returnWithDaysDao {
-            if (currentDay?.day?.id != null && currentDay.day.date != null)
-                getPreviousDayIdBefore(currentDay.day.date, currentDay.day.id) else null
-        }
+        val currentDay = daysDao.getDay(currentDatId)
+        val previousDayId: Int? = if (currentDay?.day?.id != null && currentDay.day.date != null)
+            daysDao.getPreviousDayIdBefore(currentDay.day.date, currentDay.day.id) else null
         previousDayId?.let { Result.success(it) }
             ?: Result.failure(NoSuchElementException("No previous day found"))
-
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         Result.failure(e)
     }
 
-    suspend fun getDay(id: Int): DayDetails? = ginaDatabaseProvider.returnWithDaysDao {
-        getDay(id)?.toModel()
-    }
+    suspend fun getDay(id: Int): DayDetails? = daysDao.getDay(id)?.toModel()
 
     fun getAllFriendsWithCountFlow(): Flow<List<FriendWithCount>> = flow {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                emitAll(getFriendsWithCountFlow())
-            }
+            emitAll(daysDao.getFriendsWithCountFlow())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
@@ -164,9 +141,7 @@ class JournalRepository @Inject constructor(
 
     fun getAllFriendsWithCountByRecentFlow(): Flow<List<FriendWithCount>> = flow {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                emitAll(getFriendsWithCountByRecentFlow())
-            }
+            emitAll(daysDao.getFriendsWithCountByRecentFlow())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
@@ -178,9 +153,7 @@ class JournalRepository @Inject constructor(
         dateFrom: LocalDate,
         dateTo: LocalDate
     ): List<FriendWithCount> = try {
-        (ginaDatabaseProvider.returnWithDaysDao {
-            getFriendsWithCount(searchQuery, dateFrom, dateTo, *moods.toTypedArray())
-        } ?: emptyList())
+        daysDao.getFriendsWithCount(searchQuery, dateFrom, dateTo, *moods.toTypedArray())
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()
@@ -188,16 +161,14 @@ class JournalRepository @Inject constructor(
 
     fun getAttachmentWithDayFlow(attachmentId: Int): Flow<AttachmentWithDay?> = flow {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                emit(getAttachmentDay(attachmentId).toModel())
-            }
+            emit(daysDao.getAttachmentDay(attachmentId).toModel())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
     }.flowOn(dispatcher)
 
     suspend fun getAttachmentWithDay(attachmentId: Int): AttachmentWithDay? = try {
-        ginaDatabaseProvider.returnWithDaysDao { getAttachmentDay(attachmentId).toModel() }
+        daysDao.getAttachmentDay(attachmentId).toModel()
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         null
@@ -205,9 +176,7 @@ class JournalRepository @Inject constructor(
 
     suspend fun deleteDay(dayDetails: DayDetails) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                deleteDay(dayDetails.day.toEntity())
-            }
+            daysDao.deleteDay(dayDetails.day.toEntity())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
@@ -215,9 +184,7 @@ class JournalRepository @Inject constructor(
 
     fun getFriendFlow(id: Int): Flow<Friend?> = flow {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                emitAll(getFriendFlow(id).map { it.toModel() })
-            }
+            emitAll(daysDao.getFriendFlow(id).map { it.toModel() })
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
@@ -225,9 +192,7 @@ class JournalRepository @Inject constructor(
 
     suspend fun editFriend(friend: Friend) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                updateFriend(friend.toEntity())
-            }
+            daysDao.updateFriend(friend.toEntity())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
@@ -237,50 +202,42 @@ class JournalRepository @Inject constructor(
         dayDetails: DayDetails,
         dayId: Int
     ) {
-        ginaDatabaseProvider.withDaysDao {
-            dayDetails.friends
-                .map { friend -> DayFriendsEntity(dayId, friend.id) }
-                .let { addFriendsToDay(it) }
-        }
+        dayDetails.friends
+            .map { friend -> DayFriendsEntity(dayId, friend.id) }
+            .let { daysDao.addFriendsToDay(it) }
     }
 
     suspend fun deleteFriend(friend: Friend) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                deleteFriend(friend.toEntity())
-            }
+            daysDao.deleteFriend(friend.toEntity())
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }
     }
 
     suspend fun getImageAttachmentsIds(offset: Int): List<AttachmentIdWithDate> = try {
-        ginaDatabaseProvider.returnWithDaysDao {
-            getImageAttachmentsIds(offset)
-        } ?: emptyList()
+        daysDao.getImageAttachmentsIds(offset)
     } catch (e: SQLException) {
         Timber.e(e, "ImageRepository: Database error")
         emptyList()
     }
 
     suspend fun getAllImageAttachmentIds(): List<Int> = try {
-        ginaDatabaseProvider.returnWithDaysDao { getAllImageAttachmentIds() } ?: emptyList()
+        daysDao.getAllImageAttachmentIds()
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()
     }
 
     suspend fun getImageAttachmentIdsForDay(dayId: Int): List<Int> = try {
-        ginaDatabaseProvider.returnWithDaysDao { getImageAttachmentIdsForDay(dayId) } ?: emptyList()
+        daysDao.getImageAttachmentIdsForDay(dayId)
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()
     }
 
     suspend fun getImage(id: Int): Attachment? = try {
-        ginaDatabaseProvider.returnWithDaysDao {
-            getImage(id).toModel()
-        }
+        daysDao.getImage(id).toModel()
     } catch (e: SQLException) {
         Timber.e(e, "ImageRepository: Database error")
         null
@@ -290,26 +247,20 @@ class JournalRepository @Inject constructor(
         dayDetails: DayDetails,
         dayId: Int
     ) {
-        ginaDatabaseProvider.withDaysDao {
-            dayDetails.attachments.toMutableList()
-                .map { it.copy(dayId = dayId).toEntity() }
-                .let { insertAttachments(it) }
-        }
+        dayDetails.attachments.toMutableList()
+            .map { it.copy(dayId = dayId).toEntity() }
+            .let { daysDao.insertAttachments(it) }
     }
 
     suspend fun getAvgMoodsByMonth(): List<MoodAverage> = try {
-        (ginaDatabaseProvider.returnWithDaysDao {
-            getAvgMoodsByMonth()
-        } ?: emptyList())
+        daysDao.getAvgMoodsByMonth()
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()
     }
 
     suspend fun getAvgMoodsByWeek(): List<MoodAverage> = try {
-        (ginaDatabaseProvider.returnWithDaysDao {
-            getAvgMoodsByWeek()
-        } ?: emptyList())
+        daysDao.getAvgMoodsByWeek()
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()
@@ -317,9 +268,7 @@ class JournalRepository @Inject constructor(
 
     suspend fun updateAttachmentHidden(id: Int, hidden: Boolean) {
         try {
-            ginaDatabaseProvider.withDaysDao {
-                updateAttachmentHidden(id, hidden)
-            }
+            daysDao.updateAttachmentHidden(id, hidden)
         } catch (e: SQLException) {
             Timber.e(e, "Database error")
         }

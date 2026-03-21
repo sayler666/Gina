@@ -1,28 +1,66 @@
 package com.sayler666.gina.feature.settings.ui
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import com.sayler666.core.file.Files
 import com.sayler666.gina.resources.R
 
 @Composable
 internal fun DatabaseSettingsButtonWithLauncher(
-    databasePath: String?,
+    databaseExternalPath: String?,
     databaseSize: Long?,
-    onNewDbFileSelected: (String) -> Unit,
+    onNewDbFileSelected: (Uri) -> Unit,
+    onNewDbCreated: (Uri) -> Unit,
+    onExportDb: (Uri) -> Unit,
     onLongPress: () -> Unit,
     loader: Boolean,
 ) {
-    val databaseResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            it.data?.data?.path?.let { path -> onNewDbFileSelected(path) }
-        }
+    var showPickerDialog by remember { mutableStateOf(false) }
+
+    val openDocumentLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri ->
+        uri?.let { onNewDbFileSelected(it) }
+    }
+    val createDocumentLauncher = rememberLauncherForActivityResult(CreateDocument("application/vnd.sqlite3")) { uri ->
+        uri?.let { onNewDbCreated(it) }
+    }
+    val exportLauncher = rememberLauncherForActivityResult(CreateDocument("application/vnd.sqlite3")) { uri ->
+        uri?.let { onExportDb(it) }
+    }
+
+    if (showPickerDialog) {
+        AlertDialog(
+            onDismissRequest = { showPickerDialog = false },
+            title = { Text(stringResource(R.string.settings_database_file)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPickerDialog = false
+                    openDocumentLauncher.launch(arrayOf("*/*"))
+                }) { Text(stringResource(R.string.settings_database_open_existing)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showPickerDialog = false
+                    createDocumentLauncher.launch("gina_journal.db")
+                }) { Text(stringResource(R.string.settings_database_create_new)) }
+            }
+        )
+    }
+
     val body = buildString {
-        databasePath?.let { append(it) }
+        databaseExternalPath?.let { append(it) }
         databaseSize?.let {
             if (isNotEmpty()) append("\n")
             append(formatBinarySize(it))
@@ -32,9 +70,15 @@ internal fun DatabaseSettingsButtonWithLauncher(
         header = stringResource(R.string.settings_database_file),
         body = body,
         icon = Icons.Filled.Book,
-        onClick = { databaseResult.launch(Files.selectFileIntent()) },
+        onClick = { showPickerDialog = true },
         onLongClick = onLongPress,
         loader = loader
+    )
+    SettingsButton(
+        header = stringResource(R.string.settings_export_database),
+        body = "",
+        icon = Icons.Filled.Upload,
+        onClick = { exportLauncher.launch("gina_journal_backup.db") }
     )
 }
 

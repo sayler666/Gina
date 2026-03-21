@@ -3,7 +3,6 @@ package com.sayler666.gina.calendar.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewAction.NavToAddDay
 import com.sayler666.gina.calendar.viewmodel.CalendarViewModel.ViewAction.NavToDayDetails
@@ -21,13 +20,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
     private val getDaysUseCase: GetDaysUseCase,
     private val daysMapper: CalendarMapper,
@@ -40,7 +37,6 @@ class CalendarViewModel @Inject constructor(
     val viewActions = mutableViewActions.receiveAsFlow()
 
     init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         observeDays()
     }
 

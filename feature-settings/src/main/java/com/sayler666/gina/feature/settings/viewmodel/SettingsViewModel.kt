@@ -1,20 +1,24 @@
 package com.sayler666.gina.feature.settings.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
-import com.sayler666.data.database.db.journal.withRawDao
+import com.sayler666.data.database.db.journal.DatabaseFileManager
+import com.sayler666.data.database.db.journal.dao.RawDao
 import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.RestartApp
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnExportDatabaseRequested
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnNewDatabaseCreated
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderSet
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
@@ -38,7 +42,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
 import java.time.LocalTime
 import javax.inject.Inject
 import kotlin.time.measureTime
@@ -46,7 +49,8 @@ import kotlin.time.measureTime
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val setting: SettingsStorage,
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
+    private val databaseFileManager: DatabaseFileManager,
+    private val rawDao: RawDao,
     private val themeMapper: ThemeMapper,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
     private val getLastReminderUseCase: GetLastReminderUseCase,
@@ -63,7 +67,8 @@ class SettingsViewModel @Inject constructor(
     val viewActions = mutableViewActions.receiveAsFlow()
 
     init {
-        observeDatabasePath()
+        observeDatabaseExternalPath()
+        observeDatabaseSize()
         observeThemes()
         observeIncognitoMode()
         observeShowDbCardLoader()
@@ -71,22 +76,25 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun createInitialState() = SettingsState(
-        databasePath = null,
+        databaseSize = dbSize(),
         themes = emptyList(),
         incognitoMode = false,
         showDbCardLoader = false,
         reminderState = NotActive
     )
 
-    private fun observeDatabasePath() {
-        setting.getDatabasePathFlow()
-            .onEach { db ->
-                mutableViewState.update {
-                    it.copy(
-                        databasePath = db,
-                        databaseSize = db?.let { path -> File(path).length().takeIf { it > 0L } }
-                    )
-                }
+    private fun observeDatabaseSize() {
+        databaseFileManager.dbInvalidations
+            .onEach { mutableViewState.update { it.copy(databaseSize = dbSize()) } }
+            .launchIn(viewModelScope)
+    }
+
+    private fun dbSize() = databaseFileManager.getLocalDbFile()?.length()?.takeIf { it > 0L }
+
+    private fun observeDatabaseExternalPath() {
+        databaseFileManager.getDatabaseExternalPathFlow()
+            .onEach { path ->
+                mutableViewState.update { it.copy(databaseExternalPath = path) }
             }
             .launchIn(viewModelScope)
     }
@@ -134,7 +142,18 @@ class SettingsViewModel @Inject constructor(
             is OnThemeSelected -> viewModelScope.launch { setting.saveTheme(event.theme) }
             is OnIncognitoModeToggled -> viewModelScope.launch { setting.saveIncognitoMode(event.enabled) }
             is OnDatabaseFileSelected -> viewModelScope.launch {
-                ginaDatabaseProvider.openAndRememberDB(event.path)
+                if (databaseFileManager.importFromUri(event.uri))
+                    mutableViewActions.trySend(RestartApp)
+            }
+            is OnNewDatabaseCreated -> viewModelScope.launch {
+                if (databaseFileManager.createNewDb(event.uri))
+                    mutableViewActions.trySend(RestartApp)
+            }
+            is OnExportDatabaseRequested -> viewModelScope.launch {
+                val success = databaseFileManager.exportToUri(event.uri)
+                mutableViewActions.trySend(
+                    ShowToast(if (success) "Database exported!" else "Error while exporting!")
+                )
             }
             is OnReminderSet -> viewModelScope.launch {
                 removeAllRemindersUseCase()
@@ -152,17 +171,15 @@ class SettingsViewModel @Inject constructor(
             mutableShowDbCardLoader.value = true
             val time = measureTime {
                 try {
-                    ginaDatabaseProvider.withRawDao { vacuum() }
+                    rawDao.vacuum()
+                    databaseFileManager.sync()
                     mutableViewActions.trySend(ShowToast("Database vacuumed!"))
                 } catch (e: Throwable) {
                     mutableViewActions.trySend(ShowToast("Error while vacuuming!"))
                     Timber.e(e)
                 } finally {
                     mutableShowDbCardLoader.value = false
-                    val path = mutableViewState.value.databasePath
-                    mutableViewState.update {
-                        it.copy(databaseSize = path?.let { p -> File(p).length().takeIf { s -> s > 0L } })
-                    }
+                    mutableViewState.update { it.copy(databaseSize = dbSize()) }
                 }
             }
             Timber.d("Vacuum ended in: $time")
@@ -177,7 +194,9 @@ class SettingsViewModel @Inject constructor(
         data object OnShowBottomBar : ViewEvent
         data class OnThemeSelected(val theme: Theme) : ViewEvent
         data class OnIncognitoModeToggled(val enabled: Boolean) : ViewEvent
-        data class OnDatabaseFileSelected(val path: String) : ViewEvent
+        data class OnDatabaseFileSelected(val uri: Uri) : ViewEvent
+        data class OnNewDatabaseCreated(val uri: Uri) : ViewEvent
+        data class OnExportDatabaseRequested(val uri: Uri) : ViewEvent
         data class OnReminderSet(val time: LocalTime) : ViewEvent
         data object OnReminderCancel : ViewEvent
     }
@@ -185,6 +204,7 @@ class SettingsViewModel @Inject constructor(
     sealed interface ViewAction {
         data object Back : ViewAction
         data object NavToManageFriends : ViewAction
+        data object RestartApp : ViewAction
         data class ShowToast(val message: String) : ViewAction
     }
 }

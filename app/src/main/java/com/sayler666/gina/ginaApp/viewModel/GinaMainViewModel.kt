@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomBarState
 import com.sayler666.core.navigation.BottomBarState.Shown
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel.ViewEvent.ConsumeDeepLink
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel.ViewEvent.SetDeepLink
@@ -30,7 +29,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GinaMainViewModel @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     settings: SettingsStorage,
     bottomNavigationVisibilityManager: BottomNavigationVisibilityManager
 ) : ViewModel() {
@@ -42,7 +40,6 @@ class GinaMainViewModel @Inject constructor(
     val backStack: SnapshotStateList<Route> = mutableStateListOf()
 
     init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         observeDatabasePath(settings)
         observeTheme(settings)
         observeBottomBarState(bottomNavigationVisibilityManager)

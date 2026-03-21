@@ -97,6 +97,16 @@ private fun Content(state: ViewState?, viewEvent: (ViewEvent) -> Unit) {
 
 ---
 
+## Database Architecture
+
+- `GinaDatabase`, `DaysDao`, `RawDao` — `@Singleton` via `JournalDatabaseModule`; inject directly
+- `JournalRepository` — query layer; prefer over injecting DAOs directly
+- `DatabaseFileManager` — file ops only (SAF import/export/sync); not for queries
+- DB file: `getDatabasePath("gina_journal.db")`; syncs to external SAF URI after writes
+- Replacing the DB file requires a full process restart (`Runtime.exit(0)`)
+
+---
+
 ## Code Rules
 
 **Naming:**

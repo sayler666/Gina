@@ -2,7 +2,6 @@ package com.sayler666.gina.day.dayDetails.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.dayDetails.usecase.GetDayDetailsUseCase
 import com.sayler666.gina.day.dayDetails.usecase.GetNextPreviousIdDayUseCase
@@ -36,7 +35,6 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = DayDetailsViewModel.Factory::class)
 class DayDetailsViewModel @AssistedInject constructor(
     @Assisted val dayId: Int,
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val getNextPreviousIdDayUseCase: GetNextPreviousIdDayUseCase,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
     private val settingsStorage: SettingsStorage,
@@ -51,10 +49,6 @@ class DayDetailsViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(dayId: Int): DayDetailsViewModel
-    }
-
-    init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private fun fetchDayDetails() {
