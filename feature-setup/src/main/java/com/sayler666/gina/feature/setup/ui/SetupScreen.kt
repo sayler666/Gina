@@ -1,5 +1,6 @@
 package com.sayler666.gina.feature.setup.ui
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
@@ -17,25 +18,29 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.gina.feature.setup.viewmodel.SetupViewModel
-import com.sayler666.gina.feature.setup.viewmodel.SetupViewModel.ViewAction
+import com.sayler666.gina.feature.setup.viewmodel.SetupViewModel.ViewAction.RestartApp
 import com.sayler666.gina.feature.setup.viewmodel.SetupViewModel.ViewEvent
-import com.sayler666.gina.navigation.routes.Journal
 import com.sayler666.gina.resources.R.string.select_database_create_database
 import com.sayler666.gina.resources.R.string.select_database_open_database
-import com.sayler666.gina.ui.LocalNavigator
 
 @Composable
 fun SetupScreen(viewModel: SetupViewModel = hiltViewModel()) {
-    val navigator = LocalNavigator.current
+    val context = LocalContext.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            ViewAction.NavigateToJournal -> navigator.navigateToRoot(Journal)
+            RestartApp -> {
+                val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    ?.apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK) }
+                context.startActivity(intent)
+                Runtime.getRuntime().exit(0)
+            }
         }
     }
 
