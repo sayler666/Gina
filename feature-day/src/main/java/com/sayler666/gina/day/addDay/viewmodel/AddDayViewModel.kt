@@ -6,7 +6,6 @@ import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.domain.model.journal.DayDetails
@@ -59,7 +58,6 @@ import java.time.LocalDate
 @HiltViewModel(assistedFactory = AddDayViewModel.Factory::class)
 class AddDayViewModel @AssistedInject constructor(
     @Assisted val date: LocalDate?,
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val addDayUseCase: AddDayUseCase,
     private val reminderDismissUseCase: ReminderDismissUseCase,
     private val workingCopyStorage: WorkingCopyStorage,
@@ -90,7 +88,6 @@ class AddDayViewModel @AssistedInject constructor(
     private val quote = MutableStateFlow<Quote?>(null)
 
     init {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
         dayEditingSlice.initializeSlice(viewModelScope)
         mutableDay.value = DayDetails(
             day = Day(date = date ?: LocalDate.now()),

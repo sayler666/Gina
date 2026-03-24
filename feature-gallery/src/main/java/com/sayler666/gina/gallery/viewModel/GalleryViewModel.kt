@@ -3,7 +3,6 @@ package com.sayler666.gina.gallery.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
-import com.sayler666.data.database.db.journal.GinaDatabaseProvider
 import com.sayler666.gina.gallery.usecase.ImageAttachmentsRepository
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNextPage
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
@@ -19,12 +18,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    private val ginaDatabaseProvider: GinaDatabaseProvider,
     private val imageAttachmentsRepository: ImageAttachmentsRepository,
     private val galleryMapper: GalleryMapper,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
@@ -37,12 +34,7 @@ class GalleryViewModel @Inject constructor(
     val viewActions = mutableViewActions.receiveAsFlow()
 
     init {
-        initDb()
         observeImages()
-    }
-
-    private fun initDb() {
-        viewModelScope.launch { ginaDatabaseProvider.openSavedDB() }
     }
 
     private fun observeImages() {
