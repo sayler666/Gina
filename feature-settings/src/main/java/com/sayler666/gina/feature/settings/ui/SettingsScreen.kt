@@ -1,6 +1,7 @@
 package com.sayler666.gina.feature.settings.ui
 
 import android.Manifest
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -43,13 +44,16 @@ import com.sayler666.gina.feature.settings.viewmodel.SettingsState
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.RestartApp
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnExportDatabaseRequested
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnNewDatabaseCreated
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderCancel
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnReminderSet
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnShowBottomBar
@@ -79,6 +83,12 @@ fun SettingsScreen(
             Back -> navigator.back()
             NavToManageFriends -> navigator.navigate(ManageFriends)
             is ShowToast -> Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+            RestartApp -> {
+                val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    ?.apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK) }
+                context.startActivity(intent)
+                Runtime.getRuntime().exit(0)
+            }
         }
     }
 
@@ -123,14 +133,12 @@ private fun Content(
                 Spacer(Modifier.padding(top = 16.dp))
                 SettingsSectionHeader(stringResource(R.string.settings_section_database))
                 DatabaseSettingsButtonWithLauncher(
-                    databasePath = state?.databasePath,
+                    databaseExternalPath = state?.databaseExternalPath,
                     databaseSize = state?.databaseSize,
-                    onNewDbFileSelected = { path ->
-                        viewEvent(OnDatabaseFileSelected(path))
-                    },
-                    onLongPress = {
-                        viewEvent(OnVacuumDatabasePressed)
-                    },
+                    onNewDbFileSelected = { uri -> viewEvent(OnDatabaseFileSelected(uri)) },
+                    onNewDbCreated = { uri -> viewEvent(OnNewDatabaseCreated(uri)) },
+                    onExportDb = { uri -> viewEvent(OnExportDatabaseRequested(uri)) },
+                    onLongPress = { viewEvent(OnVacuumDatabasePressed) },
                     loader = state?.showDbCardLoader ?: false
                 )
                 SettingsButton(

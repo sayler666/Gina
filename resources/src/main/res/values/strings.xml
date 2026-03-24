@@ -53,7 +53,7 @@
 
     <!-- SelectDatabase -->
     <string name="select_database_open_database">Open database</string>
-    <string name="select_database_grant_permission">Grant files permission</string>
+    <string name="select_database_create_database">Create new database</string>
 
     <!-- Settings -->
     <string name="settings">Settings</string>
@@ -61,6 +61,9 @@
     <string name="settings_section_attachments">Attachments</string>
     <string name="settings_section_personalize">Personalize</string>
     <string name="settings_database_file">Database file</string>
+    <string name="settings_export_database">Export database</string>
+    <string name="settings_database_open_existing">Open existing</string>
+    <string name="settings_database_create_new">Create new</string>
     <string name="settings_friends">Friends</string>
     <string name="settings_manage_friends_list">Manage friends list</string>
     <string name="settings_incognito_mode">Incognito Mode</string>
