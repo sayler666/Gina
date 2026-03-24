@@ -1,13 +1,10 @@
 package com.sayler666.gina.feature.journal.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +15,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -31,16 +27,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -51,24 +44,19 @@ import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
-import com.sayler666.core.permission.Permissions
 import com.sayler666.gina.feature.journal.viewmodel.JournalState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptyState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
-import com.sayler666.gina.feature.journal.viewmodel.JournalState.PermissionNeededState
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToManageAllFilesSettings
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnManageAllFilesSettingsClick
-import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnRefreshPermissionStatus
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.ImagePreview
@@ -94,21 +82,12 @@ fun JournalScreen() {
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
     val filtersState: FiltersState = viewModel.filtersState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
-    val context = LocalContext.current
-
-    val permissionsLauncher = rememberLauncherForActivityResult(StartActivityForResult()) {
-        viewModel.onViewEvent(OnRefreshPermissionStatus)
-    }
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             is NavToDay -> navigator.navigate(DayDetails(action.dayId))
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
-            )
-
-            NavToManageAllFilesSettings -> permissionsLauncher.launch(
-                Permissions.getManageAllFilesSettingsIntent(context)
             )
         }
     }
@@ -205,7 +184,6 @@ private fun JournalContent(
                 body = stringResource(R.string.empty_state_body)
             )
 
-            PermissionNeededState -> FilePermissionPermissionPrompt(onViewEvent)
             LoadingState -> {}
         }
         AnimatedVisibility(
@@ -350,30 +328,6 @@ private fun AttachmentCarousel(
             }
         }
     )
-}
-
-@Composable
-private fun FilePermissionPermissionPrompt(
-    onViewEvent: (ViewEvent) -> Unit
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            onClick = { onViewEvent(OnManageAllFilesSettingsClick) },
-        ) {
-            Text(
-                style = MaterialTheme.typography.labelLarge,
-                text = stringResource(R.string.select_database_grant_permission)
-            )
-        }
-    }
 }
 
 @Composable
