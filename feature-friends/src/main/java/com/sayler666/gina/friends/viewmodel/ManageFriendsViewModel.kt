@@ -5,17 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.sayler666.gina.friends.ui.FriendState
 import com.sayler666.gina.friends.usecase.AddFriendUseCase
 import com.sayler666.gina.friends.usecase.GetAllFriendsUseCase
+import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewAction.Back
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewEvent.OnAddNewFriend
+import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.friends.viewmodel.ManageFriendsViewModel.ViewEvent.OnSearchChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -37,6 +41,9 @@ class ManageFriendsViewModel @Inject constructor(
     private val mutableViewState = MutableStateFlow(ViewState())
     val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
 
+    private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
+    val viewActions = mutableViewActions.receiveAsFlow()
+
     init {
         observeFriends()
     }
@@ -51,6 +58,8 @@ class ManageFriendsViewModel @Inject constructor(
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {
+            OnBackPressed -> mutableViewActions.trySend(Back)
+
             is OnSearchChanged -> {
                 searchQuery.value = event.query
                 mutableViewState.update { it.copy(searchQuery = event.query) }
@@ -72,7 +81,12 @@ class ManageFriendsViewModel @Inject constructor(
     )
 
     sealed interface ViewEvent {
+        data object OnBackPressed : ViewEvent
         data class OnSearchChanged(val query: String) : ViewEvent
         data class OnAddNewFriend(val name: String) : ViewEvent
+    }
+
+    sealed interface ViewAction {
+        data object Back : ViewAction
     }
 }

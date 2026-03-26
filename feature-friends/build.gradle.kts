@@ -33,6 +33,7 @@ dependencies {
     // Compose
     implementation(libs.compose.material3)
     implementation(libs.coil.compose)
+    implementation(libs.haze)
 
     // Other
     implementation(libs.timber)
