@@ -20,7 +20,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,31 +56,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel
-import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewAction
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewAction.Dismiss
 import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent
+import com.sayler666.gina.friends.viewmodel.FriendEditViewModel.ViewEvent.OnChangeAvatar
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.theme.defaultTextFieldBorder
 import com.sayler666.gina.ui.theme.defaultTextFieldColors
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 fun FriendsList(
@@ -85,47 +97,57 @@ fun FriendsList(
     onFriendClicked: (Int, Boolean) -> Unit,
     searchValue: String,
     onSearchChanged: (String) -> Unit,
-    onAddNewFriend: (String) -> Unit
+    onAddNewFriend: (String) -> Unit,
+    hazeState: HazeState = rememberHazeState(),
 ) {
-    ConstraintLayout(
+    val hazeStateSearch = rememberHazeState()
+    val navBarBottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = padding.calculateTopPadding())
-            .navigationBarsPadding()
             .imePadding()
     ) {
-        val (list, textField) = createRefs()
-        LazyColumn(modifier = Modifier
-            .clipToBounds()
-            .fillMaxWidth()
-            .constrainAs(list) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                bottom.linkTo(textField.top)
-                height = Dimension.fillToConstraints
-            },
-            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .hazeSource(hazeStateSearch)
+                .hazeSource(hazeState),
+            contentPadding = PaddingValues(
+                top = padding.calculateTopPadding() + 8.dp,
+                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                end = padding.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = navBarBottomPadding + 72.dp
+            ),
             content = {
                 items(friends) {
-                    FriendComponent(friend = it,
+                    FriendComponent(
+                        friend = it,
                         selectable = selectable,
                         onClick = { selected ->
                             onFriendClicked(it.id, selected)
                         }
                     )
                 }
-            })
+            }
+        )
         SearchTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .constrainAs(textField) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                }
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.background,
+                        )
+                    )
+                )
+                .navigationBarsPadding()
                 .padding(8.dp),
-            searchValue,
-            onSearchChanged,
-            onAddNewFriend
+            searchValue = searchValue,
+            onValueChanged = onSearchChanged,
+            onDone = onAddNewFriend,
+            hazeState = hazeStateSearch
         )
     }
 }
@@ -157,10 +179,10 @@ fun FriendEdit(
 
     val addAvatar = rememberLauncherForActivityResult(PickVisualMedia()) {
         handleAvatar(it, context) { avatar ->
-            viewModel.onViewEvent(ViewEvent.OnChangeAvatar(avatar))
+            viewModel.onViewEvent(OnChangeAvatar(avatar))
         }
     }
-    val request: PickVisualMediaRequest = PickVisualMediaRequest(ImageOnly)
+    val request = PickVisualMediaRequest(ImageOnly)
 
     LaunchedEffect(friendId) {
         viewModel.onViewEvent(ViewEvent.OnLoadFriend(friendId))
@@ -168,7 +190,7 @@ fun FriendEdit(
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            ViewAction.Dismiss -> onDismiss()
+            Dismiss -> onDismiss()
         }
     }
 
@@ -245,7 +267,10 @@ fun FriendEdit(
                         }
 
                         ConfirmationDialog(
-                            title = stringResource(R.string.friends_remove_dialog_title, friend.name),
+                            title = stringResource(
+                                R.string.friends_remove_dialog_title,
+                                friend.name
+                            ),
                             text = stringResource(R.string.friends_remove_dialog_text),
                             confirmButtonText = stringResource(R.string.friends_remove_dialog_confirm),
                             dismissButtonText = stringResource(R.string.friends_remove_dialog_cancel),
@@ -266,10 +291,20 @@ private fun SearchTextField(
     modifier: Modifier = Modifier,
     searchValue: String,
     onValueChanged: (String) -> Unit,
-    onDone: (String) -> Unit
+    onDone: (String) -> Unit,
+    hazeState: HazeState,
 ) {
     OutlinedTextField(
-        modifier = modifier.defaultTextFieldBorder(),
+        modifier = modifier
+            .defaultTextFieldBorder()
+            .hazeEffect(
+                state = hazeState,
+                style = HazeStyle(
+                    blurRadius = 16.dp,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
+                )
+            ),
         value = searchValue,
         onValueChange = onValueChanged,
         colors = defaultTextFieldColors(),
@@ -300,7 +335,8 @@ fun FriendComponent(
     onClick: (Boolean) -> Unit,
     selectable: Boolean = false
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .height(46.dp)
             .clickable {
