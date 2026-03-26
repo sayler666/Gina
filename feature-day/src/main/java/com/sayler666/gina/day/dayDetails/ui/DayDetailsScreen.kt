@@ -1,18 +1,27 @@
 package com.sayler666.gina.day.dayDetails.ui
 
 import android.widget.Toast
+import androidx.compose.animation.core.EaseInSine
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -23,18 +32,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.GridOn
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ripple
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -42,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.key.Key.Companion.VolumeDown
 import androidx.compose.ui.input.key.Key.Companion.VolumeUp
@@ -98,6 +106,13 @@ import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 
 
@@ -143,78 +158,18 @@ private fun Content(
 ) {
     val requester = remember { FocusRequester() }
     val sharedScope = LocalSharedTransitionScope.current
+    val hazeState = rememberHazeState()
+    val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navBarBottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val hasFriends = state?.friends?.isNotEmpty() == true
+    val topContentPadding = statusBarTopPadding + 64.dp
+    val friendsRowHeight = if (hasFriends) 58.dp else 0.dp
+    val bottomContentPadding = navBarBottomPadding + friendsRowHeight + 16.dp
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
-            state?.let {
-                TopAppBar(title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        DayDateHeader(
-                            dayOfMonth = state.dayOfMonth,
-                            dayOfWeek = state.dayOfWeek,
-                            yearAndMonth = state.yearAndMonth
-                        )
-                    }
-                }, navigationIcon = {
-                    IconButton(onClick = { viewEvent(OnBackPressed) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                }, actions = {
-                    state.mood.mapToMoodIcon().let { icon ->
-
-                        val sharedModifier = if (sharedScope != null) {
-                            val sharedState =
-                                sharedScope.rememberSharedContentState("mood_${state.id}")
-                            with(sharedScope) {
-                                Modifier
-                                    .sharedElement(
-                                        sharedContentState = sharedState,
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    )
-                            }
-                        } else {
-                            Modifier
-                        }
-
-                        Icon(
-                            modifier = sharedModifier,
-                            painter = rememberVectorPainter(image = icon.icon),
-                            tint = icon.color,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                    IconButton(onClick = {
-                        viewEvent(OnGameOfLifePressed)
-                    }) {
-                        Icon(Icons.Filled.GridOn, null)
-                    }
-                    IconButton(onClick = {
-                        viewEvent(OnDayDetailsPressed)
-                    }) {
-                        Icon(Icons.Filled.Edit, null)
-                    }
-                })
-            }
-        }, content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                state?.let {
-                    AttachmentsRow(state, viewEvent)
-                    Text(state)
-                }
-            }
-        }, bottomBar = {
-            state?.let {
-                FriendsRow(state.friends)
-            }
-        }, modifier = Modifier
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize()
             .onKeyEvent {
                 if (it.type != KeyEventType.KeyDown) return@onKeyEvent false
                 when (it.key) {
@@ -233,7 +188,103 @@ private fun Content(
             }
             .focusRequester(requester)
             .focusable()
-    )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(hazeState)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(topContentPadding))
+            state?.let {
+                AttachmentsRow(state, viewEvent)
+                TextContent(state)
+            }
+            Spacer(modifier = Modifier.height(bottomContentPadding))
+        }
+
+        state?.let {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .hazeEffect(
+                        state = hazeState,
+                        style = HazeStyle(
+                            blurRadius = 24.dp,
+                            backgroundColor = MaterialTheme.colorScheme.background,
+                            tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
+                        )
+                    ) {
+                        progressive =
+                            HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+                    }
+            ) {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            DayDateHeader(
+                                dayOfMonth = state.dayOfMonth,
+                                dayOfWeek = state.dayOfWeek,
+                                yearAndMonth = state.yearAndMonth
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { viewEvent(OnBackPressed) }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    actions = {
+                        state.mood.mapToMoodIcon().let { icon ->
+                            val sharedModifier = if (sharedScope != null) {
+                                val sharedState =
+                                    sharedScope.rememberSharedContentState("mood_${state.id}")
+                                with(sharedScope) {
+                                    Modifier.sharedElement(
+                                        sharedContentState = sharedState,
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            }
+                            Icon(
+                                modifier = sharedModifier,
+                                painter = rememberVectorPainter(image = icon.icon),
+                                tint = icon.color,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        IconButton(onClick = { viewEvent(OnGameOfLifePressed) }) {
+                            Icon(Icons.Filled.GridOn, null)
+                        }
+                        IconButton(onClick = { viewEvent(OnDayDetailsPressed) }) {
+                            Icon(Icons.Filled.Edit, null)
+                        }
+                    }
+                )
+            }
+        }
+
+        FriendsRow(
+            friends = state?.friends ?: emptyList(),
+            hazeState = hazeState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+        )
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = friendsRowHeight)
+                .navigationBarsPadding()
+        )
+    }
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -267,7 +318,7 @@ private suspend fun onViewAction(
 }
 
 @Composable
-private fun Text(state: DayDetailsState) {
+private fun TextContent(state: DayDetailsState) {
     Column(modifier = Modifier.padding(16.dp, 8.dp)) {
         WordCharsCounter(text = state.content.getTextWithoutHtml())
         SelectionContainer {
@@ -327,29 +378,48 @@ private fun AttachmentsRow(
 }
 
 @Composable
-fun FriendsRow(friends: List<FriendState>) {
+fun FriendsRow(
+    friends: List<FriendState>,
+    hazeState: HazeState,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
 
-    if (friends.isNotEmpty())
-        BottomAppBar(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+    if (friends.isNotEmpty()) {
+        LazyRow(
+            modifier = modifier
+                .hazeEffect(
+                    state = hazeState,
+                    style = HazeStyle(
+                        blurRadius = 24.dp,
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        tint = HazeTint(MaterialTheme.colorScheme.background)
+                    )
+                ) {
+                    progressive =
+                        HazeProgressive.verticalGradient(
+                            startIntensity = 0f,
+                            endIntensity = 1f
+                        )
+                }
+                .navigationBarsPadding(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
             content = {
-                LazyRow(contentPadding = PaddingValues(start = 16.dp), content = {
-                    items(friends) { friend ->
-                        FriendIcon(
-                            friend = friend,
-                            size = 42.dp,
-                            modifier = Modifier
-                                .padding(end = 8.dp, top = 0.dp)
-                                .clickable(
-                                    indication = ripple(bounded = false),
-                                    interactionSource = remember { MutableInteractionSource() }) {
-                                    Toast
-                                        .makeText(context, friend.name, Toast.LENGTH_SHORT)
-                                        .show()
-                                })
-                    }
-                })
+                items(friends) { friend ->
+                    FriendIcon(
+                        friend = friend,
+                        size = 42.dp,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clickable(
+                                indication = ripple(bounded = false),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                Toast.makeText(context, friend.name, Toast.LENGTH_SHORT).show()
+                            }
+                    )
+                }
             }
         )
+    }
 }
