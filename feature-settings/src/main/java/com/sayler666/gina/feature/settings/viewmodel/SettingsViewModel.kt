@@ -9,13 +9,20 @@ import com.sayler666.data.database.db.journal.dao.RawDao
 import com.sayler666.data.database.db.reminders.ReminderEntity
 import com.sayler666.gina.feature.settings.SettingsStorage
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.Back
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.CreateNewDatabase
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ExportDatabase
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.OpenDatabase
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.NavToManageFriends
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.RequestNotificationPermission
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.RestartApp
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewAction.ShowToast
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnBackPressed
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnCreateNewDatabasePressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnDatabaseFileSelected
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnExportDatabasePressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnExportDatabaseRequested
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnHideBottomBar
+import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnImportDatabasePressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnIncognitoModeToggled
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnManageFriendsPressed
 import com.sayler666.gina.feature.settings.viewmodel.SettingsViewModel.ViewEvent.OnNewDatabaseCreated
@@ -149,6 +156,9 @@ class SettingsViewModel @Inject constructor(
                 if (databaseFileManager.createNewDb(event.uri))
                     mutableViewActions.trySend(RestartApp)
             }
+            OnImportDatabasePressed -> mutableViewActions.trySend(OpenDatabase)
+            OnCreateNewDatabasePressed -> mutableViewActions.trySend(CreateNewDatabase)
+            OnExportDatabasePressed -> mutableViewActions.trySend(ExportDatabase)
             is OnExportDatabaseRequested -> viewModelScope.launch {
                 val success = databaseFileManager.exportToUri(event.uri)
                 mutableViewActions.trySend(
@@ -158,6 +168,7 @@ class SettingsViewModel @Inject constructor(
             is OnReminderSet -> viewModelScope.launch {
                 removeAllRemindersUseCase()
                 addReminderUseCase(ReminderEntity(time = event.time))
+                mutableViewActions.trySend(RequestNotificationPermission)
             }
             OnReminderCancel -> viewModelScope.launch {
                 removeAllRemindersUseCase()
@@ -194,6 +205,9 @@ class SettingsViewModel @Inject constructor(
         data object OnShowBottomBar : ViewEvent
         data class OnThemeSelected(val theme: Theme) : ViewEvent
         data class OnIncognitoModeToggled(val enabled: Boolean) : ViewEvent
+        data object OnImportDatabasePressed : ViewEvent
+        data object OnCreateNewDatabasePressed : ViewEvent
+        data object OnExportDatabasePressed : ViewEvent
         data class OnDatabaseFileSelected(val uri: Uri) : ViewEvent
         data class OnNewDatabaseCreated(val uri: Uri) : ViewEvent
         data class OnExportDatabaseRequested(val uri: Uri) : ViewEvent
@@ -206,5 +220,9 @@ class SettingsViewModel @Inject constructor(
         data object NavToManageFriends : ViewAction
         data object RestartApp : ViewAction
         data class ShowToast(val message: String) : ViewAction
+        data object OpenDatabase : ViewAction
+        data object CreateNewDatabase : ViewAction
+        data object ExportDatabase : ViewAction
+        data object RequestNotificationPermission : ViewAction
     }
 }

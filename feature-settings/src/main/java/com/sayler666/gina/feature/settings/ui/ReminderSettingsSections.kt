@@ -73,6 +73,7 @@ fun ReminderSettingsSections(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
             onDismissRequest = { scope.launch { showBottomSheet = false } },
+            dragHandle = {}
         ) {
             CenterAlignedTopAppBar(
                 title = {

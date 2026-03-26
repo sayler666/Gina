@@ -54,7 +54,10 @@
       "Bash(find /c/Users -name \"navigation3-ui-1.0.1*\" 2>/dev/null | head -5; find /d -maxdepth 6 -name \"navigation3-ui-1.0.1*\" 2>/dev/null | head -5)",
       "Bash(find 'D:\\\\Android Projects\\\\Gina' -type f -name *[Cc]onstant* -o -name *[Cc]onst.kt)",
       "Bash(find 'D:\\\\Android Projects\\\\Gina' -path */build -prune -o -type f -name *.kt -print)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git config:*)",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)"
     ]
   }
 }

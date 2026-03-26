@@ -83,6 +83,7 @@ private fun ThemesBottomSheet(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
             onDismissRequest = { onDismiss() },
+            dragHandle = {}
         ) {
             Column {
                 CenterAlignedTopAppBar(

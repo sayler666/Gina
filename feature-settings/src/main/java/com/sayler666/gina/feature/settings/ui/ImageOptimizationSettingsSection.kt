@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -17,7 +18,7 @@ fun ImageOptimizationSettingsSection(
     viewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
+    var showImageCompressSettingsDialog by remember { mutableStateOf(false) }
     viewState.optimizationSettings?.let { settings ->
         SettingsButton(
             header = stringResource(R.string.settings_image_optimization),
@@ -25,14 +26,13 @@ fun ImageOptimizationSettingsSection(
                 R.string.settings_image_quality_percent
             ) else stringResource(R.string.settings_image_disabled),
             icon = Filled.PhotoSizeSelectLarge,
-            onClick = { showImageCompressSettingsDialog.value = true }
+            onClick = { showImageCompressSettingsDialog = true }
         )
         ImageOptimizationBottomSheet(
-            showDialog = showImageCompressSettingsDialog.value,
-            onDismiss = { showImageCompressSettingsDialog.value = false },
-            viewModel = viewModel,
+            showDialog = showImageCompressSettingsDialog,
+            imageOptimizationSettings = settings,
+            onDismiss = { showImageCompressSettingsDialog = false },
+            viewEvent = viewModel::onViewEvent,
         )
     }
 }
-
-
