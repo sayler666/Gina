@@ -53,7 +53,7 @@ fun CalendarTopBar(
                     tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null
                 )
-                YearMonthSwitcherPopup(
+                YearMonthSwitcherDialog(
                     showPopup = showPopup.value,
                     currentYearMonth = visibleMonth.yearMonth,
                     onDismiss = {
@@ -64,7 +64,8 @@ fun CalendarTopBar(
                     },
                     onSelectDate = {
                         onSelectDate(it)
-                    })
+                    }
+                )
             }
         }, actions = {
             IconButton(onClick = {

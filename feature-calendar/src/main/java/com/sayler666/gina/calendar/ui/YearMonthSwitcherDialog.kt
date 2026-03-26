@@ -1,13 +1,9 @@
 package com.sayler666.gina.calendar.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -31,7 +27,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayler666.gina.resources.R
@@ -41,9 +37,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.YearMonth
 
-
 @Composable
-fun YearMonthSwitcherPopup(
+fun YearMonthSwitcherDialog(
     showPopup: Boolean,
     onDismiss: () -> Unit,
     daySwitcherEnabled: Boolean = false,
@@ -57,28 +52,10 @@ fun YearMonthSwitcherPopup(
         viewModel.updateDate(currentYearMonth)
     }
 
-    if (showPopup) Popup(
-        onDismissRequest = { onDismiss() },
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    enabled = true,
-                    indication = null,
-                    onClick = { onDismiss() },
-                    interactionSource = remember { MutableInteractionSource() }
-                ), contentAlignment = Alignment.Center
-        ) {
+    if (showPopup) {
+        Dialog(onDismissRequest = { onDismiss() }) {
             Card(
-                modifier = Modifier
-                    .width(250.dp)
-                    .clickable(
-                        enabled = true,
-                        indication = null,
-                        onClick = { },
-                        interactionSource = remember { MutableInteractionSource() }
-                    ),
+                modifier = Modifier.width(250.dp),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -174,7 +151,6 @@ fun YearMonthSwitcherPopup(
                     }
                 }
             }
-
         }
     }
 }
@@ -212,5 +188,4 @@ internal class YearMonthSwitcherViewModel(currentYearMonth: YearMonth) : ViewMod
     fun updateDate(currentYearMonth: YearMonth) {
         _date.value = LocalDate.of(currentYearMonth.year, currentYearMonth.month, 1)
     }
-
 }
