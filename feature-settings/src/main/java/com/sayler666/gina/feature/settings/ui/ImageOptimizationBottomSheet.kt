@@ -30,9 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
+import com.sayler666.core.image.ImageOptimization.OptimizationSettings
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageCompressionToggled
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.resources.R
@@ -42,88 +41,85 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 fun ImageOptimizationBottomSheet(
     showDialog: Boolean,
+    imageOptimizationSettings: OptimizationSettings,
     onDismiss: () -> Unit,
-    viewModel: ImageOptimizationViewModel = hiltViewModel(),
+    viewEvent: (ViewEvent) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    viewState.optimizationSettings?.let { imageOptimizationSettings ->
-        if (showDialog) {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ModalBottomSheet(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-                sheetState = sheetState,
-                onDismissRequest = { onDismiss() },
-            ) {
-                Column {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Text(stringResource(R.string.settings_image_optimization))
-                        }, actions = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    sheetState.hide()
-                                }.invokeOnCompletion {
-                                    if (!sheetState.isVisible) onDismiss()
-                                }
-                            }) {
-                                Icon(
-                                    Icons.Rounded.Close,
-                                    contentDescription = stringResource(R.string.settings_close)
-                                )
+    if (showDialog) {
+        val scope = rememberCoroutineScope()
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+            sheetState = sheetState,
+            onDismissRequest = { onDismiss() },
+            dragHandle = {}
+        ) {
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(stringResource(R.string.settings_image_optimization))
+                    }, actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                sheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!sheetState.isVisible) onDismiss()
                             }
-                        }, colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                        )
+                        }) {
+                            Icon(
+                                Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.settings_close)
+                            )
+                        }
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                     )
-                    Column(Modifier.padding(horizontal = 8.dp)) {
-                        Row(
-                            modifier = Modifier.padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.settings_image_enable_optimization),
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Switch(
-                                checked = imageOptimizationSettings.compressionEnabled,
-                                onCheckedChange = {
-                                    viewModel.onViewEvent(OnImageCompressionToggled(it))
-                                })
-                        }
-                        var qualitySliderPosition by remember {
-                            mutableFloatStateOf(imageOptimizationSettings.quality.toFloat())
-                        }
-                        Row(modifier = Modifier.padding(8.dp)) {
-                            Text(
-                                text = stringResource(R.string.settings_image_quality) + ":",
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Text(
-                                text = " ${qualitySliderPosition.toInt()}%",
-                                style = MaterialTheme.typography.labelLarge
-                                    .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            )
-                        }
-                        Slider(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            value = qualitySliderPosition,
-                            valueRange = 1f..100f,
-                            steps = 100,
-                            colors = SliderDefaults.colors(
-                                activeTickColor = Color.Transparent
-                            ),
-                            enabled = imageOptimizationSettings.compressionEnabled,
-                            onValueChange = { value: Float ->
-                                qualitySliderPosition = value
-                            },
-                            onValueChangeFinished = {
-                                viewModel.onViewEvent(
-                                    OnImageQualityChanged(qualitySliderPosition.toInt())
-                                )
+                )
+                Column(Modifier.padding(horizontal = 8.dp)) {
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_image_enable_optimization),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = imageOptimizationSettings.compressionEnabled,
+                            onCheckedChange = {
+                                viewEvent(OnImageCompressionToggled(it))
                             })
                     }
+                    var qualitySliderPosition by remember {
+                        mutableFloatStateOf(imageOptimizationSettings.quality.toFloat())
+                    }
+                    Row(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_image_quality) + ":",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Text(
+                            text = " ${qualitySliderPosition.toInt()}%",
+                            style = MaterialTheme.typography.labelLarge
+                                .copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        )
+                    }
+                    Slider(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        value = qualitySliderPosition,
+                        valueRange = 1f..100f,
+                        steps = 100,
+                        colors = SliderDefaults.colors(
+                            activeTickColor = Color.Transparent
+                        ),
+                        enabled = imageOptimizationSettings.compressionEnabled,
+                        onValueChange = { value: Float ->
+                            qualitySliderPosition = value
+                        },
+                        onValueChangeFinished = {
+                            viewEvent(OnImageQualityChanged(qualitySliderPosition.toInt()))
+                        })
                 }
             }
         }

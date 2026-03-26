@@ -65,7 +65,8 @@ internal fun FiltersButton(
         ModalBottomSheet(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             sheetState = sheetState,
-            onDismissRequest = { scope.launch { openBottomSheet = false } }
+            onDismissRequest = { scope.launch { openBottomSheet = false } },
+            dragHandle = {}
         ) {
             Column {
                 CenterAlignedTopAppBar(

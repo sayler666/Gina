@@ -66,6 +66,7 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
@@ -154,7 +155,9 @@ private fun Content(
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
     showDeleteConfirmationDialog: MutableState<Boolean>,
+    imageOptimizationViewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
+    val imageOptimizationViewState by imageOptimizationViewModel.viewState.collectAsStateWithLifecycle()
     val showDatePickerPopup = remember { mutableStateOf(false) }
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
     val isKeyboardOpen by keyboardAsState()
@@ -225,10 +228,14 @@ private fun Content(
                 }
             }
 
-            ImageOptimizationBottomSheet(
-                showDialog = showImageCompressSettingsDialog.value,
-                onDismiss = { showImageCompressSettingsDialog.value = false },
-            )
+            imageOptimizationViewState.optimizationSettings?.let { settings ->
+                ImageOptimizationBottomSheet(
+                    showDialog = showImageCompressSettingsDialog.value,
+                    imageOptimizationSettings = settings,
+                    onDismiss = { showImageCompressSettingsDialog.value = false },
+                    viewEvent = imageOptimizationViewModel::onViewEvent,
+                )
+            }
         })
 }
 

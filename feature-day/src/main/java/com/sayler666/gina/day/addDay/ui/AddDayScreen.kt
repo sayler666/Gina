@@ -72,6 +72,7 @@ import com.sayler666.gina.day.dayDetailsEdit.ui.TextFormat
 import com.sayler666.gina.day.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.day.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
+import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalNavigator
@@ -160,7 +161,9 @@ private fun Content(
     state: AddDayState?,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
+    imageOptimizationViewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
+    val imageOptimizationViewState by imageOptimizationViewModel.viewState.collectAsStateWithLifecycle()
     val showDatePickerPopup = remember { mutableStateOf(false) }
 
     val autofocusOnContentText = remember { mutableStateOf(false) }
@@ -237,10 +240,14 @@ private fun Content(
                 }
             }
 
-            ImageOptimizationBottomSheet(
-                showDialog = showImageCompressSettingsDialog.value,
-                onDismiss = { showImageCompressSettingsDialog.value = false },
-            )
+            imageOptimizationViewState.optimizationSettings?.let { settings ->
+                ImageOptimizationBottomSheet(
+                    showDialog = showImageCompressSettingsDialog.value,
+                    imageOptimizationSettings = settings,
+                    onDismiss = { showImageCompressSettingsDialog.value = false },
+                    viewEvent = imageOptimizationViewModel::onViewEvent,
+                )
+            }
         })
 }
 

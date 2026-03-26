@@ -35,10 +35,10 @@ fun SettingsButton(
     header: String,
     body: String,
     icon: ImageVector,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
     loader: Boolean = false,
     checked: Boolean? = null,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     onCheckedChange: ((Boolean) -> Unit)? = null
 ) {
     Card(

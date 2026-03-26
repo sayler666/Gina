@@ -1,9 +1,5 @@
 package com.sayler666.gina.feature.settings.ui
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Upload
@@ -19,26 +15,16 @@ import androidx.compose.ui.res.stringResource
 import com.sayler666.gina.resources.R
 
 @Composable
-internal fun DatabaseSettingsButtonWithLauncher(
+internal fun DatabaseSettingsSection(
     databaseExternalPath: String?,
     databaseSize: Long?,
-    onNewDbFileSelected: (Uri) -> Unit,
-    onNewDbCreated: (Uri) -> Unit,
-    onExportDb: (Uri) -> Unit,
+    onImportDatabasePressed: () -> Unit,
+    onCreateNewDatabasePressed: () -> Unit,
+    onExportDatabasePressed: () -> Unit,
     onLongPress: () -> Unit,
     loader: Boolean,
 ) {
     var showPickerDialog by remember { mutableStateOf(false) }
-
-    val openDocumentLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri ->
-        uri?.let { onNewDbFileSelected(it) }
-    }
-    val createDocumentLauncher = rememberLauncherForActivityResult(CreateDocument("application/vnd.sqlite3")) { uri ->
-        uri?.let { onNewDbCreated(it) }
-    }
-    val exportLauncher = rememberLauncherForActivityResult(CreateDocument("application/vnd.sqlite3")) { uri ->
-        uri?.let { onExportDb(it) }
-    }
 
     if (showPickerDialog) {
         AlertDialog(
@@ -47,13 +33,13 @@ internal fun DatabaseSettingsButtonWithLauncher(
             confirmButton = {
                 TextButton(onClick = {
                     showPickerDialog = false
-                    openDocumentLauncher.launch(arrayOf("*/*"))
+                    onImportDatabasePressed()
                 }) { Text(stringResource(R.string.settings_database_open_existing)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showPickerDialog = false
-                    createDocumentLauncher.launch("gina_journal.db")
+                    onCreateNewDatabasePressed()
                 }) { Text(stringResource(R.string.settings_database_create_new)) }
             }
         )
@@ -78,7 +64,7 @@ internal fun DatabaseSettingsButtonWithLauncher(
         header = stringResource(R.string.settings_export_database),
         body = "",
         icon = Icons.Filled.Upload,
-        onClick = { exportLauncher.launch("gina_journal_backup.db") }
+        onClick = { onExportDatabasePressed() }
     )
 }
 
