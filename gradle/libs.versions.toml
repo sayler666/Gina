@@ -9,7 +9,7 @@ agp = "9.1.0"
 # Application version
 versionCode = "9"
 versionMajor = "3"
-versionMinor = "2"
+versionMinor = "3"
 versionRevision = "0"
 
 # Kotlin
