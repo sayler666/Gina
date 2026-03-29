@@ -2,6 +2,7 @@ package com.sayler666.gina.gallery.viewModel
 
 import com.sayler666.gina.gallery.usecase.Thumbnail
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
+import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import java.time.LocalDate
 import javax.inject.Inject
@@ -37,11 +38,14 @@ data class GalleryImageState(
 
 class GalleryMapper @Inject constructor() {
     fun toGalleryState(
-        attachments: List<Thumbnail>
+        attachments: List<Thumbnail>,
+        filtersActive: Boolean = false,
     ): GalleryState = when {
         attachments.isNotEmpty() -> DataState(
             images = mapAttachments(attachments)
         )
+
+        filtersActive -> EmptySearchState
 
         else -> EmptyState
     }

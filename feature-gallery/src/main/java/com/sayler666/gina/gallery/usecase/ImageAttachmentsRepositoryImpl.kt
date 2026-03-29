@@ -77,7 +77,7 @@ class ImageAttachmentsRepositoryImpl @Inject constructor(
             (getThumbnailFromCacheIfExist(attachmentId)
                 ?: createThumbnailForId(attachmentId)
                     .also { thumbnail -> thumbnail?.let { saveFile(attachmentId, it) } }
-                    )?.let { bytes -> Thumbnail(bytes, attachmentId, decodeAspectRatio(bytes), attachment.date) }
+                    )?.let { bytes -> Thumbnail(bytes, attachmentId, decodeAspectRatio(bytes), attachment.date, attachment.mood, attachment.content) }
         }
 
     private fun getThumbnailFromCacheIfExist(id: Int): ByteArray? =

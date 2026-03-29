@@ -10,4 +10,6 @@ data class FiltersState(
 ) {
     val filtersActive: Boolean
         get() = moods.size < Mood.entries.size || dateRange != null
+    val anyFilterActive: Boolean
+        get() = filtersActive || searchQuery.isNotEmpty()
 }
