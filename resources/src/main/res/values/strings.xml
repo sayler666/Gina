@@ -50,6 +50,7 @@
     <string name="theme_deep_ocean">Deep Ocean</string>
     <string name="theme_golden_meadow_twilight">Golden Meadow Twilight</string>
     <string name="theme_golden_alter_bridge">Alter Bridge</string>
+    <string name="theme_iron_sky">Iron Sky</string>
 
     <!-- SelectDatabase -->
     <string name="select_database_open_database">Open database</string>

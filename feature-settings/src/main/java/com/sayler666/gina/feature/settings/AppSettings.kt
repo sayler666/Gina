@@ -26,12 +26,12 @@ class AppSettingsImpl @Inject constructor(private val app: Application) : AppSet
     )
 
     override fun getThemeFlow(): Flow<Theme> = app.dataStore.data.map { pref ->
-        Theme.valueOf(pref[THEME] ?: Theme.default().name)
+        Theme.fromKey(pref[THEME] ?: Theme.default().key)
     }
 
     override suspend fun saveTheme(theme: Theme) {
         app.dataStore.edit { preferences ->
-            preferences[THEME] = theme.name
+            preferences[THEME] = theme.key
         }
     }
 

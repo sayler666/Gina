@@ -9,19 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.sayler666.gina.core.ui.BuildConfig
-import com.sayler666.gina.ui.theme.Theme.AlterBridge
-import com.sayler666.gina.ui.theme.Theme.DeepOcean
-import com.sayler666.gina.ui.theme.Theme.Dynamic
-import com.sayler666.gina.ui.theme.Theme.Firewatch
-import com.sayler666.gina.ui.theme.Theme.GoldenMeadowTwilight
-import com.sayler666.gina.ui.theme.Theme.Legacy
-import com.sayler666.gina.ui.theme.Theme.MountainView
-import com.sayler666.gina.ui.theme.colors.AlterBridgeColors
-import com.sayler666.gina.ui.theme.colors.DeepOceanColors
-import com.sayler666.gina.ui.theme.colors.FirewatchColors
-import com.sayler666.gina.ui.theme.colors.GoldenMeadowTwilightColors
-import com.sayler666.gina.ui.theme.colors.LegacyColors
-import com.sayler666.gina.ui.theme.colors.MountainViewColors
 import timber.log.Timber
 import android.graphics.Color as AndroidColor
 
@@ -33,18 +20,8 @@ fun GinaTheme(
     content: @Composable () -> Unit
 ) {
     val colors: ColorScheme = when (theme) {
-        AlterBridge -> if (darkTheme) AlterBridgeColors.DarkColors else AlterBridgeColors.LightColors
-        Firewatch -> if (darkTheme) FirewatchColors.DarkColors else FirewatchColors.LightColors
-        MountainView -> if (darkTheme) MountainViewColors.DarkColors else MountainViewColors.LightColors
-        Dynamic -> if (darkTheme) {
-            dynamicDarkColorScheme(LocalContext.current)
-        } else {
-            dynamicLightColorScheme(LocalContext.current)
-        }
-
-        Legacy -> if (darkTheme) LegacyColors.DarkColors else LegacyColors.LightColors
-        DeepOcean -> if (darkTheme) DeepOceanColors.DarkColors else DeepOceanColors.LightColors
-        GoldenMeadowTwilight -> if (darkTheme) GoldenMeadowTwilightColors.DarkColors else GoldenMeadowTwilightColors.LightColors
+        is Theme.DynamicTheme -> if (darkTheme) dynamicDarkColorScheme(LocalContext.current) else dynamicLightColorScheme(LocalContext.current)
+        is Theme.StaticTheme -> if (darkTheme) theme.darkColors else theme.lightColors
     }
 
     // Log current colors values
