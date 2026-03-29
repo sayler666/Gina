@@ -70,7 +70,7 @@ interface DaysDao {
     fun getPreviousYearsAttachments(currentDate: String): Flow<List<AttachmentWithDayEntity>>
 
     @Query(
-        "SELECT attachments.attachment_id, days.date FROM attachments " +
+        "SELECT attachments.attachment_id, days.date, days.mood, days.content FROM attachments " +
                 "JOIN days ON attachments.days_id = days.id WHERE mime_type LIKE 'image/%' " +
                 "AND hidden = 0 " +
                 "ORDER BY days.date DESC, attachments.attachment_id DESC LIMIT :offset, 100"

@@ -1,5 +1,6 @@
 package com.sayler666.gina.gallery.ui
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -27,11 +28,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,8 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -65,6 +62,7 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewAction.NavigateToImage
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNextPage
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnImageClick
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
@@ -75,6 +73,8 @@ import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.ScrollIndicator
+import com.sayler666.gina.ui.filters.FiltersBar
+import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -89,12 +89,12 @@ import kotlin.math.sqrt
 
 private val monthYearFormatter = DateTimeFormatter.ofPattern("MMM yyyy")
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryScreen() {
     val vmKey = rememberSaveable { UUID.randomUUID().toString() }
     val viewModel: GalleryViewModel = hiltViewModel(key = vmKey)
     val viewState: GalleryState by viewModel.viewState.collectAsStateWithLifecycle()
+    val filtersState: FiltersState by viewModel.filtersState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
@@ -113,29 +113,37 @@ fun GalleryScreen() {
             viewEvent = viewModel::onViewEvent,
         )
 
-        TopAppBar(
-            title = { Text(stringResource(R.string.gallery_label)) },
-            windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent
-            ),
-            modifier = Modifier
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeStyle(
-                        blurRadius = 24.dp,
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        tint = HazeTint(
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                        )
-                    )
-                ) {
-                    progressive =
-                        HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
-                }
-
+        Toolbar(
+            hazeState = hazeState,
+            filtersState = filtersState,
+            onViewEvent = viewModel::onViewEvent,
         )
     }
+}
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+@Composable
+private fun Toolbar(
+    hazeState: HazeState,
+    filtersState: FiltersState,
+    onViewEvent: (ViewEvent) -> Unit,
+) {
+    FiltersBar(
+        modifier = Modifier.hazeEffect(
+            state = hazeState,
+            style = HazeStyle(
+                blurRadius = 24.dp,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
+            )
+        ) {
+            progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+        },
+        hazeState = hazeState,
+        title = stringResource(R.string.gallery_label),
+        filtersState = filtersState,
+        onFiltersChanged = { onViewEvent(OnFiltersChanged(it)) },
+    )
 }
 
 @Composable
@@ -318,16 +326,6 @@ private fun ImagesGrid(
 @Composable
 private fun LoadingGrid() {
     val lazyGridState = rememberLazyGridState()
-    val dummyHeights = remember {
-        buildList {
-            repeat(20) {
-                add(
-                    (Math.random() * 350)
-                        .coerceAtLeast(200.0).dp
-                )
-            }
-        }
-    }
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
     LazyVerticalGrid(
         modifier = Modifier
@@ -342,12 +340,12 @@ private fun LoadingGrid() {
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        dummyHeights.forEach {
+        repeat(20) {
             item {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(it)
+                        .aspectRatio(1f)
                         .padding(start = 1.dp, bottom = 1.dp)
                         .background(shimmerBrush(true))
                 )
