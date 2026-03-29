@@ -47,7 +47,7 @@ class InsightsViewModel @Inject constructor(
     val state: StateFlow<InsightState> = _state
 
     init {
-        initDb()
+        observeInsights()
     }
 
     fun onViewEvent(event: ViewEvent) {
@@ -68,7 +68,7 @@ class InsightsViewModel @Inject constructor(
         mutableFiltersState.update { new }
     }
 
-    private fun initDb() {
+    private fun observeInsights() {
         viewModelScope.launch {
             mutableFiltersState
                 .flatMapLatest { filters ->
@@ -88,8 +88,8 @@ class InsightsViewModel @Inject constructor(
                             .getAllFriendsWithCount(
                                 searchQuery = filters.searchQuery,
                                 moods = filters.moods,
-                                dateFrom = LocalDate.now().minusYears(100),
-                                dateTo = LocalDate.now()
+                                dateFrom = dateFrom ?: LocalDate.now().minusYears(100),
+                                dateTo = dateTo ?: LocalDate.now()
                             )
                             .let { friendsMapper.mapToFriends(it) }
                     }
