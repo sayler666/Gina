@@ -77,7 +77,7 @@ class InsightsMapper @Inject constructor() {
     private suspend fun generateContributionHeatMapData(days: List<Day>): Map<LocalDate, ContributionLevel> {
         val heatMap = mutableMapOf<LocalDate, ContributionLevel>()
 
-        val median = days.mapNotNull { it.content }
+        val median = days.map { it.content }
             .pmap { it.getTextWithoutHtml() }
             .map { it.length }
             .sortedBy { it }
@@ -133,57 +133,42 @@ class InsightsMapper @Inject constructor() {
 
     private fun calculateCurrentStreak(days: List<Day>): Int {
         var currentStreak = 0
-        val currentDay = if (days.any { it.date == LocalDate.now() }) {
-            LocalDate.now()
-        } else {
-            LocalDate.now().minusDays(1)
-        }
-        days.sortedWith { day1, day2 ->
-            requireNotNull(day1.date)
-            requireNotNull(day2.date)
-            day1.date.compareTo(day2.date)
-        }
-            .reversed()
-            .forEachIndexed { i, day ->
-                when (day.date) {
-                    currentDay -> currentStreak++
-                    currentDay.minusDays(i.toLong()) -> currentStreak++
-                    else -> return@forEachIndexed
-                }
-            }
+        val currentDay = if (days.any { it.date == LocalDate.now() }) LocalDate.now()
+                         else LocalDate.now().minusDays(1)
 
+        for ((i, day) in days.sortedByDate().reversed().withIndex()) {
+            when (day.date) {
+                currentDay, currentDay.minusDays(i.toLong()) -> currentStreak++
+                else -> break
+            }
+        }
         return currentStreak
     }
 
     private fun calculateLongestStreak(days: List<Day>): Int {
         var longestStreak = 0
         var currentStreak = 0
-        var currentStreakStartDay = LocalDate.now()
-        days.sortedWith { day1, day2 ->
-            requireNotNull(day1.date)
-            requireNotNull(day2.date)
-            day1.date.compareTo(day2.date)
-        }
-            .reversed()
-            .forEach { day ->
-                val currentDayDate = day.date
-                if (currentStreak == 0) {
-                    currentStreakStartDay = currentDayDate
-                    currentStreak++
-                } else if (currentStreak > 0) {
-                    if (currentDayDate == currentStreakStartDay.minusDays(currentStreak.toLong())) {
-                        currentStreak++
-                    } else {
-                        longestStreak =
-                            if (longestStreak > currentStreak) longestStreak else currentStreak
-                        currentStreakStartDay = currentDayDate
-                        currentStreak = 1
-                    }
+        var streakStartDay = LocalDate.now()
+
+        days.sortedByDate().reversed().forEach { day ->
+            val date = requireNotNull(day.date)
+            when {
+                currentStreak == 0 -> {
+                    streakStartDay = date
+                    currentStreak = 1
+                }
+                date == streakStartDay.minusDays(currentStreak.toLong()) -> currentStreak++
+                else -> {
+                    longestStreak = maxOf(longestStreak, currentStreak)
+                    streakStartDay = date
+                    currentStreak = 1
                 }
             }
-
-        return longestStreak
+        }
+        return maxOf(longestStreak, currentStreak)
     }
+
+    private fun List<Day>.sortedByDate() = sortedBy { requireNotNull(it.date) }
 }
 
 sealed class InsightState {

@@ -71,7 +71,7 @@ fun badColor() = MaterialTheme.colorScheme.secondary
 fun lowColor() = MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f)
 
 @Composable
-fun neutralColor() = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+fun neutralColor() = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
 
 @Composable
 fun goodColor() = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
