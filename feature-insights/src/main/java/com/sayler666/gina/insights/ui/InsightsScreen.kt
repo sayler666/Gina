@@ -90,10 +90,13 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import java.time.format.DateTimeFormatter
+import java.util.UUID
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun InsightsScreen() {
-    val viewModel: InsightsViewModel = hiltViewModel()
+    val vmKey = rememberSaveable { UUID.randomUUID().toString() }
+    val viewModel: InsightsViewModel = hiltViewModel(key = vmKey)
     val state: InsightState by viewModel.state.collectAsStateWithLifecycle()
     val filtersState: FiltersState by viewModel.filtersState.collectAsStateWithLifecycle()
 
