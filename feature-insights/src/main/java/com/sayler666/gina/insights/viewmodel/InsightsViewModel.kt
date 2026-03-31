@@ -16,12 +16,14 @@ import com.sayler666.gina.insights.viewmodel.InsightsViewModel.ViewEvent.OnShowB
 import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.filters.toDateBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -115,7 +117,9 @@ class InsightsViewModel @Inject constructor(
                                 friendsAllTime = friendsAllTimeDeferred.await()
                             )
                         }
-                }.collect(_state::tryEmit)
+                }
+                .flowOn(Dispatchers.Default)
+                .collect(_state::tryEmit)
         }
     }
 

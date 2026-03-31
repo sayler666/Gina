@@ -1,8 +1,11 @@
 package com.sayler666.gina.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -29,11 +32,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A generic fastscroll indicator overlay.
@@ -95,12 +100,15 @@ fun ScrollIndicator(
         Box(
             Modifier
                 .align(Alignment.TopEnd)
-                .padding(end = 10.dp)
+                .padding(end = 4.dp)
                 .width(3.dp)
                 .fillMaxHeight()
                 .background(
                     MaterialTheme.colorScheme.onSurface.copy(
-                        alpha = if (isScrolling || isDragging) 0.08f else 0.04f
+                        alpha = when {
+                            isDragging -> 0.06f
+                            else -> 0.0f
+                        }
                     ),
                     RoundedCornerShape(1.5.dp)
                 )
@@ -111,7 +119,7 @@ fun ScrollIndicator(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset { IntOffset(0, thumbTopPx.toInt()) }
-                .width(24.dp)
+                .width(34.dp)
                 .height(48.dp)
                 .draggable(
                     orientation = Orientation.Vertical,
@@ -130,16 +138,17 @@ fun ScrollIndicator(
                     onDragStopped = { isDragging = false },
                 )
         ) {
-            // Visual handle bar (centered in the touch target)
+            // Visual handle bar
             Box(
                 Modifier
-                    .align(Alignment.Center)
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 4.dp)
                     .width(4.dp)
                     .height(36.dp)
                     .background(
                         if (isDragging) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isScrolling) 0.6f else 0.25f
+                            alpha = if (isScrolling) 0.4f else 0.25f
                         ),
                         RoundedCornerShape(2.dp)
                     )
@@ -147,14 +156,27 @@ fun ScrollIndicator(
         }
 
         // Month/year label — shown when scrolling or dragging, to the left of the handle
+        val animatedPadding by animateDpAsState(if (isDragging) 64.dp else 16.dp)
+
+        var showLabel by remember { mutableStateOf(false) }
+        val labelVisible = showIndicator && labelText.isNotBlank()
+        LaunchedEffect(labelVisible) {
+            if (labelVisible) {
+                showLabel = true
+            } else {
+                delay(0.8.seconds)
+                showLabel = false
+            }
+        }
+
         AnimatedVisibility(
-            visible = showIndicator && labelText.isNotBlank(),
+            visible = showLabel && labelText.isNotBlank(),
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset { IntOffset(0, thumbTopPx.toInt()) }
-                .padding(end = 28.dp)
+                .padding(end = animatedPadding)
                 .height(48.dp),
         ) {
             Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxHeight()) {

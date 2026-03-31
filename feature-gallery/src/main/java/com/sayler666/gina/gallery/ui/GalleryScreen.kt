@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -297,15 +298,18 @@ private fun ImagesGrid(
         }
 
 
-        val layoutInfo = gridState.layoutInfo
-        val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
-        val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-        val visibleCount = (lastVisible - firstVisible + 1).coerceAtLeast(1)
-
+        val visibleRange by remember {
+            derivedStateOf {
+                val items = gridState.layoutInfo
+                val first = items.visibleItemsInfo.firstOrNull()?.index ?: 0
+                val last = items.visibleItemsInfo.lastOrNull()?.index ?: 0
+                first..last
+            }
+        }
         ScrollIndicator(
-            firstVisibleItemIndex = firstVisible,
+            firstVisibleItemIndex = visibleRange.first(),
             totalItemsCount = state.images.size,
-            visibleItemsCount = visibleCount,
+            visibleItemsCount = visibleRange.count(),
             isScrollInProgress = gridState.isScrollInProgress,
             scrollToItem = { gridState.scrollToItem(it) },
             labelForIndex = { index ->

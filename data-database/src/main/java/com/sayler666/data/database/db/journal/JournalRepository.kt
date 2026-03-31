@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -52,6 +53,12 @@ class JournalRepository @Inject constructor(
             dayEntities.map { it.toModel() }
         })
     }.flowOn(dispatcher)
+
+    suspend fun getImageAttachmentIdsForDays(dayIds: List<Int>): Map<Int, List<Int>> =
+        withContext(dispatcher) {
+            daysDao.getImageAttachmentIdsForDays(dayIds)
+                .groupBy({ it.dayId }, { it.attachmentId })
+        }
 
     fun previousYearsAttachments(date: LocalDate): Flow<List<AttachmentWithDay>> = flow {
         val dateString = date.format(DateTimeFormatter.ofPattern("MM-dd"))
@@ -224,13 +231,6 @@ class JournalRepository @Inject constructor(
 
     suspend fun getAllImageAttachmentIds(): List<Int> = try {
         daysDao.getAllImageAttachmentIds()
-    } catch (e: SQLException) {
-        Timber.e(e, "Database error")
-        emptyList()
-    }
-
-    suspend fun getImageAttachmentIdsForDay(dayId: Int): List<Int> = try {
-        daysDao.getImageAttachmentIdsForDay(dayId)
     } catch (e: SQLException) {
         Timber.e(e, "Database error")
         emptyList()

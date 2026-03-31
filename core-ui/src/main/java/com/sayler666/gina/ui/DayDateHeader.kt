@@ -8,8 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.sayler666.gina.ui.theme.GinaTheme
 import com.sayler666.gina.ui.theme.RobotoSlabLight
+import com.sayler666.gina.ui.theme.Theme
 
 @Composable
 fun DayDateHeader(
@@ -38,5 +41,17 @@ fun DayDateHeader(
                 style = MaterialTheme.typography.bodySmall.copy(fontFamily = RobotoSlabLight),
             )
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun DayDateHeaderPreview() {
+    GinaTheme(theme = Theme.Firewatch) {
+        DayDateHeader(
+            dayOfMonth = "14",
+            dayOfWeek = "Mon",
+            yearAndMonth = "March 2025"
+        )
     }
 }

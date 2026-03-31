@@ -12,6 +12,7 @@ import com.sayler666.data.database.db.journal.entity.AttachmentWithDayEntity
 import com.sayler666.data.database.db.journal.entity.DayDetailsEntity
 import com.sayler666.data.database.db.journal.entity.DayEntity
 import com.sayler666.data.database.db.journal.entity.DayFriendsEntity
+import com.sayler666.data.database.db.journal.entity.DayIdWithAttachmentId
 import com.sayler666.data.database.db.journal.entity.FriendEntity
 import com.sayler666.domain.model.journal.FriendWithCount
 import com.sayler666.domain.model.journal.Mood
@@ -89,11 +90,11 @@ interface DaysDao {
     suspend fun updateAttachmentHidden(id: Int, hidden: Boolean)
 
     @Query(
-        "SELECT attachment_id FROM attachments " +
-                "WHERE days_id = :dayId AND mime_type LIKE 'image/%' " +
+        "SELECT days_id, attachment_id FROM attachments " +
+                "WHERE days_id IN (:dayIds) AND mime_type LIKE 'image/%' AND hidden = 0 " +
                 "ORDER BY attachment_id ASC"
     )
-    suspend fun getImageAttachmentIdsForDay(dayId: Int): List<Int>
+    suspend fun getImageAttachmentIdsForDays(dayIds: List<Int>): List<DayIdWithAttachmentId>
 
     @Query("SELECT id FROM days WHERE date > :date and id != :id ORDER BY date ASC LIMIT 1")
     suspend fun getNextDayIdAfter(date: LocalDate, id: Int): Int?

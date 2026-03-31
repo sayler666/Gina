@@ -1,9 +1,7 @@
 package com.sayler666.gina.feature.journal.ui
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +12,9 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -25,18 +25,24 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +60,7 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnCardAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
@@ -65,9 +72,12 @@ import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.ui.filters.FiltersBar
 import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
+import com.sayler666.gina.ui.theme.GinaTheme
+import com.sayler666.gina.ui.theme.Theme
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
@@ -95,7 +105,8 @@ fun JournalScreen() {
     Content(
         viewState = viewState,
         filtersState = filtersState,
-        viewEvent = viewModel::onViewEvent
+        viewEvent = viewModel::onViewEvent,
+        loadImage = viewModel::loadAttachmentBytes
     )
 }
 
@@ -103,14 +114,16 @@ fun JournalScreen() {
 private fun Content(
     viewState: JournalState,
     filtersState: FiltersState,
-    viewEvent: (ViewEvent) -> Unit
+    viewEvent: (ViewEvent) -> Unit,
+    loadImage: suspend (Int) -> ByteArray?
 ) {
     val hazeState = rememberHazeState()
     Box(modifier = Modifier.fillMaxSize()) {
         JournalContent(
             state = viewState,
             hazeState = hazeState,
-            onViewEvent = viewEvent
+            onViewEvent = viewEvent,
+            loadImage = loadImage
         )
         Toolbar(
             filtersState = filtersState,
@@ -153,7 +166,8 @@ private fun JournalContent(
     modifier: Modifier = Modifier,
     state: JournalState,
     hazeState: HazeState,
-    onViewEvent: (ViewEvent) -> Unit
+    onViewEvent: (ViewEvent) -> Unit,
+    loadImage: suspend (Int) -> ByteArray?
 ) {
     Column(
         modifier
@@ -161,37 +175,34 @@ private fun JournalContent(
             .imePadding()
             .hazeSource(hazeState)
     ) {
-        when (state) {
-            is DaysState -> DayList(
-                days = state.days,
-                onViewEvent = onViewEvent,
-                incognitoMode = state.incognitoMode,
-                headerContent = @Composable {
-                    AttachmentCarousel(
-                        state = state.previousYearsAttachments,
-                        onViewEvent = onViewEvent,
-                    )
-                }
-            )
 
-            is EmptySearchState -> EmptyResult(
-                header = stringResource(R.string.empty_search_result_title),
-                body = stringResource(R.string.empty_search_result_body)
-            )
+        Crossfade(targetState = state) { currentState ->
+            when (currentState) {
+                is DaysState -> DayList(
+                    days = currentState.days,
+                    onViewEvent = onViewEvent,
+                    loadImage = loadImage,
+                    incognitoMode = currentState.incognitoMode,
+                    headerContent = @Composable {
+                        AttachmentCarousel(
+                            state = currentState.previousYearsAttachments,
+                            onViewEvent = onViewEvent,
+                        )
+                    }
+                )
 
-            is EmptyState -> EmptyResult(
-                header = stringResource(R.string.empty_state_title),
-                body = stringResource(R.string.empty_state_body)
-            )
+                is EmptySearchState -> EmptyResult(
+                    header = stringResource(R.string.empty_search_result_title),
+                    body = stringResource(R.string.empty_search_result_body)
+                )
 
-            LoadingState -> {}
-        }
-        AnimatedVisibility(
-            visible = state is LoadingState,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            Loading()
+                is EmptyState -> EmptyResult(
+                    header = stringResource(R.string.empty_state_title),
+                    body = stringResource(R.string.empty_state_body)
+                )
+
+                LoadingState -> Loading()
+            }
         }
     }
 }
@@ -200,6 +211,7 @@ private fun JournalContent(
 private fun DayList(
     days: List<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
+    loadImage: suspend (Int) -> ByteArray?,
     incognitoMode: Boolean = false,
     headerContent: @Composable LazyItemScope.() -> Unit
 ) {
@@ -259,17 +271,23 @@ private fun DayList(
                     )
                 }
 
-                items(
+                itemsIndexed(
                     items = days,
-                    key = { item -> item.id }
-                ) { dayRowState ->
+                    key = { _, item -> item.id }
+                ) { index, dayRowState ->
                     DayRow(
                         state = dayRowState,
                         modifier = Modifier
                             .animateItem()
                             .hazeSource(hazeState),
                         onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
-                        incognitoMode = incognitoMode
+                        onAttachmentClick = { id, allIds ->
+                            onViewEvent(OnCardAttachmentClick(id, allIds))
+                        },
+                        loadImage = loadImage,
+                        incognitoMode = incognitoMode,
+                        top = index == 0,
+                        bottom = index == days.size - 1
                     )
                 }
             }
@@ -283,15 +301,18 @@ private fun DayList(
             }
         }
 
-        val layoutInfo = listState.layoutInfo
-        val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
-        val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-        val visibleCount = (lastVisible - firstVisible + 1).coerceAtLeast(1)
-
+        val visibleRange by remember {
+            derivedStateOf {
+                val items = listState.layoutInfo.visibleItemsInfo
+                val first = items.firstOrNull()?.index ?: 0
+                val last = items.lastOrNull()?.index ?: 0
+                first..last
+            }
+        }
         ScrollIndicator(
-            firstVisibleItemIndex = firstVisible,
+            firstVisibleItemIndex = visibleRange.first,
             totalItemsCount = flatLabels.size,
-            visibleItemsCount = visibleCount,
+            visibleItemsCount = visibleRange.count(),
             isScrollInProgress = listState.isScrollInProgress,
             scrollToItem = { listState.scrollToItem(it) },
             labelForIndex = { flatLabels.getOrElse(it) { "" } },
@@ -338,26 +359,126 @@ private fun Loading() {
             .fillMaxSize()
             .padding(top = topPadding)
     ) {
-        repeat(3) {
-            Column(Modifier.padding(12.dp)) {
+        // Carousel skeleton — matches HorizontalImagesCarousel (120dp height, 120*1.61f width per item)
+        Row(modifier = Modifier.padding(start = 14.dp, bottom = 4.dp)) {
+            repeat(2) {
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 12.dp)
-                        .size(width = 140.dp, height = 30.dp)
-                        .background(shimmerBrush(targetValue = 1100f))
-                )
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .size(width = 800.dp, height = 20.dp)
-                        .background(shimmerBrush(targetValue = 1600f))
-                )
-                Box(
-                    modifier = Modifier
-                        .size(width = 800.dp, height = 20.dp)
+                        .padding(end = 4.dp, bottom = 4.dp)
+                        .size(width = 190.dp, height = 115.dp)
+                        .clip(MaterialTheme.shapes.large)
                         .background(shimmerBrush(targetValue = 1600f))
                 )
             }
+        }
+        // Sticky header skeleton — matches ListStickyHeader padding
+        Box(
+            modifier = Modifier
+                .padding(start = 14.dp, top = 4.dp, bottom = 6.dp)
+                .size(width = 80.dp, height = 18.dp)
+                .background(shimmerBrush(targetValue = 1100f))
+        )
+        // DayRow skeletons — matches card padding, content structure and corner radius
+        val corner = 8.dp
+        repeat(6) { index ->
+            val shape = when (index) {
+                0 -> RoundedCornerShape(topStart = corner, topEnd = corner)
+                5 -> RoundedCornerShape(bottomStart = corner, bottomEnd = corner)
+                else -> RoundedCornerShape(0.dp)
+            }
+            Column(
+                Modifier
+                    .padding(horizontal = 14.dp, vertical = 1.dp)
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(shimmerBrush(targetValue = 1600f))
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 6.dp, bottom = 14.dp)
+            ) {
+                Box(
+                    Modifier
+                        .padding(bottom = 8.dp)
+                        .size(width = 130.dp, height = 100.dp)
+                )
+            }
+        }
+    }
+}
+
+private val previewDays = listOf(
+    DayRowState(
+        id = 1,
+        dayOfMonth = "14",
+        dayOfWeek = "Mon",
+        yearAndMonth = "March 2025",
+        header = "March 2025",
+        shortContent = "Today was a really productive day. Went for a walk in the morning and finished the new feature.",
+        searchQuery = "",
+        mood = Mood.GOOD
+    ),
+    DayRowState(
+        id = 2,
+        dayOfMonth = "10",
+        dayOfWeek = "Thu",
+        yearAndMonth = "March 2025",
+        header = "March 2025",
+        shortContent = "A quiet day at home, read a book and cooked something new for dinner.",
+        searchQuery = "",
+        mood = Mood.NEUTRAL
+    ),
+    DayRowState(
+        id = 3,
+        dayOfMonth = "28",
+        dayOfWeek = "Fri",
+        yearAndMonth = "February 2025",
+        header = "February 2025",
+        shortContent = "Rough day, nothing seemed to go right.",
+        searchQuery = "",
+        mood = Mood.BAD
+    )
+)
+
+@Preview
+@Composable
+private fun JournalScreenDaysPreview() {
+    GinaTheme(Theme.Firewatch, darkTheme = true) {
+        Surface {
+            Content(
+                viewState = DaysState(days = previewDays),
+                filtersState = FiltersState(),
+                viewEvent = {},
+                loadImage = { null }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun JournalScreenEmptyPreview() {
+    GinaTheme(Theme.Firewatch, darkTheme = true) {
+        Surface {
+            Content(
+                viewState = EmptyState,
+                filtersState = FiltersState(),
+                viewEvent = {},
+                loadImage = { null }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun JournalScreenLoadingPreview() {
+    GinaTheme(Theme.Firewatch, darkTheme = true) {
+        Surface {
+            Content(
+                viewState = LoadingState,
+                filtersState = FiltersState(),
+                viewEvent = {},
+                loadImage = { null }
+            )
         }
     }
 }

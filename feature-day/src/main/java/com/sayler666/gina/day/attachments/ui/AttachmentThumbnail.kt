@@ -176,7 +176,8 @@ fun PreviousYearsAttachmentThumbnail(
                 onLongClick = { onRemoveClicked?.invoke() }
             ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(8.dp),
+        shape = MaterialTheme.shapes.large
     ) {
         Box(
             modifier = Modifier
@@ -192,7 +193,7 @@ fun PreviousYearsAttachmentThumbnail(
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.BottomStart),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = Color.White,
                 style = MaterialTheme.typography.labelLarge.copy(
                     shadow = Shadow(color = Color.Black, offset = Offset.Zero, blurRadius = 5f)
                 ),
