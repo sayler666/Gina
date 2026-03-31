@@ -1,7 +1,6 @@
 package com.sayler666.gina.day.dayDetails.ui
 
 import android.widget.Toast
-import androidx.compose.animation.core.EaseInSine
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
@@ -103,7 +101,6 @@ import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalNavigator
-import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
 import com.sayler666.gina.ui.richeditor.setTextOrHtml
 import dev.chrisbanes.haze.HazeProgressive
@@ -157,7 +154,6 @@ private fun Content(
     snackbarHostState: SnackbarHostState,
 ) {
     val requester = remember { FocusRequester() }
-    val sharedScope = LocalSharedTransitionScope.current
     val hazeState = rememberHazeState()
     val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarBottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -238,20 +234,7 @@ private fun Content(
                     },
                     actions = {
                         state.mood.mapToMoodIcon().let { icon ->
-                            val sharedModifier = if (sharedScope != null) {
-                                val sharedState =
-                                    sharedScope.rememberSharedContentState("mood_${state.id}")
-                                with(sharedScope) {
-                                    Modifier.sharedElement(
-                                        sharedContentState = sharedState,
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    )
-                                }
-                            } else {
-                                Modifier
-                            }
                             Icon(
-                                modifier = sharedModifier,
                                 painter = rememberVectorPainter(image = icon.icon),
                                 tint = icon.color,
                                 contentDescription = null

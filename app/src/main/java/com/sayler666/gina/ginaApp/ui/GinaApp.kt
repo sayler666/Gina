@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -148,6 +150,7 @@ private fun BottomNavigation(
 
     if (currentRoute?.showScaffoldElements == true)
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .background(
                     brush = Brush.verticalGradient(
@@ -160,7 +163,8 @@ private fun BottomNavigation(
         ) {
             BottomNavigationBar(
                 modifier = Modifier
-                    .height(BOTTOM_NAV_HEIGHT),
+                    .height(BOTTOM_NAV_HEIGHT)
+                    .fillMaxWidth(0.95f),
                 color = MaterialTheme.colorScheme.surfaceColorAtElevation(9.dp).copy(alpha = 0.1f),
                 currentRoute = currentRoute,
                 backStack = backStack,

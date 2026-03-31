@@ -19,28 +19,35 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class DaysMapper @Inject constructor() {
-    suspend fun toJournalState(
+    fun toJournalState(
         days: List<Day>,
         searchQuery: String,
         filtersActive: Boolean,
         previousYearsAttachments: List<AttachmentWithDay>,
+        imageAttachmentIds: Map<Int, List<Int>> = emptyMap(),
         incognitoMode: Boolean = false
     ): JournalState {
 
-        val daysResult = days.pmap {
-            val nonHtml = it.content.getTextWithoutHtml()
+        val daysResult = days.map { day ->
+            val nonHtml = day.content.getTextWithoutHtml()
+            val allIds = imageAttachmentIds[day.id] ?: emptyList()
+            // For 2+ images: pick up to 4 with a stable shuffle
+            val displayIds = if (allIds.size >= 2) allIds.shuffled().take(4) else allIds
+
             DayRowState(
-                id = it.id,
-                dayOfMonth = getDayOfMonth(it.date),
-                dayOfWeek = getDayOfWeek(it.date),
-                yearAndMonth = getYearAndMonth(it.date),
-                header = getYearAndMonth(it.date),
+                id = day.id,
+                dayOfMonth = getDayOfMonth(day.date),
+                dayOfWeek = getDayOfWeek(day.date),
+                yearAndMonth = getYearAndMonth(day.date),
+                header = getYearAndMonth(day.date),
                 shortContent = when (searchQuery.isNotEmpty()) {
                     true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
-                    else -> getShortContent(nonHtml)
+                    else -> nonHtml
                 },
                 searchQuery = searchQuery,
-                mood = it.mood
+                mood = day.mood,
+                displayAttachmentIds = displayIds,
+                allAttachmentIds = allIds
             )
         }
 
@@ -70,9 +77,6 @@ class DaysMapper @Inject constructor() {
             }
     }
 
-    private fun getShortContent(content: String): String = content
-        .substring(0..minOf(content.length - 1, shortContentMaxLength)).trimEnd()
-        .let { if (content.length > it.length) it.plus("…") else it }
 
     companion object {
         private const val shortContentMaxLength = 120
