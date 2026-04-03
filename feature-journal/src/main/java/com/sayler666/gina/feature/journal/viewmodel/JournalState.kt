@@ -2,11 +2,13 @@ package com.sayler666.gina.feature.journal.viewmodel
 
 import com.sayler666.gina.feature.journal.ui.DayRowState
 import com.sayler666.gina.feature.journal.ui.HorizontalImagesCarouselState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 sealed class JournalState {
     data class DaysState(
-        val days: List<DayRowState> = emptyList(),
-        val previousYearsAttachments: HorizontalImagesCarouselState = emptyList(),
+        val days: ImmutableList<DayRowState> = persistentListOf(),
+        val previousYearsAttachments: HorizontalImagesCarouselState = persistentListOf(),
         val incognitoMode: Boolean = false
     ) : JournalState()
 

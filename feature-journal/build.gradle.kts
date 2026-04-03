@@ -3,6 +3,7 @@ plugins {
     id("plugins.android.compose")
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.hilt)
+    alias(libs.plugins.stability.analyzer)
 }
 
 android {
@@ -42,4 +43,5 @@ dependencies {
     // Other
     implementation(libs.timber)
     implementation(libs.haze)
+    implementation(libs.kotlin.collections.immutable)
 }

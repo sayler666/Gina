@@ -58,14 +58,17 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDayEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnCardAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDaySwipeToEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
@@ -78,6 +81,7 @@ import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.theme.GinaTheme
 import com.sayler666.gina.ui.theme.Theme
+import com.skydoves.compose.stability.runtime.TraceRecomposition
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
@@ -85,6 +89,8 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun JournalScreen() {
@@ -96,6 +102,7 @@ fun JournalScreen() {
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             is NavToDay -> navigator.navigate(DayDetails(action.dayId))
+            is NavToDayEdit -> navigator.navigate(DayDetailsEdit(action.dayId))
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
             )
@@ -209,7 +216,7 @@ private fun JournalContent(
 
 @Composable
 private fun DayList(
-    days: List<DayRowState>,
+    days: ImmutableList<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
     loadImage: suspend (Int) -> ByteArray?,
     incognitoMode: Boolean = false,
@@ -281,6 +288,7 @@ private fun DayList(
                             .animateItem()
                             .hazeSource(hazeState),
                         onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
+                        onSwipeToEdit = { onViewEvent(OnDaySwipeToEdit(dayRowState.id)) },
                         onAttachmentClick = { id, allIds ->
                             onViewEvent(OnCardAttachmentClick(id, allIds))
                         },
@@ -405,7 +413,7 @@ private fun Loading() {
     }
 }
 
-private val previewDays = listOf(
+private val previewDays = persistentListOf(
     DayRowState(
         id = 1,
         dayOfMonth = "14",

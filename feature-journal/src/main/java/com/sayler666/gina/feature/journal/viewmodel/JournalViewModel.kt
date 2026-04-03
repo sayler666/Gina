@@ -11,9 +11,11 @@ import com.sayler666.gina.feature.journal.usecase.PreviousYearsAttachmentsUseCas
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDayEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnCardAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDaySwipeToEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnResetFilters
@@ -120,6 +122,7 @@ class JournalViewModel @Inject constructor(
             is OnAttachmentClick -> navToAttachment(event)
             is OnCardAttachmentClick -> navToCardAttachment(event)
             is OnDayClick -> navToDay(event)
+            is OnDaySwipeToEdit -> mutableViewActions.trySend(NavToDayEdit(event.dayId))
             OnHideBottomBar -> bottomNavigationVisibilityManager.hide()
             OnShowBottomBar -> bottomNavigationVisibilityManager.show()
         }
@@ -154,6 +157,7 @@ class JournalViewModel @Inject constructor(
 
     sealed interface ViewEvent {
         data class OnDayClick(val dayId: Int) : ViewEvent
+        data class OnDaySwipeToEdit(val dayId: Int) : ViewEvent
         data class OnAttachmentClick(val imageId: Int) : ViewEvent
         data class OnCardAttachmentClick(val attachmentId: Int, val allIds: List<Int>) : ViewEvent
         data class OnFiltersChanged(val filters: FiltersState) : ViewEvent
@@ -164,6 +168,7 @@ class JournalViewModel @Inject constructor(
 
     sealed interface ViewAction {
         data class NavToDay(val dayId: Int) : ViewAction
+        data class NavToDayEdit(val dayId: Int) : ViewAction
         data class NavToAttachmentPreview(val imageId: Int, val attachmentIds: List<Int>) :
             ViewAction
     }
