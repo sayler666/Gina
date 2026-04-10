@@ -1,10 +1,10 @@
 package com.sayler666.gina.feature.journal.viewmodel
 
-import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.core.string.scrambleText
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.gina.attachments.ui.AttachmentState
@@ -44,7 +44,7 @@ class DaysMapper @Inject constructor() {
                 shortContent = when (searchQuery.isNotEmpty()) {
                     true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
                     else -> nonHtml
-                },
+                }.let { if (incognitoMode) it.scrambleText() else it }, // search highlighting intentionally inactive in incognito mode
                 searchQuery = searchQuery,
                 mood = day.mood,
                 displayAttachmentIds = displayIds,
@@ -58,7 +58,6 @@ class DaysMapper @Inject constructor() {
             else -> DaysState(
                 days = daysResult,
                 previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
-                incognitoMode = incognitoMode
             )
         }
     }
