@@ -3,6 +3,8 @@ package com.sayler666.gina.day.dayDetails.viewmodel
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
+import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.core.string.scrambleText
 import com.sayler666.domain.model.journal.DayDetails
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
@@ -19,7 +21,6 @@ data class DayDetailsState(
     val mood: Mood = Mood.EMPTY,
     val attachments: List<AttachmentState> = emptyList(),
     val friends: List<FriendState> = emptyList(),
-    val incognitoMode: Boolean = false
 )
 
 fun DayDetails.toState(incognitoMode: Boolean = false) = DayDetailsState(
@@ -27,7 +28,7 @@ fun DayDetails.toState(incognitoMode: Boolean = false) = DayDetailsState(
     dayOfMonth = getDayOfMonth(day.date),
     dayOfWeek = getDayOfWeek(day.date),
     yearAndMonth = getYearAndMonth(day.date),
-    content = day.content,
+    content = day.content.let { if (incognitoMode) it.getTextWithoutHtml().scrambleText() else it },
     mood = day.mood,
     attachments = attachments
         .filterNot { it.hidden && incognitoMode }
@@ -35,5 +36,4 @@ fun DayDetails.toState(incognitoMode: Boolean = false) = DayDetailsState(
     friends = friends.map {
         FriendState(id = it.id, name = it.name, avatar = it.avatar, initials = createInitials(it.name))
     },
-    incognitoMode = incognitoMode
 )

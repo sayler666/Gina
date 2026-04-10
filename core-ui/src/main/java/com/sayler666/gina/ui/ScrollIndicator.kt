@@ -78,7 +78,7 @@ fun ScrollIndicator(
         }
     }
 
-    val showIndicator = isDragging || isScrolling
+    val showIndicator = isDragging
     val scrollFraction = firstVisibleItemIndex.toFloat() /
             (totalItemsCount - visibleItemsCount).coerceAtLeast(1)
 

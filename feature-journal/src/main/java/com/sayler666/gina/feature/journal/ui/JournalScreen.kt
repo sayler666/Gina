@@ -189,7 +189,6 @@ private fun JournalContent(
                     days = currentState.days,
                     onViewEvent = onViewEvent,
                     loadImage = loadImage,
-                    incognitoMode = currentState.incognitoMode,
                     headerContent = @Composable {
                         AttachmentCarousel(
                             state = currentState.previousYearsAttachments,
@@ -219,7 +218,6 @@ private fun DayList(
     days: ImmutableList<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
     loadImage: suspend (Int) -> ByteArray?,
-    incognitoMode: Boolean = false,
     headerContent: @Composable LazyItemScope.() -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -293,7 +291,6 @@ private fun DayList(
                             onViewEvent(OnCardAttachmentClick(id, allIds))
                         },
                         loadImage = loadImage,
-                        incognitoMode = incognitoMode,
                         top = index == 0,
                         bottom = index == days.size - 1
                     )

@@ -68,7 +68,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.flow.throttleFirst
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
-import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.theme.GinaTheme
@@ -105,7 +104,6 @@ fun DayRow(
     onSwipeToEdit: () -> Unit = {},
     onAttachmentClick: (attachmentId: Int, allIds: List<Int>) -> Unit = { _, _ -> },
     loadImage: suspend (Int) -> ByteArray? = { null },
-    incognitoMode: Boolean = false,
     top: Boolean = false,
     bottom: Boolean = false
 ) {
@@ -132,7 +130,6 @@ fun DayRow(
             shape = shape,
             onClick = onClick,
             state = state,
-            incognitoMode = incognitoMode,
             onAttachmentClick = onAttachmentClick,
             loadImage = loadImage
         )
@@ -168,7 +165,6 @@ private fun DayRowContent(
     shape: RoundedCornerShape,
     onClick: () -> Unit,
     state: DayRowState,
-    incognitoMode: Boolean,
     onAttachmentClick: (Int, List<Int>) -> Unit,
     loadImage: suspend (Int) -> ByteArray?
 ) {
@@ -182,11 +178,10 @@ private fun DayRowContent(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             when (state.displayAttachmentIds.size) {
-                0 -> NoAttachmentLayout(state, incognitoMode)
-                1 -> OneAttachmentLayout(state, incognitoMode, onAttachmentClick, loadImage)
+                0 -> NoAttachmentLayout(state)
+                1 -> OneAttachmentLayout(state, onAttachmentClick, loadImage)
                 else -> ManyAttachmentsLayout(
                     state,
-                    incognitoMode,
                     onAttachmentClick,
                     loadImage
                 )
@@ -269,7 +264,7 @@ fun getOscillatedValue(input: Float): Float {
 }
 
 @Composable
-private fun NoAttachmentLayout(state: DayRowState, incognitoMode: Boolean) {
+private fun NoAttachmentLayout(state: DayRowState) {
     Box {
         Column(
             Modifier
@@ -277,7 +272,7 @@ private fun NoAttachmentLayout(state: DayRowState, incognitoMode: Boolean) {
                 .commonContentPadding()
         ) {
             DateMoodRow(state)
-            ContentText(state, incognitoMode)
+            ContentText(state)
         }
         MoodIcon(
             modifier = Modifier
@@ -291,7 +286,6 @@ private fun NoAttachmentLayout(state: DayRowState, incognitoMode: Boolean) {
 @Composable
 private fun OneAttachmentLayout(
     state: DayRowState,
-    incognitoMode: Boolean,
     onAttachmentClick: (Int, List<Int>) -> Unit,
     loadImage: suspend (Int) -> ByteArray?
 ) {
@@ -326,7 +320,7 @@ private fun OneAttachmentLayout(
                 .commonContentPadding()
         ) {
             DateMoodRow(state)
-            ContentText(state, incognitoMode)
+            ContentText(state)
         }
         MoodIcon(
             modifier = Modifier
@@ -341,7 +335,6 @@ private fun OneAttachmentLayout(
 @Composable
 private fun ManyAttachmentsLayout(
     state: DayRowState,
-    incognitoMode: Boolean,
     onAttachmentClick: (Int, List<Int>) -> Unit,
     loadImage: suspend (Int) -> ByteArray?
 ) {
@@ -369,7 +362,7 @@ private fun ManyAttachmentsLayout(
                     .commonContentPadding()
             ) {
                 DateMoodRow(state)
-                ContentText(state, incognitoMode)
+                ContentText(state)
             }
             MoodIcon(
                 modifier = Modifier
@@ -386,7 +379,7 @@ private fun Modifier.commonContentPadding(): Modifier = this
     .padding(top = 6.dp, bottom = 14.dp)
 
 @Composable
-private fun ContentText(state: DayRowState, incognitoMode: Boolean) {
+private fun ContentText(state: DayRowState) {
     val text = if (state.searchQuery.isEmpty()) {
         buildAnnotatedString { append(state.shortContent) }
     } else {
@@ -406,21 +399,13 @@ private fun ContentText(state: DayRowState, incognitoMode: Boolean) {
             }
         }
     }
-    if (incognitoMode) {
-        CaesarCipherText(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    } else {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 4,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 4,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -578,16 +563,3 @@ private fun DayRowSearchHighlightPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun DayRowIncognitoPreview() {
-    GinaTheme(Theme.Firewatch, darkTheme = true) {
-        Surface {
-            DayRow(
-                state = previewState,
-                onClick = {},
-                incognitoMode = true
-            )
-        }
-    }
-}

@@ -9,7 +9,6 @@ sealed class JournalState {
     data class DaysState(
         val days: ImmutableList<DayRowState> = persistentListOf(),
         val previousYearsAttachments: HorizontalImagesCarouselState = persistentListOf(),
-        val incognitoMode: Boolean = false
     ) : JournalState()
 
     data object LoadingState : JournalState()
