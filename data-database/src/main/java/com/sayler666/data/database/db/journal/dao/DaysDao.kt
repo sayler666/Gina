@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 @Dao
 interface DaysDao {
-    @Query("SELECT * FROM days ORDER by date DESC")
+    @Query("SELECT * FROM days ORDER by date DESC, id DESC")
     fun getDaysFlow(): Flow<List<DayEntity>>
 
     @Query(
@@ -30,7 +30,7 @@ interface DaysDao {
                 "AND mood IN (:moods) " +
                 "AND (:dateFrom IS NULL OR date >= :dateFrom) " +
                 "AND (:dateTo IS NULL OR date <= :dateTo) " +
-                "ORDER by date DESC"
+                "ORDER by date DESC, id DESC"
     )
     fun getDaysWithFiltersFlow(
         searchQuery: String?,
@@ -48,7 +48,7 @@ interface DaysDao {
     suspend fun getDay(id: Int): DayDetailsEntity?
 
     @Transaction
-    @Query("SELECT * FROM days ORDER by date DESC LIMIT 1")
+    @Query("SELECT * FROM days ORDER by date DESC, id DESC LIMIT 1")
     suspend fun getLastDay(): DayDetailsEntity
 
     @Query("SELECT * FROM attachments WHERE attachment_id = :id")
