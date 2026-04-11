@@ -71,6 +71,7 @@ import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -295,6 +296,7 @@ private fun BottomBar(
     richTextState: RichTextState,
     showFormatRow: MutableState<Boolean>
 ) {
+    val haptics = LocalHapticFeedbackManager.current
     val showMoodPopup = remember { mutableStateOf(false) }
     Column {
         RichTextStyleRow(
@@ -325,7 +327,7 @@ private fun BottomBar(
 
                 TextFormat(showFormatRow)
             },
-            floatingActionButton = { SaveFab { onSaveChanges() } })
+            floatingActionButton = { SaveFab { haptics.tap(); onSaveChanges() } })
     }
 }
 

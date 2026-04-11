@@ -15,6 +15,7 @@ import com.sayler666.gina.day.addDay.ui.AddDayState
 import com.sayler666.gina.day.addDay.usecase.AddDayUseCase
 import com.sayler666.gina.day.addDay.usecase.GetQuoteUseCase
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.Back
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.DaySaved
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
@@ -195,7 +196,7 @@ class AddDayViewModel @AssistedInject constructor(
             viewModelScope.launch {
                 addDayUseCase.addDay(it)
                 workingCopyStorage.clear()
-                mutableViewActions.trySend(Back)
+                mutableViewActions.trySend(DaySaved)
             }
         }
     }
@@ -230,6 +231,7 @@ class AddDayViewModel @AssistedInject constructor(
         data class NavToAttachment(val image: ByteArray, val mimeType: String, val hidden: Boolean) : ViewAction
         data object ShowDiscardDialog : ViewAction
         data object Back : ViewAction
+        data object DaySaved : ViewAction
         data class ReinitializeText(val content: String) : ViewAction
     }
 }

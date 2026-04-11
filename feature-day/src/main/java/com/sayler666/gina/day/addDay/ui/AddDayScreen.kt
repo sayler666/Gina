@@ -36,17 +36,14 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
+import com.sayler666.core.haptics.HapticFeedbackManager
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.Back
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.*
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAddNewFriend
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentPickerPressed
@@ -73,8 +70,10 @@ import com.sayler666.gina.day.dayDetailsEdit.ui.TopBar
 import com.sayler666.gina.day.dayDetailsEdit.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
+import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -98,6 +97,7 @@ fun AddDayScreen(
         }
     val state: AddDayState? by viewModel.viewState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedbackManager.current
 
     var content by remember { mutableStateOf(TextFieldValue(state?.content ?: "")) }
 
@@ -114,11 +114,12 @@ fun AddDayScreen(
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         onViewAction(
-            action,
-            navigator,
-            addAttachmentLauncher,
-            addAttachmentRequest,
-            showDiscardConfirmationDialog,
+            action = action,
+            navigator = navigator,
+            addAttachmentLauncher = addAttachmentLauncher,
+            addAttachmentRequest = addAttachmentRequest,
+            haptics = haptics,
+            showDiscardConfirmationDialog = showDiscardConfirmationDialog,
             onReinitializeText = { content = TextFieldValue(it) }
         )
     }
@@ -134,11 +135,12 @@ fun AddDayScreen(
 
 private fun onViewAction(
     action: ViewAction,
-    navigator: com.sayler666.gina.navigation.Navigator,
+    navigator: Navigator,
     addAttachmentLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     addAttachmentRequest: PickVisualMediaRequest,
     showDiscardConfirmationDialog: MutableState<Boolean>,
     onReinitializeText: (String) -> Unit,
+    haptics: HapticFeedbackManager,
 ) {
     when (action) {
         Back -> navigator.back()
@@ -153,6 +155,10 @@ private fun onViewAction(
         ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
         ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
         is ReinitializeText -> onReinitializeText(action.content)
+        DaySaved -> {
+            haptics.addDaySuccess()
+            navigator.back()
+        }
     }
 }
 

@@ -9,4 +9,18 @@ class HapticFeedbackManagerImpl(context: Context) : HapticFeedbackManager {
     override fun tap() {
         pulsar.getPresets().systemEffectClick()
     }
+
+    override fun swipe() {
+        pulsar.getPresets().snap()
+    }
+
+    override fun addDaySuccess() {
+        pulsar.getPresets().guitarStrum()
+    }
+
+    override fun toggle(boolean: Boolean) {
+        with(pulsar.getPresets()) {
+            if (boolean) systemToggleOn() else systemToggleOff()
+        }
+    }
 }

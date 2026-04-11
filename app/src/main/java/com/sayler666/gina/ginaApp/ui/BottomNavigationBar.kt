@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.zIndex
 import com.sayler666.gina.navigation.routes.Route
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.animatedNavBar.AnimatedNavigationBar
 import com.sayler666.gina.ui.animatedNavBar.item.DropletButton
 import dev.chrisbanes.haze.HazeState
@@ -76,6 +77,7 @@ fun BottomNavigationBar(
     backStack: MutableList<Route>,
     hazeState: HazeState
 ) {
+    val haptics = LocalHapticFeedbackManager.current
     val selectedIndex = remember(currentRoute) {
         val index = BottomDestinations.entries.indexOfFirst { it.route == currentRoute }
         if (index >= 0) index else 0
@@ -97,6 +99,7 @@ fun BottomNavigationBar(
                 isSelected = currentRoute == dest.route,
                 icon = if (currentRoute == dest.route) dest.iconSelected else dest.icon,
                 onClick = {
+                    haptics.tap()
                     val existingIndex = backStack.indexOfFirst { it == dest.route }
                     if (existingIndex >= 0) {
                         // pop to existing entry

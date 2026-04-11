@@ -66,6 +66,7 @@ import com.sayler666.gina.mood.ui.neutralColor
 import com.sayler666.gina.mood.ui.superbColor
 import com.sayler666.gina.navigation.routes.AddDay
 import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import dev.chrisbanes.haze.HazeProgressive
@@ -83,11 +84,18 @@ import java.time.YearMonth
 fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedbackManager.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            is NavToDayDetails -> navigator.navigate(DayDetails(action.dayId))
-            is NavToAddDay -> navigator.navigate(AddDay(action.date))
+            is NavToDayDetails -> {
+                haptics.tap()
+                navigator.navigate(DayDetails(action.dayId))
+            }
+            is NavToAddDay -> {
+                haptics.tap()
+                navigator.navigate(AddDay(action.date))
+            }
         }
     }
 
