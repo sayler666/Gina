@@ -73,7 +73,7 @@ import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
-import com.sayler666.gina.ui.LocalHapticFeedback
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
 import com.sayler666.domain.model.journal.Mood
@@ -82,7 +82,6 @@ import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 import com.sayler666.gina.ui.theme.GinaTheme
 import com.sayler666.gina.ui.theme.Theme
-import com.skydoves.compose.stability.runtime.TraceRecomposition
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
@@ -99,7 +98,7 @@ fun JournalScreen() {
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
     val filtersState: FiltersState = viewModel.filtersState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
-    val haptics = LocalHapticFeedback.current
+    val haptics = LocalHapticFeedbackManager.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
@@ -107,7 +106,10 @@ fun JournalScreen() {
                 haptics.tap()
                 navigator.navigate(DayDetails(action.dayId))
             }
-            is NavToDayEdit -> navigator.navigate(DayDetailsEdit(action.dayId))
+            is NavToDayEdit -> {
+                haptics.swipe()
+                navigator.navigate(DayDetailsEdit(action.dayId))
+            }
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
             )

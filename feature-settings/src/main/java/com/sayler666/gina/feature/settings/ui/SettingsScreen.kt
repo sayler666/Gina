@@ -80,6 +80,7 @@ import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.ManageFriends
 import com.sayler666.gina.reminders.viewmodel.NotActive
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
 
@@ -169,6 +170,8 @@ private fun Content(
     state: SettingsState?,
     viewEvent: (ViewEvent) -> Unit,
 ) {
+    val haptics = LocalHapticFeedbackManager.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -222,14 +225,15 @@ private fun Content(
                     ),
                     icon = if (state?.incognitoMode == true) Filled.VisibilityOff else Filled.Visibility,
                     onClick = {
-                        viewEvent(
-                            OnIncognitoModeToggled(
-                                !(state?.incognitoMode ?: false)
-                            )
-                        )
+                        val toggleIncognito = !(state?.incognitoMode ?: false)
+                        haptics.toggle(toggleIncognito)
+                        viewEvent(OnIncognitoModeToggled(toggleIncognito))
                     },
                     checked = state?.incognitoMode ?: false,
-                    onCheckedChange = { viewEvent(OnIncognitoModeToggled(it)) }
+                    onCheckedChange = {
+                        haptics.toggle(it)
+                        viewEvent(OnIncognitoModeToggled(it))
+                    }
                 )
                 Spacer(
                     modifier = Modifier.windowInsetsBottomHeight(

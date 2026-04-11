@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 
 @Composable
 fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -> Unit) {
@@ -39,11 +40,12 @@ fun MoodPicker(showPopup: Boolean, onDismiss: () -> Unit, onSelectMood: (Mood) -
                 elevation = CardDefaults.cardElevation(10.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
             ) {
+                val haptics = LocalHapticFeedbackManager.current
                 Row {
                     Mood.valuesWithoutEmpty()
                         .forEach {
                             IconButton(
-                                onClick = { onSelectMood(it) }
+                                onClick = { haptics.tap(); onSelectMood(it) }
                             ) {
                                 val icon = it.mapToMoodIcon()
                                 Icon(

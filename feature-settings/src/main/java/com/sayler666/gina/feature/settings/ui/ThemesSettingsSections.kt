@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.sayler666.gina.feature.settings.viewmodel.ColorsPreview
 import com.sayler666.gina.feature.settings.viewmodel.ThemeItem
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.theme.Theme
 import kotlinx.coroutines.launch
 
@@ -51,6 +52,8 @@ fun ThemesSettingsSections(
     val scope = rememberCoroutineScope()
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val current = themes.firstOrNull { it.selected }?.name
+    val haptics = LocalHapticFeedbackManager.current
+
     SettingsButton(
         header = stringResource(R.string.settings_theme),
         body = current?.let { stringResource(id = it) } ?: stringResource(R.string.settings_theme),
@@ -63,7 +66,10 @@ fun ThemesSettingsSections(
         themes,
         openBottomSheet,
         onDismiss = { scope.launch { openBottomSheet = false } },
-        onSelectTheme = onThemeSelected
+        onSelectTheme = {
+            haptics.toggle(true)
+            onThemeSelected(it)
+        }
     )
 }
 
@@ -76,7 +82,6 @@ private fun ThemesBottomSheet(
     onSelectTheme: (Theme) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-
     if (openBottomSheet) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(

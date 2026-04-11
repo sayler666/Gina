@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +50,7 @@ import com.sayler666.gina.navigation.EntryProviderInstaller
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.AddDay
 import com.sayler666.gina.navigation.routes.Route
-import com.sayler666.gina.ui.LocalHapticFeedback
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
@@ -90,7 +89,7 @@ fun GinaApp(
                     LocalNavigator provides navigator,
                     LocalTheme provides viewState.theme,
                     LocalSharedTransitionScope provides this,
-                    LocalHapticFeedback provides hapticFeedbackManager,
+                    LocalHapticFeedbackManager provides hapticFeedbackManager,
                 ) {
                     val hazeState = rememberHazeState()
                     Scaffold(
@@ -126,6 +125,7 @@ private fun AddDayButton(
     viewState: ViewState
 ) {
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedbackManager.current
 
     val visibilityAnimation = VerticalBottomBarAnimation(
         maxOffset = BOTTOM_NAV_HEIGHT,
@@ -141,7 +141,10 @@ private fun AddDayButton(
                 .offset(y = animInfoState.yOffset)
                 .scale(animInfoState.alpha)
                 .alpha(animInfoState.alpha),
-            onNavigateToAddDay = { navigator.navigate(AddDay()) }
+            onNavigateToAddDay = {
+                haptics.tap()
+                navigator.navigate(AddDay())
+            }
         )
     }
 }
@@ -215,7 +218,7 @@ private fun NavigationContainer(
             },
             predictivePopTransitionSpec = {
                 EnterTransition.None togetherWith
-                        slideOutHorizontally (
+                        slideOutHorizontally(
                             targetOffsetX = { it },
                             animationSpec = tween(400)
                         )

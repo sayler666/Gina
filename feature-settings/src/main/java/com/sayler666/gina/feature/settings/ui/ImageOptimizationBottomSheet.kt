@@ -35,6 +35,7 @@ import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageCompressionToggled
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel.ViewEvent.OnImageQualityChanged
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,6 +47,7 @@ fun ImageOptimizationBottomSheet(
     viewEvent: (ViewEvent) -> Unit,
 ) {
     if (showDialog) {
+        val haptics = LocalHapticFeedbackManager.current
         val scope = rememberCoroutineScope()
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
@@ -88,8 +90,10 @@ fun ImageOptimizationBottomSheet(
                         Switch(
                             checked = imageOptimizationSettings.compressionEnabled,
                             onCheckedChange = {
+                                haptics.toggle(it)
                                 viewEvent(OnImageCompressionToggled(it))
-                            })
+                            }
+                        )
                     }
                     var qualitySliderPosition by remember {
                         mutableFloatStateOf(imageOptimizationSettings.quality.toFloat())
