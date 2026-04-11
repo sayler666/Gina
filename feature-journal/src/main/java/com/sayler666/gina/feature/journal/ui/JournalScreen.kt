@@ -1,6 +1,9 @@
 package com.sayler666.gina.feature.journal.ui
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -58,18 +61,22 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalState.LoadingState
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToAttachmentPreview
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDay
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewAction.NavToDayEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnCardAttachmentClick
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDayClick
+import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnDaySwipeToEdit
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnFiltersChanged
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.feature.journal.viewmodel.JournalViewModel.ViewEvent.OnShowBottomBar
 import com.sayler666.gina.navigation.routes.DayDetails
+import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
 import com.sayler666.domain.model.journal.Mood
@@ -85,6 +92,8 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun JournalScreen() {
@@ -92,10 +101,18 @@ fun JournalScreen() {
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
     val filtersState: FiltersState = viewModel.filtersState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedbackManager.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            is NavToDay -> navigator.navigate(DayDetails(action.dayId))
+            is NavToDay -> {
+                haptics.tap()
+                navigator.navigate(DayDetails(action.dayId))
+            }
+            is NavToDayEdit -> {
+                haptics.swipe()
+                navigator.navigate(DayDetailsEdit(action.dayId))
+            }
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
             )
@@ -176,13 +193,16 @@ private fun JournalContent(
             .hazeSource(hazeState)
     ) {
 
-        Crossfade(targetState = state) { currentState ->
+        AnimatedContent(
+            targetState = state,
+            contentKey = { it::class },
+            transitionSpec = { fadeIn() togetherWith fadeOut() }
+        ) { currentState ->
             when (currentState) {
                 is DaysState -> DayList(
                     days = currentState.days,
                     onViewEvent = onViewEvent,
                     loadImage = loadImage,
-                    incognitoMode = currentState.incognitoMode,
                     headerContent = @Composable {
                         AttachmentCarousel(
                             state = currentState.previousYearsAttachments,
@@ -209,10 +229,9 @@ private fun JournalContent(
 
 @Composable
 private fun DayList(
-    days: List<DayRowState>,
+    days: ImmutableList<DayRowState>,
     onViewEvent: (ViewEvent) -> Unit,
     loadImage: suspend (Int) -> ByteArray?,
-    incognitoMode: Boolean = false,
     headerContent: @Composable LazyItemScope.() -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -259,12 +278,12 @@ private fun DayList(
                 top = topPadding,
             )
         ) {
-            item {
+            item(key = "header") {
                 headerContent()
             }
 
             daysGrouped.forEach { (header, days) ->
-                stickyHeader {
+                stickyHeader(key = "sticky_$header") {
                     ListStickyHeader(
                         text = header,
                         hazeState = hazeState
@@ -281,17 +300,17 @@ private fun DayList(
                             .animateItem()
                             .hazeSource(hazeState),
                         onClick = { onViewEvent(OnDayClick(dayRowState.id)) },
+                        onSwipeToEdit = { onViewEvent(OnDaySwipeToEdit(dayRowState.id)) },
                         onAttachmentClick = { id, allIds ->
                             onViewEvent(OnCardAttachmentClick(id, allIds))
                         },
                         loadImage = loadImage,
-                        incognitoMode = incognitoMode,
                         top = index == 0,
                         bottom = index == days.size - 1
                     )
                 }
             }
-            item {
+            item(key = "spacer") {
                 Spacer(
                     modifier = Modifier
                         .windowInsetsBottomHeight(
@@ -405,7 +424,7 @@ private fun Loading() {
     }
 }
 
-private val previewDays = listOf(
+private val previewDays = persistentListOf(
     DayRowState(
         id = 1,
         dayOfMonth = "14",

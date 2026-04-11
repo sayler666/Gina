@@ -1,10 +1,10 @@
 package com.sayler666.gina.feature.journal.viewmodel
 
-import com.sayler666.core.collections.pmap
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.core.string.getTextWithoutHtml
+import com.sayler666.core.string.scrambleText
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Day
 import com.sayler666.gina.attachments.ui.AttachmentState
@@ -17,6 +17,7 @@ import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchStat
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptyState
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.collections.immutable.toImmutableList
 
 class DaysMapper @Inject constructor() {
     fun toJournalState(
@@ -30,9 +31,9 @@ class DaysMapper @Inject constructor() {
 
         val daysResult = days.map { day ->
             val nonHtml = day.content.getTextWithoutHtml()
-            val allIds = imageAttachmentIds[day.id] ?: emptyList()
+            val allIds = (imageAttachmentIds[day.id] ?: emptyList()).toImmutableList()
             // For 2+ images: pick up to 4 with a stable shuffle
-            val displayIds = if (allIds.size >= 2) allIds.shuffled().take(4) else allIds
+            val displayIds = if (allIds.size >= 2) allIds.shuffled().take(4).toImmutableList() else allIds
 
             DayRowState(
                 id = day.id,
@@ -43,13 +44,13 @@ class DaysMapper @Inject constructor() {
                 shortContent = when (searchQuery.isNotEmpty()) {
                     true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
                     else -> nonHtml
-                },
+                }.let { if (incognitoMode) it.scrambleText() else it }, // search highlighting intentionally inactive in incognito mode
                 searchQuery = searchQuery,
                 mood = day.mood,
                 displayAttachmentIds = displayIds,
                 allAttachmentIds = allIds
             )
-        }
+        }.toImmutableList()
 
         return when {
             daysResult.isEmpty() && !filtersActive && searchQuery.isEmpty() -> EmptyState
@@ -57,7 +58,6 @@ class DaysMapper @Inject constructor() {
             else -> DaysState(
                 days = daysResult,
                 previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
-                incognitoMode = incognitoMode
             )
         }
     }
@@ -98,5 +98,6 @@ class DaysMapper @Inject constructor() {
                     }
                 }
             }
+            .toImmutableList()
     }
 }

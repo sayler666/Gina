@@ -45,13 +45,14 @@ import com.sayler666.gina.day.attachments.ui.FileThumbnail
 import com.sayler666.gina.day.attachments.ui.ImageThumbnail
 import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsEntity
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.*
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOpen
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
@@ -71,6 +72,7 @@ import com.sayler666.gina.navigation.routes.DayDetails
 import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.ImagePreviewTmp
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.VerticalDivider
 import com.sayler666.gina.ui.dialog.ConfirmationDialog
@@ -83,12 +85,13 @@ fun DayDetailsEditScreen(
     dayId: Int,
 ) {
     val viewModel: DayDetailsEditViewModel =
-        hiltViewModel<DayDetailsEditViewModel, DayDetailsEditViewModel.Factory>(key = dayId.toString()) {
+        hiltViewModel<DayDetailsEditViewModel, Factory>(key = dayId.toString()) {
             it.create(dayId)
         }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
+    val haptics = LocalHapticFeedbackManager.current
 
     val addAttachmentLauncher =
         rememberLauncherForMultipleImages(context = context) { attachments ->
@@ -138,6 +141,10 @@ fun DayDetailsEditScreen(
             )
 
             is ReinitializeText -> content = TextFieldValue(action.content)
+            ChangesSaved -> {
+                haptics.writingSuccess()
+                navigator.back()
+            }
         }
     }
 
@@ -151,7 +158,7 @@ fun DayDetailsEditScreen(
 
 @Composable
 private fun Content(
-    viewState: DayDetailsEditViewModel.ViewState,
+    viewState: ViewState,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
     showDeleteConfirmationDialog: MutableState<Boolean>,
@@ -295,6 +302,7 @@ private fun BottomBar(
     richTextState: RichTextState,
     showFormatRow: MutableState<Boolean>
 ) {
+    val haptics = LocalHapticFeedbackManager.current
     val showMoodPopup = remember { mutableStateOf(false) }
     Column {
         RichTextStyleRow(
@@ -325,7 +333,7 @@ private fun BottomBar(
 
                 TextFormat(showFormatRow)
             },
-            floatingActionButton = { SaveFab { onSaveChanges() } })
+            floatingActionButton = { SaveFab { haptics.tap(); onSaveChanges() } })
     }
 }
 

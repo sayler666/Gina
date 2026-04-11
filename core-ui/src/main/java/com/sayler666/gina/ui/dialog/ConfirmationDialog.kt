@@ -7,6 +7,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 
 @Composable
 fun ConfirmationDialog(
@@ -17,6 +18,7 @@ fun ConfirmationDialog(
     dismissButtonText: String,
     onConfirmAction: () -> Unit
 ) {
+    val haptics = LocalHapticFeedbackManager.current
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = {
@@ -29,6 +31,7 @@ fun ConfirmationDialog(
                     shape = MaterialTheme.shapes.medium,
                     onClick = {
                         showDialog.value = false
+                        haptics.tap()
                         onConfirmAction()
                     }
                 ) { Text(confirmButtonText) }

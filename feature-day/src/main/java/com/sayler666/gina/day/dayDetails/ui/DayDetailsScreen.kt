@@ -98,7 +98,6 @@ import com.sayler666.gina.navigation.routes.DayDetailsEdit
 import com.sayler666.gina.navigation.routes.GameOfLife
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
-import com.sayler666.gina.ui.CaesarCipherText
 import com.sayler666.gina.ui.DayDateHeader
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.richeditor.WordCharsCounter
@@ -305,21 +304,12 @@ private fun TextContent(state: DayDetailsState) {
     Column(modifier = Modifier.padding(16.dp, 8.dp)) {
         WordCharsCounter(text = state.content.getTextWithoutHtml())
         SelectionContainer {
-            if (state.incognitoMode) {
-                CaesarCipherText(
-                    text = state.content.getTextWithoutHtml(),
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
-                val richTextState = rememberRichTextState()
-                richTextState.setTextOrHtml(state.content)
-                RichText(
-                    state = richTextState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            val richTextState = rememberRichTextState()
+            richTextState.setTextOrHtml(state.content)
+            RichText(
+                state = richTextState,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

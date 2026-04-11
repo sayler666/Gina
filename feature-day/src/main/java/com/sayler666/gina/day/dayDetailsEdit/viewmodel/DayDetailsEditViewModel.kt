@@ -13,6 +13,7 @@ import com.sayler666.gina.day.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.usecase.TmpAttachmentHiddenStore
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
@@ -204,7 +205,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             viewModelScope.launch {
                 editDayUseCase.updateDay(it, attachmentsToDelete = _attachmentsToDelete.value)
                 workingCopyStorage.clear()
-                mutableViewActions.trySend(Back)
+                mutableViewActions.trySend(ChangesSaved)
             }
         }
     }
@@ -277,6 +278,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
 
     sealed interface ViewAction {
         data object Back : ViewAction
+        data object ChangesSaved : ViewAction
         data object NavToList : ViewAction
         data object ShowAttachmentPicker : ViewAction
         data object ShowDiscardDialog : ViewAction

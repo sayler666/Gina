@@ -33,11 +33,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.reminders.viewmodel.Active
 import com.sayler666.gina.reminders.viewmodel.ReminderState
 import com.sayler666.gina.resources.R
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
@@ -49,6 +51,7 @@ fun ReminderSettingsSections(
     onReminderSet: (LocalTime) -> Unit,
     onReminderCancel: () -> Unit
 ) {
+    val haptics = LocalHapticFeedbackManager.current
     val scope = rememberCoroutineScope()
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
@@ -115,6 +118,7 @@ fun ReminderSettingsSections(
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                         onClick = {
                             scope.launch {
+                                haptics.toggle(false)
                                 sheetState.hide()
                                 onReminderCancel()
                             }.invokeOnCompletion {
@@ -129,6 +133,7 @@ fun ReminderSettingsSections(
                     shape = MaterialTheme.shapes.medium,
                     onClick = {
                         scope.launch {
+                            haptics.toggle(true)
                             sheetState.hide()
                             onReminderSet(
                                 LocalTime.of(timePickerState.hour, timePickerState.minute)

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -40,10 +39,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,12 +55,14 @@ import coil.compose.AsyncImage
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
+import com.sayler666.core.haptics.HapticFeedbackManager
 import com.sayler666.gina.gallery.viewModel.GalleryState
 import com.sayler666.gina.gallery.viewModel.GalleryState.DataState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptySearchState
 import com.sayler666.gina.gallery.viewModel.GalleryState.EmptyState
 import com.sayler666.gina.gallery.viewModel.GalleryState.LoadingState
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel
+import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewAction
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewAction.NavigateToImage
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFetchNextPage
@@ -67,10 +70,12 @@ import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnFilters
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnHideBottomBar
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnImageClick
 import com.sayler666.gina.gallery.viewModel.GalleryViewModel.ViewEvent.OnShowBottomBar
+import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.ScrollIndicator
@@ -97,12 +102,14 @@ fun GalleryScreen() {
     val viewState: GalleryState by viewModel.viewState.collectAsStateWithLifecycle()
     val filtersState: FiltersState by viewModel.filtersState.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedbackManager.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
-        when (action) {
-            is NavigateToImage ->
-                navigator.navigate(ImagePreview(action.id, ImagePreviewSource.Gallery))
-        }
+        onViewAction(
+            action = action,
+            navigator = navigator,
+            haptics = haptics
+        )
     }
 
     val hazeState = rememberHazeState()
@@ -119,6 +126,19 @@ fun GalleryScreen() {
             filtersState = filtersState,
             onViewEvent = viewModel::onViewEvent,
         )
+    }
+}
+
+private fun onViewAction(
+    action: ViewAction,
+    navigator: Navigator,
+    haptics: HapticFeedbackManager
+) {
+    when (action) {
+        is NavigateToImage -> {
+            haptics.tap()
+            navigator.navigate(ImagePreview(action.id, ImagePreviewSource.Gallery))
+        }
     }
 }
 
@@ -261,8 +281,8 @@ private fun ImagesGrid(
                 .add(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .add(WindowInsets(bottom = BOTTOM_NAV_HEIGHT + 18.dp, top = 64.dp))
                 .asPaddingValues(),
-            verticalArrangement = Arrangement.spacedBy(4.dp/columns),
-            horizontalArrangement = Arrangement.spacedBy(4.dp/columns)
+            verticalArrangement = Arrangement.spacedBy(4.dp / columns),
+            horizontalArrangement = Arrangement.spacedBy(4.dp / columns)
         ) {
             items(
                 items = state.images
