@@ -39,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import androidx.compose.ui.platform.LocalContext
 import com.sayler666.core.compose.ANIMATION_DURATION
+import com.sayler666.core.haptics.HapticFeedbackManagerImpl
 import com.sayler666.core.navigation.BottomBarState.Shown
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel.ViewEvent.ConsumeDeepLink
@@ -49,6 +51,7 @@ import com.sayler666.gina.navigation.EntryProviderInstaller
 import com.sayler666.gina.navigation.Navigator
 import com.sayler666.gina.navigation.routes.AddDay
 import com.sayler666.gina.navigation.routes.Route
+import com.sayler666.gina.ui.LocalHapticFeedback
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.LocalTheme
@@ -67,6 +70,8 @@ fun GinaApp(
     fallback: CombinedNavEntryFallback
 ) {
     val viewState by vm.viewState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val hapticFeedbackManager = remember { HapticFeedbackManagerImpl(context) }
 
     GinaTheme(viewState.theme) {
         val backStack = vm.backStack
@@ -85,6 +90,7 @@ fun GinaApp(
                     LocalNavigator provides navigator,
                     LocalTheme provides viewState.theme,
                     LocalSharedTransitionScope provides this,
+                    LocalHapticFeedback provides hapticFeedbackManager,
                 ) {
                     val hazeState = rememberHazeState()
                     Scaffold(

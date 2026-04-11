@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     // Other
+    implementation(libs.pulsar)
     implementation(libs.timber)
     implementation(libs.jsoup)
     implementation(libs.commons.io)

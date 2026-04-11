@@ -73,6 +73,7 @@ import com.sayler666.gina.navigation.routes.ImagePreview
 import com.sayler666.gina.navigation.routes.ImagePreviewSource
 import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.EmptyResult
+import com.sayler666.gina.ui.LocalHapticFeedback
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
 import com.sayler666.domain.model.journal.Mood
@@ -98,10 +99,14 @@ fun JournalScreen() {
     val viewState: JournalState = viewModel.viewState.collectAsStateWithLifecycle().value
     val filtersState: FiltersState = viewModel.filtersState.collectAsStateWithLifecycle().value
     val navigator = LocalNavigator.current
+    val haptics = LocalHapticFeedback.current
 
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
-            is NavToDay -> navigator.navigate(DayDetails(action.dayId))
+            is NavToDay -> {
+                haptics.tap()
+                navigator.navigate(DayDetails(action.dayId))
+            }
             is NavToDayEdit -> navigator.navigate(DayDetailsEdit(action.dayId))
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))

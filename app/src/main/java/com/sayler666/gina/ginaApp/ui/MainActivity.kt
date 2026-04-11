@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var combinedNavEntryFallback: @JvmSuppressWildcards CombinedNavEntryFallback
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
