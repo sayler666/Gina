@@ -443,26 +443,13 @@ private fun Image(
         }
     }
     if (bytes != null) {
-        val sharedScope = LocalSharedTransitionScope.current
-        val imageModifier: Modifier = if (sharedScope != null) {
-            val sharedState = sharedScope.rememberSharedContentState("attachment_${attachmentId}")
-            val animScope = LocalNavAnimatedContentScope.current
-            with(sharedScope) {
-                modifier
-                    .sharedElement(
-                        sharedContentState = sharedState,
-                        animatedVisibilityScope = animScope
-                    )
-            }
-        } else modifier
-
         val painter = if (isPreview) {
             BitmapPainter(BitmapFactory.decodeByteArray(bytes, 0, bytes!!.size).asImageBitmap())
         } else {
             rememberAsyncImagePainter(bytes)
         }
         Image(
-            modifier = imageModifier,
+            modifier =  modifier,
             painter = painter,
             contentDescription = null,
             contentScale = ContentScale.Crop,
