@@ -1,6 +1,9 @@
 package com.sayler666.gina.feature.journal.ui
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -190,7 +193,11 @@ private fun JournalContent(
             .hazeSource(hazeState)
     ) {
 
-        Crossfade(targetState = state) { currentState ->
+        AnimatedContent(
+            targetState = state,
+            contentKey = { it::class },
+            transitionSpec = { fadeIn() togetherWith fadeOut() }
+        ) { currentState ->
             when (currentState) {
                 is DaysState -> DayList(
                     days = currentState.days,
@@ -271,12 +278,12 @@ private fun DayList(
                 top = topPadding,
             )
         ) {
-            item {
+            item(key = "header") {
                 headerContent()
             }
 
             daysGrouped.forEach { (header, days) ->
-                stickyHeader {
+                stickyHeader(key = "sticky_$header") {
                     ListStickyHeader(
                         text = header,
                         hazeState = hazeState
@@ -303,7 +310,7 @@ private fun DayList(
                     )
                 }
             }
-            item {
+            item(key = "spacer") {
                 Spacer(
                     modifier = Modifier
                         .windowInsetsBottomHeight(
