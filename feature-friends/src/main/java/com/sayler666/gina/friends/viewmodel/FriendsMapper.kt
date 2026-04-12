@@ -7,26 +7,15 @@ import javax.inject.Inject
 
 class FriendsMapper @Inject constructor() {
     fun mapToDayFriends(
-        dayFriends: List<Friend>,
+        selectedFriendIds: Set<Int>,
         allFriends: List<FriendWithCount>,
         searchQuery: String? = null
-    ): List<FriendState> {
-        val friendsIds = dayFriends.map { it.id }
-
-        return when (allFriends.isNotEmpty()) {
-            true -> allFriends.map { f ->
-                mapToFriend(f)
-                    .copy(selected = friendsIds.contains(f.friendId))
-            }
-
-            false -> dayFriends.map { f ->
-                mapToFriend(f)
-                    .copy(selected = true)
-            }
+    ): List<FriendState> = when (allFriends.isNotEmpty()) {
+        true -> allFriends.map { f ->
+            mapToFriend(f).copy(selected = selectedFriendIds.contains(f.friendId))
         }
-            .map { it.copy(selected = friendsIds.contains(it.id)) }
-            .filterBySearchQuery(searchQuery)
-    }
+        false -> emptyList()
+    }.filterBySearchQuery(searchQuery)
 
     fun mapToFriends(
         allFriends: List<FriendWithCount> = emptyList(),

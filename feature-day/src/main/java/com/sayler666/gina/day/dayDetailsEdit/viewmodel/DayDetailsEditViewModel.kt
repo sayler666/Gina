@@ -2,16 +2,12 @@ package com.sayler666.gina.day.dayDetailsEdit.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayler666.core.image.ImageOptimization
-import com.sayler666.domain.model.journal.Attachment
+import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.dayDetails.usecase.GetDayDetailsUseCase
-import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsEntity
-import com.sayler666.gina.day.dayDetails.viewmodel.toEditState
 import com.sayler666.gina.day.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.usecase.EditDayUseCase
-import com.sayler666.gina.day.dayDetailsEdit.usecase.TmpAttachmentHiddenStore
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
@@ -26,15 +22,11 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentsAdded
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendPressed
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendSearchQueryChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
-import com.sayler666.gina.day.workinCopy.WorkingCopyStorage
-import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -47,7 +39,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -55,112 +46,49 @@ import java.time.LocalDate
 class DayDetailsEditViewModel @AssistedInject constructor(
     @Assisted val dayId: Int,
     private val getDayDetailsUseCase: GetDayDetailsUseCase,
-    private val friendsMapper: FriendsMapper,
     private val editDayUseCase: EditDayUseCase,
     private val deleteDayUseCase: DeleteDayUseCase,
-    private val imageOptimization: ImageOptimization,
-    private val workingCopyStorage: WorkingCopyStorage,
-    private val dayEditingSlice: DayEditingViewModelSlice,
-    private val tmpAttachmentHiddenStore: TmpAttachmentHiddenStore,
-) : ViewModel(), DayEditingViewModelSlice by dayEditingSlice {
+    private val session: EditDaySession,
+) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
         fun create(dayId: Int): DayDetailsEditViewModel
     }
 
-    private val mutableViewState = MutableStateFlow(ViewState())
-    val viewState: StateFlow<ViewState> = mutableViewState.asStateFlow()
+    private val mutableViewState = MutableStateFlow<DayDetailsEditState?>(null)
+    val viewState: StateFlow<DayDetailsEditState?> = mutableViewState.asStateFlow()
 
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
 
-    private val _attachmentsToDelete: MutableStateFlow<MutableList<Attachment>> =
-        MutableStateFlow(mutableListOf())
-
-    private val _workingCopy = MutableStateFlow("")
-
-    // Latest values used to compute changesExist without intermediate StateFlows
-    private var latestStoredDay: DayDetailsEntity? = null
-    private var latestTempDay: DayDetailsEntity? = null
+    private val _initialFriends = MutableStateFlow<List<Friend>>(emptyList())
+    val initialFriends: StateFlow<List<Friend>> = _initialFriends.asStateFlow()
 
     init {
-        dayEditingSlice.initializeSlice(viewModelScope)
-        observeStoredDay()
-        observeTempDay()
-        observeWorkingCopy()
-        observeTmpHiddenChanges()
-    }
-
-    private fun observeStoredDay() {
-        combine(
-            getDayDetailsUseCase.getDayDetailsFlow(dayId),
-            allFriends,
-            friendsSearchQuery
-        ) { day, friends, query ->
-            if (mutableDay.value == null) {
-                mutableDay.value = day
-            } else {
-                day?.let { storedDay ->
-                    val current = mutableDay.value ?: return@let
-                    val updatedAttachments = current.attachments.map { attachment ->
-                        storedDay.attachments.find { it.id == attachment.id }
-                            ?.let { stored -> attachment.copy(hidden = stored.hidden) }
-                            ?: attachment
-                    }
-                    mutableDay.value = current.copy(attachments = updatedAttachments)
+        viewModelScope.launch {
+            getDayDetailsUseCase.getDayDetails(dayId)
+                .onSuccess { day ->
+                    _initialFriends.value = day.friends
+                    session.initialize(viewModelScope, day)
+                    observeViewState()
                 }
-            }
-            day?.toEditState(
-                friendsMapper = friendsMapper,
-                allFriends = friends,
-                friendsSearchQuery = query
+                .onFailure { mutableViewActions.trySend(Back) }
+        }
+    }
+
+    private fun observeViewState() {
+        combine(session.day, session.hasWorkingCopy) { day, hasWorkingCopy ->
+            day?.toEditState()?.copy(
+                changesExist = session.hasChanges(),
+                hasWorkingCopy = hasWorkingCopy,
             )
-        }.onEach { stored ->
-            latestStoredDay = stored
-            updateCurrentDayState()
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeTempDay() {
-        combine(mutableDay, allFriends, friendsSearchQuery) { day, friends, query ->
-            day?.toEditState(friendsMapper, friends, query)
-        }.onEach { temp ->
-            latestTempDay = temp
-            updateCurrentDayState()
-        }.launchIn(viewModelScope)
-    }
-
-    private fun updateCurrentDayState() {
-        val stored = latestStoredDay
-        val temp = latestTempDay
-        val current = temp ?: stored
-        val changesExist = temp != null && stored != null && temp != stored
-        mutableViewState.update { it.copy(currentDay = current, changesExist = changesExist) }
-    }
-
-    private fun observeWorkingCopy() {
-        workingCopyStorage.getTextContent().onEach { content ->
-            content?.let { _workingCopy.value = it }
-            mutableViewState.update { it.copy(hasWorkingCopy = !content.isNullOrEmpty()) }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeTmpHiddenChanges() {
-        tmpAttachmentHiddenStore.updates.onEach { (contentHash, hidden) ->
-            mutableDay.update { day ->
-                day?.copy(attachments = day.attachments.map { attachment ->
-                    if (attachment.id == null && attachment.content.contentHashCode() == contentHash)
-                        attachment.copy(hidden = hidden)
-                    else attachment
-                })
-            }
-        }.launchIn(viewModelScope)
+        }.onEach { mutableViewState.value = it }.launchIn(viewModelScope)
     }
 
     fun onViewEvent(event: ViewEvent) {
         when (event) {
-            OnBackPressed -> if (viewState.value.changesExist) {
+            OnBackPressed -> if (session.hasChanges()) {
                 mutableViewActions.trySend(ShowDiscardDialog)
             } else {
                 mutableViewActions.trySend(Back)
@@ -169,94 +97,42 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             OnSaveChangesPressed -> saveChanges()
             OnRemoveDayPressed -> removeDay()
             OnRestoreWorkingCopyPressed -> restoreWorkingCopy()
-            is OnContentChanged -> setNewContent(event.content)
-            is OnMoodChanged -> setNewMood(event.mood)
-            is OnFriendSearchQueryChanged -> searchFriend(event.query)
-            is ViewEvent.OnAddNewFriend -> addNewFriend(event.name)
-            is OnFriendPressed -> friendSelect(event.friendId, event.selected)
+            is OnContentChanged -> session.setContent(event.content)
+            is OnMoodChanged -> session.setMood(event.mood)
             OnAttachmentPickerPressed -> mutableViewActions.trySend(ShowAttachmentPicker)
-            is OnAttachmentRemove -> removeAttachment(event.attachmentHash)
-            is OnAttachmentsAdded -> addAttachments(event.attachments)
-            is OnSetNewDate -> setNewDate(event.date)
-            is OnAttachmentOptimize -> optimizeAttachment(event.attachmentHash)
+            is OnAttachmentRemove -> session.removeAttachment(event.attachmentHash)
+            is OnAttachmentsAdded -> session.addAttachments(event.attachments)
+            is OnSetNewDate -> session.setDate(event.date)
+            is OnAttachmentOptimize -> session.optimizeAttachment(event.attachmentHash)
             is OnAttachmentOpen -> mutableViewActions.trySend(OpenImagePreview(event.attachment))
+            is ViewEvent.OnFriendsChanged -> session.setFriends(event.friends)
         }
-    }
-
-    private fun setNewContent(newContent: String) {
-        val temp = mutableDay.value ?: return
-        mutableDay.value = temp.copy(day = temp.day.copy(content = newContent))
-
-        if (newContent.isNotBlank() && viewState.value.changesExist) {
-            viewModelScope.launch { workingCopyStorage.store(newContent) }
-        }
-    }
-
-    // override to also track attachments that need DB deletion
-    override fun removeAttachment(byteHashCode: Int) {
-        mutableDay.value?.attachments
-            ?.firstOrNull { it.content.hashCode() == byteHashCode && it.dayId != null }
-            ?.let { _attachmentsToDelete.value.add(it) }
-        dayEditingSlice.removeAttachment(byteHashCode)
     }
 
     private fun saveChanges() {
-        mutableDay.value?.let {
+        session.day.value?.let { day ->
             viewModelScope.launch {
-                editDayUseCase.updateDay(it, attachmentsToDelete = _attachmentsToDelete.value)
-                workingCopyStorage.clear()
+                editDayUseCase.updateDay(day, attachmentsToDelete = session.attachmentsToDelete)
+                session.clearWorkingCopy()
                 mutableViewActions.trySend(ChangesSaved)
             }
         }
     }
 
     private fun removeDay() {
-        mutableDay.value?.let {
+        session.day.value?.let { day ->
             viewModelScope.launch {
-                deleteDayUseCase.deleteDay(it)
+                deleteDayUseCase.deleteDay(day)
                 mutableViewActions.trySend(NavToList)
             }
         }
     }
 
-    private fun optimizeAttachment(attachmentHash: Int) {
-        val currentDay = mutableDay.value ?: return
-        val toOptimize = currentDay.attachments.first { it.content.hashCode() == attachmentHash }
-        val newAttachments = currentDay.attachments
-            .toMutableList()
-            .also { attachments ->
-                attachments.removeIf {
-                    val same = it.content.hashCode() == attachmentHash
-                    if (it.dayId != null && same) _attachmentsToDelete.value.add(it)
-                    return@removeIf same
-                }
-            }
-        viewModelScope.launch {
-            val bytes = imageOptimization.optimizeImage(toOptimize.content)
-            val newAttachment = Attachment(
-                dayId = null,
-                content = bytes,
-                mimeType = toOptimize.mimeType,
-                id = null
-            )
-            mutableDay.update { it?.copy(attachments = newAttachments + newAttachment) }
-        }
-    }
-
     private fun restoreWorkingCopy() {
-        val temp = mutableDay.value ?: return
-        if (_workingCopy.value.isNotEmpty()) {
-            val content = _workingCopy.value
-            mutableDay.value = temp.copy(day = temp.day.copy(content = content))
+        session.restoreWorkingCopy()?.let { content ->
             mutableViewActions.trySend(ReinitializeText(content))
         }
     }
-
-    data class ViewState(
-        val currentDay: DayDetailsEntity? = null,
-        val changesExist: Boolean = false,
-        val hasWorkingCopy: Boolean = false,
-    )
 
     sealed interface ViewEvent {
         data object OnBackPressed : ViewEvent
@@ -265,15 +141,13 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         data object OnRestoreWorkingCopyPressed : ViewEvent
         data class OnContentChanged(val content: String) : ViewEvent
         data class OnMoodChanged(val mood: Mood) : ViewEvent
-        data class OnFriendSearchQueryChanged(val query: String) : ViewEvent
-        data class OnAddNewFriend(val name: String) : ViewEvent
-        data class OnFriendPressed(val friendId: Int, val selected: Boolean) : ViewEvent
         data object OnAttachmentPickerPressed : ViewEvent
         data class OnAttachmentRemove(val attachmentHash: Int) : ViewEvent
         data class OnAttachmentsAdded(val attachments: List<Pair<ByteArray, String>>) : ViewEvent
         data class OnSetNewDate(val date: LocalDate) : ViewEvent
         data class OnAttachmentOptimize(val attachmentHash: Int) : ViewEvent
         data class OnAttachmentOpen(val attachment: AttachmentState) : ViewEvent
+        data class OnFriendsChanged(val friends: List<Friend>) : ViewEvent
     }
 
     sealed interface ViewAction {
@@ -282,7 +156,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         data object NavToList : ViewAction
         data object ShowAttachmentPicker : ViewAction
         data object ShowDiscardDialog : ViewAction
-        data class OpenImagePreview(val attachmentState: AttachmentState) :  ViewAction
+        data class OpenImagePreview(val attachmentState: AttachmentState) : ViewAction
         data class ReinitializeText(val content: String) : ViewAction
     }
 }

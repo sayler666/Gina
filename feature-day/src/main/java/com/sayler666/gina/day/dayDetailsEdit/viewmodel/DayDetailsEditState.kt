@@ -1,19 +1,16 @@
-package com.sayler666.gina.day.dayDetails.viewmodel
+package com.sayler666.gina.day.dayDetailsEdit.viewmodel
 
 import com.sayler666.core.date.getDayOfMonth
 import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.DayDetails
-import com.sayler666.domain.model.journal.FriendWithCount
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.viewmodel.toState
-import com.sayler666.gina.friends.ui.FriendState
-import com.sayler666.gina.friends.viewmodel.FriendsMapper
 import java.time.LocalDate
 
-data class DayDetailsEntity(
+data class DayDetailsEditState(
     val id: Int?,
     val dayOfMonth: String,
     val dayOfWeek: String,
@@ -22,20 +19,14 @@ data class DayDetailsEntity(
     val content: String,
     val mood: Mood?,
     val attachments: List<AttachmentState> = emptyList(),
-    val friendsAll: List<FriendState> = emptyList()
-) {
-    val friendsSelected: List<FriendState>
-        get() = friendsAll.filter { it.selected }
-}
+    val changesExist: Boolean = false,
+    val hasWorkingCopy: Boolean = false,
+)
 
-fun DayDetails.toEditState(
-    friendsMapper: FriendsMapper,
-    allFriends: List<FriendWithCount> = emptyList(),
-    friendsSearchQuery: String? = null
-): DayDetailsEntity {
+fun DayDetails.toEditState(): DayDetailsEditState {
     requireNotNull(day.date)
     requireNotNull(day.content)
-    return DayDetailsEntity(
+    return DayDetailsEditState(
         id = day.id,
         dayOfMonth = getDayOfMonth(day.date),
         dayOfWeek = getDayOfWeek(day.date),
@@ -44,6 +35,5 @@ fun DayDetails.toEditState(
         content = day.content,
         attachments = attachments.map(Attachment::toState),
         mood = day.mood,
-        friendsAll = friendsMapper.mapToDayFriends(friends, allFriends, friendsSearchQuery)
     )
 }

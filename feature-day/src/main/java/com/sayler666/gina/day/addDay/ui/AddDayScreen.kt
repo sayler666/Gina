@@ -37,37 +37,42 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.core.haptics.HapticFeedbackManager
+import com.sayler666.domain.model.journal.Friend
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
 import com.sayler666.gina.calendar.ui.DatePickerDialog
+import com.sayler666.gina.day.addDay.viewmodel.AddDayState
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.*
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.Back
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.DaySaved
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.NavToAttachment
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ReinitializeText
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ShowAttachmentPicker
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewAction.ShowDiscardDialog
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAddNewFriend
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentRemove
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnAttachmentsAdded
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnContentChanged
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendPressed
-import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendSearchQueryChanged
+import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnFriendsChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.addDay.viewmodel.AddDayViewModel.ViewEvent.OnSetNewDate
 import com.sayler666.gina.day.attachments.ui.FileThumbnail
 import com.sayler666.gina.day.attachments.ui.ImageThumbnail
-import com.sayler666.gina.day.dayDetailsEdit.ui.AttachmentsButton
-import com.sayler666.gina.day.dayDetailsEdit.ui.AttachmentsCountLabel
-import com.sayler666.gina.day.dayDetailsEdit.ui.Friends
-import com.sayler666.gina.day.dayDetailsEdit.ui.Mood
-import com.sayler666.gina.day.dayDetailsEdit.ui.SaveFab
-import com.sayler666.gina.day.dayDetailsEdit.ui.TextFormat
-import com.sayler666.gina.day.dayDetailsEdit.ui.TopBar
-import com.sayler666.gina.day.dayDetailsEdit.ui.rememberLauncherForMultipleImages
+import com.sayler666.gina.day.ui.AttachmentsButton
+import com.sayler666.gina.day.ui.AttachmentsCountLabel
+import com.sayler666.gina.day.ui.DayTopBar
+import com.sayler666.gina.day.ui.FriendsPickerButton
+import com.sayler666.gina.day.ui.MoodButton
+import com.sayler666.gina.day.ui.SaveFab
+import com.sayler666.gina.day.ui.TextFormatButton
+import com.sayler666.gina.day.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.navigation.Navigator
@@ -130,6 +135,7 @@ fun AddDayScreen(
         state = state,
         textFieldValue = content,
         viewEvent = viewModel::onViewEvent,
+        onFriendsPicked = { viewModel.onViewEvent(OnFriendsChanged(it)) },
     )
 }
 
@@ -151,7 +157,6 @@ private fun onViewAction(
                 hidden = action.hidden,
             )
         )
-
         ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
         ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
         is ReinitializeText -> onReinitializeText(action.content)
@@ -167,6 +172,7 @@ private fun Content(
     state: AddDayState?,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
+    onFriendsPicked: (List<Friend>) -> Unit,
     imageOptimizationViewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
     val imageOptimizationViewState by imageOptimizationViewModel.viewState.collectAsStateWithLifecycle()
@@ -176,21 +182,18 @@ private fun Content(
     val isKeyboardOpen by keyboardAsState()
     val richTextState = rememberRichTextState()
     val showFormatRow = remember { mutableStateOf(false) }
-
     val showImageCompressSettingsDialog = remember { mutableStateOf(false) }
 
     Scaffold(
         Modifier.imePadding(),
         topBar = {
             state?.let {
-                TopBar(
+                DayTopBar(
                     dayOfWeek = state.dayOfWeek,
                     dayOfMonth = state.dayOfMonth,
                     yearAndMonth = state.yearAndMonth,
                     onNavigateBackClicked = { viewEvent(OnBackPressed) },
-                    onChangeDateClicked = {
-                        showDatePickerPopup.value = true
-                    },
+                    onChangeDateClicked = { showDatePickerPopup.value = true },
                     hasWorkingCopy = it.workingCopyExists,
                     onRestoreWorkingCopyClicked = { viewEvent(OnRestoreWorkingCopyPressed) }
                 )
@@ -204,7 +207,8 @@ private fun Content(
                     richTextState = richTextState,
                     showFormatRow = showFormatRow,
                     autofocusOnContentText = autofocusOnContentText,
-                    showImageCompressSettingsDialog = showImageCompressSettingsDialog
+                    showImageCompressSettingsDialog = showImageCompressSettingsDialog,
+                    onFriendsPicked = onFriendsPicked,
                 )
             }
         },
@@ -213,35 +217,24 @@ private fun Content(
                 DatePickerDialog(
                     showDatePickerPopup.value,
                     initialDate = it.localDate,
-                    onDismiss = {
-                        showDatePickerPopup.value = false
-                    },
+                    onDismiss = { showDatePickerPopup.value = false },
                     onDateChanged = { viewEvent(OnSetNewDate(it)) }
                 )
             }
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-            ) {
+            Column(modifier = Modifier.padding(padding)) {
                 state?.let { day ->
                     AnimatedVisibility(visible = !isKeyboardOpen) {
-                        Attachments(
-                            attachments = day.attachments,
-                            viewEvent = viewEvent,
-                        )
+                        Attachments(attachments = day.attachments, viewEvent = viewEvent)
                     }
                     AnimatedVisibility(visible = isKeyboardOpen && day.attachments.isNotEmpty()) {
                         AttachmentsCountLabel(day.attachments.size)
                     }
-
                     RichTextEditor(
                         textFieldValue = textFieldValue,
                         richTextState = richTextState,
                         autoFocus = autofocusOnContentText.value,
                         quote = state.quote,
-                        onContentChanged = { content ->
-                            viewEvent(OnContentChanged(content))
-                        }
+                        onContentChanged = { viewEvent(OnContentChanged(it)) }
                     )
                 }
             }
@@ -279,6 +272,7 @@ private fun BottomBar(
     showFormatRow: MutableState<Boolean>,
     showImageCompressSettingsDialog: MutableState<Boolean>,
     autofocusOnContentText: MutableState<Boolean>,
+    onFriendsPicked: (List<Friend>) -> Unit,
 ) {
     val showMoodPopup = remember { mutableStateOf(false) }
 
@@ -289,11 +283,7 @@ private fun BottomBar(
     val coroutineScope = rememberCoroutineScope()
 
     Column {
-        RichTextStyleRow(
-            modifier = Modifier.fillMaxWidth(),
-            state = richTextState,
-            showFormatRow = showFormatRow
-        )
+        RichTextStyleRow(modifier = Modifier.fillMaxWidth(), state = richTextState, showFormatRow = showFormatRow)
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
@@ -301,18 +291,11 @@ private fun BottomBar(
                     onClick = { viewEvent(OnAttachmentPickerPressed) },
                     onLongClick = { showImageCompressSettingsDialog.value = true }
                 )
-
-                Friends(
-                    friends = state.friendsSelected,
-                    allFriends = state.friendsAll,
-                    onSearchChanged = { viewEvent(OnFriendSearchQueryChanged(it)) },
-                    onAddNewFriend = { viewEvent(OnAddNewFriend(it)) },
-                    onFriendClicked = { friendId, state ->
-                        viewEvent(OnFriendPressed(friendId, state))
-                    },
+                FriendsPickerButton(
+                    initialFriends = emptyList(),
+                    onFriendsPicked = onFriendsPicked,
                 )
-
-                Mood(
+                MoodButton(
                     mood = state.mood,
                     showMoodPopup = showMoodPopup,
                     onMoodChanged = {
@@ -322,16 +305,13 @@ private fun BottomBar(
                             autofocusOnContentText.value = true
                         }
                     })
-
                 VerticalDivider()
-
-                TextFormat(showFormatRow)
+                TextFormatButton(showFormatRow)
             },
             floatingActionButton = { SaveFab { viewEvent(OnSaveChangesPressed) } }
         )
     }
 }
-
 
 @Composable
 fun Attachments(
@@ -362,7 +342,6 @@ fun Attachments(
                             viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
                         }
                     )
-
                     is AttachmentNonImageState -> FileThumbnail(
                         state = attachment,
                         onClick = {
