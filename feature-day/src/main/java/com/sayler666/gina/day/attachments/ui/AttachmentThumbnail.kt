@@ -11,14 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,11 +34,13 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.resources.R
 import com.sayler666.gina.ui.LocalSharedTransitionScope
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -43,34 +50,45 @@ fun FileThumbnail(
     onClick: (() -> Unit),
     onRemoveClicked: (() -> Unit)? = null
 ) {
-    Card(
-        Modifier
-            .size(65.dp)
-            .padding(end = 8.dp, bottom = 8.dp)
-            .combinedClickable(
-                onClick = { onClick() },
-                onLongClick = { onRemoveClicked?.invoke() }
-            ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Box(
+    val showRemoveMenu = remember { mutableStateOf(false) }
+    Box {
+        Card(
             Modifier
-                .padding(8.dp)
-                .fillMaxSize()
+                .size(65.dp)
+                .padding(end = 8.dp, bottom = 8.dp)
+                .combinedClickable(
+                    onClick = { onClick() },
+                    onLongClick = { if (onRemoveClicked != null) showRemoveMenu.value = true }
+                ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+            elevation = CardDefaults.cardElevation(8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Outlined.FileOpen,
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                contentDescription = ""
-            )
-            Text(
-                text = state.name,
-                modifier = Modifier.align(Alignment.BottomEnd),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            Box(
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.FileOpen,
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    contentDescription = ""
+                )
+                Text(
+                    text = state.name,
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
         }
+        RemoveDropdownMenu(
+            expanded = showRemoveMenu.value,
+            onDismiss = { showRemoveMenu.value = false },
+            onRemoveConfirmed = {
+                showRemoveMenu.value = false
+                onRemoveClicked?.invoke()
+            }
+        )
     }
 }
 
@@ -95,51 +113,64 @@ fun ImageThumbnail(
                 )
         }
     } else Modifier.fillMaxSize()
-    Card(
-        Modifier
-            .size(size)
-            .padding(end = 4.dp, bottom = 4.dp)
-            .combinedClickable(
-                onClick = { onClick() },
-                onLongClick = { onRemoveClicked?.invoke() }
-            ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                modifier = imageModifier,
-                contentScale = ContentScale.Crop,
-                painter = rememberAsyncImagePainter(state.content),
-                contentDescription = "",
-            )
-            if (state.hidden) {
-                Box(Modifier.fillMaxSize().padding(4.dp)) {
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = null,
-                        tint = Color.Black.copy(alpha = 0.6f),
-                        modifier = Modifier
-                            .size(20.dp)
-                            .offset(x = 0.dp, y = 1.dp)
-                            .graphicsLayer {
-                                renderEffect = BlurEffect(2f, 2f, TileMode.Decal)
-                                compositingStrategy = CompositingStrategy.Offscreen
-                            }
-                            .align(Alignment.TopEnd)
-                    )
-                    // real icon
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .align(Alignment.TopEnd)
-                    )
+
+    val showRemoveMenu = remember { mutableStateOf(false) }
+    Box {
+        Card(
+            Modifier
+                .size(size)
+                .padding(end = 4.dp, bottom = 4.dp)
+                .combinedClickable(
+                    onClick = { onClick() },
+                    onLongClick = { if (onRemoveClicked != null) showRemoveMenu.value = true }
+                ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop,
+                    painter = rememberAsyncImagePainter(state.content),
+                    contentDescription = "",
+                )
+                if (state.hidden) {
+                    Box(Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)) {
+                        Icon(
+                            imageVector = Icons.Rounded.VisibilityOff,
+                            contentDescription = null,
+                            tint = Color.Black.copy(alpha = 0.6f),
+                            modifier = Modifier
+                                .size(20.dp)
+                                .offset(x = 0.dp, y = 1.dp)
+                                .graphicsLayer {
+                                    renderEffect = BlurEffect(2f, 2f, TileMode.Decal)
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                }
+                                .align(Alignment.TopEnd)
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.VisibilityOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .align(Alignment.TopEnd)
+                        )
+                    }
                 }
             }
         }
+        RemoveDropdownMenu(
+            expanded = showRemoveMenu.value,
+            onDismiss = { showRemoveMenu.value = false },
+            onRemoveConfirmed = {
+                showRemoveMenu.value = false
+                onRemoveClicked?.invoke()
+            }
+        )
     }
 }
 
@@ -166,39 +197,66 @@ fun PreviousYearsAttachmentThumbnail(
         }
     } else Modifier.fillMaxSize()
 
-    Card(
-        Modifier
-            .height(size)
-            .width(size * 1.61f)
-            .padding(end = 4.dp, bottom = 4.dp)
-            .combinedClickable(
-                onClick = { onClick() },
-                onLongClick = { onRemoveClicked?.invoke() }
-            ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        elevation = CardDefaults.cardElevation(8.dp),
+    val showRemoveMenu = remember { mutableStateOf(false) }
+    Box {
+        Card(
+            Modifier
+                .height(size)
+                .width(size * 1.61f)
+                .padding(end = 4.dp, bottom = 4.dp)
+                .combinedClickable(
+                    onClick = { onClick() },
+                    onLongClick = { if (onRemoveClicked != null) showRemoveMenu.value = true }
+                ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+            elevation = CardDefaults.cardElevation(8.dp),
+            shape = MaterialTheme.shapes.large
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop,
+                    painter = rememberAsyncImagePainter(state.content),
+                    contentDescription = "",
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.BottomStart),
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        shadow = Shadow(color = Color.Black, offset = Offset.Zero, blurRadius = 5f)
+                    ),
+                    text = text
+                )
+            }
+        }
+        RemoveDropdownMenu(
+            expanded = showRemoveMenu.value,
+            onDismiss = { showRemoveMenu.value = false },
+            onRemoveConfirmed = {
+                showRemoveMenu.value = false
+                onRemoveClicked?.invoke()
+            }
+        )
+    }
+}
+
+@Composable
+private fun RemoveDropdownMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onRemoveConfirmed: () -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Image(
-                modifier = imageModifier,
-                contentScale = ContentScale.Crop,
-                painter = rememberAsyncImagePainter(state.content),
-                contentDescription = "",
-            )
-            Text(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.BottomStart),
-                color = Color.White,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    shadow = Shadow(color = Color.Black, offset = Offset.Zero, blurRadius = 5f)
-                ),
-                text = text
-            )
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.day_attachment_remove)) },
+            leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            onClick = onRemoveConfirmed,
+        )
     }
 }
