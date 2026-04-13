@@ -161,7 +161,7 @@ private fun onViewAction(
         ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
         is ReinitializeText -> onReinitializeText(action.content)
         DaySaved -> {
-            haptics.writingSuccess()
+            haptics.newDayAdded()
             navigator.back()
         }
     }
