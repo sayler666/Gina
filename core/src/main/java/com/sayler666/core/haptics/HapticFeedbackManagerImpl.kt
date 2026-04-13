@@ -20,13 +20,11 @@ class HapticFeedbackManagerImpl(context: Context) : HapticFeedbackManager {
         .build()
 
     private var scribbleSoundId: Int = 0
-    private var scribbleLoaded = false
+    private var paperCrumbleSoundId: Int = 0
 
     init {
-        soundPool.setOnLoadCompleteListener { _, _, status ->
-            scribbleLoaded = status == 0
-        }
         scribbleSoundId = soundPool.load(context, R.raw.scribble, 1)
+        paperCrumbleSoundId = soundPool.load(context, R.raw.paper_crumble, 1)
     }
 
     override fun tap() {
@@ -37,10 +35,17 @@ class HapticFeedbackManagerImpl(context: Context) : HapticFeedbackManager {
         pulsar.getPresets().snap()
     }
 
-    override fun writingSuccess() {
+    override fun newDayAdded() {
         pulsar.getPresets().typewriter()
-        if (scribbleLoaded) {
+        if (scribbleSoundId != 0) {
             soundPool.play(scribbleSoundId, 0.2f, 0.2f, 1, 0, 1.0f)
+        }
+    }
+
+    override fun dayRemoved() {
+        pulsar.getPresets().typewriter()
+        if (paperCrumbleSoundId != 0) {
+            soundPool.play(paperCrumbleSoundId, 0.2f, 0.2f, 1, 0, 1.0f)
         }
     }
 

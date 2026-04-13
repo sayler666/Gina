@@ -10,7 +10,7 @@ import com.sayler666.gina.day.dayDetailsEdit.usecase.DeleteDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.usecase.EditDayUseCase
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToListAfterRemoval
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
@@ -123,7 +123,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
         session.day.value?.let { day ->
             viewModelScope.launch {
                 deleteDayUseCase.deleteDay(day)
-                mutableViewActions.trySend(NavToList)
+                mutableViewActions.trySend(NavToListAfterRemoval)
             }
         }
     }
@@ -153,7 +153,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
     sealed interface ViewAction {
         data object Back : ViewAction
         data object ChangesSaved : ViewAction
-        data object NavToList : ViewAction
+        data object NavToListAfterRemoval : ViewAction
         data object ShowAttachmentPicker : ViewAction
         data object ShowDiscardDialog : ViewAction
         data class OpenImagePreview(val attachmentState: AttachmentState) : ViewAction

@@ -50,7 +50,7 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.Factory
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToListAfterRemoval
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
@@ -139,7 +139,11 @@ fun DayDetailsEditScreen(
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             Back -> navigator.back()
-            NavToList -> navigator.popUntil { it !is DayDetails && it !is DayDetailsEdit }
+            NavToListAfterRemoval -> {
+                haptics.dayRemoved()
+                navigator.popUntil { it !is DayDetails && it !is DayDetailsEdit }
+            }
+
             ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
             ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
             is OpenImagePreview -> navigator.navigate(
@@ -150,9 +154,10 @@ fun DayDetailsEditScreen(
                     hidden = action.attachmentState.hidden,
                 )
             )
+
             is ReinitializeText -> content = TextFieldValue(action.content)
             ChangesSaved -> {
-                haptics.writingSuccess()
+                haptics.newDayAdded()
                 navigator.back()
             }
         }
@@ -164,7 +169,13 @@ fun DayDetailsEditScreen(
         viewEvent = viewModel::onViewEvent,
         showDeleteConfirmationDialog = showDeleteConfirmationDialog,
         initialFriends = initialFriends,
-        onFriendsPicked = { viewModel.onViewEvent(DayDetailsEditViewModel.ViewEvent.OnFriendsChanged(it)) },
+        onFriendsPicked = {
+            viewModel.onViewEvent(
+                DayDetailsEditViewModel.ViewEvent.OnFriendsChanged(
+                    it
+                )
+            )
+        },
     )
 }
 
@@ -281,9 +292,16 @@ fun Attachments(
                             onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
                         }
                     )
+
                     is AttachmentState.AttachmentNonImageState -> FileThumbnail(
                         state = attachment,
-                        onClick = { openFileIntent(context, attachment.content, attachment.mimeType) },
+                        onClick = {
+                            openFileIntent(
+                                context,
+                                attachment.content,
+                                attachment.mimeType
+                            )
+                        },
                         onRemoveClicked = {
                             onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
                         }
