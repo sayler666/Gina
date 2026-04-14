@@ -63,13 +63,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.scale
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil.compose.rememberAsyncImagePainter
 import com.sayler666.core.flow.throttleFirst
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.mood.ui.mapToMoodIcon
 import com.sayler666.gina.ui.DayDateHeader
-import com.sayler666.gina.ui.LocalSharedTransitionScope
 import com.sayler666.gina.ui.theme.GinaTheme
 import com.sayler666.gina.ui.theme.Theme
 import kotlinx.collections.immutable.ImmutableList
@@ -88,7 +86,7 @@ data class DayRowState(
     val dayOfWeek: String,
     val yearAndMonth: String,
     val header: String,
-    val shortContent: String,
+    val contentPreview: String,
     val searchQuery: String,
     val mood: Mood? = null,
     val displayAttachmentIds: ImmutableList<Int> = persistentListOf(),
@@ -381,12 +379,12 @@ private fun Modifier.commonContentPadding(): Modifier = this
 @Composable
 private fun ContentText(state: DayRowState) {
     val text = if (state.searchQuery.isEmpty()) {
-        buildAnnotatedString { append(state.shortContent) }
+        buildAnnotatedString { append(state.contentPreview) }
     } else {
         buildAnnotatedString {
-            val startIndex = state.shortContent.indexOf(state.searchQuery, ignoreCase = true)
+            val startIndex = state.contentPreview.indexOf(state.searchQuery, ignoreCase = true)
             val endIndex = startIndex + state.searchQuery.length
-            append(state.shortContent)
+            append(state.contentPreview)
             if (startIndex >= 0) {
                 addStyle(
                     style = SpanStyle(
@@ -465,7 +463,7 @@ private val previewState = DayRowState(
     dayOfWeek = "Mon",
     yearAndMonth = "March 2025",
     header = "Great day",
-    shortContent = "Today was a really productive day. Went for a walk in the morning and finished the new feature.  Went for a walk in the morning and finished the new feature.",
+    contentPreview = "Today was a really productive day. Went for a walk in the morning and finished the new feature.  Went for a walk in the morning and finished the new feature.",
     searchQuery = "",
     mood = Mood.GOOD
 )

@@ -7,7 +7,7 @@ import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.core.string.scrambleText
 import com.sayler666.domain.model.journal.AttachmentWithDay
 import com.sayler666.domain.model.journal.Day
-import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
 import com.sayler666.gina.day.attachments.viewmodel.toState
 import com.sayler666.gina.feature.journal.ui.DayRowState
 import com.sayler666.gina.feature.journal.ui.HorizontalImagesCarouselState
@@ -15,25 +15,25 @@ import com.sayler666.gina.feature.journal.ui.ImageAttachmentState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptyState
+import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
 import javax.inject.Inject
-import kotlinx.collections.immutable.toImmutableList
 
-class DaysMapper @Inject constructor() {
+class JournalStateMapper @Inject constructor() {
     fun toJournalState(
         days: List<Day>,
         searchQuery: String,
         filtersActive: Boolean,
-        previousYearsAttachments: List<AttachmentWithDay>,
+        previousYearsAttachments: HorizontalImagesCarouselState,
         imageAttachmentIds: Map<Int, List<Int>> = emptyMap(),
         incognitoMode: Boolean = false
     ): JournalState {
 
         val daysResult = days.map { day ->
             val nonHtml = day.content.getTextWithoutHtml()
-            val allIds = (imageAttachmentIds[day.id] ?: emptyList()).toImmutableList()
-            // For 2+ images: pick up to 4 with a stable shuffle
-            val displayIds = if (allIds.size >= 2) allIds.shuffled().take(4).toImmutableList() else allIds
+            val allAttachmentIds = (imageAttachmentIds[day.id] ?: emptyList()).toImmutableList()
+            val displayAttachmentIds = if (allAttachmentIds.size >= 2) allAttachmentIds.shuffled()
+                .take(4).toImmutableList() else allAttachmentIds
 
             DayRowState(
                 id = day.id,
@@ -41,14 +41,14 @@ class DaysMapper @Inject constructor() {
                 dayOfWeek = getDayOfWeek(day.date),
                 yearAndMonth = getYearAndMonth(day.date),
                 header = getYearAndMonth(day.date),
-                shortContent = when (searchQuery.isNotEmpty()) {
-                    true -> getShorContentAroundSearchQuery(nonHtml, searchQuery)
+                contentPreview = when (searchQuery.isNotEmpty()) {
+                    true -> getContentPreviewAroundSearchQuery(nonHtml, searchQuery)
                     else -> nonHtml
-                }.let { if (incognitoMode) it.scrambleText() else it }, // search highlighting intentionally inactive in incognito mode
+                }.let { if (incognitoMode) it.scrambleText() else it },
                 searchQuery = searchQuery,
                 mood = day.mood,
-                displayAttachmentIds = displayIds,
-                allAttachmentIds = allIds
+                displayAttachmentIds = displayAttachmentIds,
+                allAttachmentIds = allAttachmentIds
             )
         }.toImmutableList()
 
@@ -57,16 +57,16 @@ class DaysMapper @Inject constructor() {
             daysResult.isEmpty() -> EmptySearchState
             else -> DaysState(
                 days = daysResult,
-                previousYearsAttachments = previousYearsAttachments.toPreviousYearsAttachments(),
+                previousYearsAttachments = previousYearsAttachments,
             )
         }
     }
 
-    private fun getShorContentAroundSearchQuery(content: String, searchQuery: String): String {
+    private fun getContentPreviewAroundSearchQuery(content: String, searchQuery: String): String {
         val searchQueryPosition = content.indexOf(searchQuery, ignoreCase = true)
-        val before = searchQueryPosition - (shortContentMaxLength / 2 - searchQuery.length / 2)
+        val before = searchQueryPosition - (CONTENT_PREVIEW_MAX_LENGTH / 2 - searchQuery.length / 2)
         val after =
-            searchQueryPosition + searchQuery.length + (shortContentMaxLength / 2 - searchQuery.length / 2)
+            searchQueryPosition + searchQuery.length + (CONTENT_PREVIEW_MAX_LENGTH / 2 - searchQuery.length / 2)
         return content
             .substring(maxOf(0, before)..minOf(after, content.length - 1)).trimEnd()
             .let {
@@ -77,10 +77,8 @@ class DaysMapper @Inject constructor() {
             }
     }
 
-
-    companion object {
-        private const val shortContentMaxLength = 120
-    }
+    fun mapPreviousYearsAttachments(attachments: List<AttachmentWithDay>): HorizontalImagesCarouselState =
+        attachments.toPreviousYearsAttachments()
 
     private fun List<AttachmentWithDay>.toPreviousYearsAttachments(): HorizontalImagesCarouselState {
         val now = LocalDate.now()
@@ -89,15 +87,18 @@ class DaysMapper @Inject constructor() {
                 attachmentWithDay.day.date.let {
                     val yearsAgo = now.minusYears(it.year.toLong()).year
                     when (val attachmentState = attachmentWithDay.attachment.toState()) {
-                        is AttachmentState.AttachmentImageState -> ImageAttachmentState(
-                            attachmentState,
-                            yearsAgo
+                        is AttachmentImageState -> ImageAttachmentState(
+                            state = attachmentState,
+                            yearsAgo = yearsAgo
                         )
 
                         else -> null
                     }
                 }
-            }
-            .toImmutableList()
+            }.toImmutableList()
+    }
+
+    companion object {
+        private const val CONTENT_PREVIEW_MAX_LENGTH = 120
     }
 }
