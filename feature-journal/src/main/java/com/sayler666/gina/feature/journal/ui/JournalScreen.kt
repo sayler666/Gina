@@ -1,21 +1,21 @@
 package com.sayler666.gina.feature.journal.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -39,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -53,6 +53,7 @@ import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.compose.plus
 import com.sayler666.core.compose.scroll.rememberScrollConnection
 import com.sayler666.core.compose.shimmerBrush
+import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.feature.journal.viewmodel.JournalState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.DaysState
 import com.sayler666.gina.feature.journal.viewmodel.JournalState.EmptySearchState
@@ -79,7 +80,6 @@ import com.sayler666.gina.ui.EmptyResult
 import com.sayler666.gina.ui.LocalHapticFeedbackManager
 import com.sayler666.gina.ui.LocalNavigator
 import com.sayler666.gina.ui.ScrollIndicator
-import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.ui.filters.FiltersBar
 import com.sayler666.gina.ui.filters.FiltersState
 import com.sayler666.gina.ui.hideNavBar.BOTTOM_NAV_HEIGHT
@@ -431,7 +431,7 @@ private val previewDays = persistentListOf(
         dayOfWeek = "Mon",
         yearAndMonth = "March 2025",
         header = "March 2025",
-        shortContent = "Today was a really productive day. Went for a walk in the morning and finished the new feature.",
+        contentPreview = "Today was a really productive day. Went for a walk in the morning and finished the new feature.",
         searchQuery = "",
         mood = Mood.GOOD
     ),
@@ -441,7 +441,7 @@ private val previewDays = persistentListOf(
         dayOfWeek = "Thu",
         yearAndMonth = "March 2025",
         header = "March 2025",
-        shortContent = "A quiet day at home, read a book and cooked something new for dinner.",
+        contentPreview = "A quiet day at home, read a book and cooked something new for dinner.",
         searchQuery = "",
         mood = Mood.NEUTRAL
     ),
@@ -451,7 +451,7 @@ private val previewDays = persistentListOf(
         dayOfWeek = "Fri",
         yearAndMonth = "February 2025",
         header = "February 2025",
-        shortContent = "Rough day, nothing seemed to go right.",
+        contentPreview = "Rough day, nothing seemed to go right.",
         searchQuery = "",
         mood = Mood.BAD
     )
