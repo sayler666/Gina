@@ -1,48 +1,44 @@
 package com.sayler666.gina.day.ui
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.TextFormat
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sayler666.gina.ui.button.FloatingButton
+import com.sayler666.gina.ui.theme.GinaTheme
+import com.sayler666.gina.ui.theme.Theme
 
 @Composable
-fun SaveFab(onSaveButtonClicked: () -> Unit) {
-    FloatingActionButton(
-        modifier = Modifier
-            .border(
-                width = 0.5.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color.White.copy(alpha = 0.29f), Color.Transparent)
-                ),
-                shape = CircleShape
-            ),
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        shape = CircleShape,
-        elevation = FloatingActionButtonDefaults.elevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 2.dp
-        ),
-        onClick = onSaveButtonClicked
+fun SaveFab(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    FloatingButton(
+        modifier = modifier,
+        onClick = onClick
     ) {
-        Icon(Filled.Save, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+        Icon(
+            imageVector = Filled.Save,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .size(65.dp)
+                .padding(12.dp)
+        )
     }
 }
 
+@Preview
 @Composable
-fun TextFormatButton(showFormat: MutableState<Boolean>) {
-    IconButton(onClick = { showFormat.value = !showFormat.value }) {
-        Icon(Filled.TextFormat, null)
+private fun AddDayFabPreview() {
+    GinaTheme(theme = Theme.Firewatch, darkTheme = true) {
+        SaveFab(
+            onClick = {})
     }
 }
