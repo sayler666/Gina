@@ -26,6 +26,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,34 +39,44 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.sayler666.core.compose.effect.CollectFlowWithLifecycleEffect
 import com.sayler666.core.file.Files.openFileIntent
+import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.day.attachments.ui.FileThumbnail
 import com.sayler666.gina.day.attachments.ui.ImageThumbnail
-import com.sayler666.gina.day.dayDetails.viewmodel.DayDetailsEntity
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditState
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.*
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.Factory
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.Back
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ChangesSaved
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToList
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.NavToListAfterRemoval
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.OpenImagePreview
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOpen
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentsAdded
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendPressed
-import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendSearchQueryChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSaveChangesPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnSetNewDate
+import com.sayler666.gina.day.ui.AttachmentsButton
+import com.sayler666.gina.day.ui.AttachmentsCountLabel
+import com.sayler666.gina.day.ui.DayTopBar
+import com.sayler666.gina.day.ui.FriendsPickerButton
+import com.sayler666.gina.day.ui.MoodButton
+import com.sayler666.gina.day.ui.SaveFab
+import com.sayler666.gina.day.ui.TextFormatButton
+import com.sayler666.gina.day.ui.rememberLauncherForMultipleImages
 import com.sayler666.gina.feature.settings.ui.ImageOptimizationBottomSheet
 import com.sayler666.gina.feature.settings.viewmodel.ImageOptimizationViewModel
 import com.sayler666.gina.navigation.routes.DayDetails
@@ -79,13 +90,16 @@ import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
+import kotlinx.collections.immutable.ImmutableList
+import java.util.UUID
 
 @Composable
 fun DayDetailsEditScreen(
     dayId: Int,
 ) {
+    val key = rememberSaveable { UUID.randomUUID().toString() }
     val viewModel: DayDetailsEditViewModel =
-        hiltViewModel<DayDetailsEditViewModel, Factory>(key = dayId.toString()) {
+        hiltViewModel<DayDetailsEditViewModel, Factory>(key = key) {
             it.create(dayId)
         }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -100,8 +114,8 @@ fun DayDetailsEditScreen(
     val addAttachmentRequest: PickVisualMediaRequest = Builder().setMediaType(ImageOnly).build()
 
     var content by remember { mutableStateOf(TextFieldValue()) }
-    LaunchedEffect(viewState.currentDay?.content != null) {
-        viewState.currentDay?.content?.let { content = TextFieldValue(it) }
+    LaunchedEffect(viewState?.content != null) {
+        viewState?.content?.let { content = TextFieldValue(it) }
     }
 
     val showDeleteConfirmationDialog = remember { mutableStateOf(false) }
@@ -128,7 +142,11 @@ fun DayDetailsEditScreen(
     CollectFlowWithLifecycleEffect(viewModel.viewActions) { action ->
         when (action) {
             Back -> navigator.back()
-            NavToList -> navigator.popUntil { it !is DayDetails && it !is DayDetailsEdit }
+            NavToListAfterRemoval -> {
+                haptics.dayRemoved()
+                navigator.popUntil { it !is DayDetails && it !is DayDetailsEdit }
+            }
+
             ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
             ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
             is OpenImagePreview -> navigator.navigate(
@@ -142,7 +160,7 @@ fun DayDetailsEditScreen(
 
             is ReinitializeText -> content = TextFieldValue(action.content)
             ChangesSaved -> {
-                haptics.writingSuccess()
+                haptics.newDayAdded()
                 navigator.back()
             }
         }
@@ -153,15 +171,23 @@ fun DayDetailsEditScreen(
         textFieldValue = content,
         viewEvent = viewModel::onViewEvent,
         showDeleteConfirmationDialog = showDeleteConfirmationDialog,
+        onFriendsPicked = {
+            viewModel.onViewEvent(
+                ViewEvent.OnFriendsChanged(
+                    it
+                )
+            )
+        },
     )
 }
 
 @Composable
 private fun Content(
-    viewState: ViewState,
+    viewState: DayDetailsEditState?,
     textFieldValue: TextFieldValue,
     viewEvent: (ViewEvent) -> Unit,
     showDeleteConfirmationDialog: MutableState<Boolean>,
+    onFriendsPicked: (List<Friend>) -> Unit,
     imageOptimizationViewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
     val imageOptimizationViewState by imageOptimizationViewModel.viewState.collectAsStateWithLifecycle()
@@ -174,12 +200,12 @@ private fun Content(
     Scaffold(
         Modifier.imePadding(),
         topBar = {
-            viewState.currentDay?.let { day ->
-                TopBar(
-                    dayOfMonth = day.dayOfMonth,
-                    dayOfWeek = day.dayOfWeek,
-                    yearAndMonth = day.yearAndMonth,
-                    hasWorkingCopy = viewState.hasWorkingCopy,
+            viewState?.let { state ->
+                DayTopBar(
+                    dayOfMonth = state.dayOfMonth,
+                    dayOfWeek = state.dayOfWeek,
+                    yearAndMonth = state.yearAndMonth,
+                    hasWorkingCopy = state.hasWorkingCopy,
                     onNavigateBackClicked = { viewEvent(OnBackPressed) },
                     onChangeDateClicked = { showDatePickerPopup.value = true },
                     onRestoreWorkingCopyClicked = { viewEvent(OnRestoreWorkingCopyPressed) }
@@ -187,24 +213,23 @@ private fun Content(
             }
         },
         bottomBar = {
-            viewState.currentDay?.let { day ->
+            viewState?.let { state ->
                 BottomBar(
-                    day,
-                    showDeleteConfirmationDialog,
+                    currentDay = state,
+                    showDeleteConfirmationDialog = showDeleteConfirmationDialog,
                     addAttachmentAction = { viewEvent(OnAttachmentPickerPressed) },
                     addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
                     onSaveChanges = { viewEvent(OnSaveChangesPressed) },
                     onMoodChanged = { viewEvent(OnMoodChanged(it)) },
-                    onSearchChanged = { viewEvent(OnFriendSearchQueryChanged(it)) },
-                    onAddNewFriend = { viewEvent(ViewEvent.OnAddNewFriend(it)) },
-                    onFriendClicked = { id, selected -> viewEvent(OnFriendPressed(id, selected)) },
+                    initialFriends = state.friends,
+                    onFriendsPicked = onFriendsPicked,
                     richTextState = richTextState,
                     showFormatRow = showFormatRow
                 )
             }
         },
         content = { scaffoldPadding ->
-            viewState.currentDay?.let { day ->
+            viewState?.let { state ->
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -212,19 +237,19 @@ private fun Content(
                 ) {
                     DatePickerDialog(
                         showDatePickerPopup.value,
-                        initialDate = day.localDate,
+                        initialDate = state.localDate,
                         onDismiss = { showDatePickerPopup.value = false },
                         onDateChanged = { viewEvent(OnSetNewDate(it)) }
                     )
                     Column {
                         AnimatedVisibility(visible = !isKeyboardOpen) {
                             Attachments(
-                                attachments = day.attachments,
+                                attachments = state.attachments,
                                 onViewEvent = viewEvent
                             )
                         }
-                        AnimatedVisibility(visible = isKeyboardOpen && day.attachments.isNotEmpty()) {
-                            AttachmentsCountLabel(day.attachments.size)
+                        AnimatedVisibility(visible = isKeyboardOpen && state.attachments.isNotEmpty()) {
+                            AttachmentsCountLabel(state.attachments.size)
                         }
                         RichTextEditor(
                             textFieldValue = textFieldValue,
@@ -249,7 +274,7 @@ private fun Content(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Attachments(
-    attachments: List<AttachmentState>,
+    attachments: ImmutableList<AttachmentState>,
     onViewEvent: (ViewEvent) -> Unit,
 ) {
     val context = LocalContext.current
@@ -261,22 +286,22 @@ fun Attachments(
         ) {
             attachments.forEach { attachment ->
                 when (attachment) {
-                    is AttachmentState.AttachmentImageState -> ImageThumbnail(
+                    is AttachmentImageState -> ImageThumbnail(
                         state = attachment,
-                        onClick = {
-                            onViewEvent(OnAttachmentOpen(attachment))
-                        },
+                        onClick = { onViewEvent(OnAttachmentOpen(attachment)) },
                         onRemoveClicked = {
                             onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
                         }
                     )
 
-                    is AttachmentState.AttachmentNonImageState -> FileThumbnail(
+                    is AttachmentNonImageState -> FileThumbnail(
                         state = attachment,
                         onClick = {
-                            attachment.content.let { image ->
-                                openFileIntent(context, image, attachment.mimeType)
-                            }
+                            openFileIntent(
+                                context,
+                                attachment.content,
+                                attachment.mimeType
+                            )
                         },
                         onRemoveClicked = {
                             onViewEvent(OnAttachmentRemove(attachment.content.hashCode()))
@@ -290,20 +315,19 @@ fun Attachments(
 
 @Composable
 private fun BottomBar(
-    currentDay: DayDetailsEntity,
+    currentDay: DayDetailsEditState,
     showDeleteConfirmationDialog: MutableState<Boolean>,
     addAttachmentAction: () -> Unit,
     addAttachmentLongClickAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
-    onSearchChanged: (String) -> Unit,
-    onAddNewFriend: (String) -> Unit,
-    onFriendClicked: (Int, Boolean) -> Unit,
+    initialFriends: ImmutableList<Friend>,
+    onFriendsPicked: (List<Friend>) -> Unit,
     richTextState: RichTextState,
     showFormatRow: MutableState<Boolean>
 ) {
     val haptics = LocalHapticFeedbackManager.current
-    val showMoodPopup = remember { mutableStateOf(false) }
+    val showMoodPopup = rememberSaveable { mutableStateOf(false) }
     Column {
         RichTextStyleRow(
             modifier = Modifier.fillMaxWidth(),
@@ -314,24 +338,15 @@ private fun BottomBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
                 Delete(showDeleteConfirmationDialog)
-
                 VerticalDivider()
-
                 AttachmentsButton(addAttachmentAction, onLongClick = addAttachmentLongClickAction)
-
-                Friends(
-                    friends = currentDay.friendsSelected,
-                    onSearchChanged = onSearchChanged,
-                    onAddNewFriend = onAddNewFriend,
-                    onFriendClicked = onFriendClicked,
-                    allFriends = currentDay.friendsAll,
+                FriendsPickerButton(
+                    initialFriends = initialFriends,
+                    onFriendsPicked = onFriendsPicked,
                 )
-
-                Mood(currentDay.mood ?: Mood.EMPTY, showMoodPopup, onMoodChanged)
-
+                MoodButton(currentDay.mood ?: Mood.EMPTY, showMoodPopup, onMoodChanged)
                 VerticalDivider()
-
-                TextFormat(showFormatRow)
+                TextFormatButton(showFormatRow)
             },
             floatingActionButton = { SaveFab { haptics.tap(); onSaveChanges() } })
     }

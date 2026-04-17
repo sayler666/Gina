@@ -1,8 +1,8 @@
 package com.sayler666.gina.feature.journal.viewmodel
 
+import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.util.LruCache
 import com.sayler666.core.navigation.BottomNavigationVisibilityManager
 import com.sayler666.data.database.db.journal.JournalRepository
 import com.sayler666.data.database.db.journal.usecase.GetDaysUseCase
@@ -28,11 +28,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,7 +48,7 @@ import javax.inject.Inject
 class JournalViewModel @Inject constructor(
     private val getDaysUseCase: GetDaysUseCase,
     private val journalRepository: JournalRepository,
-    private val daysMapper: DaysMapper,
+    private val journalStateMapper: JournalStateMapper,
     private val previousYearsAttachmentsUseCase: PreviousYearsAttachmentsUseCase,
     private val bottomNavigationVisibilityManager: BottomNavigationVisibilityManager,
     private val settingsStorage: SettingsStorage
@@ -86,25 +87,31 @@ class JournalViewModel @Inject constructor(
     private fun observeJournalState() {
         journalStateJob?.cancel()
         journalStateJob = combine(
-            mutableFiltersState,
+            mutableFiltersState.distinctUntilChanged { old, new ->
+                old.searchQuery == new.searchQuery &&
+                old.moods == new.moods &&
+                old.dateRange == new.dateRange
+            },
             previousYearsAttachmentsUseCase(),
             settingsStorage.getIncognitoModeFlow(),
             ::JournalParams
         ).flatMapLatest { (filters, attachments, incognito) ->
             val (dateFrom, dateTo) = filters.dateRange?.toDateBounds() ?: (null to null)
+            val previousYearsAttachments =
+                journalStateMapper.mapPreviousYearsAttachments(attachments)
             getDaysUseCase.getFilteredDaysFlow(
                 searchQuery = filters.searchQuery,
                 moods = filters.moods,
                 dateFrom = dateFrom,
                 dateTo = dateTo,
             ).map { days ->
-                val attachmentIds =
-                    journalRepository.getImageAttachmentIdsForDays(days.map { it.id })
-                daysMapper.toJournalState(
+                val attachmentIds = journalRepository
+                    .getImageAttachmentIdsForDays(days.map { it.id })
+                journalStateMapper.toJournalState(
                     days = days,
                     searchQuery = filters.searchQuery,
                     filtersActive = filters.filtersActive,
-                    previousYearsAttachments = attachments,
+                    previousYearsAttachments = previousYearsAttachments,
                     imageAttachmentIds = attachmentIds,
                     incognitoMode = incognito
                 )

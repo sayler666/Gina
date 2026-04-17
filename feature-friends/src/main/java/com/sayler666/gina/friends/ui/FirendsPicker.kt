@@ -14,7 +14,6 @@ import androidx.compose.ui.window.Dialog
 
 @Composable
 fun FriendsPicker(
-    showPopup: Boolean,
     friends: List<FriendState>,
     searchValue: String,
     onDismiss: () -> Unit,
@@ -23,24 +22,23 @@ fun FriendsPicker(
     onFriendClicked: (Int, Boolean) -> Unit,
     selectable: Boolean = true
 ) {
-    if (showPopup)
-        Dialog(onDismissRequest = { onDismiss() }) {
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .heightIn(100.dp, 350.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-                elevation = CardDefaults.cardElevation(2.dp),
-            ) {
-                FriendsList(
-                    friends = friends,
-                    selectable = selectable,
-                    onFriendClicked = onFriendClicked,
-                    searchValue = searchValue,
-                    onSearchChanged = onSearchChanged,
-                    onAddNewFriend = onAddNewFriend
-                )
-            }
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .heightIn(100.dp, 350.dp),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            elevation = CardDefaults.cardElevation(2.dp),
+        ) {
+            FriendsList(
+                friends = friends,
+                selectable = selectable,
+                onFriendClicked = onFriendClicked,
+                searchValue = searchValue,
+                onSearchChanged = onSearchChanged,
+                onAddNewFriend = onAddNewFriend
+            )
         }
+    }
 }

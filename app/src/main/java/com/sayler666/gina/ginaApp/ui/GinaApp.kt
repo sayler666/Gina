@@ -1,6 +1,7 @@
 package com.sayler666.gina.ginaApp.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
@@ -34,12 +35,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import androidx.compose.ui.platform.LocalContext
 import com.sayler666.core.compose.ANIMATION_DURATION
+import com.sayler666.core.compose.slideInVertically
+import com.sayler666.core.compose.slideOutVertically
 import com.sayler666.core.haptics.HapticFeedbackManagerImpl
 import com.sayler666.core.navigation.BottomBarState.Shown
 import com.sayler666.gina.ginaApp.viewModel.GinaMainViewModel
@@ -135,13 +138,17 @@ private fun AddDayButton(
     val animInfoState by visibilityAnimation.animateAsState(
         visible = viewState.bottomBarState == Shown
     )
-    if (navigator.currentRoute()?.showScaffoldElements == true) {
+    AnimatedVisibility(
+        visible = navigator.currentRoute()?.showScaffoldElements == true,
+        enter = slideInVertically(),
+        exit = slideOutVertically()
+    ) {
         AddDayFab(
             modifier = Modifier
                 .offset(y = animInfoState.yOffset)
                 .scale(animInfoState.alpha)
                 .alpha(animInfoState.alpha),
-            onNavigateToAddDay = {
+            onClick = {
                 haptics.tap()
                 navigator.navigate(AddDay())
             }
@@ -157,7 +164,11 @@ private fun BottomNavigation(
     val navigator = LocalNavigator.current
     val currentRoute = navigator.currentRoute()
 
-    if (currentRoute?.showScaffoldElements == true)
+    AnimatedVisibility(
+        visible = currentRoute?.showScaffoldElements == true,
+        enter = slideInVertically(),
+        exit = slideOutVertically()
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -174,7 +185,8 @@ private fun BottomNavigation(
                 modifier = Modifier
                     .height(BOTTOM_NAV_HEIGHT)
                     .fillMaxWidth(0.95f),
-                color = MaterialTheme.colorScheme.surfaceColorAtElevation(9.dp).copy(alpha = 0.1f),
+                color = MaterialTheme.colorScheme.surfaceColorAtElevation(9.dp)
+                    .copy(alpha = 0.1f),
                 currentRoute = currentRoute,
                 backStack = backStack,
                 hazeState = hazeState,
@@ -185,6 +197,7 @@ private fun BottomNavigation(
                     .windowInsetsBottomHeight(WindowInsets.navigationBars)
             )
         }
+    }
 }
 
 @Composable
