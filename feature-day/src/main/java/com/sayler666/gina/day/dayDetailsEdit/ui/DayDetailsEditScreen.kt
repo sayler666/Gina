@@ -42,6 +42,8 @@ import com.sayler666.core.file.Files.openFileIntent
 import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.gina.attachments.ui.AttachmentState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentImageState
+import com.sayler666.gina.attachments.ui.AttachmentState.AttachmentNonImageState
 import com.sayler666.gina.calendar.ui.DatePickerDialog
 import com.sayler666.gina.day.attachments.ui.FileThumbnail
 import com.sayler666.gina.day.attachments.ui.ImageThumbnail
@@ -55,6 +57,7 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ReinitializeText
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowAttachmentPicker
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewAction.ShowDiscardDialog
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentOpen
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentPickerPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentRemove
@@ -87,6 +90,7 @@ import com.sayler666.gina.ui.dialog.ConfirmationDialog
 import com.sayler666.gina.ui.keyboardAsState
 import com.sayler666.gina.ui.richeditor.RichTextEditor
 import com.sayler666.gina.ui.richeditor.RichTextStyleRow
+import kotlinx.collections.immutable.ImmutableList
 import java.util.UUID
 
 @Composable
@@ -99,7 +103,6 @@ fun DayDetailsEditScreen(
             it.create(dayId)
         }
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-    val initialFriends by viewModel.initialFriends.collectAsStateWithLifecycle()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
     val haptics = LocalHapticFeedbackManager.current
@@ -168,10 +171,9 @@ fun DayDetailsEditScreen(
         textFieldValue = content,
         viewEvent = viewModel::onViewEvent,
         showDeleteConfirmationDialog = showDeleteConfirmationDialog,
-        initialFriends = initialFriends,
         onFriendsPicked = {
             viewModel.onViewEvent(
-                DayDetailsEditViewModel.ViewEvent.OnFriendsChanged(
+                ViewEvent.OnFriendsChanged(
                     it
                 )
             )
@@ -183,9 +185,8 @@ fun DayDetailsEditScreen(
 private fun Content(
     viewState: DayDetailsEditState?,
     textFieldValue: TextFieldValue,
-    viewEvent: (DayDetailsEditViewModel.ViewEvent) -> Unit,
+    viewEvent: (ViewEvent) -> Unit,
     showDeleteConfirmationDialog: MutableState<Boolean>,
-    initialFriends: List<Friend>,
     onFriendsPicked: (List<Friend>) -> Unit,
     imageOptimizationViewModel: ImageOptimizationViewModel = hiltViewModel(),
 ) {
@@ -220,7 +221,7 @@ private fun Content(
                     addAttachmentLongClickAction = { showImageCompressSettingsDialog.value = true },
                     onSaveChanges = { viewEvent(OnSaveChangesPressed) },
                     onMoodChanged = { viewEvent(OnMoodChanged(it)) },
-                    initialFriends = initialFriends,
+                    initialFriends = state.friends,
                     onFriendsPicked = onFriendsPicked,
                     richTextState = richTextState,
                     showFormatRow = showFormatRow
@@ -273,8 +274,8 @@ private fun Content(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Attachments(
-    attachments: List<AttachmentState>,
-    onViewEvent: (DayDetailsEditViewModel.ViewEvent) -> Unit,
+    attachments: ImmutableList<AttachmentState>,
+    onViewEvent: (ViewEvent) -> Unit,
 ) {
     val context = LocalContext.current
     if (attachments.isNotEmpty()) {
@@ -285,7 +286,7 @@ fun Attachments(
         ) {
             attachments.forEach { attachment ->
                 when (attachment) {
-                    is AttachmentState.AttachmentImageState -> ImageThumbnail(
+                    is AttachmentImageState -> ImageThumbnail(
                         state = attachment,
                         onClick = { onViewEvent(OnAttachmentOpen(attachment)) },
                         onRemoveClicked = {
@@ -293,7 +294,7 @@ fun Attachments(
                         }
                     )
 
-                    is AttachmentState.AttachmentNonImageState -> FileThumbnail(
+                    is AttachmentNonImageState -> FileThumbnail(
                         state = attachment,
                         onClick = {
                             openFileIntent(
@@ -320,13 +321,13 @@ private fun BottomBar(
     addAttachmentLongClickAction: () -> Unit,
     onSaveChanges: () -> Unit,
     onMoodChanged: (Mood) -> Unit,
-    initialFriends: List<Friend>,
+    initialFriends: ImmutableList<Friend>,
     onFriendsPicked: (List<Friend>) -> Unit,
     richTextState: RichTextState,
     showFormatRow: MutableState<Boolean>
 ) {
     val haptics = LocalHapticFeedbackManager.current
-    val showMoodPopup = remember { mutableStateOf(false) }
+    val showMoodPopup = rememberSaveable { mutableStateOf(false) }
     Column {
         RichTextStyleRow(
             modifier = Modifier.fillMaxWidth(),

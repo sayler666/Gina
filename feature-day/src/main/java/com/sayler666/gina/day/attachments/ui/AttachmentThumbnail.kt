@@ -180,7 +180,6 @@ fun PreviousYearsAttachmentThumbnail(
     state: AttachmentState.AttachmentImageState,
     text: String,
     onClick: (() -> Unit),
-    onRemoveClicked: (() -> Unit)? = null,
     size: Dp = 125.dp
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -197,7 +196,6 @@ fun PreviousYearsAttachmentThumbnail(
         }
     } else Modifier.fillMaxSize()
 
-    val showRemoveMenu = remember { mutableStateOf(false) }
     Box {
         Card(
             Modifier
@@ -206,7 +204,6 @@ fun PreviousYearsAttachmentThumbnail(
                 .padding(end = 4.dp, bottom = 4.dp)
                 .combinedClickable(
                     onClick = { onClick() },
-                    onLongClick = { if (onRemoveClicked != null) showRemoveMenu.value = true }
                 ),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
             elevation = CardDefaults.cardElevation(8.dp),
@@ -231,14 +228,6 @@ fun PreviousYearsAttachmentThumbnail(
                 )
             }
         }
-        RemoveDropdownMenu(
-            expanded = showRemoveMenu.value,
-            onDismiss = { showRemoveMenu.value = false },
-            onRemoveConfirmed = {
-                showRemoveMenu.value = false
-                onRemoveClicked?.invoke()
-            }
-        )
     }
 }
 

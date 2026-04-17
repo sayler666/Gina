@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -157,6 +156,7 @@ private fun onViewAction(
                 hidden = action.hidden,
             )
         )
+
         ShowAttachmentPicker -> addAttachmentLauncher.launch(addAttachmentRequest)
         ShowDiscardDialog -> showDiscardConfirmationDialog.value = true
         is ReinitializeText -> onReinitializeText(action.content)
@@ -274,16 +274,15 @@ private fun BottomBar(
     autofocusOnContentText: MutableState<Boolean>,
     onFriendsPicked: (List<Friend>) -> Unit,
 ) {
-    val showMoodPopup = remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        delay(300)
-        showMoodPopup.value = true
-    }
+    val showMoodPopup = rememberSaveable { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
 
     Column {
-        RichTextStyleRow(modifier = Modifier.fillMaxWidth(), state = richTextState, showFormatRow = showFormatRow)
+        RichTextStyleRow(
+            modifier = Modifier.fillMaxWidth(),
+            state = richTextState,
+            showFormatRow = showFormatRow
+        )
         BottomAppBar(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
             actions = {
@@ -292,7 +291,7 @@ private fun BottomBar(
                     onLongClick = { showImageCompressSettingsDialog.value = true }
                 )
                 FriendsPickerButton(
-                    initialFriends = emptyList(),
+                    initialFriends = state.friends,
                     onFriendsPicked = onFriendsPicked,
                 )
                 MoodButton(
@@ -342,6 +341,7 @@ fun Attachments(
                             viewEvent(OnAttachmentRemove(attachment.content.hashCode()))
                         }
                     )
+
                     is AttachmentNonImageState -> FileThumbnail(
                         state = attachment,
                         onClick = {

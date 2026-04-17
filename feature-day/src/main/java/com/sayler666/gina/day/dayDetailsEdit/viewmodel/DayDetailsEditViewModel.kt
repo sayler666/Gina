@@ -22,6 +22,7 @@ import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.V
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnAttachmentsAdded
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnBackPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnContentChanged
+import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnFriendsChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnMoodChanged
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRemoveDayPressed
 import com.sayler666.gina.day.dayDetailsEdit.viewmodel.DayDetailsEditViewModel.ViewEvent.OnRestoreWorkingCopyPressed
@@ -62,14 +63,10 @@ class DayDetailsEditViewModel @AssistedInject constructor(
     private val mutableViewActions = Channel<ViewAction>(Channel.BUFFERED)
     val viewActions = mutableViewActions.receiveAsFlow()
 
-    private val _initialFriends = MutableStateFlow<List<Friend>>(emptyList())
-    val initialFriends: StateFlow<List<Friend>> = _initialFriends.asStateFlow()
-
     init {
         viewModelScope.launch {
             getDayDetailsUseCase.getDayDetails(dayId)
                 .onSuccess { day ->
-                    _initialFriends.value = day.friends
                     session.initialize(viewModelScope, day)
                     observeViewState()
                 }
@@ -105,7 +102,7 @@ class DayDetailsEditViewModel @AssistedInject constructor(
             is OnSetNewDate -> session.setDate(event.date)
             is OnAttachmentOptimize -> session.optimizeAttachment(event.attachmentHash)
             is OnAttachmentOpen -> mutableViewActions.trySend(OpenImagePreview(event.attachment))
-            is ViewEvent.OnFriendsChanged -> session.setFriends(event.friends)
+            is OnFriendsChanged -> session.setFriends(event.friends)
         }
     }
 

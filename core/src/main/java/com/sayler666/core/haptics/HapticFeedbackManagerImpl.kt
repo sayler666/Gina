@@ -38,7 +38,7 @@ class HapticFeedbackManagerImpl(context: Context) : HapticFeedbackManager {
     override fun newDayAdded() {
         pulsar.getPresets().typewriter()
         if (scribbleSoundId != 0) {
-            soundPool.play(scribbleSoundId, 0.2f, 0.2f, 1, 0, 1.0f)
+            soundPool.play(scribbleSoundId, 0.6f, 0.6f, 1, 0, 1.0f)
         }
     }
 
