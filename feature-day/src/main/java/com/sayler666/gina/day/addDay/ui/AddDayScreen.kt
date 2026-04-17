@@ -307,7 +307,9 @@ private fun BottomBar(
                 VerticalDivider()
                 TextFormatButton(showFormatRow)
             },
-            floatingActionButton = { SaveFab { viewEvent(OnSaveChangesPressed) } }
+            floatingActionButton = {
+                SaveFab { viewEvent(OnSaveChangesPressed) }
+            }
         )
     }
 }

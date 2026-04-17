@@ -148,7 +148,7 @@ private fun AddDayButton(
                 .offset(y = animInfoState.yOffset)
                 .scale(animInfoState.alpha)
                 .alpha(animInfoState.alpha),
-            onNavigateToAddDay = {
+            onClick = {
                 haptics.tap()
                 navigator.navigate(AddDay())
             }
