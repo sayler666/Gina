@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sayler666.gina.attachments.ui.AttachmentState
@@ -24,7 +23,7 @@ typealias HorizontalImagesCarouselState = ImmutableList<ImageAttachmentState>
 
 @Composable
 fun HorizontalImagesCarousel(
-    state:  ImmutableList<ImageAttachmentState>,
+    state: ImmutableList<ImageAttachmentState>,
     label: (ImageAttachmentState) -> String,
     onImageClick: (Int) -> Unit
 ) {
@@ -36,12 +35,13 @@ fun HorizontalImagesCarousel(
         content = {
             items(state, key = { it.state.id ?: it.hashCode() }) { attachment ->
                 PreviousYearsAttachmentThumbnail(
-                    attachment.state,
+                    state = attachment.state,
                     size = 120.dp,
                     text = label(attachment),
                     onClick = {
                         attachment.state.id?.let { onImageClick(it) }
-                    })
+                    }
+                )
             }
         })
 }

@@ -5,10 +5,14 @@ import com.sayler666.core.date.getDayOfWeek
 import com.sayler666.core.date.getYearAndMonth
 import com.sayler666.domain.model.journal.Attachment
 import com.sayler666.domain.model.journal.DayDetails
+import com.sayler666.domain.model.journal.Friend
 import com.sayler666.domain.model.journal.Mood
 import com.sayler666.domain.model.quotes.Quote
 import com.sayler666.gina.attachments.ui.AttachmentState
 import com.sayler666.gina.day.attachments.viewmodel.toState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import java.time.LocalDate
 
 data class AddDayState(
@@ -21,7 +25,8 @@ data class AddDayState(
     val mood: Mood = Mood.EMPTY,
     val attachments: List<AttachmentState> = emptyList(),
     val quote: Quote?,
-    val workingCopyExists: Boolean
+    val workingCopyExists: Boolean,
+    val friends: ImmutableList<Friend> = persistentListOf(),
 )
 
 fun DayDetails.toAddDayState(quote: Quote?, hasWorkingCopy: Boolean) =  AddDayState(
@@ -34,5 +39,6 @@ fun DayDetails.toAddDayState(quote: Quote?, hasWorkingCopy: Boolean) =  AddDaySt
     attachments = attachments.map(Attachment::toState),
     mood = day.mood,
     quote = quote,
-    workingCopyExists = hasWorkingCopy
+    workingCopyExists = hasWorkingCopy,
+    friends = friends.toImmutableList(),
 )

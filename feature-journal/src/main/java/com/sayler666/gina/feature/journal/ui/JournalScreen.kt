@@ -109,10 +109,12 @@ fun JournalScreen() {
                 haptics.tap()
                 navigator.navigate(DayDetails(action.dayId))
             }
+
             is NavToDayEdit -> {
                 haptics.swipe()
                 navigator.navigate(DayDetailsEdit(action.dayId))
             }
+
             is NavToAttachmentPreview -> navigator.navigate(
                 ImagePreview(action.imageId, ImagePreviewSource.Journal(action.attachmentIds))
             )
