@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -86,7 +87,11 @@ class JournalViewModel @Inject constructor(
     private fun observeJournalState() {
         journalStateJob?.cancel()
         journalStateJob = combine(
-            mutableFiltersState,
+            mutableFiltersState.distinctUntilChanged { old, new ->
+                old.searchQuery == new.searchQuery &&
+                old.moods == new.moods &&
+                old.dateRange == new.dateRange
+            },
             previousYearsAttachmentsUseCase(),
             settingsStorage.getIncognitoModeFlow(),
             ::JournalParams
