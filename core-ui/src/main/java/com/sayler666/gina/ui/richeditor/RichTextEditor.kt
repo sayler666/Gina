@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -71,7 +72,7 @@ fun RichTextEditor(
     LaunchedEffect(richTextState.annotatedString) {
         if (callOnContentChanged) {
             onContentChanged(richTextState.toHtml())
-            Timber.d("conetnt:" + richTextState.toHtml())
+            Timber.d("content:" + richTextState.toHtml())
         }
         callOnContentChanged = true
     }
@@ -89,13 +90,16 @@ fun RichTextEditor(
                     richTextState.toHtml()
                         .getTextWithoutHtml()
                 )
-                Box {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     QuoteWithAuthor(
                         quote = quote,
                         visible = richTextState.toHtml().getTextWithoutHtml()
                             .isEmpty() && quote != null,
                         onClick = { quote ->
                             richTextState.setHtml(quote.toHtml())
+                            richTextState.addParagraphStyle(
+                                ParagraphStyle(textAlign = TextAlign.Start)
+                            )
                         }
                     )
                     innerTextField()
@@ -105,9 +109,8 @@ fun RichTextEditor(
     )
 }
 
-private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote<i></p>" +
-        "<p style=\"text-align: center;\"><b>—$author</b></p>" +
-        "<p style=\"text-align: left;\"><br></p>"
+private fun Quote.toHtml() = "<p style=\"text-align: center;\"><i>$quote</i></p>" +
+        "<p style=\"text-align: center;\"><b>—$author</b></p><br><br>"
 
 @Preview(backgroundColor = 0xFF009688)
 @Composable
