@@ -70,7 +70,10 @@
       "Bash(sed 's/Preset.kt//g')",
       "Bash(sed 's/,$//')",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:docs.swmansion.com)"
+      "WebFetch(domain:docs.swmansion.com)",
+      "Bash(git reset *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Test-Path *)"
     ]
   }
 }

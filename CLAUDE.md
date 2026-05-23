@@ -121,3 +121,46 @@ private fun Content(state: ViewState?, viewEvent: (ViewEvent) -> Unit) {
 - Route params via `@AssistedInject` + `@HiltViewModel(assistedFactory = ...)`
 
 ---
+
+## Banned Antipatterns
+
+| Banned | Fix |
+|--------|-----|
+| `mutableViewState.value = newState` | `mutableViewState.update { it.copy(...) }` |
+| `GlobalScope.launch { }` | `viewModelScope.launch { }` |
+| ViewModel as composable param | Pass `(ViewEvent) -> Unit` lambda only |
+| `@Entity` on domain model | Entity in `data-database/`, map in repository |
+| `collectAsState()` | `collectAsStateWithLifecycle()` |
+| `Text("Save")` hardcoded | `stringResource(R.string.feature_save)` |
+| `fontSize = 16.sp` hardcoded | `MaterialTheme.typography.bodyLarge` |
+| God ViewModel (>200 lines) | Split screen or extract UseCases |
+| Feature module depending on feature module | Only depend on `core-*` and `domain-model` |
+
+---
+
+## Compose Performance
+
+**Recomposition:**
+
+- Annotate all `ViewState` / `UiState` data classes with `@Immutable`
+- Use `remember(key) { derivedStateOf { } }` for expensive computed values
+- Extract sub-composables to create separate recomposition scopes
+
+**LazyColumn:**
+
+- Always `key = { it.id }` on every `items()`
+- Add `contentType` when row layouts differ
+- Stable lambdas: `remember(id) { { onEvent(ItemClicked(id)) } }`
+- Never sort/filter inline in `items { }` — do it in ViewModel
+
+---
+
+## UseCase Rules
+
+| Create UseCase | Skip UseCase |
+|----------------|--------------|
+| Logic shared by 2+ ViewModels | Single-line repository delegate |
+| Multi-repository orchestration | One ViewModel, one repository |
+| Needs isolated unit test | Simple CRUD with no extra logic |
+
+---
