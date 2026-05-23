@@ -49,6 +49,7 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
 import com.sayler666.core.compose.conditional
 import com.sayler666.core.string.containsHtml
+import com.sayler666.core.string.decodeHtmlEntitiesPreservingTags
 import com.sayler666.core.string.getTextWithoutHtml
 import com.sayler666.domain.model.quotes.Quote
 import timber.log.Timber
@@ -71,8 +72,9 @@ fun RichTextEditor(
 
     LaunchedEffect(richTextState.annotatedString) {
         if (callOnContentChanged) {
-            onContentChanged(richTextState.toHtml())
-            Timber.d("content:" + richTextState.toHtml())
+            val html = richTextState.toHtml().decodeHtmlEntitiesPreservingTags()
+            onContentChanged(html)
+            Timber.d("content:$html")
         }
         callOnContentChanged = true
     }

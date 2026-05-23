@@ -24,7 +24,7 @@ object JournalDatabaseModule {
             app.getDatabasePath(DatabaseFileManager.DB_NAME).absolutePath
         )
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(GinaDatabase.MIGRATION_1_2)
+            .addMigrations(GinaDatabase.MIGRATION_1_2, GinaDatabase.MIGRATION_2_3)
             .build()
 
     @Provides

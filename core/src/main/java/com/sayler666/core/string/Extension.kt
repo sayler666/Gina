@@ -1,11 +1,22 @@
 package com.sayler666.core.string
 
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Entities
 
 fun String.getTextWithoutHtml(): String =
     if (containsHtml()) Jsoup.parse(this).text() else this
 
 fun String.containsHtml(): Boolean = contains("<")
+
+fun String.decodeHtmlEntitiesPreservingTags(): String {
+    if (isEmpty()) return this
+    val doc = Jsoup.parseBodyFragment(this)
+    doc.outputSettings()
+        .charset(Charsets.UTF_8)
+        .escapeMode(Entities.EscapeMode.xhtml)
+        .prettyPrint(false)
+    return doc.body().html()
+}
 
 fun String.scrambleText(shift: Int = 13): String =
     map { char ->
